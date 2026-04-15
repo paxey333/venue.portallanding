@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VENUE PORTAL — Underground Show Infrastructure</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #080808;
+    --deep: #0c0c0c;
+    --surface: #111;
+    --surface2: #161616;
+    --border: #1c1c1c;
+    --border-mid: #272727;
+    --white: #e8e4de;
+    --white-dim: #6e6b66;
+    --white-faint: #252320;
+    --red: #c0392b;
+    --red-dim: #6b1f18;
+  }
+
+- { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+body {
+background: var(–black);
+color: var(–white);
+font-family: ‘IBM Plex Mono’, monospace;
+overflow-x: hidden;
+}
+
+/* grain */
+body::after {
+content: ‘’;
+position: fixed;
+inset: 0;
+pointer-events: none;
+z-index: 999;
+opacity: 0.4;
+background-image: url(“data:image/svg+xml,%3Csvg xmlns=‘http://www.w3.org/2000/svg’ width=‘300’ height=‘300’%3E%3Cfilter id=‘g’%3E%3CfeTurbulence type=‘fractalNoise’ baseFrequency=‘0.75’ numOctaves=‘4’ stitchTiles=‘stitch’/%3E%3CfeColorMatrix type=‘saturate’ values=‘0’/%3E%3C/filter%3E%3Crect width=‘300’ height=‘300’ filter=‘url(%23g)’ opacity=‘0.12’/%3E%3C/svg%3E”);
+mix-blend-mode: overlay;
+}
+
+/* NAV */
+nav {
+position: fixed;
+top: 0; left: 0; right: 0;
+z-index: 200;
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 0 40px;
+height: 60px;
+border-bottom: 1px solid var(–border);
+background: rgba(8,8,8,0.96);
+backdrop-filter: blur(10px);
+}
+.nav-logo {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 18px;
+letter-spacing: 0.1em;
+color: var(–white);
+}
+.nav-logo span { color: var(–red); }
+.nav-links {
+display: flex;
+align-items: center;
+gap: 32px;
+}
+.nav-links a {
+font-size: 10px;
+letter-spacing: 0.18em;
+text-transform: uppercase;
+color: var(–white-dim);
+text-decoration: none;
+transition: color 0.2s;
+}
+.nav-links a:hover { color: var(–white); }
+.nav-book {
+font-size: 10px;
+letter-spacing: 0.18em;
+text-transform: uppercase;
+color: var(–white) !important;
+border: 1px solid var(–border-mid);
+padding: 8px 16px;
+transition: all 0.2s !important;
+}
+.nav-book:hover {
+background: var(–white) !important;
+color: var(–black) !important;
+border-color: var(–white) !important;
+}
+
+/* HERO */
+.hero {
+margin-top: 60px;
+min-height: 88vh;
+display: grid;
+grid-template-columns: 1fr 1fr;
+border-bottom: 1px solid var(–border);
+}
+.hero-left {
+padding: 72px 48px;
+border-right: 1px solid var(–border);
+display: flex;
+flex-direction: column;
+justify-content: space-between;
+}
+.hero-tag {
+font-size: 9px;
+letter-spacing: 0.3em;
+text-transform: uppercase;
+color: var(–red);
+display: flex;
+align-items: center;
+gap: 12px;
+opacity: 0;
+animation: fadeUp 0.6s ease 0.1s forwards;
+}
+.hero-tag::before {
+content: ‘’;
+width: 24px;
+height: 1px;
+background: var(–red);
+}
+.hero-main {
+opacity: 0;
+animation: fadeUp 0.6s ease 0.25s forwards;
+}
+.hero-main h1 {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: clamp(64px, 9vw, 120px);
+line-height: 0.9;
+letter-spacing: 0.01em;
+color: var(–white);
+margin-bottom: 32px;
+}
+.hero-main h1 .ghost {
+color: transparent;
+-webkit-text-stroke: 1px rgba(232,228,222,0.18);
+display: block;
+}
+.hero-main p {
+font-family: ‘IBM Plex Sans’, sans-serif;
+font-size: 14px;
+line-height: 1.8;
+color: var(–white-dim);
+font-weight: 300;
+max-width: 400px;
+}
+.hero-main p strong { color: var(–white); font-weight: 400; }
+.hero-bottom {
+display: flex;
+gap: 12px;
+opacity: 0;
+animation: fadeUp 0.6s ease 0.4s forwards;
+}
+.btn-primary {
+font-size: 11px;
+letter-spacing: 0.18em;
+text-transform: uppercase;
+color: var(–black);
+background: var(–white);
+padding: 14px 28px;
+text-decoration: none;
+transition: all 0.2s;
+font-family: ‘IBM Plex Mono’, monospace;
+}
+.btn-primary:hover { background: var(–red); color: var(–white); }
+.btn-outline {
+font-size: 11px;
+letter-spacing: 0.18em;
+text-transform: uppercase;
+color: var(–white-dim);
+border: 1px solid var(–border-mid);
+padding: 14px 28px;
+text-decoration: none;
+transition: all 0.2s;
+font-family: ‘IBM Plex Mono’, monospace;
+}
+.btn-outline:hover { color: var(–white); border-color: var(–white); }
+
+/* hero right — space visual */
+.hero-right {
+padding: 72px 48px;
+display: flex;
+flex-direction: column;
+gap: 16px;
+justify-content: center;
+}
+.space-card {
+border: 1px solid var(–border);
+background: var(–surface);
+padding: 24px;
+display: flex;
+align-items: center;
+gap: 20px;
+transition: background 0.2s, border-color 0.2s;
+opacity: 0;
+animation: fadeUp 0.5s ease var(–delay, 0.4s) forwards;
+}
+.space-card:hover { background: var(–surface2); border-color: var(–border-mid); }
+.space-icon {
+width: 48px;
+height: 48px;
+border: 1px solid var(–border-mid);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 20px;
+flex-shrink: 0;
+filter: grayscale(1);
+}
+.space-info h4 {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 20px;
+letter-spacing: 0.05em;
+color: var(–white);
+line-height: 1;
+margin-bottom: 4px;
+}
+.space-info p {
+font-size: 10px;
+letter-spacing: 0.1em;
+text-transform: uppercase;
+color: var(–white-dim);
+}
+.space-status {
+margin-left: auto;
+font-size: 9px;
+letter-spacing: 0.15em;
+text-transform: uppercase;
+padding: 5px 10px;
+border: 1px solid;
+flex-shrink: 0;
+}
+.status-open { color: #4a9; border-color: #2a5a3a; background: rgba(40,90,60,0.15); }
+.status-hold { color: var(–white-dim); border-color: var(–border-mid); }
+.status-booked { color: var(–red); border-color: var(–red-dim); background: rgba(100,20,15,0.15); }
+
+/* STATS BAR */
+.stats-bar {
+display: grid;
+grid-template-columns: repeat(4, 1fr);
+border-bottom: 1px solid var(–border);
+}
+.stat {
+padding: 28px 32px;
+border-right: 1px solid var(–border);
+}
+.stat:last-child { border-right: none; }
+.stat-n {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 40px;
+color: var(–white);
+line-height: 1;
+margin-bottom: 4px;
+}
+.stat-n span { color: var(–red); }
+.stat-label {
+font-size: 9px;
+letter-spacing: 0.2em;
+text-transform: uppercase;
+color: var(–white-dim);
+}
+
+/* SECTION */
+.sec { padding: 88px 40px; }
+.sec-label {
+font-size: 9px;
+letter-spacing: 0.35em;
+text-transform: uppercase;
+color: var(–red);
+margin-bottom: 48px;
+display: flex;
+align-items: center;
+gap: 14px;
+}
+.sec-label::after {
+content: ‘’;
+flex: 1;
+height: 1px;
+background: var(–border);
+}
+
+/* VENUES GRID */
+.venues-sec { border-bottom: 1px solid var(–border); }
+.venues-grid {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 1px;
+background: var(–border);
+border: 1px solid var(–border);
+}
+.venue-card {
+background: var(–deep);
+padding: 36px 28px;
+transition: background 0.2s;
+position: relative;
+overflow: hidden;
+}
+.venue-card:hover { background: var(–surface); }
+.venue-card::after {
+content: ‘’;
+position: absolute;
+bottom: 0; left: 0; right: 0;
+height: 1px;
+background: linear-gradient(90deg, var(–red), transparent);
+transform: scaleX(0);
+transform-origin: left;
+transition: transform 0.4s;
+}
+.venue-card:hover::after { transform: scaleX(1); }
+.venue-type {
+font-size: 9px;
+letter-spacing: 0.2em;
+text-transform: uppercase;
+color: var(–white-dim);
+margin-bottom: 16px;
+}
+.venue-name {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 28px;
+letter-spacing: 0.03em;
+color: var(–white);
+line-height: 1;
+margin-bottom: 12px;
+}
+.venue-desc {
+font-family: ‘IBM Plex Sans’, sans-serif;
+font-size: 12px;
+line-height: 1.7;
+color: var(–white-dim);
+font-weight: 300;
+margin-bottom: 24px;
+}
+.venue-specs {
+display: flex;
+flex-direction: column;
+gap: 8px;
+margin-bottom: 28px;
+}
+.venue-spec {
+display: flex;
+justify-content: space-between;
+font-size: 10px;
+letter-spacing: 0.08em;
+padding-bottom: 8px;
+border-bottom: 1px solid var(–border);
+color: var(–white-dim);
+}
+.venue-spec span:last-child { color: var(–white); }
+.venue-book-btn {
+font-size: 10px;
+letter-spacing: 0.18em;
+text-transform: uppercase;
+color: var(–white-dim);
+text-decoration: none;
+border: 1px solid var(–border-mid);
+padding: 10px 0;
+display: block;
+text-align: center;
+transition: all 0.2s;
+}
+.venue-book-btn:hover { color: var(–white); border-color: var(–white); }
+
+/* BOOKING FLOW */
+.booking-sec {
+background: var(–deep);
+border-bottom: 1px solid var(–border);
+}
+.booking-grid {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 80px;
+align-items: start;
+}
+.booking-left h2 {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: clamp(44px, 6vw, 72px);
+line-height: 0.92;
+letter-spacing: 0.02em;
+color: var(–white);
+margin-bottom: 20px;
+}
+.booking-left h2 .r { color: var(–red); }
+.booking-left p {
+font-family: ‘IBM Plex Sans’, sans-serif;
+font-size: 14px;
+line-height: 1.8;
+color: var(–white-dim);
+font-weight: 300;
+margin-bottom: 12px;
+}
+.booking-left p strong { color: var(–white); font-weight: 400; }
+
+/* BOOKING FORM */
+.booking-form {
+border: 1px solid var(–border);
+background: var(–surface);
+}
+.form-header {
+padding: 20px 24px;
+border-bottom: 1px solid var(–border);
+font-size: 10px;
+letter-spacing: 0.2em;
+text-transform: uppercase;
+color: var(–white-dim);
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+.form-header span { color: var(–red); }
+.form-body { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group.full { grid-column: 1 / -1; }
+.form-label {
+font-size: 9px;
+letter-spacing: 0.2em;
+text-transform: uppercase;
+color: var(–white-dim);
+}
+.form-input {
+background: var(–deep);
+border: 1px solid var(–border);
+color: var(–white);
+font-family: ‘IBM Plex Mono’, monospace;
+font-size: 12px;
+padding: 12px 14px;
+outline: none;
+transition: border-color 0.2s;
+width: 100%;
+}
+.form-input:focus { border-color: var(–white-dim); }
+.form-input::placeholder { color: var(–white-faint); }
+select.form-input { cursor: pointer; appearance: none; }
+textarea.form-input { resize: vertical; min-height: 80px; }
+.form-submit {
+background: var(–white);
+color: var(–black);
+border: none;
+font-family: ‘IBM Plex Mono’, monospace;
+font-size: 11px;
+letter-spacing: 0.2em;
+text-transform: uppercase;
+padding: 16px;
+cursor: pointer;
+transition: all 0.2s;
+width: 100%;
+}
+.form-submit:hover { background: var(–red); color: var(–white); }
+.form-note {
+font-size: 10px;
+color: var(–white-dim);
+text-align: center;
+font-weight: 300;
+padding: 0 24px 20px;
+line-height: 1.5;
+}
+
+/* RULES */
+.rules-sec { border-bottom: 1px solid var(–border); }
+.rules-grid {
+display: grid;
+grid-template-columns: repeat(2, 1fr);
+gap: 1px;
+background: var(–border);
+border: 1px solid var(–border);
+}
+.rule-block {
+background: var(–deep);
+padding: 32px 28px;
+transition: background 0.2s;
+}
+.rule-block:hover { background: var(–surface); }
+.rule-icon {
+font-size: 18px;
+margin-bottom: 14px;
+filter: grayscale(1);
+}
+.rule-title {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 20px;
+letter-spacing: 0.04em;
+color: var(–white);
+margin-bottom: 10px;
+}
+.rule-text {
+font-family: ‘IBM Plex Sans’, sans-serif;
+font-size: 12px;
+line-height: 1.7;
+color: var(–white-dim);
+font-weight: 300;
+}
+
+/* FAQ */
+.faq-sec { border-bottom: 1px solid var(–border); background: var(–deep); }
+.faq-list { display: flex; flex-direction: column; }
+.faq-item {
+border-bottom: 1px solid var(–border);
+overflow: hidden;
+}
+.faq-item:last-child { border-bottom: none; }
+.faq-q {
+padding: 24px 0;
+display: flex;
+justify-content: space-between;
+align-items: center;
+cursor: pointer;
+font-size: 13px;
+letter-spacing: 0.05em;
+color: var(–white);
+transition: color 0.2s;
+user-select: none;
+}
+.faq-q:hover { color: var(–white-dim); }
+.faq-toggle {
+font-size: 18px;
+color: var(–red);
+transition: transform 0.3s;
+flex-shrink: 0;
+}
+.faq-item.open .faq-toggle { transform: rotate(45deg); }
+.faq-a {
+font-family: ‘IBM Plex Sans’, sans-serif;
+font-size: 13px;
+line-height: 1.8;
+color: var(–white-dim);
+font-weight: 300;
+max-height: 0;
+overflow: hidden;
+transition: max-height 0.4s ease, padding 0.3s ease;
+padding: 0;
+}
+.faq-item.open .faq-a { max-height: 200px; padding-bottom: 24px; }
+
+/* FOOTER */
+footer {
+padding: 28px 40px;
+border-top: 1px solid var(–border);
+display: flex;
+justify-content: space-between;
+align-items: center;
+background: var(–deep);
+}
+.footer-logo {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 16px;
+letter-spacing: 0.1em;
+color: var(–white-dim);
+}
+.footer-logo span { color: var(–red-dim); }
+.footer-note {
+font-size: 9px;
+letter-spacing: 0.18em;
+text-transform: uppercase;
+color: var(–white-faint);
+}
+
+@keyframes fadeUp {
+from { opacity: 0; transform: translateY(16px); }
+to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 960px) {
+nav { padding: 0 20px; }
+.hero { grid-template-columns: 1fr; min-height: auto; }
+.hero-left { padding: 48px 20px; border-right: none; border-bottom: 1px solid var(–border); }
+.hero-right { padding: 32px 20px; }
+.stats-bar { grid-template-columns: repeat(2, 1fr); }
+.sec { padding: 64px 20px; }
+.venues-grid { grid-template-columns: 1fr; }
+.booking-grid { grid-template-columns: 1fr; gap: 40px; }
+.rules-grid { grid-template-columns: 1fr; }
+.form-row { grid-template-columns: 1fr; }
+footer { flex-direction: column; gap: 10px; text-align: center; }
+}
+</style>
+
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">VENUE<span>PORTAL</span></div>
+  <div class="nav-links">
+    <a href="#spaces">Spaces</a>
+    <a href="#rules">House Rules</a>
+    <a href="#faq">FAQ</a>
+    <a href="#booking" class="nav-book">Book A Date</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-tag">Underground Venue Infrastructure — SoCal</div>
+    <div class="hero-main">
+      <h1>
+        YOUR<br>
+        <span class="ghost">SPACE.</span><br>
+        LEGIT.
+      </h1>
+      <p>
+        Professional booking infrastructure for underground venues. <strong>Check availability, submit your date, get confirmed.</strong> We handle the organization behind the room so you can focus on what happens inside it.
+      </p>
+    </div>
+    <div class="hero-bottom">
+      <a href="#booking" class="btn-primary">Check Availability</a>
+      <a href="#spaces" class="btn-outline">View Spaces</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="space-card" style="--delay:0.45s">
+      <div class="space-icon">🏛</div>
+      <div class="space-info">
+        <h4>The Warehouse</h4>
+        <p>Capacity 300 — Industrial / Open Floor</p>
+      </div>
+      <div class="space-status status-open">Available</div>
+    </div>
+    <div class="space-card" style="--delay:0.55s">
+      <div class="space-icon">🎙</div>
+      <div class="space-info">
+        <h4>Back Room</h4>
+        <p>Capacity 80 — Intimate / Stage</p>
+      </div>
+      <div class="space-status status-hold">On Hold</div>
+    </div>
+    <div class="space-card" style="--delay:0.65s">
+      <div class="space-icon">🔊</div>
+      <div class="space-info">
+        <h4>The Lot</h4>
+        <p>Capacity 500 — Outdoor / Flexible</p>
+      </div>
+      <div class="space-status status-open">Available</div>
+    </div>
+    <div class="space-card" style="--delay:0.75s">
+      <div class="space-icon">🎚</div>
+      <div class="space-info">
+        <h4>Studio A</h4>
+        <p>Capacity 40 — Private / Listening</p>
+      </div>
+      <div class="space-status status-booked">Booked</div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+
+<div class="stats-bar">
+  <div class="stat">
+    <div class="stat-n">24<span>hr</span></div>
+    <div class="stat-label">Booking Response</div>
+  </div>
+  <div class="stat">
+    <div class="stat-n">$<span>0</span></div>
+    <div class="stat-label">Hidden Fees</div>
+  </div>
+  <div class="stat">
+    <div class="stat-n">100<span>%</span></div>
+    <div class="stat-label">Your Buyer Data</div>
+  </div>
+  <div class="stat">
+    <div class="stat-n">48<span>hr</span></div>
+    <div class="stat-label">Ticketing Live</div>
+  </div>
+</div>
+
+<!-- SPACES -->
+
+<section class="sec venues-sec" id="spaces">
+  <div class="sec-label">Available Spaces</div>
+  <div class="venues-grid">
+    <div class="venue-card">
+      <div class="venue-type">Main Room</div>
+      <div class="venue-name">The Warehouse</div>
+      <div class="venue-desc">Industrial open-floor space. Raw concrete, high ceilings, full PA system. Built for heavy shows and large crowds.</div>
+      <div class="venue-specs">
+        <div class="venue-spec"><span>Capacity</span><span>Up to 300</span></div>
+        <div class="venue-spec"><span>Load-In</span><span>4 hours prior</span></div>
+        <div class="venue-spec"><span>Sound System</span><span>Full PA included</span></div>
+        <div class="venue-spec"><span>Parking</span><span>Adjacent lot</span></div>
+      </div>
+      <a href="#booking" class="venue-book-btn">Request This Space</a>
+    </div>
+    <div class="venue-card">
+      <div class="venue-type">Intimate Room</div>
+      <div class="venue-name">Back Room</div>
+      <div class="venue-desc">Tight, close-quarters space with a proper stage. Built for sets where the energy needs to be contained and focused.</div>
+      <div class="venue-specs">
+        <div class="venue-spec"><span>Capacity</span><span>Up to 80</span></div>
+        <div class="venue-spec"><span>Load-In</span><span>2 hours prior</span></div>
+        <div class="venue-spec"><span>Sound System</span><span>In-house monitors</span></div>
+        <div class="venue-spec"><span>Stage</span><span>Raised / 12x8ft</span></div>
+      </div>
+      <a href="#booking" class="venue-book-btn">Request This Space</a>
+    </div>
+    <div class="venue-card">
+      <div class="venue-type">Outdoor</div>
+      <div class="venue-name">The Lot</div>
+      <div class="venue-desc">Open outdoor space. Flexible layout, expandable capacity. Works for larger builds with room for production.</div>
+      <div class="venue-specs">
+        <div class="venue-spec"><span>Capacity</span><span>Up to 500</span></div>
+        <div class="venue-spec"><span>Setup</span><span>Flexible / open</span></div>
+        <div class="venue-spec"><span>Sound</span><span>Bring your own rig</span></div>
+        <div class="venue-spec"><span>Access</span><span>Full-day block</span></div>
+      </div>
+      <a href="#booking" class="venue-book-btn">Request This Space</a>
+    </div>
+  </div>
+</section>
+
+<!-- BOOKING -->
+
+<section class="sec booking-sec" id="booking">
+  <div class="sec-label">Request A Date</div>
+  <div class="booking-grid">
+    <div class="booking-left">
+      <h2>BOOK<br>YOUR<br><span class="r">DATE.</span></h2>
+      <p>Fill out the form with your event details. <strong>We respond within 24 hours</strong> with availability confirmation and next steps.</p>
+      <p>All bookings include access to our ticketing infrastructure through <strong>Underground Showtime</strong> — optional but available from the moment your date is confirmed.</p>
+    </div>
+    <div class="booking-form">
+      <div class="form-header">
+        Booking Inquiry <span>Response within 24hrs</span>
+      </div>
+      <div class="form-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Your Name</label>
+            <input type="text" class="form-input" placeholder="Full name">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Contact</label>
+            <input type="text" class="form-input" placeholder="Email or IG handle">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Event Date</label>
+            <input type="date" class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Space</label>
+            <select class="form-input">
+              <option value="">Select a space</option>
+              <option>The Warehouse (300 cap)</option>
+              <option>Back Room (80 cap)</option>
+              <option>The Lot (500 cap)</option>
+              <option>Not sure yet</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Expected Attendance</label>
+            <input type="text" class="form-input" placeholder="Rough headcount">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Event Type</label>
+            <select class="form-input">
+              <option value="">Select type</option>
+              <option>Rap / Hip-Hop</option>
+              <option>Electronic / DJ Set</option>
+              <option>Mixed / Multi-Artist</option>
+              <option>Private Event</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Tell Us About The Show</label>
+          <textarea class="form-input" placeholder="Artists, vibe, any specific needs..."></textarea>
+        </div>
+        <button class="form-submit">Submit Booking Request</button>
+      </div>
+      <p class="form-note">Submitting this form does not confirm your booking. We'll reach out to confirm availability and finalize details.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOUSE RULES -->
+
+<section class="sec rules-sec" id="rules">
+  <div class="sec-label">House Rules</div>
+  <div class="rules-grid">
+    <div class="rule-block">
+      <div class="rule-icon">🕐</div>
+      <div class="rule-title">Load-In & Access</div>
+      <div class="rule-text">Load-in begins at the time confirmed in your booking. Access is not granted before your window. All equipment must be out of the space within 1 hour of show end. Repeated late exits affect future booking eligibility.</div>
+    </div>
+    <div class="rule-block">
+      <div class="rule-icon">👥</div>
+      <div class="rule-title">Capacity</div>
+      <div class="rule-text">You are responsible for maintaining attendance within your confirmed capacity. Overselling is grounds for immediate termination of the event. Door count is tracked in real time through our check-in system.</div>
+    </div>
+    <div class="rule-block">
+      <div class="rule-icon">📋</div>
+      <div class="rule-title">Documentation</div>
+      <div class="rule-text">All bookings require organizer ID, event description, and estimated headcount at time of confirmation. Photo documentation of the space at load-in and load-out is required for all events.</div>
+    </div>
+    <div class="rule-block">
+      <div class="rule-icon">💳</div>
+      <div class="rule-title">Payment & Cancellation</div>
+      <div class="rule-text">Booking fee is due upon confirmation. Cancellations made less than 72 hours before the event are non-refundable. Rescheduling is available with 5 or more days notice subject to availability.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+
+<section class="sec faq-sec" id="faq">
+  <div class="sec-label">Common Questions</div>
+  <div class="faq-list">
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(this)">
+        How far in advance do I need to book?
+        <span class="faq-toggle">+</span>
+      </div>
+      <div class="faq-a">We recommend submitting your request at least 2 weeks out. We can accommodate shorter timelines but availability isn't guaranteed. For large-scale or multi-artist events, 3–4 weeks gives us proper runway.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(this)">
+        Does the venue come with ticketing?
+        <span class="faq-toggle">+</span>
+      </div>
+      <div class="faq-a">Not automatically, but it's available from the moment your date is confirmed. We work with Underground Showtime for all ticketing ops — flat fee, Stripe checkout, QR door management, and full post-show data. You can add it to any booking.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(this)">
+        What's included in the booking fee?
+        <span class="faq-toggle">+</span>
+      </div>
+      <div class="faq-a">The booking fee covers venue access for your confirmed time block, in-house audio (where applicable), and coordination support through your event. Ticketing ops, production, and staffing are separate and quoted on request.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(this)">
+        Can I bring outside production or sound?
+        <span class="faq-toggle">+</span>
+      </div>
+      <div class="faq-a">Yes. You're welcome to bring your own production, lighting, and sound for spaces that don't include in-house systems. All outside equipment must be confirmed in advance so we can accommodate load-in timing and space setup.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggle(this)">
+        What happens if my show gets cancelled?
+        <span class="faq-toggle">+</span>
+      </div>
+      <div class="faq-a">Cancellations with 5 or more days notice are eligible for a full reschedule. Cancellations under 72 hours are non-refundable but can be credited toward a future booking at our discretion. Reach out as early as possible — we work with you where we can.</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">VENUE<span>PORTAL</span></div>
+  <div class="footer-note">Underground Show Infrastructure — SoCal</div>
+</footer>
+
+<script>
+  function toggle(el) {
+    const item = el.parentElement;
+    item.classList.toggle('open');
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = '1';
+        e.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.08 });
+
+  document.querySelectorAll('.venue-card, .rule-block, .stat').forEach((el, i) => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(14px)';
+    el.style.transition = `opacity 0.5s ease ${i * 0.07}s, transform 0.5s ease ${i * 0.07}s`;
+    observer.observe(el);
+  });
+</script>
+
+</body>
+</html>
