@@ -1,27 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PAX OPS — Underground Ticketing</title>
-    <style>
-        body { 
-            font-family: system-ui, sans-serif; 
-            background: #111; 
-            color: #fff; 
-            text-align: center; 
-            padding: 80px 20px; 
-            line-height: 1.6;
-        }
-        h1 { font-size: 3.5rem; margin-bottom: 20px; }
-        p { font-size: 1.3rem; max-width: 600px; margin: 0 auto 20px; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PAX Venues — Underground Show Infrastructure</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@300;400;500&family=Oswald:wght@400;500;600;700&family=Permanent+Marker&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --black: #080808;
+      --deep: #0c0c0c;
+      --surface: #111;
+      --border: #1c1c1c;
+      --white: #e8e4de;
+      --white-dim: #7a7570;
+      --red: #c0392b;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'Barlow', system-ui, sans-serif;
+      line-height: 1.6;
+    }
+
+    /* Grain effect */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.35;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23g)' opacity='0.15'/%3E%3C/svg%3E");
+      mix-blend-mode: overlay;
+    }
+
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(8,8,8,0.95);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      font-family: 'Anton', sans-serif;
+      font-size: 24px;
+      letter-spacing: 0.05em;
+    }
+    .logo span { color: var(--red); }
+
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 40px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-family: 'Anton', sans-serif;
+      font-size: clamp(60px, 12vw, 140px);
+      line-height: 0.9;
+      letter-spacing: 0.02em;
+      margin-bottom: 24px;
+    }
+
+    .hero .red { color: var(--red); }
+
+    .hero p {
+      font-size: 18px;
+      max-width: 600px;
+      margin: 0 auto 40px;
+      color: var(--white-dim);
+    }
+
+    .btn {
+      display: inline-block;
+      background: var(--white);
+      color: var(--black);
+      font-family: 'Oswald', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 18px 36px;
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+
+    .btn:hover {
+      background: var(--red);
+      color: white;
+    }
+
+    .venues {
+      padding: 100px 40px;
+      background: var(--deep);
+    }
+
+    .venues h2 {
+      font-family: 'Anton', sans-serif;
+      font-size: 48px;
+      text-align: center;
+      margin-bottom: 60px;
+    }
+  </style>
 </head>
 <body>
-    <h1>PAX OPS</h1>
-    <p>Flat-fee ticketing for IE/LA underground rap & trap shows.</p>
-    <p>Real scene access. Clean execution. No corporate bullshit.</p>
-    <p>Full demo site with underground flyer fonts loading soon from Claude...</p>
-    <p><strong>LA Underground Summer Smash</strong> — Mock event ready for Hi.Events widget.</p>
+
+  <nav>
+    <div class="logo">PAX<span>VENUES</span></div>
+  </nav>
+
+  <section class="hero">
+    <h1>VENUE.<br>TICKETS.<br><span class="red">HANDLED.</span></h1>
+    <p>We find the right room and run full ticketing + ops for underground shows in LA & IE.</p>
+    <a href="#" class="btn">Browse Available Venues</a>
+  </section>
+
+  <section class="venues">
+    <h2>Available Venues</h2>
+    <!-- We'll add real venue cards here soon -->
+    <p style="text-align:center; color:#666;">Venue listings coming soon...</p>
+  </section>
+
 </body>
 </html>
