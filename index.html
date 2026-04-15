@@ -5,8 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PAX Venues — Underground Show Infrastructure</title>
   
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@300;400;500&family=Oswald:wght@400;500;600;700&family=Permanent+Marker&display=swap" rel="stylesheet">
 
   <style>
@@ -26,15 +24,16 @@
       color: var(--white);
       font-family: 'Barlow', system-ui, sans-serif;
       line-height: 1.6;
+      overflow-x: hidden;
     }
 
-    /* Grain effect */
+    /* Grain */
     body::after {
       content: '';
       position: fixed;
       inset: 0;
       pointer-events: none;
-      opacity: 0.35;
+      opacity: 0.4;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23g)' opacity='0.15'/%3E%3C/svg%3E");
       mix-blend-mode: overlay;
     }
@@ -53,7 +52,7 @@
 
     .logo {
       font-family: 'Anton', sans-serif;
-      font-size: 24px;
+      font-size: 26px;
       letter-spacing: 0.05em;
     }
     .logo span { color: var(--red); }
@@ -69,17 +68,17 @@
 
     .hero h1 {
       font-family: 'Anton', sans-serif;
-      font-size: clamp(60px, 12vw, 140px);
-      line-height: 0.9;
+      font-size: clamp(64px, 13vw, 150px);
+      line-height: 0.88;
       letter-spacing: 0.02em;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
 
     .hero .red { color: var(--red); }
 
     .hero p {
-      font-size: 18px;
-      max-width: 600px;
+      font-size: 17px;
+      max-width: 620px;
       margin: 0 auto 40px;
       color: var(--white-dim);
     }
@@ -90,10 +89,10 @@
       color: var(--black);
       font-family: 'Oswald', sans-serif;
       font-weight: 700;
-      font-size: 15px;
-      letter-spacing: 0.15em;
+      font-size: 14px;
+      letter-spacing: 0.2em;
       text-transform: uppercase;
-      padding: 18px 36px;
+      padding: 18px 40px;
       text-decoration: none;
       transition: all 0.3s;
     }
@@ -104,15 +103,33 @@
     }
 
     .venues {
-      padding: 100px 40px;
+      padding: 120px 40px;
       background: var(--deep);
     }
 
     .venues h2 {
       font-family: 'Anton', sans-serif;
-      font-size: 48px;
+      font-size: 52px;
       text-align: center;
       margin-bottom: 60px;
+    }
+
+    .venue-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+    }
+
+    .venue-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 20px;
+    }
+
+    .venue-card h3 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 22px;
+      margin-bottom: 8px;
     }
   </style>
 </head>
@@ -130,8 +147,20 @@
 
   <section class="venues">
     <h2>Available Venues</h2>
-    <!-- We'll add real venue cards here soon -->
-    <p style="text-align:center; color:#666;">Venue listings coming soon...</p>
+    <div class="venue-grid">
+      <div class="venue-card">
+        <h3>SFV Warehouse</h3>
+        <p>150-220 cap • Loud-friendly • San Fernando Valley</p>
+      </div>
+      <div class="venue-card">
+        <h3>Echo Studio</h3>
+        <p>80-130 cap • Good acoustics • Inland Empire</p>
+      </div>
+      <div class="venue-card">
+        <h3>Underground Lounge</h3>
+        <p>100-160 cap • Full sound • Downtown LA</p>
+      </div>
+    </div>
   </section>
 
 </body>
