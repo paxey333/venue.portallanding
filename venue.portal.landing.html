@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Venue.Portal — by LogosMinds</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f4f2;
+    --surface: #ffffff;
+    --surface2: #f0efed;
+    --border: #e5e3df;
+    --border-dark: #d0cdc8;
+    --text: #1a1916;
+    --text-mid: #6b6860;
+    --text-faint: #b0ada8;
+    --red: #c0392b;
+    --red-light: #fdf2f1;
+    --red-mid: #e8c4c0;
+    --black: #111110;
+  }
+
+- { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+body {
+background: var(–bg);
+color: var(–text);
+font-family: ‘DM Sans’, sans-serif;
+font-size: 14px;
+line-height: 1.6;
+min-height: 100vh;
+}
+
+/* APP SHELL */
+.app {
+max-width: 480px;
+margin: 0 auto;
+min-height: 100vh;
+background: var(–bg);
+position: relative;
+}
+
+/* TOP BAR */
+.topbar {
+background: var(–surface);
+border-bottom: 1px solid var(–border);
+padding: 16px 20px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+position: sticky;
+top: 0;
+z-index: 100;
+}
+.topbar-logo {
+font-family: ‘DM Serif Display’, serif;
+font-size: 18px;
+color: var(–text);
+letter-spacing: -0.02em;
+}
+.topbar-logo span { color: var(–red); }
+.topbar-by {
+font-size: 10px;
+letter-spacing: 0.08em;
+text-transform: uppercase;
+color: var(–text-faint);
+}
+
+/* TAB BAR */
+.tabs {
+background: var(–surface);
+border-bottom: 1px solid var(–border);
+display: flex;
+padding: 0 20px;
+gap: 0;
+position: sticky;
+top: 57px;
+z-index: 99;
+}
+.tab {
+font-size: 12px;
+font-weight: 500;
+letter-spacing: 0.04em;
+padding: 12px 16px;
+color: var(–text-faint);
+cursor: pointer;
+border-bottom: 2px solid transparent;
+transition: all 0.2s;
+user-select: none;
+white-space: nowrap;
+}
+.tab.active {
+color: var(–text);
+border-bottom-color: var(–red);
+}
+.tab:hover:not(.active) { color: var(–text-mid); }
+
+/* SCREENS */
+.screen { display: none; padding: 20px; }
+.screen.active { display: block; }
+
+/* ADMIN SCREEN */
+.admin-header {
+margin-bottom: 20px;
+}
+.admin-header h1 {
+font-family: ‘DM Serif Display’, serif;
+font-size: 26px;
+letter-spacing: -0.02em;
+color: var(–text);
+margin-bottom: 4px;
+}
+.admin-header p {
+color: var(–text-mid);
+font-size: 13px;
+}
+
+.stats-grid {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 12px;
+margin-bottom: 24px;
+}
+.stat-card {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 12px;
+padding: 18px;
+}
+.stat-card.full { grid-column: 1 / -1; }
+.stat-label {
+font-size: 11px;
+letter-spacing: 0.06em;
+text-transform: uppercase;
+color: var(–text-faint);
+margin-bottom: 6px;
+}
+.stat-value {
+font-family: ‘DM Serif Display’, serif;
+font-size: 32px;
+color: var(–text);
+letter-spacing: -0.02em;
+line-height: 1;
+}
+.stat-value.red { color: var(–red); }
+
+.section-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 14px;
+}
+.section-title {
+font-size: 13px;
+font-weight: 600;
+letter-spacing: 0.04em;
+text-transform: uppercase;
+color: var(–text-mid);
+}
+.btn-add {
+background: var(–black);
+color: white;
+border: none;
+border-radius: 8px;
+padding: 8px 14px;
+font-size: 12px;
+font-family: ‘DM Sans’, sans-serif;
+font-weight: 500;
+cursor: pointer;
+transition: background 0.2s;
+}
+.btn-add:hover { background: var(–red); }
+
+.venue-list { display: flex; flex-direction: column; gap: 10px; }
+.venue-item {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 12px;
+padding: 16px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 12px;
+}
+.venue-item-info { flex: 1; min-width: 0; }
+.venue-item-name {
+font-weight: 600;
+font-size: 14px;
+color: var(–text);
+margin-bottom: 3px;
+}
+.venue-item-slug {
+font-size: 11px;
+color: var(–text-faint);
+font-family: monospace;
+}
+.venue-item-actions {
+display: flex;
+align-items: center;
+gap: 8px;
+flex-shrink: 0;
+}
+.badge-live {
+font-size: 10px;
+font-weight: 600;
+letter-spacing: 0.06em;
+text-transform: uppercase;
+color: #2d7a4f;
+background: #e6f4ed;
+border-radius: 20px;
+padding: 3px 9px;
+}
+.btn-sm {
+font-size: 12px;
+font-weight: 500;
+padding: 6px 12px;
+border-radius: 7px;
+cursor: pointer;
+transition: all 0.15s;
+font-family: ‘DM Sans’, sans-serif;
+border: 1px solid var(–border-dark);
+background: transparent;
+color: var(–text-mid);
+}
+.btn-sm:hover { background: var(–surface2); }
+.btn-sm.red { color: var(–red); border-color: var(–red-mid); }
+.btn-sm.red:hover { background: var(–red-light); }
+
+/* ADD VENUE FORM */
+.form-card {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 14px;
+overflow: hidden;
+margin-bottom: 16px;
+}
+.form-card-header {
+padding: 16px 18px;
+border-bottom: 1px solid var(–border);
+font-weight: 600;
+font-size: 14px;
+color: var(–text);
+display: flex;
+align-items: center;
+gap: 8px;
+}
+.form-card-header .dot {
+width: 8px; height: 8px;
+border-radius: 50%;
+background: var(–red);
+}
+.form-body { padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-label {
+font-size: 11px;
+font-weight: 600;
+letter-spacing: 0.06em;
+text-transform: uppercase;
+color: var(–text-mid);
+}
+.form-input {
+background: var(–bg);
+border: 1px solid var(–border);
+border-radius: 8px;
+padding: 10px 12px;
+font-family: ‘DM Sans’, sans-serif;
+font-size: 13px;
+color: var(–text);
+outline: none;
+transition: border-color 0.15s;
+width: 100%;
+}
+.form-input:focus { border-color: var(–red); background: var(–surface); }
+.form-input::placeholder { color: var(–text-faint); }
+textarea.form-input { resize: vertical; min-height: 72px; }
+.slug-row {
+display: flex;
+align-items: center;
+gap: 0;
+background: var(–bg);
+border: 1px solid var(–border);
+border-radius: 8px;
+overflow: hidden;
+}
+.slug-prefix {
+padding: 10px 10px 10px 12px;
+font-size: 12px;
+color: var(–text-faint);
+background: var(–surface2);
+border-right: 1px solid var(–border);
+white-space: nowrap;
+font-family: monospace;
+}
+.slug-input {
+border: none;
+background: transparent;
+padding: 10px 12px;
+font-family: monospace;
+font-size: 13px;
+color: var(–text);
+outline: none;
+flex: 1;
+}
+.form-actions {
+display: grid;
+grid-template-columns: 1fr 1fr 1fr;
+gap: 8px;
+padding: 0 18px 18px;
+}
+.btn-save {
+background: var(–black);
+color: white;
+border: none;
+border-radius: 8px;
+padding: 11px;
+font-family: ‘DM Sans’, sans-serif;
+font-size: 13px;
+font-weight: 600;
+cursor: pointer;
+transition: background 0.2s;
+}
+.btn-save:hover { background: var(–red); }
+.btn-preview {
+background: transparent;
+color: var(–red);
+border: 1px solid var(–red-mid);
+border-radius: 8px;
+padding: 11px;
+font-family: ‘DM Sans’, sans-serif;
+font-size: 13px;
+font-weight: 500;
+cursor: pointer;
+transition: all 0.2s;
+}
+.btn-preview:hover { background: var(–red-light); }
+.btn-cancel {
+background: transparent;
+color: var(–text-mid);
+border: 1px solid var(–border-dark);
+border-radius: 8px;
+padding: 11px;
+font-family: ‘DM Sans’, sans-serif;
+font-size: 13px;
+cursor: pointer;
+transition: all 0.2s;
+}
+.btn-cancel:hover { background: var(–surface2); }
+
+/* VENUE PREVIEW SCREEN */
+.venue-hero {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 14px;
+overflow: hidden;
+margin-bottom: 16px;
+}
+.venue-hero-img {
+width: 100%;
+height: 200px;
+background: linear-gradient(135deg, #2a2018 0%, #1a1410 50%, #2d1a14 100%);
+position: relative;
+display: flex;
+align-items: flex-end;
+padding: 20px;
+}
+.venue-hero-img-text {
+font-family: ‘DM Serif Display’, serif;
+font-size: 36px;
+color: rgba(255,255,255,0.08);
+letter-spacing: -0.02em;
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+white-space: nowrap;
+line-height: 1;
+}
+.venue-hero-overlay {
+position: relative;
+z-index: 1;
+}
+.venue-hero-name {
+font-family: ‘DM Serif Display’, serif;
+font-size: 24px;
+color: white;
+letter-spacing: -0.02em;
+line-height: 1.1;
+margin-bottom: 4px;
+}
+.venue-hero-loc {
+font-size: 12px;
+color: rgba(255,255,255,0.6);
+display: flex;
+align-items: center;
+gap: 6px;
+}
+.venue-hero-loc::before {
+content: ‘●’;
+color: var(–red);
+font-size: 8px;
+}
+
+.venue-gallery {
+display: grid;
+grid-template-columns: 1fr 1fr 1fr;
+gap: 2px;
+padding: 2px;
+}
+.gallery-thumb {
+height: 80px;
+background: var(–surface2);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 20px;
+filter: grayscale(1);
+}
+
+.venue-details {
+padding: 18px;
+display: flex;
+flex-direction: column;
+gap: 14px;
+}
+.venue-desc {
+font-size: 13px;
+line-height: 1.7;
+color: var(–text-mid);
+}
+.amenities-label {
+font-size: 10px;
+font-weight: 700;
+letter-spacing: 0.1em;
+text-transform: uppercase;
+color: var(–text-faint);
+margin-bottom: 8px;
+}
+.amenities-tags {
+display: flex;
+flex-wrap: wrap;
+gap: 6px;
+}
+.amenity-tag {
+font-size: 12px;
+border: 1px solid var(–border-dark);
+border-radius: 20px;
+padding: 5px 12px;
+color: var(–text-mid);
+background: var(–surface);
+}
+
+/* SPECS TABLE */
+.specs-card {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 14px;
+overflow: hidden;
+margin-bottom: 16px;
+}
+.spec-row {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 13px 18px;
+border-bottom: 1px solid var(–border);
+font-size: 13px;
+}
+.spec-row:last-child { border-bottom: none; }
+.spec-key { color: var(–text-mid); }
+.spec-val { font-weight: 500; color: var(–text); text-align: right; }
+.spec-val.red { color: var(–red); font-weight: 600; }
+
+/* CALENDAR */
+.calendar-card {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 14px;
+overflow: hidden;
+margin-bottom: 16px;
+}
+.cal-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 16px 18px;
+border-bottom: 1px solid var(–border);
+}
+.cal-title {
+font-family: ‘DM Serif Display’, serif;
+font-size: 16px;
+color: var(–text);
+}
+.cal-nav {
+display: flex;
+gap: 8px;
+}
+.cal-btn {
+width: 32px; height: 32px;
+border-radius: 8px;
+border: 1px solid var(–border);
+background: var(–bg);
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 14px;
+color: var(–red);
+transition: all 0.15s;
+}
+.cal-btn:hover { background: var(–red-light); border-color: var(–red-mid); }
+.cal-grid {
+padding: 14px 18px 18px;
+}
+.cal-days-header {
+display: grid;
+grid-template-columns: repeat(7, 1fr);
+margin-bottom: 8px;
+}
+.cal-day-name {
+text-align: center;
+font-size: 10px;
+font-weight: 700;
+letter-spacing: 0.06em;
+text-transform: uppercase;
+color: var(–text-faint);
+padding: 4px 0;
+}
+.cal-dates {
+display: grid;
+grid-template-columns: repeat(7, 1fr);
+gap: 2px;
+}
+.cal-date {
+aspect-ratio: 1;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 13px;
+color: var(–text-mid);
+border-radius: 8px;
+cursor: pointer;
+transition: all 0.15s;
+}
+.cal-date:hover:not(.empty):not(.past) {
+background: var(–red-light);
+color: var(–red);
+}
+.cal-date.empty { cursor: default; }
+.cal-date.past { color: var(–text-faint); cursor: not-allowed; }
+.cal-date.selected {
+background: var(–red);
+color: white;
+font-weight: 600;
+}
+.cal-date.booked {
+background: var(–surface2);
+color: var(–text-faint);
+cursor: not-allowed;
+text-decoration: line-through;
+}
+
+/* BOOKING FORM */
+.booking-card {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 14px;
+overflow: hidden;
+margin-bottom: 16px;
+}
+.booking-header {
+padding: 16px 18px;
+border-bottom: 1px solid var(–border);
+}
+.booking-header h3 {
+font-family: ‘DM Serif Display’, serif;
+font-size: 18px;
+margin-bottom: 4px;
+}
+.booking-header p { font-size: 12px; color: var(–text-mid); }
+.booking-body { padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+
+.selected-date-pill {
+display: inline-flex;
+align-items: center;
+gap: 8px;
+background: var(–red-light);
+border: 1px solid var(–red-mid);
+border-radius: 20px;
+padding: 6px 14px;
+font-size: 12px;
+font-weight: 500;
+color: var(–red);
+}
+.selected-date-pill::before { content: ‘📅’; font-size: 12px; }
+
+.payment-section {
+background: var(–bg);
+border-radius: 10px;
+padding: 14px;
+border: 1px solid var(–border);
+}
+.payment-title {
+font-size: 12px;
+font-weight: 700;
+letter-spacing: 0.06em;
+text-transform: uppercase;
+color: var(–text-mid);
+margin-bottom: 12px;
+}
+.pay-row {
+display: flex;
+justify-content: space-between;
+align-items: center;
+font-size: 13px;
+padding: 4px 0;
+}
+.pay-row .pay-label { color: var(–text-mid); }
+.pay-row .pay-val { font-weight: 600; }
+.pay-row.total {
+border-top: 1px solid var(–border-dark);
+margin-top: 8px;
+padding-top: 10px;
+}
+.pay-row.total .pay-val { color: var(–red); font-size: 16px; }
+
+.btn-confirm {
+background: var(–black);
+color: white;
+border: none;
+border-radius: 10px;
+padding: 15px;
+font-family: ‘DM Sans’, sans-serif;
+font-size: 14px;
+font-weight: 600;
+cursor: pointer;
+width: 100%;
+transition: background 0.2s;
+letter-spacing: 0.02em;
+}
+.btn-confirm:hover { background: var(–red); }
+.pay-note {
+font-size: 11px;
+color: var(–text-faint);
+text-align: center;
+margin-top: 8px;
+line-height: 1.5;
+}
+
+/* BOOKINGS SCREEN */
+.bookings-table {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 14px;
+overflow: hidden;
+}
+.bookings-table-header {
+display: grid;
+grid-template-columns: 1.2fr 1fr 0.8fr 0.7fr;
+padding: 10px 16px;
+border-bottom: 1px solid var(–border);
+background: var(–surface2);
+}
+.th {
+font-size: 10px;
+font-weight: 700;
+letter-spacing: 0.08em;
+text-transform: uppercase;
+color: var(–text-faint);
+}
+.booking-row {
+display: grid;
+grid-template-columns: 1.2fr 1fr 0.8fr 0.7fr;
+padding: 14px 16px;
+border-bottom: 1px solid var(–border);
+align-items: center;
+transition: background 0.15s;
+}
+.booking-row:last-child { border-bottom: none; }
+.booking-row:hover { background: var(–surface2); }
+.booking-venue { font-weight: 600; font-size: 13px; color: var(–text); }
+.booking-guest { font-size: 12px; color: var(–text-mid); }
+.booking-guest-email { font-size: 10px; color: var(–text-faint); margin-top: 1px; }
+.booking-date { font-size: 12px; color: var(–text-mid); }
+.booking-amount { font-weight: 600; font-size: 13px; color: var(–red); }
+
+/* SUCCESS STATE */
+.success-card {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 14px;
+padding: 32px 24px;
+text-align: center;
+display: none;
+}
+.success-icon {
+width: 56px; height: 56px;
+background: var(–red-light);
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 24px;
+margin: 0 auto 16px;
+border: 2px solid var(–red-mid);
+}
+.success-title {
+font-family: ‘DM Serif Display’, serif;
+font-size: 20px;
+color: var(–text);
+margin-bottom: 8px;
+}
+.success-sub { font-size: 13px; color: var(–text-mid); line-height: 1.6; }
+
+/* DIVIDER */
+.divider {
+height: 1px;
+background: var(–border);
+margin: 20px 0;
+}
+
+/* FADE IN */
+@keyframes fadeIn {
+from { opacity: 0; transform: translateY(8px); }
+to { opacity: 1; transform: translateY(0); }
+}
+.screen.active { animation: fadeIn 0.25s ease; }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(–border-dark); border-radius: 4px; }
+</style>
+
+</head>
+<body>
+<div class="app">
+
+  <!-- TOP BAR -->
+
+  <div class="topbar">
+    <div class="topbar-logo">Venue<span>.</span>Portal</div>
+    <div class="topbar-by">by LogosMinds</div>
+  </div>
+
+  <!-- TABS -->
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('admin')">Admin</div>
+    <div class="tab" onclick="switchTab('preview')">Venue Preview</div>
+    <div class="tab" onclick="switchTab('bookings')">All Bookings</div>
+  </div>
+
+  <!-- ADMIN SCREEN -->
+
+  <div class="screen active" id="screen-admin">
+    <div class="admin-header">
+      <h1>Dashboard</h1>
+      <p>Manage and onboard venues</p>
+    </div>
+
+```
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-label">Total Venues</div>
+    <div class="stat-value" id="stat-venues">2</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Total Bookings</div>
+    <div class="stat-value" id="stat-bookings">3</div>
+  </div>
+  <div class="stat-card full">
+    <div class="stat-label">Revenue</div>
+    <div class="stat-value red" id="stat-revenue">$400</div>
+  </div>
+</div>
+
+<div class="section-header">
+  <div class="section-title">Venues</div>
+  <button class="btn-add" onclick="toggleAddForm()">+ Add venue</button>
+</div>
+
+<!-- ADD VENUE FORM -->
+<div id="add-form" style="display:none; margin-bottom:16px;">
+  <div class="form-card">
+    <div class="form-card-header">
+      <div class="dot"></div>
+      New Venue
+    </div>
+    <div class="form-body">
+      <div class="form-group">
+        <label class="form-label">Venue Name</label>
+        <input type="text" class="form-input" placeholder="e.g. The Warehouse" id="new-name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">URL Slug</label>
+        <div class="slug-row">
+          <span class="slug-prefix">/venue/</span>
+          <input type="text" class="slug-input" placeholder="the-warehouse" id="new-slug">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Location</label>
+        <input type="text" class="form-input" placeholder="City, State" id="new-location">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Capacity</label>
+        <input type="number" class="form-input" placeholder="100" id="new-capacity">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-input" placeholder="Describe the space..." id="new-desc"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Host Email</label>
+        <input type="email" class="form-input" placeholder="host@venue.com" id="new-email">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Host Phone</label>
+        <input type="tel" class="form-input" placeholder="+1 (555) 000-0000" id="new-phone">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Amenities (comma separated)</label>
+        <input type="text" class="form-input" placeholder="Full PA, Stage lighting, Parking" id="new-amenities">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Venue Fee ($)</label>
+        <input type="number" class="form-input" placeholder="100" id="new-fee">
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-save" onclick="saveVenue()">Save venue</button>
+      <button class="btn-preview" onclick="switchTab('preview')">Preview page</button>
+      <button class="btn-cancel" onclick="toggleAddForm()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- VENUE LIST -->
+<div class="venue-list" id="venue-list">
+  <div class="venue-item">
+    <div class="venue-item-info">
+      <div class="venue-item-name">White Swan Live</div>
+      <div class="venue-item-slug">/venue/white-swan-live</div>
+    </div>
+    <div class="venue-item-actions">
+      <span class="badge-live">live</span>
+      <button class="btn-sm" onclick="switchTab('preview')">View</button>
+    </div>
+  </div>
+  <div class="venue-item">
+    <div class="venue-item-info">
+      <div class="venue-item-name">The Back Room</div>
+      <div class="venue-item-slug">/venue/the-back-room</div>
+    </div>
+    <div class="venue-item-actions">
+      <span class="badge-live">live</span>
+      <button class="btn-sm" onclick="switchTab('preview')">View</button>
+    </div>
+  </div>
+</div>
+```
+
+  </div>
+
+  <!-- VENUE PREVIEW SCREEN -->
+
+  <div class="screen" id="screen-preview">
+
+```
+<div class="venue-hero">
+  <div class="venue-hero-img">
+    <div class="venue-hero-img-text">WSL</div>
+    <div class="venue-hero-overlay">
+      <div class="venue-hero-name">White Swan Live</div>
+      <div class="venue-hero-loc">4419 Navigation Blvd, Houston TX &nbsp;·&nbsp; Cap: 200</div>
+    </div>
+  </div>
+  <div class="venue-gallery">
+    <div class="gallery-thumb">🎙</div>
+    <div class="gallery-thumb">🔊</div>
+    <div class="gallery-thumb">🎚</div>
+  </div>
+  <div class="venue-details">
+    <p class="venue-desc">Raw bar venue on Navigation Blvd in East Houston. Established underground room with a real stage, full PA, and a crowd that shows up. Originals only — no cover bands, no tributes.</p>
+    <div>
+      <div class="amenities-label">Amenities</div>
+      <div class="amenities-tags">
+        <span class="amenity-tag">Full PA (5000W)</span>
+        <span class="amenity-tag">Stage lighting</span>
+        <span class="amenity-tag">200 sq ft riser</span>
+        <span class="amenity-tag">Sound engineer</span>
+        <span class="amenity-tag">Parking</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="specs-card">
+  <div class="spec-row">
+    <span class="spec-key">Venue Fee</span>
+    <span class="spec-val red">$100 flat</span>
+  </div>
+  <div class="spec-row">
+    <span class="spec-key">Door Money</span>
+    <span class="spec-val">100% yours</span>
+  </div>
+  <div class="spec-row">
+    <span class="spec-key">Minimum Acts</span>
+    <span class="spec-val">4 on the bill</span>
+  </div>
+  <div class="spec-row">
+    <span class="spec-key">Show Start</span>
+    <span class="spec-val">No earlier than 9pm</span>
+  </div>
+  <div class="spec-row">
+    <span class="spec-key">Show End</span>
+    <span class="spec-val">No earlier than 1am</span>
+  </div>
+  <div class="spec-row">
+    <span class="spec-key">Address</span>
+    <span class="spec-val">Navigation Blvd, Houston TX</span>
+  </div>
+</div>
+
+<!-- CALENDAR -->
+<div class="calendar-card">
+  <div class="cal-header">
+    <div class="cal-title" id="cal-month-label">May 2026</div>
+    <div class="cal-nav">
+      <button class="cal-btn" onclick="changeMonth(-1)">←</button>
+      <button class="cal-btn" onclick="changeMonth(1)">→</button>
+    </div>
+  </div>
+  <div class="cal-grid">
+    <div class="cal-days-header">
+      <div class="cal-day-name">Su</div>
+      <div class="cal-day-name">Mo</div>
+      <div class="cal-day-name">Tu</div>
+      <div class="cal-day-name">We</div>
+      <div class="cal-day-name">Th</div>
+      <div class="cal-day-name">Fr</div>
+      <div class="cal-day-name">Sa</div>
+    </div>
+    <div class="cal-dates" id="cal-dates"></div>
+  </div>
+</div>
+
+<!-- BOOKING FORM -->
+<div class="booking-card" id="booking-form-card">
+  <div class="booking-header">
+    <h3>Book this venue</h3>
+    <p>Select a date above, then complete your booking.</p>
+  </div>
+  <div class="booking-body">
+    <div id="selected-date-display" style="display:none">
+      <span class="selected-date-pill" id="selected-date-text">No date selected</span>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Your Name</label>
+      <input type="text" class="form-input" placeholder="Full name" id="book-name">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input type="email" class="form-input" placeholder="you@email.com" id="book-email">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Phone</label>
+      <input type="tel" class="form-input" placeholder="+1 (555) 000-0000" id="book-phone">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Number of Guests</label>
+      <input type="number" class="form-input" placeholder="Expected headcount" id="book-guests">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes (optional)</label>
+      <textarea class="form-input" placeholder="Any special requirements, lineup info..." id="book-notes"></textarea>
+    </div>
+
+    <div class="payment-section">
+      <div class="payment-title">Payment Summary</div>
+      <div class="pay-row">
+        <span class="pay-label">Venue fee</span>
+        <span class="pay-val">$100.00</span>
+      </div>
+      <div class="pay-row">
+        <span class="pay-label">Processing</span>
+        <span class="pay-val">$0.00</span>
+      </div>
+      <div class="pay-row total">
+        <span class="pay-label" style="font-weight:600">Total due today</span>
+        <span class="pay-val">$100.00</span>
+      </div>
+    </div>
+
+    <button class="btn-confirm" onclick="confirmBooking()">Confirm & Pay →</button>
+    <p class="pay-note">Payments processed via Stripe. You'll receive an email & SMS confirmation within 24hrs.</p>
+  </div>
+</div>
+
+<!-- SUCCESS -->
+<div class="success-card" id="success-card">
+  <div class="success-icon">✓</div>
+  <div class="success-title">Date Locked</div>
+  <p class="success-sub">Your booking is confirmed. We'll reach out within 24 hours to finalize details. Check your email for confirmation.</p>
+</div>
+```
+
+  </div>
+
+  <!-- ALL BOOKINGS SCREEN -->
+
+  <div class="screen" id="screen-bookings">
+    <div class="admin-header">
+      <h1>All Bookings</h1>
+      <p>Across all venues</p>
+    </div>
+
+```
+<div class="bookings-table">
+  <div class="bookings-table-header">
+    <div class="th">Venue</div>
+    <div class="th">Guest</div>
+    <div class="th">Date</div>
+    <div class="th">Amount</div>
+  </div>
+  <div class="booking-row">
+    <div>
+      <div class="booking-venue">White Swan</div>
+    </div>
+    <div>
+      <div class="booking-guest">Marcus R.</div>
+      <div class="booking-guest-email">marcus@band.com</div>
+    </div>
+    <div class="booking-date">May 10, 2026</div>
+    <div class="booking-amount">$100</div>
+  </div>
+  <div class="booking-row">
+    <div>
+      <div class="booking-venue">White Swan</div>
+    </div>
+    <div>
+      <div class="booking-guest">DJ Kilo</div>
+      <div class="booking-guest-email">kilo@sets.com</div>
+    </div>
+    <div class="booking-date">May 17, 2026</div>
+    <div class="booking-amount">$100</div>
+  </div>
+  <div class="booking-row">
+    <div>
+      <div class="booking-venue">Back Room</div>
+    </div>
+    <div>
+      <div class="booking-guest">Prism Crew</div>
+      <div class="booking-guest-email">prism@shows.com</div>
+    </div>
+    <div class="booking-date">May 24, 2026</div>
+    <div class="booking-amount">$200</div>
+  </div>
+</div>
+```
+
+  </div>
+
+</div>
+
+<script>
+  // TAB SWITCHING
+  function switchTab(tab) {
+    document.querySelectorAll('.tab').forEach((t, i) => {
+      const tabs = ['admin', 'preview', 'bookings'];
+      t.classList.toggle('active', tabs[i] === tab);
+    });
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + tab).classList.add('active');
+  }
+
+  // ADD VENUE FORM
+  function toggleAddForm() {
+    const f = document.getElementById('add-form');
+    f.style.display = f.style.display === 'none' ? 'block' : 'none';
+  }
+
+  function saveVenue() {
+    const name = document.getElementById('new-name').value;
+    const slug = document.getElementById('new-slug').value;
+    if (!name) return;
+
+    const list = document.getElementById('venue-list');
+    const item = document.createElement('div');
+    item.className = 'venue-item';
+    item.innerHTML = `
+      <div class="venue-item-info">
+        <div class="venue-item-name">${name}</div>
+        <div class="venue-item-slug">/venue/${slug || name.toLowerCase().replace(/\s+/g, '-')}</div>
+      </div>
+      <div class="venue-item-actions">
+        <span class="badge-live">live</span>
+        <button class="btn-sm" onclick="switchTab('preview')">View</button>
+      </div>`;
+    list.appendChild(item);
+
+    // update stats
+    const curr = parseInt(document.getElementById('stat-venues').textContent);
+    document.getElementById('stat-venues').textContent = curr + 1;
+
+    toggleAddForm();
+    ['new-name','new-slug','new-location','new-capacity','new-desc','new-email','new-phone','new-amenities','new-fee'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+  }
+
+  // CALENDAR
+  let currentMonth = 4; // May (0-indexed)
+  let currentYear = 2026;
+  let selectedDate = null;
+  const bookedDates = [3, 8, 15, 22];
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  function renderCalendar() {
+    const label = document.getElementById('cal-month-label');
+    label.textContent = months[currentMonth] + ' ' + currentYear;
+
+    const datesEl = document.getElementById('cal-dates');
+    datesEl.innerHTML = '';
+
+    const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    const today = new Date();
+
+    for (let i = 0; i < firstDay; i++) {
+      const empty = document.createElement('div');
+      empty.className = 'cal-date empty';
+      datesEl.appendChild(empty);
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const el = document.createElement('div');
+      el.className = 'cal-date';
+      el.textContent = d;
+
+      const thisDate = new Date(currentYear, currentMonth, d);
+      const isPast = thisDate < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      const isBooked = bookedDates.includes(d);
+      const isSelected = selectedDate && selectedDate.getDate() === d && selectedDate.getMonth() === currentMonth && selectedDate.getFullYear() === currentYear;
+
+      if (isPast) el.classList.add('past');
+      else if (isBooked) el.classList.add('booked');
+      else if (isSelected) el.classList.add('selected');
+      else {
+        el.addEventListener('click', () => selectDate(d));
+      }
+
+      datesEl.appendChild(el);
+    }
+  }
+
+  function selectDate(day) {
+    selectedDate = new Date(currentYear, currentMonth, day);
+    const dateStr = months[currentMonth] + ' ' + day + ', ' + currentYear;
+    document.getElementById('selected-date-text').textContent = dateStr;
+    document.getElementById('selected-date-display').style.display = 'block';
+    renderCalendar();
+  }
+
+  function changeMonth(dir) {
+    currentMonth += dir;
+    if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+    if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+    renderCalendar();
+  }
+
+  // BOOKING CONFIRM
+  function confirmBooking() {
+    const name = document.getElementById('book-name').value;
+    const email = document.getElementById('book-email').value;
+    if (!name || !email) {
+      alert('Please fill in your name and email.');
+      return;
+    }
+
+    document.getElementById('booking-form-card').style.display = 'none';
+    document.getElementById('success-card').style.display = 'block';
+
+    // Update stats
+    const curr = parseInt(document.getElementById('stat-bookings').textContent);
+    document.getElementById('stat-bookings').textContent = curr + 1;
+    const rev = parseInt(document.getElementById('stat-revenue').textContent.replace('$','').replace(',',''));
+    document.getElementById('stat-revenue').textContent = '$' + (rev + 100).toLocaleString();
+  }
+
+  renderCalendar();
+</script>
+
+</body>
+</html>
