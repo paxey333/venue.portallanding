@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Venue.Portal — by LogosMinds</title>
+<title>Venue.Portal - by LogosMinds</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -22,13 +22,13 @@
     --black: #111110;
   }
 
-- { margin: 0; padding: 0; box-sizing: border-box; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; }
 
 body {
-background: var(–bg);
-color: var(–text);
-font-family: ‘DM Sans’, sans-serif;
+background: var(--bg);
+color: var(--text);
+font-family: 'DM Sans', sans-serif;
 font-size: 14px;
 line-height: 1.6;
 min-height: 100vh;
@@ -39,14 +39,14 @@ min-height: 100vh;
 max-width: 480px;
 margin: 0 auto;
 min-height: 100vh;
-background: var(–bg);
+background: var(--bg);
 position: relative;
 }
 
 /* TOP BAR */
 .topbar {
-background: var(–surface);
-border-bottom: 1px solid var(–border);
+background: var(--surface);
+border-bottom: 1px solid var(--border);
 padding: 16px 20px;
 display: flex;
 align-items: center;
@@ -56,23 +56,23 @@ top: 0;
 z-index: 100;
 }
 .topbar-logo {
-font-family: ‘DM Serif Display’, serif;
+font-family: 'DM Serif Display', serif;
 font-size: 18px;
-color: var(–text);
+color: var(--text);
 letter-spacing: -0.02em;
 }
-.topbar-logo span { color: var(–red); }
+.topbar-logo span { color: var(--red); }
 .topbar-by {
 font-size: 10px;
 letter-spacing: 0.08em;
 text-transform: uppercase;
-color: var(–text-faint);
+color: var(--text-faint);
 }
 
 /* TAB BAR */
 .tabs {
-background: var(–surface);
-border-bottom: 1px solid var(–border);
+background: var(--surface);
+border-bottom: 1px solid var(--border);
 display: flex;
 padding: 0 20px;
 gap: 0;
@@ -85,7 +85,7 @@ font-size: 12px;
 font-weight: 500;
 letter-spacing: 0.04em;
 padding: 12px 16px;
-color: var(–text-faint);
+color: var(--text-faint);
 cursor: pointer;
 border-bottom: 2px solid transparent;
 transition: all 0.2s;
@@ -93,10 +93,10 @@ user-select: none;
 white-space: nowrap;
 }
 .tab.active {
-color: var(–text);
-border-bottom-color: var(–red);
+color: var(--text);
+border-bottom-color: var(--red);
 }
-.tab:hover:not(.active) { color: var(–text-mid); }
+.tab:hover:not(.active) { color: var(--text-mid); }
 
 /* SCREENS */
 .screen { display: none; padding: 20px; }
@@ -107,14 +107,14 @@ border-bottom-color: var(–red);
 margin-bottom: 20px;
 }
 .admin-header h1 {
-font-family: ‘DM Serif Display’, serif;
+font-family: 'DM Serif Display', serif;
 font-size: 26px;
 letter-spacing: -0.02em;
-color: var(–text);
+color: var(--text);
 margin-bottom: 4px;
 }
 .admin-header p {
-color: var(–text-mid);
+color: var(--text-mid);
 font-size: 13px;
 }
 
@@ -125,8 +125,8 @@ gap: 12px;
 margin-bottom: 24px;
 }
 .stat-card {
-background: var(–surface);
-border: 1px solid var(–border);
+background: var(--surface);
+border: 1px solid var(--border);
 border-radius: 12px;
 padding: 18px;
 }
@@ -135,17 +135,17 @@ padding: 18px;
 font-size: 11px;
 letter-spacing: 0.06em;
 text-transform: uppercase;
-color: var(–text-faint);
+color: var(--text-faint);
 margin-bottom: 6px;
 }
 .stat-value {
-font-family: ‘DM Serif Display’, serif;
+font-family: 'DM Serif Display', serif;
 font-size: 32px;
-color: var(–text);
+color: var(--text);
 letter-spacing: -0.02em;
 line-height: 1;
 }
-.stat-value.red { color: var(–red); }
+.stat-value.red { color: var(--red); }
 
 .section-header {
 display: flex;
@@ -158,26 +158,26 @@ font-size: 13px;
 font-weight: 600;
 letter-spacing: 0.04em;
 text-transform: uppercase;
-color: var(–text-mid);
+color: var(--text-mid);
 }
 .btn-add {
-background: var(–black);
+background: var(--black);
 color: white;
 border: none;
 border-radius: 8px;
 padding: 8px 14px;
 font-size: 12px;
-font-family: ‘DM Sans’, sans-serif;
+font-family: 'DM Sans', sans-serif;
 font-weight: 500;
 cursor: pointer;
 transition: background 0.2s;
 }
-.btn-add:hover { background: var(–red); }
+.btn-add:hover { background: var(--red); }
 
 .venue-list { display: flex; flex-direction: column; gap: 10px; }
 .venue-item {
-background: var(–surface);
-border: 1px solid var(–border);
+background: var(--surface);
+border: 1px solid var(--border);
 border-radius: 12px;
 padding: 16px;
 display: flex;
@@ -189,12 +189,12 @@ gap: 12px;
 .venue-item-name {
 font-weight: 600;
 font-size: 14px;
-color: var(–text);
+color: var(--text);
 margin-bottom: 3px;
 }
 .venue-item-slug {
 font-size: 11px;
-color: var(–text-faint);
+color: var(--text-faint);
 font-family: monospace;
 }
 .venue-item-actions {
@@ -220,29 +220,29 @@ padding: 6px 12px;
 border-radius: 7px;
 cursor: pointer;
 transition: all 0.15s;
-font-family: ‘DM Sans’, sans-serif;
-border: 1px solid var(–border-dark);
+font-family: 'DM Sans', sans-serif;
+border: 1px solid var(--border-dark);
 background: transparent;
-color: var(–text-mid);
+color: var(--text-mid);
 }
-.btn-sm:hover { background: var(–surface2); }
-.btn-sm.red { color: var(–red); border-color: var(–red-mid); }
-.btn-sm.red:hover { background: var(–red-light); }
+.btn-sm:hover { background: var(--surface2); }
+.btn-sm.red { color: var(--red); border-color: var(--red-mid); }
+.btn-sm.red:hover { background: var(--red-light); }
 
 /* ADD VENUE FORM */
 .form-card {
-background: var(–surface);
-border: 1px solid var(–border);
+background: var(--surface);
+border: 1px solid var(--border);
 border-radius: 14px;
 overflow: hidden;
 margin-bottom: 16px;
 }
 .form-card-header {
 padding: 16px 18px;
-border-bottom: 1px solid var(–border);
+border-bottom: 1px solid var(--border);
 font-weight: 600;
 font-size: 14px;
-color: var(–text);
+color: var(--text);
 display: flex;
 align-items: center;
 gap: 8px;
@@ -250,7 +250,7 @@ gap: 8px;
 .form-card-header .dot {
 width: 8px; height: 8px;
 border-radius: 50%;
-background: var(–red);
+background: var(--red);
 }
 .form-body { padding: 18px; display: flex; flex-direction: column; gap: 14px; }
 .form-group { display: flex; flex-direction: column; gap: 5px; }
@@ -259,38 +259,38 @@ font-size: 11px;
 font-weight: 600;
 letter-spacing: 0.06em;
 text-transform: uppercase;
-color: var(–text-mid);
+color: var(--text-mid);
 }
 .form-input {
-background: var(–bg);
-border: 1px solid var(–border);
+background: var(--bg);
+border: 1px solid var(--border);
 border-radius: 8px;
 padding: 10px 12px;
-font-family: ‘DM Sans’, sans-serif;
+font-family: 'DM Sans', sans-serif;
 font-size: 13px;
-color: var(–text);
+color: var(--text);
 outline: none;
 transition: border-color 0.15s;
 width: 100%;
 }
-.form-input:focus { border-color: var(–red); background: var(–surface); }
-.form-input::placeholder { color: var(–text-faint); }
+.form-input:focus { border-color: var(--red); background: var(--surface); }
+.form-input::placeholder { color: var(--text-faint); }
 textarea.form-input { resize: vertical; min-height: 72px; }
 .slug-row {
 display: flex;
 align-items: center;
 gap: 0;
-background: var(–bg);
-border: 1px solid var(–border);
+background: var(--bg);
+border: 1px solid var(--border);
 border-radius: 8px;
 overflow: hidden;
 }
 .slug-prefix {
 padding: 10px 10px 10px 12px;
 font-size: 12px;
-color: var(–text-faint);
-background: var(–surface2);
-border-right: 1px solid var(–border);
+color: var(--text-faint);
+background: var(--surface2);
+border-right: 1px solid var(--border);
 white-space: nowrap;
 font-family: monospace;
 }
@@ -300,7 +300,7 @@ background: transparent;
 padding: 10px 12px;
 font-family: monospace;
 font-size: 13px;
-color: var(–text);
+color: var(--text);
 outline: none;
 flex: 1;
 }
@@ -311,48 +311,48 @@ gap: 8px;
 padding: 0 18px 18px;
 }
 .btn-save {
-background: var(–black);
+background: var(--black);
 color: white;
 border: none;
 border-radius: 8px;
 padding: 11px;
-font-family: ‘DM Sans’, sans-serif;
+font-family: 'DM Sans', sans-serif;
 font-size: 13px;
 font-weight: 600;
 cursor: pointer;
 transition: background 0.2s;
 }
-.btn-save:hover { background: var(–red); }
+.btn-save:hover { background: var(--red); }
 .btn-preview {
 background: transparent;
-color: var(–red);
-border: 1px solid var(–red-mid);
+color: var(--red);
+border: 1px solid var(--red-mid);
 border-radius: 8px;
 padding: 11px;
-font-family: ‘DM Sans’, sans-serif;
+font-family: 'DM Sans', sans-serif;
 font-size: 13px;
 font-weight: 500;
 cursor: pointer;
 transition: all 0.2s;
 }
-.btn-preview:hover { background: var(–red-light); }
+.btn-preview:hover { background: var(--red-light); }
 .btn-cancel {
 background: transparent;
-color: var(–text-mid);
-border: 1px solid var(–border-dark);
+color: var(--text-mid);
+border: 1px solid var(--border-dark);
 border-radius: 8px;
 padding: 11px;
-font-family: ‘DM Sans’, sans-serif;
+font-family: 'DM Sans', sans-serif;
 font-size: 13px;
 cursor: pointer;
 transition: all 0.2s;
 }
-.btn-cancel:hover { background: var(–surface2); }
+.btn-cancel:hover { background: var(--surface2); }
 
 /* VENUE PREVIEW SCREEN */
 .venue-hero {
-background: var(–surface);
-border: 1px solid var(–border);
+background: var(--surface);
+border: 1px solid var(--border);
 border-radius: 14px;
 overflow: hidden;
 margin-bottom: 16px;
@@ -367,7 +367,7 @@ align-items: flex-end;
 padding: 20px;
 }
 .venue-hero-img-text {
-font-family: ‘DM Serif Display’, serif;
+font-family: 'DM Serif Display', serif;
 font-size: 36px;
 color: rgba(255,255,255,0.08);
 letter-spacing: -0.02em;
@@ -383,7 +383,7 @@ position: relative;
 z-index: 1;
 }
 .venue-hero-name {
-font-family: ‘DM Serif Display’, serif;
+font-family: 'DM Serif Display', serif;
 font-size: 24px;
 color: white;
 letter-spacing: -0.02em;
@@ -398,8 +398,8 @@ align-items: center;
 gap: 6px;
 }
 .venue-hero-loc::before {
-content: ‘●’;
-color: var(–red);
+content: '•';
+color: var(--red);
 font-size: 8px;
 }
 
@@ -411,7 +411,7 @@ padding: 2px;
 }
 .gallery-thumb {
 height: 80px;
-background: var(–surface2);
+background: var(--surface2);
 display: flex;
 align-items: center;
 justify-content: center;
@@ -428,14 +428,14 @@ gap: 14px;
 .venue-desc {
 font-size: 13px;
 line-height: 1.7;
-color: var(–text-mid);
+color: var(--text-mid);
 }
 .amenities-label {
 font-size: 10px;
 font-weight: 700;
 letter-spacing: 0.1em;
 text-transform: uppercase;
-color: var(–text-faint);
+color: var(--text-faint);
 margin-bottom: 8px;
 }
 .amenities-tags {
@@ -445,17 +445,17 @@ gap: 6px;
 }
 .amenity-tag {
 font-size: 12px;
-border: 1px solid var(–border-dark);
+border: 1px solid var(--border-dark);
 border-radius: 20px;
 padding: 5px 12px;
-color: var(–text-mid);
-background: var(–surface);
+color: var(--text-mid);
+background: var(--surface);
 }
 
 /* SPECS TABLE */
 .specs-card {
-background: var(–surface);
-border: 1px solid var(–border);
+background: var(--surface);
+border: 1px solid var(--border);
 border-radius: 14px;
 overflow: hidden;
 margin-bottom: 16px;
@@ -465,18 +465,18 @@ display: flex;
 justify-content: space-between;
 align-items: center;
 padding: 13px 18px;
-border-bottom: 1px solid var(–border);
+border-bottom: 1px solid var(--border);
 font-size: 13px;
 }
 .spec-row:last-child { border-bottom: none; }
-.spec-key { color: var(–text-mid); }
-.spec-val { font-weight: 500; color: var(–text); text-align: right; }
-.spec-val.red { color: var(–red); font-weight: 600; }
+.spec-key { color: var(--text-mid); }
+.spec-val { font-weight: 500; color: var(--text); text-align: right; }
+.spec-val.red { color: var(--red); font-weight: 600; }
 
 /* CALENDAR */
 .calendar-card {
-background: var(–surface);
-border: 1px solid var(–border);
+background: var(--surface);
+border: 1px solid var(--border);
 border-radius: 14px;
 overflow: hidden;
 margin-bottom: 16px;
@@ -486,12 +486,12 @@ display: flex;
 justify-content: space-between;
 align-items: center;
 padding: 16px 18px;
-border-bottom: 1px solid var(–border);
+border-bottom: 1px solid var(--border);
 }
 .cal-title {
-font-family: ‘DM Serif Display’, serif;
+font-family: 'DM Serif Display', serif;
 font-size: 16px;
-color: var(–text);
+color: var(--text);
 }
 .cal-nav {
 display: flex;
@@ -500,17 +500,17 @@ gap: 8px;
 .cal-btn {
 width: 32px; height: 32px;
 border-radius: 8px;
-border: 1px solid var(–border);
-background: var(–bg);
+border: 1px solid var(--border);
+background: var(--bg);
 cursor: pointer;
 display: flex;
 align-items: center;
 justify-content: center;
 font-size: 14px;
-color: var(–red);
+color: var(--red);
 transition: all 0.15s;
 }
-.cal-btn:hover { background: var(–red-light); border-color: var(–red-mid); }
+.cal-btn:hover { background: var(--red-light); border-color: var(--red-mid); }
 .cal-grid {
 padding: 14px 18px 18px;
 }
@@ -525,7 +525,7 @@ font-size: 10px;
 font-weight: 700;
 letter-spacing: 0.06em;
 text-transform: uppercase;
-color: var(–text-faint);
+color: var(--text-faint);
 padding: 4px 0;
 }
 .cal-dates {
@@ -539,75 +539,75 @@ display: flex;
 align-items: center;
 justify-content: center;
 font-size: 13px;
-color: var(–text-mid);
+color: var(--text-mid);
 border-radius: 8px;
 cursor: pointer;
 transition: all 0.15s;
 }
 .cal-date:hover:not(.empty):not(.past) {
-background: var(–red-light);
-color: var(–red);
+background: var(--red-light);
+color: var(--red);
 }
 .cal-date.empty { cursor: default; }
-.cal-date.past { color: var(–text-faint); cursor: not-allowed; }
+.cal-date.past { color: var(--text-faint); cursor: not-allowed; }
 .cal-date.selected {
-background: var(–red);
+background: var(--red);
 color: white;
 font-weight: 600;
 }
 .cal-date.booked {
-background: var(–surface2);
-color: var(–text-faint);
+background: var(--surface2);
+color: var(--text-faint);
 cursor: not-allowed;
 text-decoration: line-through;
 }
 
 /* BOOKING FORM */
 .booking-card {
-background: var(–surface);
-border: 1px solid var(–border);
+background: var(--surface);
+border: 1px solid var(--border);
 border-radius: 14px;
 overflow: hidden;
 margin-bottom: 16px;
 }
 .booking-header {
 padding: 16px 18px;
-border-bottom: 1px solid var(–border);
+border-bottom: 1px solid var(--border);
 }
 .booking-header h3 {
-font-family: ‘DM Serif Display’, serif;
+font-family: 'DM Serif Display', serif;
 font-size: 18px;
 margin-bottom: 4px;
 }
-.booking-header p { font-size: 12px; color: var(–text-mid); }
+.booking-header p { font-size: 12px; color: var(--text-mid); }
 .booking-body { padding: 18px; display: flex; flex-direction: column; gap: 14px; }
 
 .selected-date-pill {
 display: inline-flex;
 align-items: center;
 gap: 8px;
-background: var(–red-light);
-border: 1px solid var(–red-mid);
+background: var(--red-light);
+border: 1px solid var(--red-mid);
 border-radius: 20px;
 padding: 6px 14px;
 font-size: 12px;
 font-weight: 500;
-color: var(–red);
+color: var(--red);
 }
-.selected-date-pill::before { content: ‘📅’; font-size: 12px; }
+.selected-date-pill::before { content: '[date]'; font-size: 11px; }
 
 .payment-section {
-background: var(–bg);
+background: var(--bg);
 border-radius: 10px;
 padding: 14px;
-border: 1px solid var(–border);
+border: 1px solid var(--border);
 }
 .payment-title {
 font-size: 12px;
 font-weight: 700;
 letter-spacing: 0.06em;
 text-transform: uppercase;
-color: var(–text-mid);
+color: var(--text-mid);
 margin-bottom: 12px;
 }
 .pay-row {
@@ -617,22 +617,22 @@ align-items: center;
 font-size: 13px;
 padding: 4px 0;
 }
-.pay-row .pay-label { color: var(–text-mid); }
+.pay-row .pay-label { color: var(--text-mid); }
 .pay-row .pay-val { font-weight: 600; }
 .pay-row.total {
-border-top: 1px solid var(–border-dark);
+border-top: 1px solid var(--border-dark);
 margin-top: 8px;
 padding-top: 10px;
 }
-.pay-row.total .pay-val { color: var(–red); font-size: 16px; }
+.pay-row.total .pay-val { color: var(--red); font-size: 16px; }
 
 .btn-confirm {
-background: var(–black);
+background: var(--black);
 color: white;
 border: none;
 border-radius: 10px;
 padding: 15px;
-font-family: ‘DM Sans’, sans-serif;
+font-family: 'DM Sans', sans-serif;
 font-size: 14px;
 font-weight: 600;
 cursor: pointer;
@@ -640,10 +640,10 @@ width: 100%;
 transition: background 0.2s;
 letter-spacing: 0.02em;
 }
-.btn-confirm:hover { background: var(–red); }
+.btn-confirm:hover { background: var(--red); }
 .pay-note {
 font-size: 11px;
-color: var(–text-faint);
+color: var(--text-faint);
 text-align: center;
 margin-top: 8px;
 line-height: 1.5;
@@ -651,8 +651,8 @@ line-height: 1.5;
 
 /* BOOKINGS SCREEN */
 .bookings-table {
-background: var(–surface);
-border: 1px solid var(–border);
+background: var(--surface);
+border: 1px solid var(--border);
 border-radius: 14px;
 overflow: hidden;
 }
@@ -660,36 +660,36 @@ overflow: hidden;
 display: grid;
 grid-template-columns: 1.2fr 1fr 0.8fr 0.7fr;
 padding: 10px 16px;
-border-bottom: 1px solid var(–border);
-background: var(–surface2);
+border-bottom: 1px solid var(--border);
+background: var(--surface2);
 }
 .th {
 font-size: 10px;
 font-weight: 700;
 letter-spacing: 0.08em;
 text-transform: uppercase;
-color: var(–text-faint);
+color: var(--text-faint);
 }
 .booking-row {
 display: grid;
 grid-template-columns: 1.2fr 1fr 0.8fr 0.7fr;
 padding: 14px 16px;
-border-bottom: 1px solid var(–border);
+border-bottom: 1px solid var(--border);
 align-items: center;
 transition: background 0.15s;
 }
 .booking-row:last-child { border-bottom: none; }
-.booking-row:hover { background: var(–surface2); }
-.booking-venue { font-weight: 600; font-size: 13px; color: var(–text); }
-.booking-guest { font-size: 12px; color: var(–text-mid); }
-.booking-guest-email { font-size: 10px; color: var(–text-faint); margin-top: 1px; }
-.booking-date { font-size: 12px; color: var(–text-mid); }
-.booking-amount { font-weight: 600; font-size: 13px; color: var(–red); }
+.booking-row:hover { background: var(--surface2); }
+.booking-venue { font-weight: 600; font-size: 13px; color: var(--text); }
+.booking-guest { font-size: 12px; color: var(--text-mid); }
+.booking-guest-email { font-size: 10px; color: var(--text-faint); margin-top: 1px; }
+.booking-date { font-size: 12px; color: var(--text-mid); }
+.booking-amount { font-weight: 600; font-size: 13px; color: var(--red); }
 
 /* SUCCESS STATE */
 .success-card {
-background: var(–surface);
-border: 1px solid var(–border);
+background: var(--surface);
+border: 1px solid var(--border);
 border-radius: 14px;
 padding: 32px 24px;
 text-align: center;
@@ -697,27 +697,27 @@ display: none;
 }
 .success-icon {
 width: 56px; height: 56px;
-background: var(–red-light);
+background: var(--red-light);
 border-radius: 50%;
 display: flex;
 align-items: center;
 justify-content: center;
 font-size: 24px;
 margin: 0 auto 16px;
-border: 2px solid var(–red-mid);
+border: 2px solid var(--red-mid);
 }
 .success-title {
-font-family: ‘DM Serif Display’, serif;
+font-family: 'DM Serif Display', serif;
 font-size: 20px;
-color: var(–text);
+color: var(--text);
 margin-bottom: 8px;
 }
-.success-sub { font-size: 13px; color: var(–text-mid); line-height: 1.6; }
+.success-sub { font-size: 13px; color: var(--text-mid); line-height: 1.6; }
 
 /* DIVIDER */
 .divider {
 height: 1px;
-background: var(–border);
+background: var(--border);
 margin: 20px 0;
 }
 
@@ -731,7 +731,58 @@ to { opacity: 1; transform: translateY(0); }
 /* SCROLLBAR */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(–border-dark); border-radius: 4px; }
+::-webkit-scrollbar-thumb { background: var(--border-dark); border-radius: 4px; }
+.faq-card {
+background: var(--surface);
+border: 1px solid var(--border);
+border-radius: 14px;
+padding: 18px;
+margin-bottom: 16px;
+display: flex;
+flex-direction: column;
+gap: 14px;
+}
+.faq-card h3 {
+font-family: 'DM Serif Display', serif;
+font-size: 18px;
+color: var(--text);
+letter-spacing: -0.02em;
+}
+.faq-list {
+display: flex;
+flex-direction: column;
+gap: 12px;
+}
+.faq-item {
+padding-top: 12px;
+border-top: 1px solid var(--border);
+}
+.faq-item:first-child {
+padding-top: 0;
+border-top: none;
+}
+.faq-q {
+font-size: 12px;
+font-weight: 700;
+letter-spacing: 0.04em;
+text-transform: uppercase;
+color: var(--text);
+margin-bottom: 5px;
+}
+.faq-a {
+font-size: 13px;
+line-height: 1.7;
+color: var(--text-mid);
+}
+.venue-hero-img {
+height: 220px;
+background:
+linear-gradient(180deg, rgba(17,17,16,0.08) 0%, rgba(17,17,16,0.82) 100%),
+url("./swan.webp") center/cover no-repeat;
+}
+.venue-hero-img-text {
+display: none;
+}
 </style>
 
 </head>
@@ -761,7 +812,6 @@ to { opacity: 1; transform: translateY(0); }
       <p>Manage and onboard venues</p>
     </div>
 
-```
 <div class="stats-grid">
   <div class="stat-card">
     <div class="stat-label">Total Venues</div>
@@ -861,7 +911,6 @@ to { opacity: 1; transform: translateY(0); }
     </div>
   </div>
 </div>
-```
 
   </div>
 
@@ -869,22 +918,20 @@ to { opacity: 1; transform: translateY(0); }
 
   <div class="screen" id="screen-preview">
 
-```
 <div class="venue-hero">
   <div class="venue-hero-img">
-    <div class="venue-hero-img-text">WSL</div>
     <div class="venue-hero-overlay">
       <div class="venue-hero-name">White Swan Live</div>
-      <div class="venue-hero-loc">4419 Navigation Blvd, Houston TX &nbsp;·&nbsp; Cap: 200</div>
+      <div class="venue-hero-loc">4419 Navigation Blvd, Houston TX &nbsp;&middot;&nbsp; Cap: 200</div>
     </div>
   </div>
   <div class="venue-gallery">
-    <div class="gallery-thumb">🎙</div>
-    <div class="gallery-thumb">🔊</div>
-    <div class="gallery-thumb">🎚</div>
+    <div class="gallery-thumb">PA</div>
+    <div class="gallery-thumb">SND</div>
+    <div class="gallery-thumb">MIX</div>
   </div>
   <div class="venue-details">
-    <p class="venue-desc">Raw bar venue on Navigation Blvd in East Houston. Established underground room with a real stage, full PA, and a crowd that shows up. Originals only — no cover bands, no tributes.</p>
+    <p class="venue-desc">Raw bar venue on Navigation Blvd in East Houston. Established underground room with a real stage, full PA, and a crowd that shows up. Originals only - no cover bands, no tributes.</p>
     <div>
       <div class="amenities-label">Amenities</div>
       <div class="amenities-tags">
@@ -925,13 +972,30 @@ to { opacity: 1; transform: translateY(0); }
   </div>
 </div>
 
+<div class="faq-card">
+  <h3>Quick FAQ</h3>
+  <div class="faq-list">
+    <div class="faq-item">
+      <div class="faq-q">What are you doing with Venue Portal right now?</div>
+      <div class="faq-a">Venue Portal is being built into a simple booking flow for underground rooms, with White Swan Live up first and more rooms getting added as things settle after the move.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">How does booking work?</div>
+      <div class="faq-a">Promoters lock a date with a flat $100 venue fee, keep 100% of the door, and then finalize lineup and show details after the request comes through.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Is this only for White Swan?</div>
+      <div class="faq-a">No. White Swan Live is the current live example, and the plan is to keep adding more Houston rooms into the same portal as they come online.</div>
+    </div>
+  </div>
+</div>
 <!-- CALENDAR -->
 <div class="calendar-card">
   <div class="cal-header">
     <div class="cal-title" id="cal-month-label">May 2026</div>
     <div class="cal-nav">
-      <button class="cal-btn" onclick="changeMonth(-1)">←</button>
-      <button class="cal-btn" onclick="changeMonth(1)">→</button>
+      <button class="cal-btn" onclick="changeMonth(-1)">&larr;</button>
+      <button class="cal-btn" onclick="changeMonth(1)">&rarr;</button>
     </div>
   </div>
   <div class="cal-grid">
@@ -995,18 +1059,17 @@ to { opacity: 1; transform: translateY(0); }
       </div>
     </div>
 
-    <button class="btn-confirm" onclick="confirmBooking()">Confirm & Pay →</button>
+    <button class="btn-confirm" onclick="confirmBooking()">Confirm & Pay -></button>
     <p class="pay-note">Payments processed via Stripe. You'll receive an email & SMS confirmation within 24hrs.</p>
   </div>
 </div>
 
 <!-- SUCCESS -->
 <div class="success-card" id="success-card">
-  <div class="success-icon">✓</div>
+  <div class="success-icon">OK</div>
   <div class="success-title">Date Locked</div>
   <p class="success-sub">Your booking is confirmed. We'll reach out within 24 hours to finalize details. Check your email for confirmation.</p>
 </div>
-```
 
   </div>
 
@@ -1018,7 +1081,6 @@ to { opacity: 1; transform: translateY(0); }
       <p>Across all venues</p>
     </div>
 
-```
 <div class="bookings-table">
   <div class="bookings-table-header">
     <div class="th">Venue</div>
@@ -1060,7 +1122,6 @@ to { opacity: 1; transform: translateY(0); }
     <div class="booking-amount">$200</div>
   </div>
 </div>
-```
 
   </div>
 
@@ -1196,3 +1257,5 @@ to { opacity: 1; transform: translateY(0); }
 
 </body>
 </html>
+
+
