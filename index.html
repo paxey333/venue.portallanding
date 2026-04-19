@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Venue.Portal - by LogosMinds</title>
+<title>Venue.Portal — by LogosMinds</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -22,13 +22,13 @@
     --black: #111110;
   }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+- { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; }
 
 body {
-background: var(--bg);
-color: var(--text);
-font-family: 'DM Sans', sans-serif;
+background: var(–bg);
+color: var(–text);
+font-family: ‘DM Sans’, sans-serif;
 font-size: 14px;
 line-height: 1.6;
 min-height: 100vh;
@@ -39,14 +39,14 @@ min-height: 100vh;
 max-width: 480px;
 margin: 0 auto;
 min-height: 100vh;
-background: var(--bg);
+background: var(–bg);
 position: relative;
 }
 
 /* TOP BAR */
 .topbar {
-background: var(--surface);
-border-bottom: 1px solid var(--border);
+background: var(–surface);
+border-bottom: 1px solid var(–border);
 padding: 16px 20px;
 display: flex;
 align-items: center;
@@ -56,23 +56,23 @@ top: 0;
 z-index: 100;
 }
 .topbar-logo {
-font-family: 'DM Serif Display', serif;
+font-family: ‘DM Serif Display’, serif;
 font-size: 18px;
-color: var(--text);
+color: var(–text);
 letter-spacing: -0.02em;
 }
-.topbar-logo span { color: var(--red); }
+.topbar-logo span { color: var(–red); }
 .topbar-by {
 font-size: 10px;
 letter-spacing: 0.08em;
 text-transform: uppercase;
-color: var(--text-faint);
+color: var(–text-faint);
 }
 
 /* TAB BAR */
 .tabs {
-background: var(--surface);
-border-bottom: 1px solid var(--border);
+background: var(–surface);
+border-bottom: 1px solid var(–border);
 display: flex;
 padding: 0 20px;
 gap: 0;
@@ -85,7 +85,7 @@ font-size: 12px;
 font-weight: 500;
 letter-spacing: 0.04em;
 padding: 12px 16px;
-color: var(--text-faint);
+color: var(–text-faint);
 cursor: pointer;
 border-bottom: 2px solid transparent;
 transition: all 0.2s;
@@ -93,10 +93,10 @@ user-select: none;
 white-space: nowrap;
 }
 .tab.active {
-color: var(--text);
-border-bottom-color: var(--red);
+color: var(–text);
+border-bottom-color: var(–red);
 }
-.tab:hover:not(.active) { color: var(--text-mid); }
+.tab:hover:not(.active) { color: var(–text-mid); }
 
 /* SCREENS */
 .screen { display: none; padding: 20px; }
@@ -107,14 +107,14 @@ border-bottom-color: var(--red);
 margin-bottom: 20px;
 }
 .admin-header h1 {
-font-family: 'DM Serif Display', serif;
+font-family: ‘DM Serif Display’, serif;
 font-size: 26px;
 letter-spacing: -0.02em;
-color: var(--text);
+color: var(–text);
 margin-bottom: 4px;
 }
 .admin-header p {
-color: var(--text-mid);
+color: var(–text-mid);
 font-size: 13px;
 }
 
@@ -125,8 +125,8 @@ gap: 12px;
 margin-bottom: 24px;
 }
 .stat-card {
-background: var(--surface);
-border: 1px solid var(--border);
+background: var(–surface);
+border: 1px solid var(–border);
 border-radius: 12px;
 padding: 18px;
 }
@@ -135,17 +135,17 @@ padding: 18px;
 font-size: 11px;
 letter-spacing: 0.06em;
 text-transform: uppercase;
-color: var(--text-faint);
+color: var(–text-faint);
 margin-bottom: 6px;
 }
 .stat-value {
-font-family: 'DM Serif Display', serif;
+font-family: ‘DM Serif Display’, serif;
 font-size: 32px;
-color: var(--text);
+color: var(–text);
 letter-spacing: -0.02em;
 line-height: 1;
 }
-.stat-value.red { color: var(--red); }
+.stat-value.red { color: var(–red); }
 
 .section-header {
 display: flex;
@@ -158,26 +158,26 @@ font-size: 13px;
 font-weight: 600;
 letter-spacing: 0.04em;
 text-transform: uppercase;
-color: var(--text-mid);
+color: var(–text-mid);
 }
 .btn-add {
-background: var(--black);
+background: var(–black);
 color: white;
 border: none;
 border-radius: 8px;
 padding: 8px 14px;
 font-size: 12px;
-font-family: 'DM Sans', sans-serif;
+font-family: ‘DM Sans’, sans-serif;
 font-weight: 500;
 cursor: pointer;
 transition: background 0.2s;
 }
-.btn-add:hover { background: var(--red); }
+.btn-add:hover { background: var(–red); }
 
 .venue-list { display: flex; flex-direction: column; gap: 10px; }
 .venue-item {
-background: var(--surface);
-border: 1px solid var(--border);
+background: var(–surface);
+border: 1px solid var(–border);
 border-radius: 12px;
 padding: 16px;
 display: flex;
@@ -189,12 +189,12 @@ gap: 12px;
 .venue-item-name {
 font-weight: 600;
 font-size: 14px;
-color: var(--text);
+color: var(–text);
 margin-bottom: 3px;
 }
 .venue-item-slug {
 font-size: 11px;
-color: var(--text-faint);
+color: var(–text-faint);
 font-family: monospace;
 }
 .venue-item-actions {
@@ -220,29 +220,29 @@ padding: 6px 12px;
 border-radius: 7px;
 cursor: pointer;
 transition: all 0.15s;
-font-family: 'DM Sans', sans-serif;
-border: 1px solid var(--border-dark);
+font-family: ‘DM Sans’, sans-serif;
+border: 1px solid var(–border-dark);
 background: transparent;
-color: var(--text-mid);
+color: var(–text-mid);
 }
-.btn-sm:hover { background: var(--surface2); }
-.btn-sm.red { color: var(--red); border-color: var(--red-mid); }
-.btn-sm.red:hover { background: var(--red-light); }
+.btn-sm:hover { background: var(–surface2); }
+.btn-sm.red { color: var(–red); border-color: var(–red-mid); }
+.btn-sm.red:hover { background: var(–red-light); }
 
 /* ADD VENUE FORM */
 .form-card {
-background: var(--surface);
-border: 1px solid var(--border);
+background: var(–surface);
+border: 1px solid var(–border);
 border-radius: 14px;
 overflow: hidden;
 margin-bottom: 16px;
 }
 .form-card-header {
 padding: 16px 18px;
-border-bottom: 1px solid var(--border);
+border-bottom: 1px solid var(–border);
 font-weight: 600;
 font-size: 14px;
-color: var(--text);
+color: var(–text);
 display: flex;
 align-items: center;
 gap: 8px;
@@ -250,7 +250,7 @@ gap: 8px;
 .form-card-header .dot {
 width: 8px; height: 8px;
 border-radius: 50%;
-background: var(--red);
+background: var(–red);
 }
 .form-body { padding: 18px; display: flex; flex-direction: column; gap: 14px; }
 .form-group { display: flex; flex-direction: column; gap: 5px; }
@@ -259,38 +259,38 @@ font-size: 11px;
 font-weight: 600;
 letter-spacing: 0.06em;
 text-transform: uppercase;
-color: var(--text-mid);
+color: var(–text-mid);
 }
 .form-input {
-background: var(--bg);
-border: 1px solid var(--border);
+background: var(–bg);
+border: 1px solid var(–border);
 border-radius: 8px;
 padding: 10px 12px;
-font-family: 'DM Sans', sans-serif;
+font-family: ‘DM Sans’, sans-serif;
 font-size: 13px;
-color: var(--text);
+color: var(–text);
 outline: none;
 transition: border-color 0.15s;
 width: 100%;
 }
-.form-input:focus { border-color: var(--red); background: var(--surface); }
-.form-input::placeholder { color: var(--text-faint); }
+.form-input:focus { border-color: var(–red); background: var(–surface); }
+.form-input::placeholder { color: var(–text-faint); }
 textarea.form-input { resize: vertical; min-height: 72px; }
 .slug-row {
 display: flex;
 align-items: center;
 gap: 0;
-background: var(--bg);
-border: 1px solid var(--border);
+background: var(–bg);
+border: 1px solid var(–border);
 border-radius: 8px;
 overflow: hidden;
 }
 .slug-prefix {
 padding: 10px 10px 10px 12px;
 font-size: 12px;
-color: var(--text-faint);
-background: var(--surface2);
-border-right: 1px solid var(--border);
+color: var(–text-faint);
+background: var(–surface2);
+border-right: 1px solid var(–border);
 white-space: nowrap;
 font-family: monospace;
 }
@@ -300,7 +300,7 @@ background: transparent;
 padding: 10px 12px;
 font-family: monospace;
 font-size: 13px;
-color: var(--text);
+color: var(–text);
 outline: none;
 flex: 1;
 }
@@ -311,48 +311,48 @@ gap: 8px;
 padding: 0 18px 18px;
 }
 .btn-save {
-background: var(--black);
+background: var(–black);
 color: white;
 border: none;
 border-radius: 8px;
 padding: 11px;
-font-family: 'DM Sans', sans-serif;
+font-family: ‘DM Sans’, sans-serif;
 font-size: 13px;
 font-weight: 600;
 cursor: pointer;
 transition: background 0.2s;
 }
-.btn-save:hover { background: var(--red); }
+.btn-save:hover { background: var(–red); }
 .btn-preview {
 background: transparent;
-color: var(--red);
-border: 1px solid var(--red-mid);
+color: var(–red);
+border: 1px solid var(–red-mid);
 border-radius: 8px;
 padding: 11px;
-font-family: 'DM Sans', sans-serif;
+font-family: ‘DM Sans’, sans-serif;
 font-size: 13px;
 font-weight: 500;
 cursor: pointer;
 transition: all 0.2s;
 }
-.btn-preview:hover { background: var(--red-light); }
+.btn-preview:hover { background: var(–red-light); }
 .btn-cancel {
 background: transparent;
-color: var(--text-mid);
-border: 1px solid var(--border-dark);
+color: var(–text-mid);
+border: 1px solid var(–border-dark);
 border-radius: 8px;
 padding: 11px;
-font-family: 'DM Sans', sans-serif;
+font-family: ‘DM Sans’, sans-serif;
 font-size: 13px;
 cursor: pointer;
 transition: all 0.2s;
 }
-.btn-cancel:hover { background: var(--surface2); }
+.btn-cancel:hover { background: var(–surface2); }
 
 /* VENUE PREVIEW SCREEN */
 .venue-hero {
-background: var(--surface);
-border: 1px solid var(--border);
+background: var(–surface);
+border: 1px solid var(–border);
 border-radius: 14px;
 overflow: hidden;
 margin-bottom: 16px;
@@ -367,7 +367,7 @@ align-items: flex-end;
 padding: 20px;
 }
 .venue-hero-img-text {
-font-family: 'DM Serif Display', serif;
+font-family: ‘DM Serif Display’, serif;
 font-size: 36px;
 color: rgba(255,255,255,0.08);
 letter-spacing: -0.02em;
@@ -383,7 +383,7 @@ position: relative;
 z-index: 1;
 }
 .venue-hero-name {
-font-family: 'DM Serif Display', serif;
+font-family: ‘DM Serif Display’, serif;
 font-size: 24px;
 color: white;
 letter-spacing: -0.02em;
@@ -398,8 +398,8 @@ align-items: center;
 gap: 6px;
 }
 .venue-hero-loc::before {
-content: '•';
-color: var(--red);
+content: ‘●’;
+color: var(–red);
 font-size: 8px;
 }
 
@@ -411,7 +411,7 @@ padding: 2px;
 }
 .gallery-thumb {
 height: 80px;
-background: var(--surface2);
+background: var(–surface2);
 display: flex;
 align-items: center;
 justify-content: center;
@@ -428,14 +428,14 @@ gap: 14px;
 .venue-desc {
 font-size: 13px;
 line-height: 1.7;
-color: var(--text-mid);
+color: var(–text-mid);
 }
 .amenities-label {
 font-size: 10px;
 font-weight: 700;
 letter-spacing: 0.1em;
 text-transform: uppercase;
-color: var(--text-faint);
+color: var(–text-faint);
 margin-bottom: 8px;
 }
 .amenities-tags {
@@ -445,17 +445,17 @@ gap: 6px;
 }
 .amenity-tag {
 font-size: 12px;
-border: 1px solid var(--border-dark);
+border: 1px solid var(–border-dark);
 border-radius: 20px;
 padding: 5px 12px;
-color: var(--text-mid);
-background: var(--surface);
+color: var(–text-mid);
+background: var(–surface);
 }
 
 /* SPECS TABLE */
 .specs-card {
-background: var(--surface);
-border: 1px solid var(--border);
+background: var(–surface);
+border: 1px solid var(–border);
 border-radius: 14px;
 overflow: hidden;
 margin-bottom: 16px;
@@ -465,18 +465,18 @@ display: flex;
 justify-content: space-between;
 align-items: center;
 padding: 13px 18px;
-border-bottom: 1px solid var(--border);
+border-bottom: 1px solid var(–border);
 font-size: 13px;
 }
 .spec-row:last-child { border-bottom: none; }
-.spec-key { color: var(--text-mid); }
-.spec-val { font-weight: 500; color: var(--text); text-align: right; }
-.spec-val.red { color: var(--red); font-weight: 600; }
+.spec-key { color: var(–text-mid); }
+.spec-val { font-weight: 500; color: var(–text); text-align: right; }
+.spec-val.red { color: var(–red); font-weight: 600; }
 
 /* CALENDAR */
 .calendar-card {
-background: var(--surface);
-border: 1px solid var(--border);
+background: var(–surface);
+border: 1px solid var(–border);
 border-radius: 14px;
 overflow: hidden;
 margin-bottom: 16px;
@@ -486,12 +486,12 @@ display: flex;
 justify-content: space-between;
 align-items: center;
 padding: 16px 18px;
-border-bottom: 1px solid var(--border);
+border-bottom: 1px solid var(–border);
 }
 .cal-title {
-font-family: 'DM Serif Display', serif;
+font-family: ‘DM Serif Display’, serif;
 font-size: 16px;
-color: var(--text);
+color: var(–text);
 }
 .cal-nav {
 display: flex;
@@ -500,17 +500,17 @@ gap: 8px;
 .cal-btn {
 width: 32px; height: 32px;
 border-radius: 8px;
-border: 1px solid var(--border);
-background: var(--bg);
+border: 1px solid var(–border);
+background: var(–bg);
 cursor: pointer;
 display: flex;
 align-items: center;
 justify-content: center;
 font-size: 14px;
-color: var(--red);
+color: var(–red);
 transition: all 0.15s;
 }
-.cal-btn:hover { background: var(--red-light); border-color: var(--red-mid); }
+.cal-btn:hover { background: var(–red-light); border-color: var(–red-mid); }
 .cal-grid {
 padding: 14px 18px 18px;
 }
@@ -525,7 +525,7 @@ font-size: 10px;
 font-weight: 700;
 letter-spacing: 0.06em;
 text-transform: uppercase;
-color: var(--text-faint);
+color: var(–text-faint);
 padding: 4px 0;
 }
 .cal-dates {
@@ -539,74 +539,75 @@ display: flex;
 align-items: center;
 justify-content: center;
 font-size: 13px;
-color: var(--text-mid);
+color: var(–text-mid);
 border-radius: 8px;
 cursor: pointer;
 transition: all 0.15s;
 }
 .cal-date:hover:not(.empty):not(.past) {
-background: var(--red-light);
-color: var(--red);
+background: var(–red-light);
+color: var(–red);
 }
 .cal-date.empty { cursor: default; }
-.cal-date.past { color: var(--text-faint); cursor: not-allowed; }
+.cal-date.past { color: var(–text-faint); cursor: not-allowed; }
 .cal-date.selected {
-background: var(--red);
+background: var(–red);
 color: white;
 font-weight: 600;
 }
 .cal-date.booked {
-background: var(--surface2);
-color: var(--text-faint);
+background: var(–surface2);
+color: var(–text-faint);
 cursor: not-allowed;
 text-decoration: line-through;
 }
 
 /* BOOKING FORM */
 .booking-card {
-background: var(--surface);
-border: 1px solid var(--border);
+background: var(–surface);
+border: 1px solid var(–border);
 border-radius: 14px;
 overflow: hidden;
 margin-bottom: 16px;
 }
 .booking-header {
 padding: 16px 18px;
-border-bottom: 1px solid var(--border);
+border-bottom: 1px solid var(–border);
 }
 .booking-header h3 {
-font-family: 'DM Serif Display', serif;
+font-family: ‘DM Serif Display’, serif;
 font-size: 18px;
 margin-bottom: 4px;
 }
-.booking-header p { font-size: 12px; color: var(--text-mid); }
+.booking-header p { font-size: 12px; color: var(–text-mid); }
 .booking-body { padding: 18px; display: flex; flex-direction: column; gap: 14px; }
 
 .selected-date-pill {
 display: inline-flex;
 align-items: center;
 gap: 8px;
-background: var(--red-light);
-border: 1px solid var(--red-mid);
+background: var(–red-light);
+border: 1px solid var(–red-mid);
 border-radius: 20px;
 padding: 6px 14px;
 font-size: 12px;
 font-weight: 500;
-color: var(--red);
+color: var(–red);
 }
+.selected-date-pill::before { content: ‘📅’; font-size: 12px; }
 
 .payment-section {
-background: var(--bg);
+background: var(–bg);
 border-radius: 10px;
 padding: 14px;
-border: 1px solid var(--border);
+border: 1px solid var(–border);
 }
 .payment-title {
 font-size: 12px;
 font-weight: 700;
 letter-spacing: 0.06em;
 text-transform: uppercase;
-color: var(--text-mid);
+color: var(–text-mid);
 margin-bottom: 12px;
 }
 .pay-row {
@@ -616,57 +617,42 @@ align-items: center;
 font-size: 13px;
 padding: 4px 0;
 }
-.pay-row .pay-label { color: var(--text-mid); }
+.pay-row .pay-label { color: var(–text-mid); }
 .pay-row .pay-val { font-weight: 600; }
 .pay-row.total {
-border-top: 1px solid var(--border-dark);
+border-top: 1px solid var(–border-dark);
 margin-top: 8px;
 padding-top: 10px;
 }
-.pay-row.total .pay-val { color: var(--red); font-size: 16px; }
+.pay-row.total .pay-val { color: var(–red); font-size: 16px; }
 
-/* ── STRIPE CTA BUTTON ── */
 .btn-confirm {
-background: var(--black);
+background: var(–black);
 color: white;
 border: none;
 border-radius: 10px;
 padding: 15px;
-font-family: 'DM Sans', sans-serif;
+font-family: ‘DM Sans’, sans-serif;
 font-size: 14px;
 font-weight: 600;
 cursor: pointer;
 width: 100%;
 transition: background 0.2s;
 letter-spacing: 0.02em;
-display: block;
-text-align: center;
-text-decoration: none;
 }
-.btn-confirm:hover { background: var(--red); }
-
+.btn-confirm:hover { background: var(–red); }
 .pay-note {
 font-size: 11px;
-color: var(--text-faint);
+color: var(–text-faint);
 text-align: center;
 margin-top: 8px;
 line-height: 1.5;
 }
 
-/* Validation error state */
-.form-input.error { border-color: var(--red); }
-.error-msg {
-font-size: 11px;
-color: var(--red);
-margin-top: 2px;
-display: none;
-}
-.error-msg.show { display: block; }
-
 /* BOOKINGS SCREEN */
 .bookings-table {
-background: var(--surface);
-border: 1px solid var(--border);
+background: var(–surface);
+border: 1px solid var(–border);
 border-radius: 14px;
 overflow: hidden;
 }
@@ -674,31 +660,66 @@ overflow: hidden;
 display: grid;
 grid-template-columns: 1.2fr 1fr 0.8fr 0.7fr;
 padding: 10px 16px;
-border-bottom: 1px solid var(--border);
-background: var(--surface2);
+border-bottom: 1px solid var(–border);
+background: var(–surface2);
 }
 .th {
 font-size: 10px;
 font-weight: 700;
 letter-spacing: 0.08em;
 text-transform: uppercase;
-color: var(--text-faint);
+color: var(–text-faint);
 }
 .booking-row {
 display: grid;
 grid-template-columns: 1.2fr 1fr 0.8fr 0.7fr;
 padding: 14px 16px;
-border-bottom: 1px solid var(--border);
+border-bottom: 1px solid var(–border);
 align-items: center;
 transition: background 0.15s;
 }
 .booking-row:last-child { border-bottom: none; }
-.booking-row:hover { background: var(--surface2); }
-.booking-venue { font-weight: 600; font-size: 13px; color: var(--text); }
-.booking-guest { font-size: 12px; color: var(--text-mid); }
-.booking-guest-email { font-size: 10px; color: var(--text-faint); margin-top: 1px; }
-.booking-date { font-size: 12px; color: var(--text-mid); }
-.booking-amount { font-weight: 600; font-size: 13px; color: var(--red); }
+.booking-row:hover { background: var(–surface2); }
+.booking-venue { font-weight: 600; font-size: 13px; color: var(–text); }
+.booking-guest { font-size: 12px; color: var(–text-mid); }
+.booking-guest-email { font-size: 10px; color: var(–text-faint); margin-top: 1px; }
+.booking-date { font-size: 12px; color: var(–text-mid); }
+.booking-amount { font-weight: 600; font-size: 13px; color: var(–red); }
+
+/* SUCCESS STATE */
+.success-card {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: 14px;
+padding: 32px 24px;
+text-align: center;
+display: none;
+}
+.success-icon {
+width: 56px; height: 56px;
+background: var(–red-light);
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 24px;
+margin: 0 auto 16px;
+border: 2px solid var(–red-mid);
+}
+.success-title {
+font-family: ‘DM Serif Display’, serif;
+font-size: 20px;
+color: var(–text);
+margin-bottom: 8px;
+}
+.success-sub { font-size: 13px; color: var(–text-mid); line-height: 1.6; }
+
+/* DIVIDER */
+.divider {
+height: 1px;
+background: var(–border);
+margin: 20px 0;
+}
 
 /* FADE IN */
 @keyframes fadeIn {
@@ -710,59 +731,7 @@ to { opacity: 1; transform: translateY(0); }
 /* SCROLLBAR */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border-dark); border-radius: 4px; }
-
-.faq-card {
-background: var(--surface);
-border: 1px solid var(--border);
-border-radius: 14px;
-padding: 18px;
-margin-bottom: 16px;
-display: flex;
-flex-direction: column;
-gap: 14px;
-}
-.faq-card h3 {
-font-family: 'DM Serif Display', serif;
-font-size: 18px;
-color: var(--text);
-letter-spacing: -0.02em;
-}
-.faq-list {
-display: flex;
-flex-direction: column;
-gap: 12px;
-}
-.faq-item {
-padding-top: 12px;
-border-top: 1px solid var(--border);
-}
-.faq-item:first-child {
-padding-top: 0;
-border-top: none;
-}
-.faq-q {
-font-size: 12px;
-font-weight: 700;
-letter-spacing: 0.04em;
-text-transform: uppercase;
-color: var(--text);
-margin-bottom: 5px;
-}
-.faq-a {
-font-size: 13px;
-line-height: 1.7;
-color: var(--text-mid);
-}
-.venue-hero-img {
-height: 220px;
-background:
-linear-gradient(180deg, rgba(17,17,16,0.08) 0%, rgba(17,17,16,0.82) 100%),
-url("data:image/webp;base64,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") center/cover no-repeat;
-}
-.venue-hero-img-text {
-display: none;
-}
+::-webkit-scrollbar-thumb { background: var(–border-dark); border-radius: 4px; }
 </style>
 
 </head>
@@ -770,12 +739,14 @@ display: none;
 <div class="app">
 
   <!-- TOP BAR -->
+
   <div class="topbar">
     <div class="topbar-logo">Venue<span>.</span>Portal</div>
     <div class="topbar-by">by LogosMinds</div>
   </div>
 
   <!-- TABS -->
+
   <div class="tabs">
     <div class="tab active" onclick="switchTab('admin')">Admin</div>
     <div class="tab" onclick="switchTab('preview')">Venue Preview</div>
@@ -783,372 +754,319 @@ display: none;
   </div>
 
   <!-- ADMIN SCREEN -->
+
   <div class="screen active" id="screen-admin">
     <div class="admin-header">
       <h1>Dashboard</h1>
       <p>Manage and onboard venues</p>
     </div>
 
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-label">Total Venues</div>
-        <div class="stat-value" id="stat-venues">2</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Total Bookings</div>
-        <div class="stat-value" id="stat-bookings">3</div>
-      </div>
-      <div class="stat-card full">
-        <div class="stat-label">Revenue</div>
-        <div class="stat-value red" id="stat-revenue">$400</div>
-      </div>
-    </div>
+```
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-label">Total Venues</div>
+    <div class="stat-value" id="stat-venues">2</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Total Bookings</div>
+    <div class="stat-value" id="stat-bookings">3</div>
+  </div>
+  <div class="stat-card full">
+    <div class="stat-label">Revenue</div>
+    <div class="stat-value red" id="stat-revenue">$400</div>
+  </div>
+</div>
 
-    <div class="section-header">
-      <div class="section-title">Venues</div>
-      <button class="btn-add" onclick="toggleAddForm()">+ Add venue</button>
-    </div>
+<div class="section-header">
+  <div class="section-title">Venues</div>
+  <button class="btn-add" onclick="toggleAddForm()">+ Add venue</button>
+</div>
 
-    <!-- ADD VENUE FORM -->
-    <div id="add-form" style="display:none; margin-bottom:16px;">
-      <div class="form-card">
-        <div class="form-card-header">
-          <div class="dot"></div>
-          New Venue
-        </div>
-        <div class="form-body">
-          <div class="form-group">
-            <label class="form-label">Venue Name</label>
-            <input type="text" class="form-input" placeholder="e.g. The Warehouse" id="new-name">
-          </div>
-          <div class="form-group">
-            <label class="form-label">URL Slug</label>
-            <div class="slug-row">
-              <span class="slug-prefix">/venue/</span>
-              <input type="text" class="slug-input" placeholder="the-warehouse" id="new-slug">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Location</label>
-            <input type="text" class="form-input" placeholder="City, State" id="new-location">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Capacity</label>
-            <input type="number" class="form-input" placeholder="100" id="new-capacity">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Description</label>
-            <textarea class="form-input" placeholder="Describe the space..." id="new-desc"></textarea>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Host Email</label>
-            <input type="email" class="form-input" placeholder="host@venue.com" id="new-email">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Host Phone</label>
-            <input type="tel" class="form-input" placeholder="+1 (555) 000-0000" id="new-phone">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Amenities (comma separated)</label>
-            <input type="text" class="form-input" placeholder="Full PA, Stage lighting, Parking" id="new-amenities">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Venue Fee ($)</label>
-            <input type="number" class="form-input" placeholder="100" id="new-fee">
-          </div>
-        </div>
-        <div class="form-actions">
-          <button class="btn-save" onclick="saveVenue()">Save venue</button>
-          <button class="btn-preview" onclick="switchTab('preview')">Preview page</button>
-          <button class="btn-cancel" onclick="toggleAddForm()">Cancel</button>
+<!-- ADD VENUE FORM -->
+<div id="add-form" style="display:none; margin-bottom:16px;">
+  <div class="form-card">
+    <div class="form-card-header">
+      <div class="dot"></div>
+      New Venue
+    </div>
+    <div class="form-body">
+      <div class="form-group">
+        <label class="form-label">Venue Name</label>
+        <input type="text" class="form-input" placeholder="e.g. The Warehouse" id="new-name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">URL Slug</label>
+        <div class="slug-row">
+          <span class="slug-prefix">/venue/</span>
+          <input type="text" class="slug-input" placeholder="the-warehouse" id="new-slug">
         </div>
       </div>
+      <div class="form-group">
+        <label class="form-label">Location</label>
+        <input type="text" class="form-input" placeholder="City, State" id="new-location">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Capacity</label>
+        <input type="number" class="form-input" placeholder="100" id="new-capacity">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-input" placeholder="Describe the space..." id="new-desc"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Host Email</label>
+        <input type="email" class="form-input" placeholder="host@venue.com" id="new-email">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Host Phone</label>
+        <input type="tel" class="form-input" placeholder="+1 (555) 000-0000" id="new-phone">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Amenities (comma separated)</label>
+        <input type="text" class="form-input" placeholder="Full PA, Stage lighting, Parking" id="new-amenities">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Venue Fee ($)</label>
+        <input type="number" class="form-input" placeholder="100" id="new-fee">
+      </div>
     </div>
+    <div class="form-actions">
+      <button class="btn-save" onclick="saveVenue()">Save venue</button>
+      <button class="btn-preview" onclick="switchTab('preview')">Preview page</button>
+      <button class="btn-cancel" onclick="toggleAddForm()">Cancel</button>
+    </div>
+  </div>
+</div>
 
-    <!-- VENUE LIST -->
-    <div class="venue-list" id="venue-list">
-      <div class="venue-item">
-        <div class="venue-item-info">
-          <div class="venue-item-name">White Swan Live</div>
-          <div class="venue-item-slug">/venue/white-swan-live</div>
-        </div>
-        <div class="venue-item-actions">
-          <span class="badge-live">live</span>
-          <button class="btn-sm" onclick="switchTab('preview')">View</button>
-        </div>
-      </div>
-      <div class="venue-item">
-        <div class="venue-item-info">
-          <div class="venue-item-name">The Back Room</div>
-          <div class="venue-item-slug">/venue/the-back-room</div>
-        </div>
-        <div class="venue-item-actions">
-          <span class="badge-live">live</span>
-          <button class="btn-sm" onclick="switchTab('preview')">View</button>
-        </div>
-      </div>
+<!-- VENUE LIST -->
+<div class="venue-list" id="venue-list">
+  <div class="venue-item">
+    <div class="venue-item-info">
+      <div class="venue-item-name">White Swan Live</div>
+      <div class="venue-item-slug">/venue/white-swan-live</div>
     </div>
+    <div class="venue-item-actions">
+      <span class="badge-live">live</span>
+      <button class="btn-sm" onclick="switchTab('preview')">View</button>
+    </div>
+  </div>
+  <div class="venue-item">
+    <div class="venue-item-info">
+      <div class="venue-item-name">The Back Room</div>
+      <div class="venue-item-slug">/venue/the-back-room</div>
+    </div>
+    <div class="venue-item-actions">
+      <span class="badge-live">live</span>
+      <button class="btn-sm" onclick="switchTab('preview')">View</button>
+    </div>
+  </div>
+</div>
+```
+
   </div>
 
   <!-- VENUE PREVIEW SCREEN -->
+
   <div class="screen" id="screen-preview">
 
-    <div class="venue-hero">
-      <div class="venue-hero-img">
-        <div class="venue-hero-overlay">
-          <div class="venue-hero-name">White Swan Live</div>
-          <div class="venue-hero-loc">4419 Navigation Blvd, Houston TX &nbsp;&middot;&nbsp; Cap: 200</div>
-        </div>
+```
+<div class="venue-hero">
+  <div class="venue-hero-img">
+    <div class="venue-hero-img-text">WSL</div>
+    <div class="venue-hero-overlay">
+      <div class="venue-hero-name">White Swan Live</div>
+      <div class="venue-hero-loc">4419 Navigation Blvd, Houston TX &nbsp;·&nbsp; Cap: 200</div>
+    </div>
+  </div>
+  <div class="venue-gallery">
+    <div class="gallery-thumb">🎙</div>
+    <div class="gallery-thumb">🔊</div>
+    <div class="gallery-thumb">🎚</div>
+  </div>
+  <div class="venue-details">
+    <p class="venue-desc">Raw bar venue on Navigation Blvd in East Houston. Established underground room with a real stage, full PA, and a crowd that shows up. Originals only — no cover bands, no tributes.</p>
+    <div>
+      <div class="amenities-label">Amenities</div>
+      <div class="amenities-tags">
+        <span class="amenity-tag">Full PA (5000W)</span>
+        <span class="amenity-tag">Stage lighting</span>
+        <span class="amenity-tag">200 sq ft riser</span>
+        <span class="amenity-tag">Sound engineer</span>
+        <span class="amenity-tag">Parking</span>
       </div>
-      <div class="venue-gallery">
-        <div class="gallery-thumb">PA</div>
-        <div class="gallery-thumb">SND</div>
-        <div class="gallery-thumb">MIX</div>
+    </div>
+  </div>
+</div>
+
+<div class="specs-card">
+  <div class="spec-row">
+    <span class="spec-key">Venue Fee</span>
+    <span class="spec-val red">$100 flat</span>
+  </div>
+  <div class="spec-row">
+    <span class="spec-key">Door Money</span>
+    <span class="spec-val">100% yours</span>
+  </div>
+  <div class="spec-row">
+    <span class="spec-key">Minimum Acts</span>
+    <span class="spec-val">4 on the bill</span>
+  </div>
+  <div class="spec-row">
+    <span class="spec-key">Show Start</span>
+    <span class="spec-val">No earlier than 9pm</span>
+  </div>
+  <div class="spec-row">
+    <span class="spec-key">Show End</span>
+    <span class="spec-val">No earlier than 1am</span>
+  </div>
+  <div class="spec-row">
+    <span class="spec-key">Address</span>
+    <span class="spec-val">Navigation Blvd, Houston TX</span>
+  </div>
+</div>
+
+<!-- CALENDAR -->
+<div class="calendar-card">
+  <div class="cal-header">
+    <div class="cal-title" id="cal-month-label">May 2026</div>
+    <div class="cal-nav">
+      <button class="cal-btn" onclick="changeMonth(-1)">←</button>
+      <button class="cal-btn" onclick="changeMonth(1)">→</button>
+    </div>
+  </div>
+  <div class="cal-grid">
+    <div class="cal-days-header">
+      <div class="cal-day-name">Su</div>
+      <div class="cal-day-name">Mo</div>
+      <div class="cal-day-name">Tu</div>
+      <div class="cal-day-name">We</div>
+      <div class="cal-day-name">Th</div>
+      <div class="cal-day-name">Fr</div>
+      <div class="cal-day-name">Sa</div>
+    </div>
+    <div class="cal-dates" id="cal-dates"></div>
+  </div>
+</div>
+
+<!-- BOOKING FORM -->
+<div class="booking-card" id="booking-form-card">
+  <div class="booking-header">
+    <h3>Book this venue</h3>
+    <p>Select a date above, then complete your booking.</p>
+  </div>
+  <div class="booking-body">
+    <div id="selected-date-display" style="display:none">
+      <span class="selected-date-pill" id="selected-date-text">No date selected</span>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Your Name</label>
+      <input type="text" class="form-input" placeholder="Full name" id="book-name">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input type="email" class="form-input" placeholder="you@email.com" id="book-email">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Phone</label>
+      <input type="tel" class="form-input" placeholder="+1 (555) 000-0000" id="book-phone">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Number of Guests</label>
+      <input type="number" class="form-input" placeholder="Expected headcount" id="book-guests">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes (optional)</label>
+      <textarea class="form-input" placeholder="Any special requirements, lineup info..." id="book-notes"></textarea>
+    </div>
+
+    <div class="payment-section">
+      <div class="payment-title">Payment Summary</div>
+      <div class="pay-row">
+        <span class="pay-label">Venue fee</span>
+        <span class="pay-val">$100.00</span>
       </div>
-      <div class="venue-details">
-        <p class="venue-desc">Raw bar venue on Navigation Blvd in East Houston. Established underground room with a real stage, full PA, and a crowd that shows up. Originals only - no cover bands, no tributes.</p>
-        <div>
-          <div class="amenities-label">Amenities</div>
-          <div class="amenities-tags">
-            <span class="amenity-tag">Full PA (5000W)</span>
-            <span class="amenity-tag">Stage lighting</span>
-            <span class="amenity-tag">200 sq ft riser</span>
-            <span class="amenity-tag">Sound engineer</span>
-            <span class="amenity-tag">Parking</span>
-          </div>
-        </div>
+      <div class="pay-row">
+        <span class="pay-label">Processing</span>
+        <span class="pay-val">$0.00</span>
+      </div>
+      <div class="pay-row total">
+        <span class="pay-label" style="font-weight:600">Total due today</span>
+        <span class="pay-val">$100.00</span>
       </div>
     </div>
 
-    <div class="specs-card">
-      <div class="spec-row">
-        <span class="spec-key">Venue Fee</span>
-        <span class="spec-val red">$100 flat</span>
-      </div>
-      <div class="spec-row">
-        <span class="spec-key">Door Money</span>
-        <span class="spec-val">100% yours</span>
-      </div>
-      <div class="spec-row">
-        <span class="spec-key">Minimum Acts</span>
-        <span class="spec-val">4 on the bill</span>
-      </div>
-      <div class="spec-row">
-        <span class="spec-key">Show Start</span>
-        <span class="spec-val">No earlier than 9pm</span>
-      </div>
-      <div class="spec-row">
-        <span class="spec-key">Show End</span>
-        <span class="spec-val">No earlier than 1am</span>
-      </div>
-      <div class="spec-row">
-        <span class="spec-key">Address</span>
-        <span class="spec-val">Navigation Blvd, Houston TX</span>
-      </div>
-    </div>
+    <button class="btn-confirm" onclick="confirmBooking()">Confirm & Pay →</button>
+    <p class="pay-note">Payments processed via Stripe. You'll receive an email & SMS confirmation within 24hrs.</p>
+  </div>
+</div>
 
-    <div class="faq-card">
-      <h3>Quick FAQ</h3>
-      <div class="faq-list">
-        <div class="faq-item">
-          <div class="faq-q">What are you doing with Venue Portal right now?</div>
-          <div class="faq-a">Venue Portal is being built into a simple booking flow for underground rooms, with White Swan Live up first and more rooms getting added as things settle after the move.</div>
-        </div>
-        <div class="faq-item">
-          <div class="faq-q">How does booking work?</div>
-          <div class="faq-a">Promoters lock a date with a flat $100 venue fee, keep 100% of the door, and then finalize lineup and show details after the request comes through.</div>
-        </div>
-        <div class="faq-item">
-          <div class="faq-q">Is this only for White Swan?</div>
-          <div class="faq-a">No. White Swan Live is the current live example, and the plan is to keep adding more Houston rooms into the same portal as they come online.</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- CALENDAR -->
-    <div class="calendar-card">
-      <div class="cal-header">
-        <div class="cal-title" id="cal-month-label">May 2026</div>
-        <div class="cal-nav">
-          <button class="cal-btn" onclick="changeMonth(-1)">&larr;</button>
-          <button class="cal-btn" onclick="changeMonth(1)">&rarr;</button>
-        </div>
-      </div>
-      <div class="cal-grid">
-        <div class="cal-days-header">
-          <div class="cal-day-name">Su</div>
-          <div class="cal-day-name">Mo</div>
-          <div class="cal-day-name">Tu</div>
-          <div class="cal-day-name">We</div>
-          <div class="cal-day-name">Th</div>
-          <div class="cal-day-name">Fr</div>
-          <div class="cal-day-name">Sa</div>
-        </div>
-        <div class="cal-dates" id="cal-dates"></div>
-      </div>
-    </div>
-
-    <!-- BOOKING FORM -->
-    <div class="booking-card" id="booking-form-card">
-      <div class="booking-header">
-        <h3>Book this venue</h3>
-        <p>Select a date above, then complete your booking.</p>
-      </div>
-      <div class="booking-body">
-
-        <div id="selected-date-display" style="display:none">
-          <span class="selected-date-pill" id="selected-date-text">No date selected</span>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Your Name</label>
-          <input type="text" class="form-input" placeholder="Full name" id="book-name">
-          <div class="error-msg" id="err-name">Please enter your name</div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Email</label>
-          <input type="email" class="form-input" placeholder="you@email.com" id="book-email">
-          <div class="error-msg" id="err-email">Please enter a valid email</div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Phone</label>
-          <input type="tel" class="form-input" placeholder="+1 (555) 000-0000" id="book-phone">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Number of Guests</label>
-          <input type="number" class="form-input" placeholder="Expected headcount" id="book-guests">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Notes (optional)</label>
-          <textarea class="form-input" placeholder="Any special requirements, lineup info..." id="book-notes"></textarea>
-        </div>
-
-        <div class="payment-section">
-          <div class="payment-title">Payment Summary</div>
-          <div class="pay-row">
-            <span class="pay-label">Venue fee</span>
-            <span class="pay-val">$100.00</span>
-          </div>
-          <div class="pay-row">
-            <span class="pay-label">Processing</span>
-            <span class="pay-val">$0.00</span>
-          </div>
-          <div class="pay-row total">
-            <span class="pay-label" style="font-weight:600">Total due today</span>
-            <span class="pay-val">$100.00</span>
-          </div>
-        </div>
-
-        <!--
-          STRIPE LIVE PAYMENT BUTTON
-          Validates the form locally, then redirects to the live Stripe checkout.
-          The date, name, email, and phone are appended as URL params so Stripe
-          can prefill the customer's email and you can see context in the dashboard.
-        -->
-        <button class="btn-confirm" onclick="goToStripe()">Confirm &amp; Pay &rarr;</button>
-
-        <p class="pay-note">
-          Payments processed securely via Stripe. You'll receive an email confirmation within 24hrs.
-        </p>
-
-      </div>
-    </div>
+<!-- SUCCESS -->
+<div class="success-card" id="success-card">
+  <div class="success-icon">✓</div>
+  <div class="success-title">Date Locked</div>
+  <p class="success-sub">Your booking is confirmed. We'll reach out within 24 hours to finalize details. Check your email for confirmation.</p>
+</div>
+```
 
   </div>
 
   <!-- ALL BOOKINGS SCREEN -->
+
   <div class="screen" id="screen-bookings">
     <div class="admin-header">
       <h1>All Bookings</h1>
       <p>Across all venues</p>
     </div>
 
-    <div class="bookings-table">
-      <div class="bookings-table-header">
-        <div class="th">Venue</div>
-        <div class="th">Guest</div>
-        <div class="th">Date</div>
-        <div class="th">Amount</div>
-      </div>
-      <div class="booking-row">
-        <div><div class="booking-venue">White Swan</div></div>
-        <div>
-          <div class="booking-guest">Marcus R.</div>
-          <div class="booking-guest-email">marcus@band.com</div>
-        </div>
-        <div class="booking-date">May 10, 2026</div>
-        <div class="booking-amount">$100</div>
-      </div>
-      <div class="booking-row">
-        <div><div class="booking-venue">White Swan</div></div>
-        <div>
-          <div class="booking-guest">DJ Kilo</div>
-          <div class="booking-guest-email">kilo@sets.com</div>
-        </div>
-        <div class="booking-date">May 17, 2026</div>
-        <div class="booking-amount">$100</div>
-      </div>
-      <div class="booking-row">
-        <div><div class="booking-venue">Back Room</div></div>
-        <div>
-          <div class="booking-guest">Prism Crew</div>
-          <div class="booking-guest-email">prism@shows.com</div>
-        </div>
-        <div class="booking-date">May 24, 2026</div>
-        <div class="booking-amount">$200</div>
-      </div>
+```
+<div class="bookings-table">
+  <div class="bookings-table-header">
+    <div class="th">Venue</div>
+    <div class="th">Guest</div>
+    <div class="th">Date</div>
+    <div class="th">Amount</div>
+  </div>
+  <div class="booking-row">
+    <div>
+      <div class="booking-venue">White Swan</div>
     </div>
+    <div>
+      <div class="booking-guest">Marcus R.</div>
+      <div class="booking-guest-email">marcus@band.com</div>
+    </div>
+    <div class="booking-date">May 10, 2026</div>
+    <div class="booking-amount">$100</div>
+  </div>
+  <div class="booking-row">
+    <div>
+      <div class="booking-venue">White Swan</div>
+    </div>
+    <div>
+      <div class="booking-guest">DJ Kilo</div>
+      <div class="booking-guest-email">kilo@sets.com</div>
+    </div>
+    <div class="booking-date">May 17, 2026</div>
+    <div class="booking-amount">$100</div>
+  </div>
+  <div class="booking-row">
+    <div>
+      <div class="booking-venue">Back Room</div>
+    </div>
+    <div>
+      <div class="booking-guest">Prism Crew</div>
+      <div class="booking-guest-email">prism@shows.com</div>
+    </div>
+    <div class="booking-date">May 24, 2026</div>
+    <div class="booking-amount">$200</div>
+  </div>
+</div>
+```
+
   </div>
 
 </div>
 
 <script>
-  // ── STRIPE LIVE PAYMENT LINK ──────────────────────────────────────────────
-  const STRIPE_LINK = 'https://buy.stripe.com/28E3cwd3AbLUdeVe9257W00';
-
-  // Validate form, then redirect to Stripe with prefill params
-  function goToStripe() {
-    const name  = document.getElementById('book-name').value.trim();
-    const email = document.getElementById('book-email').value.trim();
-    const phone = document.getElementById('book-phone').value.trim();
-    const date  = document.getElementById('selected-date-text').textContent;
-    const notes = document.getElementById('book-notes').value.trim();
-
-    // Validate required fields
-    let valid = true;
-
-    if (!name) {
-      document.getElementById('book-name').classList.add('error');
-      document.getElementById('err-name').classList.add('show');
-      valid = false;
-    } else {
-      document.getElementById('book-name').classList.remove('error');
-      document.getElementById('err-name').classList.remove('show');
-    }
-
-    if (!email || !email.includes('@')) {
-      document.getElementById('book-email').classList.add('error');
-      document.getElementById('err-email').classList.add('show');
-      valid = false;
-    } else {
-      document.getElementById('book-email').classList.remove('error');
-      document.getElementById('err-email').classList.remove('show');
-    }
-
-    if (!valid) return;
-
-    // Build Stripe URL — prefills customer email so it shows in your dashboard
-    const params = new URLSearchParams({
-      prefilled_email: email,
-      // These show in Stripe metadata / payment notes
-      client_reference_id: `swan-${Date.now()}`
-    });
-
-    // Open Stripe checkout in same tab
-    window.location.href = `${STRIPE_LINK}?${params.toString()}`;
-  }
-  // ─────────────────────────────────────────────────────────────────────────
-
   // TAB SWITCHING
   function switchTab(tab) {
     document.querySelectorAll('.tab').forEach((t, i) => {
@@ -1184,6 +1102,7 @@ display: none;
       </div>`;
     list.appendChild(item);
 
+    // update stats
     const curr = parseInt(document.getElementById('stat-venues').textContent);
     document.getElementById('stat-venues').textContent = curr + 1;
 
@@ -1225,15 +1144,14 @@ display: none;
       const thisDate = new Date(currentYear, currentMonth, d);
       const isPast = thisDate < new Date(today.getFullYear(), today.getMonth(), today.getDate());
       const isBooked = bookedDates.includes(d);
-      const isSelected = selectedDate &&
-        selectedDate.getDate() === d &&
-        selectedDate.getMonth() === currentMonth &&
-        selectedDate.getFullYear() === currentYear;
+      const isSelected = selectedDate && selectedDate.getDate() === d && selectedDate.getMonth() === currentMonth && selectedDate.getFullYear() === currentYear;
 
       if (isPast) el.classList.add('past');
       else if (isBooked) el.classList.add('booked');
       else if (isSelected) el.classList.add('selected');
-      else el.addEventListener('click', () => selectDate(d));
+      else {
+        el.addEventListener('click', () => selectDate(d));
+      }
 
       datesEl.appendChild(el);
     }
@@ -1250,8 +1168,27 @@ display: none;
   function changeMonth(dir) {
     currentMonth += dir;
     if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-    if (currentMonth < 0)  { currentMonth = 11; currentYear--; }
+    if (currentMonth < 0) { currentMonth = 11; currentYear--; }
     renderCalendar();
+  }
+
+  // BOOKING CONFIRM
+  function confirmBooking() {
+    const name = document.getElementById('book-name').value;
+    const email = document.getElementById('book-email').value;
+    if (!name || !email) {
+      alert('Please fill in your name and email.');
+      return;
+    }
+
+    document.getElementById('booking-form-card').style.display = 'none';
+    document.getElementById('success-card').style.display = 'block';
+
+    // Update stats
+    const curr = parseInt(document.getElementById('stat-bookings').textContent);
+    document.getElementById('stat-bookings').textContent = curr + 1;
+    const rev = parseInt(document.getElementById('stat-revenue').textContent.replace('$','').replace(',',''));
+    document.getElementById('stat-revenue').textContent = '$' + (rev + 100).toLocaleString();
   }
 
   renderCalendar();
