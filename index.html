@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Venue.Portal — by LogosMinds</title>
+<title>Venue.Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -742,7 +742,6 @@ to { opacity: 1; transform: translateY(0); }
 
   <div class="topbar">
     <div class="topbar-logo">Venue<span>.</span>Portal</div>
-    <div class="topbar-by">by LogosMinds</div>
   </div>
 
   <!-- TABS -->
@@ -765,15 +764,15 @@ to { opacity: 1; transform: translateY(0); }
 <div class="stats-grid">
   <div class="stat-card">
     <div class="stat-label">Total Venues</div>
-    <div class="stat-value" id="stat-venues">2</div>
+    <div class="stat-value" id="stat-venues">1</div>
   </div>
   <div class="stat-card">
     <div class="stat-label">Total Bookings</div>
-    <div class="stat-value" id="stat-bookings">3</div>
+    <div class="stat-value" id="stat-bookings">0</div>
   </div>
   <div class="stat-card full">
     <div class="stat-label">Revenue</div>
-    <div class="stat-value red" id="stat-revenue">$400</div>
+    <div class="stat-value red" id="stat-revenue">$0</div>
   </div>
 </div>
 
@@ -844,16 +843,6 @@ to { opacity: 1; transform: translateY(0); }
     <div class="venue-item-info">
       <div class="venue-item-name">White Swan Live</div>
       <div class="venue-item-slug">/venue/white-swan-live</div>
-    </div>
-    <div class="venue-item-actions">
-      <span class="badge-live">live</span>
-      <button class="btn-sm" onclick="switchTab('preview')">View</button>
-    </div>
-  </div>
-  <div class="venue-item">
-    <div class="venue-item-info">
-      <div class="venue-item-name">The Back Room</div>
-      <div class="venue-item-slug">/venue/the-back-room</div>
     </div>
     <div class="venue-item-actions">
       <span class="badge-live">live</span>
@@ -1026,38 +1015,8 @@ to { opacity: 1; transform: translateY(0); }
     <div class="th">Date</div>
     <div class="th">Amount</div>
   </div>
-  <div class="booking-row">
-    <div>
-      <div class="booking-venue">White Swan</div>
-    </div>
-    <div>
-      <div class="booking-guest">Marcus R.</div>
-      <div class="booking-guest-email">marcus@band.com</div>
-    </div>
-    <div class="booking-date">May 10, 2026</div>
-    <div class="booking-amount">$100</div>
-  </div>
-  <div class="booking-row">
-    <div>
-      <div class="booking-venue">White Swan</div>
-    </div>
-    <div>
-      <div class="booking-guest">DJ Kilo</div>
-      <div class="booking-guest-email">kilo@sets.com</div>
-    </div>
-    <div class="booking-date">May 17, 2026</div>
-    <div class="booking-amount">$100</div>
-  </div>
-  <div class="booking-row">
-    <div>
-      <div class="booking-venue">Back Room</div>
-    </div>
-    <div>
-      <div class="booking-guest">Prism Crew</div>
-      <div class="booking-guest-email">prism@shows.com</div>
-    </div>
-    <div class="booking-date">May 24, 2026</div>
-    <div class="booking-amount">$200</div>
+  <div style="padding: 32px 16px; text-align: center; color: var(--text-faint); font-size: 13px;">
+    No bookings yet — they'll show up here as they come in.
   </div>
 </div>
 ```
