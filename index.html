@@ -2,1462 +2,750 @@
 
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Venue.Portal</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
 <style>
-  :root {
-    --bg: #f5f4f2;
-    --surface: #ffffff;
-    --surface2: #f0efed;
-    --border: #e5e3df;
-    --border-dark: #d0cdc8;
-    --text: #1a1916;
-    --text-mid: #6b6860;
-    --text-faint: #b0ada8;
-    --red: #c0392b;
-    --red-light: #fdf2f1;
-    --red-mid: #e8c4c0;
-    --black: #111110;
-  }
 
-- { margin: 0; padding: 0; box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
-
-body {
-background: var(–bg);
-color: var(–text);
-font-family: ‘DM Sans’, sans-serif;
-font-size: 14px;
-line-height: 1.6;
-min-height: 100vh;
+/* ════════════════════════════════════════════════════════
+VENUE IMAGE — swap this URL to change the hero photo
+Recommended: wide landscape shot, 1400px+ wide
+════════════════════════════════════════════════════════ */
+:root {
+--venue-image: url(‘data:image/webp;base64,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’);
+/* ↑ REPLACE with your venue photo URL */
 }
 
-/* APP SHELL */
-.app {
-max-width: 480px;
-margin: 0 auto;
-min-height: 100vh;
-background: var(–bg);
+/* ════════════════════════════════════════════════════════
+DESIGN TOKENS
+════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+--bg:        #111111;
+--surface:   #1a1a1a;
+--surface2:  #222222;
+--border:    #2a2a2a;
+--border2:   #333333;
+--text:      #f5f5f5;
+--text2:     #999999;
+--text3:     #555555;
+--green:     #4ade80;
+--radius:    6px;
+--radius-lg: 10px;
+--mono:      ‘DM Mono’, monospace;
+--sans:      ‘DM Sans’, sans-serif;
+--display:   ‘Syne’, sans-serif;
+}
+
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 16px; line-height: 1.5; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+/* ── NAV ── */
+.nav { display: flex; align-items: center; background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; position: sticky; top: 0; z-index: 100; }
+.nav-brand { font-family: var(--display); font-weight: 800; font-size: 17px; letter-spacing: -0.5px; color: var(--text); padding: 18px 20px 18px 0; border-right: 1px solid var(--border); margin-right: 4px; }
+.nav-brand span { color: var(--text2); }
+.tab-btn { background: none; border: none; cursor: pointer; font-family: var(--sans); font-size: 13px; font-weight: 500; color: var(--text3); padding: 18px 16px; position: relative; transition: color .2s; letter-spacing: .02em; }
+.tab-btn:hover { color: var(--text2); }
+.tab-btn.active { color: var(--text); }
+.tab-btn.active::after { content: ‘’; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--text); }
+
+/* ── PANELS ── */
+.panel { display: none; padding: 32px 24px; max-width: 960px; margin: 0 auto; }
+.panel.active { display: block; }
+
+/* ── ADMIN ── */
+.page-heading { font-family: var(--display); font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+.page-sub { color: var(--text3); font-size: 14px; margin-bottom: 28px; }
+.stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 28px; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px 24px; }
+.stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--text3); margin-bottom: 8px; font-family: var(--mono); }
+.stat-val { font-family: var(--display); font-size: 32px; font-weight: 700; }
+.section-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.section-title { font-size: 13px; text-transform: uppercase; letter-spacing: .1em; color: var(--text3); font-family: var(--mono); }
+.btn-sm { background: var(--surface2); color: var(--text); border: 1px solid var(--border2); cursor: pointer; font-family: var(--sans); font-size: 12px; font-weight: 600; padding: 8px 14px; border-radius: var(--radius); letter-spacing: .03em; transition: background .15s; }
+.btn-sm:hover { background: var(--border); }
+.venue-list-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.vli-name { font-family: var(--display); font-size: 16px; font-weight: 700; }
+.vli-slug { font-size: 12px; color: var(--text3); font-family: var(--mono); margin-top: 2px; }
+.tag { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; }
+.tag-live { background: #1a3a1a; color: var(--green); }
+.vli-actions { display: flex; gap: 8px; }
+.btn-ghost { background: none; border: 1px solid var(--border2); color: var(--text2); font-family: var(--sans); font-size: 12px; font-weight: 500; padding: 7px 12px; border-radius: var(--radius); cursor: pointer; transition: border-color .15s, color .15s; }
+.btn-ghost:hover { border-color: var(--text2); color: var(--text); }
+.add-form { display: none; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 20px; }
+.add-form.open { display: block; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-field { display: flex; flex-direction: column; gap: 6px; }
+.form-field.full { grid-column: 1 / -1; }
+label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--text3); font-family: var(--mono); }
+input, textarea { background: var(--bg); border: 1px solid var(--border2); color: var(--text); font-family: var(--sans); font-size: 14px; padding: 10px 12px; border-radius: var(--radius); outline: none; transition: border-color .15s; }
+input:focus, textarea:focus { border-color: var(--text2); }
+textarea { resize: vertical; min-height: 80px; }
+.form-actions { display: flex; gap: 10px; margin-top: 16px; }
+.btn-primary { background: var(--text); color: #111; border: none; cursor: pointer; font-family: var(--sans); font-size: 13px; font-weight: 700; padding: 10px 20px; border-radius: var(--radius); transition: opacity .15s; }
+.btn-primary:hover { opacity: .85; }
+.btn-cancel { background: none; border: 1px solid var(--border2); color: var(--text3); font-family: var(--sans); font-size: 13px; padding: 10px 16px; border-radius: var(--radius); cursor: pointer; }
+
+/* ════════════════════════════════════════════════════════
+VENUE PHOTO HERO
+Controlled via --venue-image CSS variable at top of file.
+Falls back gracefully if no image is set or fails to load.
+════════════════════════════════════════════════════════ */
+.venue-photo {
+background-image: var(--venue-image);
+background-size: cover;
+background-position: center;
+border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+height: 260px;
 position: relative;
+overflow: hidden;
 }
+.venue-photo::after {
+content: ‘’;
+position: absolute; inset: 0;
+background: linear-gradient(to top, rgba(0,0,0,.88) 0%, rgba(0,0,0,.25) 55%, transparent 100%);
+}
+.venue-photo.no-image {
+background-image: none;
+background-color: var(--surface);
+border: 1px solid var(--border);
+border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+display: flex; align-items: center; justify-content: center;
+}
+.venue-photo.no-image::after { display: none; }
+.venue-photo-placeholder { display: none; text-align: center; font-size: 12px; color: var(--text3); font-family: var(--mono); line-height: 1.8; }
+.venue-photo.no-image .venue-photo-placeholder { display: block; }
+.venue-photo-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px 24px; z-index: 1; }
+.venue-status { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+.dot-label { font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--green); font-family: var(--mono); font-weight: 500; }
+.venue-name { font-family: var(--display); font-size: 28px; font-weight: 800; letter-spacing: -0.5px; text-shadow: 0 1px 6px rgba(0,0,0,.6); }
+.venue-meta { font-size: 13px; color: rgba(255,255,255,.5); font-family: var(--mono); margin-top: 3px; }
 
-/* TOP BAR */
-.topbar {
-background: var(–surface);
-border-bottom: 1px solid var(–border);
-padding: 16px 20px;
-display: flex;
-align-items: center;
-justify-content: space-between;
-position: sticky;
-top: 0;
-z-index: 100;
-}
-.topbar-logo {
-font-family: ‘DM Serif Display’, serif;
-font-size: 18px;
-color: var(–text);
-letter-spacing: -0.02em;
-}
-.topbar-logo span { color: var(–red); }
-.topbar-by {
-font-size: 10px;
-letter-spacing: 0.08em;
-text-transform: uppercase;
-color: var(–text-faint);
-}
-
-/* TAB BAR */
-.tabs {
-background: var(–surface);
-border-bottom: 1px solid var(–border);
-display: flex;
-padding: 0 20px;
-gap: 0;
-position: sticky;
-top: 57px;
-z-index: 99;
-}
-.tab {
-font-size: 12px;
-font-weight: 500;
-letter-spacing: 0.04em;
-padding: 12px 16px;
-color: var(–text-faint);
-cursor: pointer;
-border-bottom: 2px solid transparent;
-transition: all 0.2s;
-user-select: none;
-white-space: nowrap;
-}
-.tab.active {
-color: var(–text);
-border-bottom-color: var(–red);
-}
-.tab:hover:not(.active) { color: var(–text-mid); }
-
-/* SCREENS */
-.screen { display: none; padding: 20px; }
-.screen.active { display: block; }
-
-/* ADMIN SCREEN */
-.admin-header {
-margin-bottom: 20px;
-}
-.admin-header h1 {
-font-family: ‘DM Serif Display’, serif;
-font-size: 26px;
-letter-spacing: -0.02em;
-color: var(–text);
-margin-bottom: 4px;
-}
-.admin-header p {
-color: var(–text-mid);
-font-size: 13px;
-}
-
-.stats-grid {
-display: grid;
-grid-template-columns: 1fr 1fr;
-gap: 12px;
-margin-bottom: 24px;
-}
-.stat-card {
-background: var(–surface);
-border: 1px solid var(–border);
-border-radius: 12px;
-padding: 18px;
-}
-.stat-card.full { grid-column: 1 / -1; }
-.stat-label {
-font-size: 11px;
-letter-spacing: 0.06em;
-text-transform: uppercase;
-color: var(–text-faint);
-margin-bottom: 6px;
-}
-.stat-value {
-font-family: ‘DM Serif Display’, serif;
-font-size: 32px;
-color: var(–text);
-letter-spacing: -0.02em;
-line-height: 1;
-}
-.stat-value.red { color: var(–red); }
-
-.section-header {
-display: flex;
-justify-content: space-between;
-align-items: center;
+/* Strip below photo that joins it to key stats visually */
+.venue-photo-base {
+background: var(--surface); border: 1px solid var(--border); border-top: none;
+border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+height: 8px;
 margin-bottom: 14px;
 }
-.section-title {
-font-size: 13px;
-font-weight: 600;
-letter-spacing: 0.04em;
-text-transform: uppercase;
-color: var(–text-mid);
-}
-.btn-add {
-background: var(–black);
-color: white;
-border: none;
-border-radius: 8px;
-padding: 8px 14px;
-font-size: 12px;
-font-family: ‘DM Sans’, sans-serif;
-font-weight: 500;
-cursor: pointer;
-transition: background 0.2s;
-}
-.btn-add:hover { background: var(–red); }
 
-.venue-list { display: flex; flex-direction: column; gap: 10px; }
-.venue-item {
-background: var(–surface);
-border: 1px solid var(–border);
-border-radius: 12px;
-padding: 16px;
-display: flex;
-align-items: center;
-justify-content: space-between;
-gap: 12px;
-}
-.venue-item-info { flex: 1; min-width: 0; }
-.venue-item-name {
-font-weight: 600;
-font-size: 14px;
-color: var(–text);
-margin-bottom: 3px;
-}
-.venue-item-slug {
-font-size: 11px;
-color: var(–text-faint);
-font-family: monospace;
-}
-.venue-item-actions {
-display: flex;
-align-items: center;
-gap: 8px;
-flex-shrink: 0;
-}
-.badge-live {
-font-size: 10px;
-font-weight: 600;
-letter-spacing: 0.06em;
-text-transform: uppercase;
-color: #2d7a4f;
-background: #e6f4ed;
-border-radius: 20px;
-padding: 3px 9px;
-}
-.btn-sm {
-font-size: 12px;
-font-weight: 500;
-padding: 6px 12px;
-border-radius: 7px;
-cursor: pointer;
-transition: all 0.15s;
-font-family: ‘DM Sans’, sans-serif;
-border: 1px solid var(–border-dark);
-background: transparent;
-color: var(–text-mid);
-}
-.btn-sm:hover { background: var(–surface2); }
-.btn-sm.red { color: var(–red); border-color: var(–red-mid); }
-.btn-sm.red:hover { background: var(–red-light); }
+/* ── KEY STATS ── */
+.key-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 20px; }
+.stat-pill { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px 14px; text-align: center; }
+.stat-pill-label { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--text2); font-family: var(--mono); margin-bottom: 5px; }
+.stat-pill-val { font-family: var(--display); font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.3; }
 
-/* ADD VENUE FORM */
-.form-card {
-background: var(–surface);
-border: 1px solid var(–border);
-border-radius: 14px;
-overflow: hidden;
-margin-bottom: 16px;
-}
-.form-card-header {
-padding: 16px 18px;
-border-bottom: 1px solid var(–border);
-font-weight: 600;
-font-size: 14px;
-color: var(–text);
-display: flex;
-align-items: center;
-gap: 8px;
-}
-.form-card-header .dot {
-width: 8px; height: 8px;
-border-radius: 50%;
-background: var(–red);
-}
-.form-body { padding: 18px; display: flex; flex-direction: column; gap: 14px; }
-.form-group { display: flex; flex-direction: column; gap: 5px; }
-.form-label {
-font-size: 11px;
-font-weight: 600;
-letter-spacing: 0.06em;
-text-transform: uppercase;
-color: var(–text-mid);
-}
-.form-input {
-background: var(–bg);
-border: 1px solid var(–border);
-border-radius: 8px;
-padding: 10px 12px;
-font-family: ‘DM Sans’, sans-serif;
-font-size: 13px;
-color: var(–text);
-outline: none;
-transition: border-color 0.15s;
-width: 100%;
-}
-.form-input:focus { border-color: var(–red); background: var(–surface); }
-.form-input::placeholder { color: var(–text-faint); }
-textarea.form-input { resize: vertical; min-height: 72px; }
-.slug-row {
-display: flex;
-align-items: center;
-gap: 0;
-background: var(–bg);
-border: 1px solid var(–border);
-border-radius: 8px;
-overflow: hidden;
-}
-.slug-prefix {
-padding: 10px 10px 10px 12px;
-font-size: 12px;
-color: var(–text-faint);
-background: var(–surface2);
-border-right: 1px solid var(–border);
-white-space: nowrap;
-font-family: monospace;
-}
-.slug-input {
-border: none;
-background: transparent;
-padding: 10px 12px;
-font-family: monospace;
-font-size: 13px;
-color: var(–text);
-outline: none;
-flex: 1;
-}
-.form-actions {
-display: grid;
-grid-template-columns: 1fr 1fr 1fr;
-gap: 8px;
-padding: 0 18px 18px;
-}
-.btn-save {
-background: var(–black);
-color: white;
-border: none;
-border-radius: 8px;
-padding: 11px;
-font-family: ‘DM Sans’, sans-serif;
-font-size: 13px;
-font-weight: 600;
-cursor: pointer;
-transition: background 0.2s;
-}
-.btn-save:hover { background: var(–red); }
-.btn-preview {
-background: transparent;
-color: var(–red);
-border: 1px solid var(–red-mid);
-border-radius: 8px;
-padding: 11px;
-font-family: ‘DM Sans’, sans-serif;
-font-size: 13px;
-font-weight: 500;
-cursor: pointer;
-transition: all 0.2s;
-}
-.btn-preview:hover { background: var(–red-light); }
-.btn-cancel {
-background: transparent;
-color: var(–text-mid);
-border: 1px solid var(–border-dark);
-border-radius: 8px;
-padding: 11px;
-font-family: ‘DM Sans’, sans-serif;
-font-size: 13px;
-cursor: pointer;
-transition: all 0.2s;
-}
-.btn-cancel:hover { background: var(–surface2); }
+/* ── TWO-COLUMN LAYOUT ── */
+.venue-body { display: grid; grid-template-columns: 1fr 330px; gap: 20px; align-items: start; }
 
-/* VENUE PREVIEW SCREEN */
-.venue-hero {
-background: var(–surface);
-border: 1px solid var(–border);
-border-radius: 14px;
-overflow: hidden;
-margin-bottom: 16px;
-}
-.venue-hero-img {
-width: 100%;
-height: 200px;
-background: linear-gradient(135deg, #2a2018 0%, #1a1410 50%, #2d1a14 100%);
-position: relative;
-display: flex;
-align-items: flex-end;
-padding: 20px;
-}
-.venue-hero-img-text {
-font-family: ‘DM Serif Display’, serif;
-font-size: 36px;
-color: rgba(255,255,255,0.08);
-letter-spacing: -0.02em;
-position: absolute;
-top: 50%;
-left: 50%;
-transform: translate(-50%, -50%);
-white-space: nowrap;
-line-height: 1;
-}
-.venue-hero-overlay {
-position: relative;
-z-index: 1;
-}
-.venue-hero-name {
-font-family: ‘DM Serif Display’, serif;
-font-size: 24px;
-color: white;
-letter-spacing: -0.02em;
-line-height: 1.1;
-margin-bottom: 4px;
-}
-.venue-hero-loc {
-font-size: 12px;
-color: rgba(255,255,255,0.6);
-display: flex;
-align-items: center;
-gap: 6px;
-}
-.venue-hero-loc::before {
-content: ‘●’;
-color: var(–red);
-font-size: 8px;
-}
+/* ── ACCORDIONS ── */
+.accordions { display: flex; flex-direction: column; gap: 8px; }
+.accordion { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+.acc-trigger { width: 100%; background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; text-align: left; }
+.acc-trigger-label { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text2); font-family: var(--mono); }
+.acc-arrow { font-size: 18px; color: var(--text3); transition: transform .25s; line-height: 1; }
+.accordion.open .acc-arrow { transform: rotate(90deg); }
+.acc-body { display: none; padding: 0 20px 20px; font-size: 14px; color: var(--text2); line-height: 1.65; }
+.accordion.open .acc-body { display: block; }
+.acc-body p + p { margin-top: 10px; }
+.acc-body strong { color: var(--text); }
+.acc-body a { color: var(--text); text-decoration: underline; text-underline-offset: 3px; }
+.included-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+.included-list li { display: flex; flex-direction: column; gap: 1px; }
+.inc-title { font-size: 14px; font-weight: 600; color: var(--text); }
+.inc-desc { font-size: 12px; color: var(--text3); font-family: var(--mono); }
+.deal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.deal-item { background: var(--bg); border-radius: var(--radius); padding: 11px 13px; }
+.deal-item-k { font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--text3); font-family: var(--mono); margin-bottom: 3px; }
+.deal-item-v { font-size: 13px; font-weight: 600; color: var(--text); }
+.rules-list { display: flex; flex-direction: column; gap: 14px; }
+.rule { border-left: 2px solid var(--border2); padding-left: 12px; }
+.rule-title { font-size: 12px; font-weight: 700; color: var(--text); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 3px; }
+.rule-body { font-size: 13px; color: var(--text2); }
 
-.venue-gallery {
-display: grid;
-grid-template-columns: 1fr 1fr 1fr;
-gap: 2px;
-padding: 2px;
-}
-.gallery-thumb {
-height: 80px;
-background: var(–surface2);
-display: flex;
-align-items: center;
-justify-content: center;
-font-size: 20px;
-filter: grayscale(1);
-}
+/* ── BOOKING SIDEBAR ── */
+.booking-sidebar { position: sticky; top: 80px; }
+.booking-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+.booking-card-header { padding: 18px 20px 14px; border-bottom: 1px solid var(--border); }
+.booking-card-title { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--text2); font-family: var(--mono); margin-bottom: 7px; }
+.booking-price-row { display: flex; align-items: baseline; gap: 7px; }
+.booking-price { font-family: var(--display); font-size: 34px; font-weight: 800; }
+.booking-price-note { font-size: 13px; color: var(--text3); }
+.booking-perks { display: flex; flex-direction: column; gap: 3px; margin-top: 8px; }
+.perk { font-size: 12px; color: var(--text3); font-family: var(--mono); }
+.perk::before { content: ’— ’; color: var(--border2); }
+.cal-section { padding: 16px 20px; border-bottom: 1px solid var(--border); }
+.cal-prompt { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text3); font-family: var(--mono); margin-bottom: 12px; }
+.cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.cal-month-label { font-family: var(--display); font-size: 15px; font-weight: 700; }
+.cal-nav-btn { background: var(--bg); border: 1px solid var(--border2); color: var(--text2); width: 26px; height: 26px; border-radius: 5px; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; transition: border-color .15s, color .15s; }
+.cal-nav-btn:hover { border-color: var(--text2); color: var(--text); }
+.cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 2px; }
+.cal-dow { font-size: 9px; text-transform: uppercase; letter-spacing: .06em; color: var(--text3); font-family: var(--mono); text-align: center; padding: 3px 0 5px; }
+.cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 11px; font-family: var(--mono); border-radius: 4px; cursor: pointer; transition: background .12s, color .12s; color: var(--text2); position: relative; }
+.cal-day:hover:not(.cal-day-empty):not(.cal-day-past) { background: var(--surface2); color: var(--text); }
+.cal-day-empty { cursor: default; }
+.cal-day-past { color: var(--text3); cursor: default; }
+.cal-day-avail { color: var(--text); }
+.cal-day-avail::after { content: ‘’; position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); width: 3px; height: 3px; border-radius: 50%; background: var(--green); }
+.cal-day-selected { background: var(--text) !important; color: #111 !important; font-weight: 700; }
+.cal-day-selected::after { display: none; }
+.cal-day-today { border: 1px solid var(--border2); }
+.selected-date-display { margin-top: 10px; padding: 9px 11px; background: var(--bg); border-radius: var(--radius); border: 1px solid var(--border2); font-size: 12px; color: var(--text2); font-family: var(--mono); display: none; }
+.selected-date-display.visible { display: block; }
+.selected-date-display strong { color: var(--text); font-weight: 600; }
+.booking-cta-wrap { padding: 16px 20px; }
+.btn-book { width: 100%; background: var(--surface2); border: 1px solid var(--border2); color: var(--text3); font-family: var(--display); font-size: 14px; font-weight: 700; padding: 13px; border-radius: var(--radius); cursor: not-allowed; transition: all .2s; letter-spacing: .01em; }
+.btn-book.ready { background: var(--text); color: #111; border-color: var(--text); cursor: pointer; box-shadow: 0 0 20px rgba(255,255,255,.06); }
+.btn-book.ready:hover { opacity: .9; }
+.booking-footnote { font-size: 11px; color: var(--text3); text-align: center; margin-top: 9px; font-family: var(--mono); line-height: 1.5; }
 
-.venue-details {
-padding: 18px;
-display: flex;
-flex-direction: column;
-gap: 14px;
-}
-.venue-desc {
-font-size: 13px;
-line-height: 1.7;
-color: var(–text-mid);
-}
-.amenities-label {
-font-size: 10px;
-font-weight: 700;
-letter-spacing: 0.1em;
-text-transform: uppercase;
-color: var(–text-faint);
-margin-bottom: 8px;
-}
-.amenities-tags {
-display: flex;
-flex-wrap: wrap;
-gap: 6px;
-}
-.amenity-tag {
-font-size: 12px;
-border: 1px solid var(–border-dark);
-border-radius: 20px;
-padding: 5px 12px;
-color: var(–text-mid);
-background: var(–surface);
-}
+/* ── MODAL ── */
+.modal-overlay { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,.75); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px; }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; position: relative; }
+.modal-header { padding: 26px 28px 18px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--surface); z-index: 1; }
+.modal-title { font-family: var(--display); font-size: 20px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 3px; }
+.modal-subtitle { font-size: 13px; color: var(--text3); font-family: var(--mono); }
+.modal-close { position: absolute; top: 22px; right: 22px; background: var(--bg); border: 1px solid var(--border2); color: var(--text3); width: 30px; height: 30px; border-radius: 5px; font-size: 15px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: color .15s, border-color .15s; }
+.modal-close:hover { color: var(--text); border-color: var(--text3); }
+.modal-body { padding: 22px 28px; }
+.modal-date-badge { background: var(--bg); border: 1px solid var(--border2); border-radius: var(--radius); padding: 11px 14px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
+.modal-date-label { font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--text3); font-family: var(--mono); }
+.modal-date-val { font-size: 15px; font-weight: 700; color: var(--text); font-family: var(--display); }
+.modal-form { display: flex; flex-direction: column; gap: 12px; }
+.modal-form input, .modal-form textarea { font-size: 15px; padding: 11px 13px; }
+.modal-form textarea { min-height: 80px; }
+.pay-summary { background: var(--bg); border: 1px solid var(--border2); border-radius: var(--radius); padding: 14px 16px; margin-top: 18px; }
+.pay-summary-title { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text3); font-family: var(--mono); margin-bottom: 12px; }
+.pay-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; }
+.pay-row + .pay-row { border-top: 1px solid var(--border); }
+.pay-row-k { font-size: 13px; color: var(--text2); }
+.pay-row-v { font-size: 13px; font-weight: 600; color: var(--text); font-family: var(--mono); }
+.pay-row.total .pay-row-k { font-size: 14px; font-weight: 700; color: var(--text); }
+.pay-row.total .pay-row-v { font-size: 17px; font-weight: 800; font-family: var(--display); }
+.btn-confirm { width: 100%; margin-top: 16px; background: var(--text); color: #111; border: none; cursor: pointer; font-family: var(--display); font-size: 15px; font-weight: 800; padding: 14px; border-radius: var(--radius); transition: opacity .15s; }
+.btn-confirm:hover { opacity: .88; }
+.modal-secure-note { text-align: center; font-size: 11px; color: var(--text3); font-family: var(--mono); margin-top: 10px; line-height: 1.5; }
+.modal-success { display: none; padding: 36px 28px; text-align: center; }
+.modal-success.visible { display: block; }
+.success-icon { width: 50px; height: 50px; border-radius: 50%; background: rgba(74,222,128,.1); border: 2px solid var(--green); display: flex; align-items: center; justify-content: center; margin: 0 auto 18px; font-size: 20px; }
+.success-title { font-family: var(--display); font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+.success-sub { font-size: 14px; color: var(--text2); margin-bottom: 24px; }
+.success-details { background: var(--bg); border-radius: var(--radius); padding: 14px 18px; text-align: left; margin-bottom: 22px; }
+.sd-row { display: flex; justify-content: space-between; padding: 6px 0; }
+.sd-row + .sd-row { border-top: 1px solid var(--border); }
+.sd-k { color: var(--text3); font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+.sd-v { color: var(--text); font-weight: 600; font-size: 13px; }
+.btn-done { background: none; border: 1px solid var(--border2); color: var(--text2); font-family: var(--sans); font-size: 13px; font-weight: 500; padding: 10px 26px; border-radius: var(--radius); cursor: pointer; transition: border-color .15s; }
+.btn-done:hover { border-color: var(--text3); }
 
-/* SPECS TABLE */
-.specs-card {
-background: var(–surface);
-border: 1px solid var(–border);
-border-radius: 14px;
-overflow: hidden;
-margin-bottom: 16px;
-}
-.spec-row {
-display: flex;
-justify-content: space-between;
-align-items: center;
-padding: 13px 18px;
-border-bottom: 1px solid var(–border);
-font-size: 13px;
-}
-.spec-row:last-child { border-bottom: none; }
-.spec-key { color: var(–text-mid); }
-.spec-val { font-weight: 500; color: var(–text); text-align: right; }
-.spec-val.red { color: var(–red); font-weight: 600; }
+/* ── TRUST FOOTER ── */
+.trust-footer { max-width: 960px; margin: 0 auto; padding: 44px 24px 52px; border-top: 1px solid var(--border); }
+.trust-row { display: flex; gap: 36px; flex-wrap: wrap; margin-bottom: 28px; }
+.trust-item { flex: 1; min-width: 220px; display: flex; gap: 12px; align-items: flex-start; }
+.trust-icon { width: 34px; height: 34px; flex-shrink: 0; border: 1px solid var(--border2); border-radius: 7px; display: flex; align-items: center; justify-content: center; background: var(--surface); }
+.trust-item-title { font-size: 13px; font-weight: 700; color: var(--text2); margin-bottom: 3px; }
+.trust-item-desc { font-size: 13px; color: var(--text3); line-height: 1.55; }
+.trust-tagline { font-size: 11px; font-family: var(--mono); color: var(--text3); letter-spacing: .12em; text-transform: uppercase; }
+.trust-tagline span { margin: 0 7px; opacity: .35; }
 
-/* CALENDAR */
-.calendar-card {
-background: var(–surface);
-border: 1px solid var(–border);
-border-radius: 14px;
-overflow: hidden;
-margin-bottom: 16px;
-}
-.cal-header {
-display: flex;
-justify-content: space-between;
-align-items: center;
-padding: 16px 18px;
-border-bottom: 1px solid var(–border);
-}
-.cal-title {
-font-family: ‘DM Serif Display’, serif;
-font-size: 16px;
-color: var(–text);
-}
-.cal-nav {
-display: flex;
-gap: 8px;
-}
-.cal-btn {
-width: 32px; height: 32px;
-border-radius: 8px;
-border: 1px solid var(–border);
-background: var(–bg);
-cursor: pointer;
-display: flex;
-align-items: center;
-justify-content: center;
-font-size: 14px;
-color: var(–red);
-transition: all 0.15s;
-}
-.cal-btn:hover { background: var(–red-light); border-color: var(–red-mid); }
-.cal-grid {
-padding: 14px 18px 18px;
-}
-.cal-days-header {
-display: grid;
-grid-template-columns: repeat(7, 1fr);
-margin-bottom: 8px;
-}
-.cal-day-name {
-text-align: center;
-font-size: 10px;
-font-weight: 700;
-letter-spacing: 0.06em;
-text-transform: uppercase;
-color: var(–text-faint);
-padding: 4px 0;
-}
-.cal-dates {
-display: grid;
-grid-template-columns: repeat(7, 1fr);
-gap: 2px;
-}
-.cal-date {
-aspect-ratio: 1;
-display: flex;
-align-items: center;
-justify-content: center;
-font-size: 13px;
-color: var(–text-mid);
-border-radius: 8px;
-cursor: pointer;
-transition: all 0.15s;
-}
-.cal-date:hover:not(.empty):not(.past) {
-background: var(–red-light);
-color: var(–red);
-}
-.cal-date.empty { cursor: default; }
-.cal-date.past { color: var(–text-faint); cursor: not-allowed; }
-.cal-date.selected {
-background: var(–red);
-color: white;
-font-weight: 600;
-}
-.cal-date.booked {
-background: var(–surface2);
-color: var(–text-faint);
-cursor: not-allowed;
-text-decoration: line-through;
-}
+/* ── BOOKINGS TABLE ── */
+table { width: 100%; border-collapse: collapse; }
+th { font-size: 10px; text-transform: uppercase; letter-spacing: .1em; font-family: var(--mono); color: var(--text3); text-align: left; padding: 0 0 12px; border-bottom: 1px solid var(--border); }
+td { padding: 13px 0; border-bottom: 1px solid var(--border); font-size: 14px; color: var(--text2); }
+.empty-row { text-align: center; color: var(--text3); font-size: 14px; padding: 32px; font-family: var(--mono); }
 
-/* BOOKING FORM */
-.booking-card {
-background: var(–surface);
-border: 1px solid var(–border);
-border-radius: 14px;
-overflow: hidden;
-margin-bottom: 16px;
+/* ── RESPONSIVE ── */
+@media (max-width: 720px) {
+.nav { padding: 0 14px; }
+.tab-btn { font-size: 12px; padding: 15px 10px; }
+.panel { padding: 18px 16px; }
+.venue-body { grid-template-columns: 1fr; }
+.booking-sidebar { position: static; }
+.key-stats { grid-template-columns: repeat(2,1fr); }
+.stats-row { grid-template-columns: 1fr; }
+.venue-photo { height: 200px; }
+.deal-grid { grid-template-columns: 1fr; }
+.form-grid { grid-template-columns: 1fr; }
+.modal-body, .modal-header { padding: 18px; }
+.trust-footer { padding: 32px 16px 44px; }
+.trust-row { flex-direction: column; gap: 20px; }
 }
-.booking-header {
-padding: 16px 18px;
-border-bottom: 1px solid var(–border);
-}
-.booking-header h3 {
-font-family: ‘DM Serif Display’, serif;
-font-size: 18px;
-margin-bottom: 4px;
-}
-.booking-header p { font-size: 12px; color: var(–text-mid); }
-.booking-body { padding: 18px; display: flex; flex-direction: column; gap: 14px; }
-
-.selected-date-pill {
-display: inline-flex;
-align-items: center;
-gap: 8px;
-background: var(–red-light);
-border: 1px solid var(–red-mid);
-border-radius: 20px;
-padding: 6px 14px;
-font-size: 12px;
-font-weight: 500;
-color: var(–red);
-}
-.selected-date-pill::before { content: ‘📅’; font-size: 12px; }
-
-.payment-section {
-background: var(–bg);
-border-radius: 10px;
-padding: 14px;
-border: 1px solid var(–border);
-}
-.payment-title {
-font-size: 12px;
-font-weight: 700;
-letter-spacing: 0.06em;
-text-transform: uppercase;
-color: var(–text-mid);
-margin-bottom: 12px;
-}
-.pay-row {
-display: flex;
-justify-content: space-between;
-align-items: center;
-font-size: 13px;
-padding: 4px 0;
-}
-.pay-row .pay-label { color: var(–text-mid); }
-.pay-row .pay-val { font-weight: 600; }
-.pay-row.total {
-border-top: 1px solid var(–border-dark);
-margin-top: 8px;
-padding-top: 10px;
-}
-.pay-row.total .pay-val { color: var(–red); font-size: 16px; }
-
-.btn-confirm {
-background: var(–black);
-color: white;
-border: none;
-border-radius: 10px;
-padding: 15px;
-font-family: ‘DM Sans’, sans-serif;
-font-size: 14px;
-font-weight: 600;
-cursor: pointer;
-width: 100%;
-transition: background 0.2s;
-letter-spacing: 0.02em;
-}
-.btn-confirm:hover { background: var(–red); }
-.pay-note {
-font-size: 11px;
-color: var(–text-faint);
-text-align: center;
-margin-top: 8px;
-line-height: 1.5;
-}
-
-/* BOOKINGS SCREEN */
-.bookings-table {
-background: var(–surface);
-border: 1px solid var(–border);
-border-radius: 14px;
-overflow: hidden;
-}
-.bookings-table-header {
-display: grid;
-grid-template-columns: 1.2fr 1fr 0.8fr 0.7fr;
-padding: 10px 16px;
-border-bottom: 1px solid var(–border);
-background: var(–surface2);
-}
-.th {
-font-size: 10px;
-font-weight: 700;
-letter-spacing: 0.08em;
-text-transform: uppercase;
-color: var(–text-faint);
-}
-.booking-row {
-display: grid;
-grid-template-columns: 1.2fr 1fr 0.8fr 0.7fr;
-padding: 14px 16px;
-border-bottom: 1px solid var(–border);
-align-items: center;
-transition: background 0.15s;
-}
-.booking-row:last-child { border-bottom: none; }
-.booking-row:hover { background: var(–surface2); }
-.booking-venue { font-weight: 600; font-size: 13px; color: var(–text); }
-.booking-guest { font-size: 12px; color: var(–text-mid); }
-.booking-guest-email { font-size: 10px; color: var(–text-faint); margin-top: 1px; }
-.booking-date { font-size: 12px; color: var(–text-mid); }
-.booking-amount { font-weight: 600; font-size: 13px; color: var(–red); }
-
-/* SUCCESS STATE */
-.success-card {
-background: var(–surface);
-border: 1px solid var(–border);
-border-radius: 14px;
-padding: 32px 24px;
-text-align: center;
-display: none;
-}
-.success-icon {
-width: 56px; height: 56px;
-background: var(–red-light);
-border-radius: 50%;
-display: flex;
-align-items: center;
-justify-content: center;
-font-size: 24px;
-margin: 0 auto 16px;
-border: 2px solid var(–red-mid);
-}
-.success-title {
-font-family: ‘DM Serif Display’, serif;
-font-size: 20px;
-color: var(–text);
-margin-bottom: 8px;
-}
-.success-sub { font-size: 13px; color: var(–text-mid); line-height: 1.6; }
-
-/* DIVIDER */
-.divider {
-height: 1px;
-background: var(–border);
-margin: 20px 0;
-}
-
-/* FADE IN */
-@keyframes fadeIn {
-from { opacity: 0; transform: translateY(8px); }
-to { opacity: 1; transform: translateY(0); }
-}
-.screen.active { animation: fadeIn 0.25s ease; }
-
-/* SCROLLBAR */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(–border-dark); border-radius: 4px; }
-
-/* ── VENUE CARD ── */
-.vcard { background: var(–surface); border: 1px solid var(–border); border-radius: 16px; overflow: hidden; margin-bottom: 16px; }
-.vcard-hero { height: 200px; position: relative; overflow: hidden; }
-.vcard-hero-bg { width: 100%; height: 100%; background: linear-gradient(150deg, #1a1208 0%, #0f0c08 50%, #1a0e06 100%); display: flex; align-items: center; justify-content: center; }
-.vcard-hero-ghost { font-family: ‘DM Serif Display’, serif; font-size: 96px; color: rgba(255,255,255,0.05); letter-spacing: -0.03em; user-select: none; }
-.vcard-hero-grad { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 30%, rgba(10,8,4,0.85) 100%); }
-.vcard-badge { position: absolute; top: 12px; left: 12px; background: var(–red); color: white; font-size: 9px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 10px; border-radius: 20px; }
-.vcard-hero-info { position: absolute; bottom: 14px; left: 16px; right: 16px; }
-.vcard-name { font-family: ‘DM Serif Display’, serif; font-size: 22px; color: #f0ede8; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 5px; }
-.vcard-loc { display: flex; align-items: center; gap: 5px; font-size: 11px; color: rgba(240,237,232,0.65); font-weight: 300; }
-.vcard-loc-dot { width: 5px; height: 5px; border-radius: 50%; background: var(–red); flex-shrink: 0; }
-.vcard-cap { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.15); border-radius: 20px; padding: 2px 8px; font-size: 10px; color: rgba(240,237,232,0.75); margin-left: 4px; }
-.vcard-gallery { display: flex; border-top: 1px solid var(–border); }
-.vcard-thumb { flex: 1; height: 60px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; border-right: 1px solid var(–border); background: var(–surface2); cursor: pointer; transition: background 0.15s; }
-.vcard-thumb:last-child { border-right: none; }
-.vcard-thumb:hover { background: var(–border); }
-.vcard-thumb span { font-size: 18px; }
-.vcard-thumb-lbl { font-size: 9px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(–text-faint); }
-.vcard-stats { display: flex; align-items: center; padding: 14px 16px; border-top: 1px solid var(–border); border-bottom: 1px solid var(–border); }
-.vcard-stat { flex: 1; text-align: center; }
-.vcard-stat-val { font-family: ‘DM Serif Display’, serif; font-size: 18px; color: var(–text); line-height: 1; margin-bottom: 2px; }
-.vcard-stat-val.red { color: var(–red); }
-.vcard-stat-key { font-size: 9px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(–text-faint); }
-.vcard-stat-div { width: 1px; height: 28px; background: var(–border); flex-shrink: 0; }
-.vcard-btns { display: flex; flex-direction: column; }
-.vcard-btn { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border: none; background: transparent; border-bottom: 1px solid var(–border); cursor: pointer; text-align: left; font-family: ‘DM Sans’, sans-serif; transition: background 0.15s; width: 100%; }
-.vcard-btn:hover { background: var(–surface2); }
-.vcard-btn-icon { font-size: 18px; width: 28px; text-align: center; flex-shrink: 0; }
-.vcard-btn-label { flex: 1; font-size: 13px; font-weight: 500; color: var(–text); }
-.vcard-btn-arrow { font-size: 18px; color: var(–text-faint); }
-.vcard-cta { padding: 16px; display: flex; flex-direction: column; gap: 8px; }
-.btn-book-main { width: 100%; background: var(–black); color: white; border: none; border-radius: 10px; padding: 15px; font-family: ‘DM Sans’, sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
-.btn-book-main:hover { background: var(–red); }
-.vcard-cta-note { font-size: 11px; color: var(–text-faint); text-align: center; }
-
-/* ── MODALS ── */
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0); z-index: 300; pointer-events: none; transition: background 0.3s; }
-.modal-overlay.open { background: rgba(0,0,0,0.5); pointer-events: all; }
-.modal { position: fixed; bottom: 0; left: 0; right: 0; background: var(–surface); border-radius: 20px 20px 0 0; max-height: 80vh; overflow-y: auto; transform: translateY(100%); transition: transform 0.36s cubic-bezier(0.32,0.72,0,1); z-index: 301; scrollbar-width: none; }
-.modal::-webkit-scrollbar { display: none; }
-.modal.open { transform: translateY(0); }
-.modal-tall { max-height: 92vh; }
-.modal-handle { display: flex; justify-content: center; padding: 10px 0 4px; }
-.modal-handle-bar { width: 36px; height: 4px; background: var(–border-dark); border-radius: 2px; }
-.modal-header { padding: 6px 18px 14px; border-bottom: 1px solid var(–border); display: flex; justify-content: space-between; align-items: flex-start; }
-.modal-title { font-family: ‘DM Serif Display’, serif; font-size: 20px; color: var(–text); letter-spacing: -0.02em; }
-.modal-subtitle { font-size: 12px; color: var(–text-mid); font-weight: 300; margin-top: 2px; }
-.modal-close { width: 28px; height: 28px; border-radius: 50%; background: var(–surface2); border: 1px solid var(–border); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; color: var(–text-mid); flex-shrink: 0; transition: all 0.15s; }
-.modal-close:hover { background: var(–border); }
-.modal-body { padding: 18px; display: flex; flex-direction: column; gap: 14px; }
-.modal-desc { font-size: 13px; line-height: 1.75; color: var(–text-mid); font-weight: 300; }
-.modal-desc strong { color: var(–text); font-weight: 500; }
-.modal-map-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-.modal-address-label { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(–text-faint); margin-bottom: 4px; }
-.modal-address { font-size: 13px; color: var(–text); font-weight: 500; line-height: 1.4; }
-.modal-map-btn { font-size: 12px; font-weight: 500; color: var(–red); text-decoration: none; padding: 8px 14px; border: 1px solid var(–red-mid); border-radius: 8px; background: var(–red-light); white-space: nowrap; transition: all 0.15s; }
-.modal-map-btn:hover { background: var(–red); color: white; }
-.modal-quote { display: flex; gap: 12px; align-items: flex-start; }
-.modal-quote-bar { width: 3px; background: var(–red); border-radius: 2px; flex-shrink: 0; align-self: stretch; }
-.modal-quote-text { font-family: ‘DM Serif Display’, serif; font-style: italic; font-size: 14px; color: var(–text); line-height: 1.5; margin-bottom: 5px; }
-.modal-quote-attr { font-size: 11px; color: var(–text-faint); }
-.modal-amenity-list { display: flex; flex-direction: column; }
-.modal-amenity-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(–border); }
-.modal-amenity-item:last-child { border-bottom: none; }
-.modal-amenity-icon { font-size: 20px; flex-shrink: 0; width: 28px; text-align: center; margin-top: 1px; }
-.modal-amenity-name { font-size: 13px; font-weight: 600; color: var(–text); margin-bottom: 2px; }
-.modal-amenity-detail { font-size: 12px; color: var(–text-mid); font-weight: 300; line-height: 1.5; }
-.modal-note { font-size: 11px; color: var(–text-faint); text-align: center; font-style: italic; }
-.modal-deal-hero { text-align: center; padding: 8px 0 4px; }
-.modal-deal-num { font-family: ‘DM Serif Display’, serif; font-size: 52px; color: var(–red); letter-spacing: -0.03em; line-height: 1; }
-.modal-deal-sub { font-size: 12px; color: var(–text-mid); font-weight: 300; margin-top: 4px; }
-.modal-specs { display: flex; flex-direction: column; }
-.modal-spec-row { display: flex; justify-content: space-between; align-items: center; padding: 11px 0; border-bottom: 1px solid var(–border); font-size: 13px; }
-.modal-spec-row:last-child { border-bottom: none; }
-.modal-spec-row.highlight { background: var(–red-light); border-radius: 8px; padding: 11px 12px; margin: 0 -12px; border-bottom: none; }
-.modal-spec-key { color: var(–text-mid); font-weight: 300; }
-.modal-spec-val { font-weight: 500; color: var(–text); }
-.modal-spec-val.red { color: var(–red); font-weight: 700; font-size: 15px; }
-.btn-book-modal { width: 100%; background: var(–black); color: white; border: none; border-radius: 10px; padding: 14px; font-family: ‘DM Sans’, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s; margin-top: 4px; }
-.btn-book-modal:hover { background: var(–red); }
-.modal-rules-list { display: flex; flex-direction: column; }
-.modal-rule { display: flex; align-items: flex-start; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(–border); }
-.modal-rule:last-child { border-bottom: none; }
-.modal-rule-icon { font-size: 20px; flex-shrink: 0; width: 28px; text-align: center; margin-top: 2px; }
-.modal-rule-title { font-size: 13px; font-weight: 600; color: var(–text); margin-bottom: 4px; }
-.modal-rule-desc { font-size: 12px; color: var(–text-mid); font-weight: 300; line-height: 1.6; }
-.mcal-card { background: var(–surface2); border: 1px solid var(–border); border-radius: 12px; overflow: hidden; }
-.mcal-header { display: flex; justify-content: space-between; align-items: center; padding: 11px 14px; border-bottom: 1px solid var(–border); }
-.mcal-month { font-family: ‘DM Serif Display’, serif; font-size: 14px; color: var(–text); }
-.mcal-nav { display: flex; gap: 6px; }
-.mcal-btn { width: 26px; height: 26px; border-radius: 6px; border: 1px solid var(–border-dark); background: var(–surface); cursor: pointer; font-size: 11px; color: var(–red); transition: all 0.15s; }
-.mcal-btn:hover { background: var(–red-light); }
-.mcal-grid { padding: 10px 12px 12px; }
-.mcal-days { display: grid; grid-template-columns: repeat(7,1fr); margin-bottom: 4px; }
-.mcal-dn { text-align: center; font-size: 9px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(–text-faint); padding: 2px 0; }
-.mcal-dates { display: grid; grid-template-columns: repeat(7,1fr); gap: 2px; }
-.mcal-date { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(–text-mid); border-radius: 6px; cursor: pointer; transition: all 0.12s; }
-.mcal-date:hover:not(.empty):not(.past):not(.booked) { background: var(–red-light); color: var(–red); }
-.mcal-date.empty { cursor: default; }
-.mcal-date.past { color: var(–border-dark); cursor: not-allowed; }
-.mcal-date.booked { color: var(–border-dark); cursor: not-allowed; text-decoration: line-through; font-size: 10px; }
-.mcal-date.selected { background: var(–red); color: white; font-weight: 600; }
-.mpill { display: inline-flex; align-items: center; gap: 7px; background: var(–red-light); border: 1px solid var(–red-mid); border-radius: 20px; padding: 6px 13px; font-size: 12px; font-weight: 500; color: var(–red); }
-.modal-success { padding: 32px 20px 40px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; }
-.modal-success-icon { width: 56px; height: 56px; background: var(–red-light); border: 2px solid var(–red-mid); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; }
-.modal-success-title { font-family: ‘DM Serif Display’, serif; font-size: 22px; color: var(–text); letter-spacing: -0.02em; }
-.modal-success-sub { font-size: 13px; color: var(–text-mid); font-weight: 300; line-height: 1.7; max-width: 280px; }
-.modal-success-detail { background: var(–surface2); border: 1px solid var(–border); border-radius: 10px; padding: 14px 16px; width: 100%; display: flex; flex-direction: column; gap: 7px; }
-.msd-row { display: flex; justify-content: space-between; font-size: 12px; }
-.msd-k { color: var(–text-faint); }
-.msd-v { font-weight: 500; color: var(–text); }
 </style>
 
 </head>
 <body>
-<div class="app">
 
-  <!-- TOP BAR -->
+<!-- ══════════════════════════════════════════════════════
+  NAV
+══════════════════════════════════════════════════════ -->
 
-  <div class="topbar">
-    <div class="topbar-logo">Venue<span>.</span>Portal</div>
+<nav class="nav">
+  <div class="nav-brand">Venue<span>.</span>Portal</div><!-- VENUE: brand -->
+  <button class="tab-btn" onclick="showTab('admin')">Admin</button>
+  <button class="tab-btn active" onclick="showTab('preview')">Venue Preview</button>
+  <button class="tab-btn" onclick="showTab('bookings')">All Bookings</button>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════
+  ADMIN TAB
+══════════════════════════════════════════════════════ -->
+
+<div id="tab-admin" class="panel">
+  <h1 class="page-heading">Dashboard</h1>
+  <p class="page-sub">Manage and onboard venues</p>
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-label">Total Venues</div><div class="stat-val">1</div></div>
+    <div class="stat-card"><div class="stat-label">Total Bookings</div><div class="stat-val" id="admin-booking-count">0</div></div>
+    <div class="stat-card"><div class="stat-label">Revenue</div><div class="stat-val" id="admin-revenue">$0</div></div>
   </div>
-
-  <!-- TABS -->
-
-  <div class="tabs">
-    <div class="tab active" onclick="switchTab('admin')">Admin</div>
-    <div class="tab" onclick="switchTab('preview')">Venue Preview</div>
-    <div class="tab" onclick="switchTab('bookings')">All Bookings</div>
+  <div class="section-hd">
+    <span class="section-title">Venues</span>
+    <button class="btn-sm" onclick="toggleAddForm()">+ Add venue</button>
   </div>
-
-  <!-- ADMIN SCREEN -->
-
-  <div class="screen active" id="screen-admin">
-    <div class="admin-header">
-      <h1>Dashboard</h1>
-      <p>Manage and onboard venues</p>
-    </div>
-
-```
-<div class="stats-grid">
-  <div class="stat-card">
-    <div class="stat-label">Total Venues</div>
-    <div class="stat-value" id="stat-venues">1</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-label">Total Bookings</div>
-    <div class="stat-value" id="stat-bookings">0</div>
-  </div>
-  <div class="stat-card full">
-    <div class="stat-label">Revenue</div>
-    <div class="stat-value red" id="stat-revenue">$0</div>
-  </div>
-</div>
-
-<div class="section-header">
-  <div class="section-title">Venues</div>
-  <button class="btn-add" onclick="toggleAddForm()">+ Add venue</button>
-</div>
-
-<!-- ADD VENUE FORM -->
-<div id="add-form" style="display:none; margin-bottom:16px;">
-  <div class="form-card">
-    <div class="form-card-header">
-      <div class="dot"></div>
-      New Venue
-    </div>
-    <div class="form-body">
-      <div class="form-group">
-        <label class="form-label">Venue Name</label>
-        <input type="text" class="form-input" placeholder="e.g. The Warehouse" id="new-name">
-      </div>
-      <div class="form-group">
-        <label class="form-label">URL Slug</label>
-        <div class="slug-row">
-          <span class="slug-prefix">/venue/</span>
-          <input type="text" class="slug-input" placeholder="the-warehouse" id="new-slug">
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Location</label>
-        <input type="text" class="form-input" placeholder="City, State" id="new-location">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Capacity</label>
-        <input type="number" class="form-input" placeholder="100" id="new-capacity">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Description</label>
-        <textarea class="form-input" placeholder="Describe the space..." id="new-desc"></textarea>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Host Email</label>
-        <input type="email" class="form-input" placeholder="host@venue.com" id="new-email">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Host Phone</label>
-        <input type="tel" class="form-input" placeholder="+1 (555) 000-0000" id="new-phone">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Amenities (comma separated)</label>
-        <input type="text" class="form-input" placeholder="Full PA, Stage lighting, Parking" id="new-amenities">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Venue Fee ($)</label>
-        <input type="number" class="form-input" placeholder="100" id="new-fee">
-      </div>
+  <div class="add-form" id="add-form">
+    <div class="form-grid">
+      <div class="form-field"><label>Venue Name</label><input type="text" placeholder="White Swan Live" /></div>
+      <div class="form-field"><label>URL Slug</label><input type="text" placeholder="/venue/" /></div>
+      <div class="form-field"><label>Location</label><input type="text" /></div>
+      <div class="form-field"><label>Capacity</label><input type="number" placeholder="200" /></div>
+      <div class="form-field full"><label>Description</label><textarea placeholder="Tell bookers about the space..."></textarea></div>
+      <div class="form-field"><label>Host Email</label><input type="email" /></div>
+      <div class="form-field"><label>Host Phone</label><input type="tel" /></div>
+      <div class="form-field"><label>Amenities (comma separated)</label><input type="text" /></div>
+      <div class="form-field"><label>Venue Fee ($)</label><input type="number" placeholder="100" /></div>
     </div>
     <div class="form-actions">
-      <button class="btn-save" onclick="saveVenue()">Save venue</button>
-      <button class="btn-preview" onclick="switchTab('preview')">Preview page</button>
+      <button class="btn-primary" onclick="toggleAddForm()">Save venue</button>
+      <button class="btn-ghost">Preview page</button>
       <button class="btn-cancel" onclick="toggleAddForm()">Cancel</button>
     </div>
   </div>
+  <!-- VENUE: duplicate this block for each venue in the list -->
+  <div class="venue-list-item">
+    <div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+        <div class="vli-name">White Swan Live</div><!-- VENUE: name -->
+        <span class="tag tag-live">Live</span>
+      </div>
+      <div class="vli-slug">/venue/white-swan-live</div><!-- VENUE: slug -->
+    </div>
+    <div class="vli-actions">
+      <button class="btn-ghost" onclick="showTab('preview')">View</button>
+    </div>
+  </div>
 </div>
 
-<!-- VENUE LIST -->
-<div class="venue-list" id="venue-list">
-  <div class="venue-item">
-    <div class="venue-item-info">
-      <div class="venue-item-name">White Swan Live</div>
-      <div class="venue-item-slug">/venue/white-swan-live</div>
+<!-- ══════════════════════════════════════════════════════
+  VENUE PREVIEW TAB
+
+  HOW TO SWAP VENUES:
+  ─────────────────────────────────────────────────────
+  1. CSS (top of <style>):
+       --venue-image: url('YOUR_PHOTO_URL');
+
+  2. Search "VENUE:" comments below — each marks a field
+     you need to update for a new venue.
+
+  3. For your other project pulling this in dynamically,
+     all VENUE: fields map 1-to-1 to venue object keys.
+══════════════════════════════════════════════════════ -->
+
+<div id="tab-preview" class="panel active">
+
+  <!-- ─ PHOTO HERO ──────────────────────────────────────
+       Image: set --venue-image in CSS at top of file.
+       If no image / image fails: falls back to placeholder.
+  ──────────────────────────────────────────────────── -->
+
+  <div class="venue-photo" id="venue-photo">
+    <div class="venue-photo-placeholder">
+      No venue photo set<br>
+      <span style="opacity:.5;">Update --venue-image in CSS</span>
     </div>
-    <div class="venue-item-actions">
-      <span class="badge-live">live</span>
-      <button class="btn-sm" onclick="switchTab('preview')">View</button>
+    <div class="venue-photo-overlay">
+      <div class="venue-status">
+        <div class="dot"></div>
+        <span class="dot-label">Currently Live</span><!-- VENUE: status -->
+      </div>
+      <div class="venue-name">White Swan Live</div><!-- VENUE: name -->
+      <div class="venue-meta">4419 Navigation Blvd, Houston TX &nbsp;·&nbsp; Cap 200 &nbsp;·&nbsp; East Houston Underground</div><!-- VENUE: address · cap · tagline -->
+    </div>
+  </div>
+  <div class="venue-photo-base"></div><!-- visual join between photo and page -->
+
+  <!-- ─ KEY STATS ───────────────────────────────────────
+       VENUE: four quick-read stats beneath the photo
+  ──────────────────────────────────────────────────── -->
+
+  <div class="key-stats">
+    <div class="stat-pill">
+      <div class="stat-pill-label">Stage</div>
+      <div class="stat-pill-val">200 sq ft<br>Raised Riser</div><!-- VENUE: stage -->
+    </div>
+    <div class="stat-pill">
+      <div class="stat-pill-label">Sound</div>
+      <div class="stat-pill-val">5,000W<br>Full PA</div><!-- VENUE: sound -->
+    </div>
+    <div class="stat-pill">
+      <div class="stat-pill-label">Room</div>
+      <div class="stat-pill-val">Raw Bar<br>Industrial</div><!-- VENUE: room vibe -->
+    </div>
+    <div class="stat-pill">
+      <div class="stat-pill-label">Crowd</div>
+      <div class="stat-pill-val">200 Cap<br>Shows Up</div><!-- VENUE: crowd / cap -->
+    </div>
+  </div>
+
+  <!-- ─ BODY ────────────────────────────────────────── -->
+
+  <div class="venue-body">
+
+```
+<!-- LEFT: accordions -->
+<div class="accordions">
+
+  <!-- ─ ABOUT ─────────────────────────────────────── -->
+  <div class="accordion open" id="acc-about">
+    <button class="acc-trigger" onclick="toggleAcc('acc-about')">
+      <span class="acc-trigger-label">About the Space</span>
+      <span class="acc-arrow">›</span>
+    </button>
+    <div class="acc-body">
+      <!-- VENUE: description -->
+      <p>Raw bar venue on Navigation Blvd in East Houston. <strong>Established underground room</strong> with a real stage, full PA, and a crowd that shows up.</p>
+      <p>No cover bands. No tributes. This room is for originals only — artists who are building something real.</p>
+      <p style="margin-top:14px;">
+        <strong>Address:</strong><br>
+        4419 Navigation Blvd, Houston TX 77011<!-- VENUE: address --><br>
+        <a href="https://maps.google.com/?q=4419+Navigation+Blvd+Houston+TX" target="_blank">Open in Maps →</a><!-- VENUE: maps link -->
+      </p>
+      <p style="margin-top:12px;border-left:2px solid var(--border2);padding-left:12px;color:var(--text3);font-style:italic;">
+        "A real underground room with a crowd that actually shows up."<!-- VENUE: pull quote -->
+      </p>
+    </div>
+  </div>
+
+  <!-- ─ WHAT'S INCLUDED ────────────────────────────── -->
+  <div class="accordion" id="acc-included">
+    <button class="acc-trigger" onclick="toggleAcc('acc-included')">
+      <span class="acc-trigger-label">What's Included</span>
+      <span class="acc-arrow">›</span>
+    </button>
+    <div class="acc-body">
+      <ul class="included-list">
+        <!-- VENUE: add/remove <li> blocks as needed -->
+        <li><span class="inc-title">Full PA System</span><span class="inc-desc">5,000+ watts · 4×18" woofers · 4×15" mid · 2× tweeter horns</span></li>
+        <li><span class="inc-title">Stage + Drum Riser</span><span class="inc-desc">200 sq ft raised riser · Full stage monitors included</span></li>
+        <li><span class="inc-title">Stage Lighting</span><span class="inc-desc">8 cans · 10 effects · 2 strobes · Full rig ready at load-in</span></li>
+        <li><span class="inc-title">Sound Engineer On-Site</span><span class="inc-desc">House engineer present · Tip is strongly encouraged</span></li>
+        <li><span class="inc-title">Parking</span><span class="inc-desc">Adjacent lot · Load-in access 4 hours before show</span></li>
+      </ul>
+      <p style="margin-top:14px;font-size:12px;color:var(--text3);font-family:var(--mono);">Film + music video shoots welcome — call 713-923-2837<!-- VENUE: extra note, delete if unused --></p>
+    </div>
+  </div>
+
+  <!-- ─ THE DEAL ────────────────────────────────────── -->
+  <div class="accordion" id="acc-deal">
+    <button class="acc-trigger" onclick="toggleAcc('acc-deal')">
+      <span class="acc-trigger-label">The Deal</span>
+      <span class="acc-arrow">›</span>
+    </button>
+    <div class="acc-body">
+      <p style="font-family:var(--display);font-size:26px;font-weight:800;margin-bottom:14px;">
+        $100<!-- VENUE: fee --> <span style="font-size:13px;font-weight:400;color:var(--text3);">flat venue fee · you keep 100% of the door</span>
+      </p>
+      <div class="deal-grid">
+        <!-- VENUE: update each deal item value -->
+        <div class="deal-item"><div class="deal-item-k">Venue Fee</div><div class="deal-item-v">$100 flat</div></div>
+        <div class="deal-item"><div class="deal-item-k">Door Money</div><div class="deal-item-v">100% yours</div></div>
+        <div class="deal-item"><div class="deal-item-k">Minimum Acts</div><div class="deal-item-v">4 on the bill</div></div>
+        <div class="deal-item"><div class="deal-item-k">Show Start</div><div class="deal-item-v">No earlier than 9pm</div></div>
+        <div class="deal-item"><div class="deal-item-k">Show End</div><div class="deal-item-v">No earlier than 1am</div></div>
+        <div class="deal-item"><div class="deal-item-k">Load-In</div><div class="deal-item-v">4hrs before show</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─ HOUSE RULES ─────────────────────────────────── -->
+  <div class="accordion" id="acc-rules">
+    <button class="acc-trigger" onclick="toggleAcc('acc-rules')">
+      <span class="acc-trigger-label">House Rules</span>
+      <span class="acc-arrow">›</span>
+    </button>
+    <div class="acc-body">
+      <div class="rules-list">
+        <!-- VENUE: add/remove .rule blocks as needed -->
+        <div class="rule">
+          <div class="rule-title">The Door Is Yours</div>
+          <div class="rule-body">You run your own door and keep 100% of what you make. The $100 venue fee is the only thing the house takes. Bring your own change — ones and fives.</div>
+        </div>
+        <div class="rule">
+          <div class="rule-title">Originals Only</div>
+          <div class="rule-body">No cover bands. No tribute acts. Minimum four acts on the bill. The show runs until at least 1am.</div>
+        </div>
+        <div class="rule">
+          <div class="rule-title">You Promote It</div>
+          <div class="rule-body">We blast it day-of. But promotion is on you — social media, flyers, Houston Press submission. You keep what you make so make it count.</div>
+        </div>
+        <div class="rule">
+          <div class="rule-title">Deposits &amp; Cancellations</div>
+          <div class="rule-body">First-time bookers pay $100 via Stripe to hold the date. Cancel and you lose it. Reschedule with 5+ days notice. Tip the sound engineer.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /accordions -->
+
+<!-- RIGHT: booking sidebar -->
+<div class="booking-sidebar">
+  <div class="booking-card">
+    <div class="booking-card-header">
+      <div class="booking-card-title">Book This Venue</div>
+      <div class="booking-price-row">
+        <span class="booking-price">$100</span><!-- VENUE: fee -->
+        <span class="booking-price-note">flat fee</span>
+      </div>
+      <div class="booking-perks">
+        <!-- VENUE: 2-3 selling points -->
+        <span class="perk">Keep 100% of the door</span>
+        <span class="perk">Confirmed within 24hrs</span>
+        <span class="perk">Secured via Stripe</span>
+      </div>
+    </div>
+    <!-- Calendar: no changes needed — driven by JS -->
+    <div class="cal-section">
+      <div class="cal-prompt">Select a date to book</div>
+      <div class="cal-nav">
+        <button class="cal-nav-btn" onclick="calPrev()">‹</button>
+        <span class="cal-month-label" id="cal-month-label"></span>
+        <button class="cal-nav-btn" onclick="calNext()">›</button>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+      <div class="selected-date-display" id="selected-date-display">
+        Selected: <strong id="selected-date-text">—</strong>
+      </div>
+    </div>
+    <div class="booking-cta-wrap">
+      <button class="btn-book" id="btn-book" onclick="openModal()" disabled>Select a date above</button>
+      <div class="booking-footnote">Flat fee · No hidden charges · Email + SMS confirmation</div>
     </div>
   </div>
 </div>
 ```
 
-  </div>
+  </div><!-- /venue-body -->
+</div><!-- /tab-preview -->
 
-  <!-- VENUE PREVIEW SCREEN -->
+<!-- ══════════════════════════════════════════════════════
+  ALL BOOKINGS TAB
+══════════════════════════════════════════════════════ -->
 
-  <div class="screen" id="screen-preview">
-
-```
-<!-- VENUE CARD -->
-<div class="vcard">
-  <!-- Hero -->
-  <div class="vcard-hero">
-    <div class="vcard-hero-bg">
-      <div class="vcard-hero-ghost">WSL</div>
-    </div>
-    <div class="vcard-hero-grad"></div>
-    <div class="vcard-badge">Currently Live</div>
-    <div class="vcard-hero-info">
-      <div class="vcard-name">White Swan Live</div>
-      <div class="vcard-loc">
-        <div class="vcard-loc-dot"></div>
-        4419 Navigation Blvd, Houston TX
-        <span class="vcard-cap">Cap 200</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Gallery row -->
-  <div class="vcard-gallery">
-    <div class="vcard-thumb"><span>🎙</span><div class="vcard-thumb-lbl">Stage</div></div>
-    <div class="vcard-thumb"><span>🔊</span><div class="vcard-thumb-lbl">Sound</div></div>
-    <div class="vcard-thumb"><span>🏛</span><div class="vcard-thumb-lbl">Room</div></div>
-    <div class="vcard-thumb"><span>👥</span><div class="vcard-thumb-lbl">Crowd</div></div>
-  </div>
-
-  <!-- Quick stats row -->
-  <div class="vcard-stats">
-    <div class="vcard-stat">
-      <div class="vcard-stat-val red">$100</div>
-      <div class="vcard-stat-key">Flat Fee</div>
-    </div>
-    <div class="vcard-stat-div"></div>
-    <div class="vcard-stat">
-      <div class="vcard-stat-val">100%</div>
-      <div class="vcard-stat-key">Door Yours</div>
-    </div>
-    <div class="vcard-stat-div"></div>
-    <div class="vcard-stat">
-      <div class="vcard-stat-val">200</div>
-      <div class="vcard-stat-key">Capacity</div>
-    </div>
-    <div class="vcard-stat-div"></div>
-    <div class="vcard-stat">
-      <div class="vcard-stat-val">24hr</div>
-      <div class="vcard-stat-key">Response</div>
-    </div>
-  </div>
-
-  <!-- Detail buttons -->
-  <div class="vcard-btns">
-    <button class="vcard-btn" onclick="openModal('about')">
-      <div class="vcard-btn-icon">📍</div>
-      <div class="vcard-btn-label">About</div>
-      <div class="vcard-btn-arrow">›</div>
-    </button>
-    <button class="vcard-btn" onclick="openModal('amenities')">
-      <div class="vcard-btn-icon">🔊</div>
-      <div class="vcard-btn-label">What's Included</div>
-      <div class="vcard-btn-arrow">›</div>
-    </button>
-    <button class="vcard-btn" onclick="openModal('deal')">
-      <div class="vcard-btn-icon">💵</div>
-      <div class="vcard-btn-label">The Deal</div>
-      <div class="vcard-btn-arrow">›</div>
-    </button>
-    <button class="vcard-btn" onclick="openModal('rules')">
-      <div class="vcard-btn-icon">📋</div>
-      <div class="vcard-btn-label">House Rules</div>
-      <div class="vcard-btn-arrow">›</div>
-    </button>
-  </div>
-
-  <!-- Book CTA -->
-  <div class="vcard-cta">
-    <button class="btn-book-main" onclick="openModal('book')">
-      Book This Venue — $100 →
-    </button>
-    <div class="vcard-cta-note">Flat fee · Keep 100% of the door · Confirmed within 24hrs</div>
-  </div>
+<div id="tab-bookings" class="panel">
+  <h1 class="page-heading">All Bookings</h1>
+  <p class="page-sub">Across all venues</p>
+  <table>
+    <thead><tr><th>Venue</th><th>Guest</th><th>Date</th><th>Amount</th></tr></thead>
+    <tbody id="bookings-tbody">
+      <tr><td colspan="4" class="empty-row">No bookings yet — they'll show up here as they come in.</td></tr>
+    </tbody>
+  </table>
 </div>
-```
 
-  </div>
+<!-- ══════════════════════════════════════════════════════
+  TRUST FOOTER — global, not venue-specific
+  VENUE: tagline only if you want to customise it
+══════════════════════════════════════════════════════ -->
 
-  <!-- ══ MODALS ══ -->
-
-  <!-- Overlay -->
-
-  <div class="modal-overlay" id="modal-overlay" onclick="closeModal()"></div>
-
-  <!-- ABOUT MODAL -->
-
-  <div class="modal" id="modal-about">
-    <div class="modal-handle"><div class="modal-handle-bar"></div></div>
-    <div class="modal-header">
-      <div class="modal-title">About the Space</div>
-      <button class="modal-close" onclick="closeModal()">×</button>
-    </div>
-    <div class="modal-body">
-      <p class="modal-desc">Raw bar venue on Navigation Blvd in East Houston. <strong>Established underground room</strong> with a real stage, full PA, and a crowd that shows up. No cover bands. No tributes. This room is for originals only — artists who are building something real.</p>
-      <div class="modal-map-row">
-        <div class="modal-address-block">
-          <div class="modal-address-label">Address</div>
-          <div class="modal-address">4419 Navigation Blvd<br>Houston, TX 77011</div>
-        </div>
-        <a class="modal-map-btn" href="https://maps.google.com/?q=4419+Navigation+Blvd+Houston+TX" target="_blank">Open Maps →</a>
+<footer class="trust-footer">
+  <div class="trust-row">
+    <div class="trust-item">
+      <div class="trust-icon">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <rect x="3" y="7" width="10" height="7" rx="1.5" stroke="#666" stroke-width="1.25"/>
+          <path d="M5 7V5a3 3 0 016 0v2" stroke="#666" stroke-width="1.25" stroke-linecap="round"/>
+          <circle cx="8" cy="10.5" r="1" fill="#666"/>
+        </svg>
       </div>
-      <div class="modal-quote">
-        <div class="modal-quote-bar"></div>
-        <div class="modal-quote-text">"A real underground room with a crowd that actually shows up."</div>
-        <div class="modal-quote-attr">— White Swan Live</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- AMENITIES MODAL -->
-
-  <div class="modal" id="modal-amenities">
-    <div class="modal-handle"><div class="modal-handle-bar"></div></div>
-    <div class="modal-header">
-      <div class="modal-title">What's Included</div>
-      <button class="modal-close" onclick="closeModal()">×</button>
-    </div>
-    <div class="modal-body">
-      <div class="modal-amenity-list">
-        <div class="modal-amenity-item">
-          <div class="modal-amenity-icon">🔊</div>
-          <div class="modal-amenity-info">
-            <div class="modal-amenity-name">Full PA System</div>
-            <div class="modal-amenity-detail">5,000+ watts · 4×18" woofers · 4×15" mid · 2× tweeter horns</div>
-          </div>
-        </div>
-        <div class="modal-amenity-item">
-          <div class="modal-amenity-icon">🎙</div>
-          <div class="modal-amenity-info">
-            <div class="modal-amenity-name">Stage + Drum Riser</div>
-            <div class="modal-amenity-detail">200 sq ft raised riser · Full stage monitors included</div>
-          </div>
-        </div>
-        <div class="modal-amenity-item">
-          <div class="modal-amenity-icon">💡</div>
-          <div class="modal-amenity-info">
-            <div class="modal-amenity-name">Stage Lighting</div>
-            <div class="modal-amenity-detail">8 cans · 10 effects · 2 strobes · Full rig ready at load-in</div>
-          </div>
-        </div>
-        <div class="modal-amenity-item">
-          <div class="modal-amenity-icon">🎚</div>
-          <div class="modal-amenity-info">
-            <div class="modal-amenity-name">Sound Engineer On-Site</div>
-            <div class="modal-amenity-detail">House engineer present · Tip is strongly encouraged</div>
-          </div>
-        </div>
-        <div class="modal-amenity-item">
-          <div class="modal-amenity-icon">🅿️</div>
-          <div class="modal-amenity-info">
-            <div class="modal-amenity-name">Parking</div>
-            <div class="modal-amenity-detail">Adjacent lot · Load-in access 4 hours before show</div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-note">Film + music video shoots welcome — call in advance at 713-923-2837</div>
-    </div>
-  </div>
-
-  <!-- THE DEAL MODAL -->
-
-  <div class="modal" id="modal-deal">
-    <div class="modal-handle"><div class="modal-handle-bar"></div></div>
-    <div class="modal-header">
-      <div class="modal-title">The Deal</div>
-      <button class="modal-close" onclick="closeModal()">×</button>
-    </div>
-    <div class="modal-body">
-      <div class="modal-deal-hero">
-        <div class="modal-deal-num">$100</div>
-        <div class="modal-deal-sub">flat venue fee · you keep 100% of the door</div>
-      </div>
-      <div class="modal-specs">
-        <div class="modal-spec-row highlight">
-          <span class="modal-spec-key">Venue Fee</span>
-          <span class="modal-spec-val red">$100 flat</span>
-        </div>
-        <div class="modal-spec-row">
-          <span class="modal-spec-key">Door Money</span>
-          <span class="modal-spec-val">100% yours to keep</span>
-        </div>
-        <div class="modal-spec-row">
-          <span class="modal-spec-key">Minimum Acts</span>
-          <span class="modal-spec-val">4 on the bill</span>
-        </div>
-        <div class="modal-spec-row">
-          <span class="modal-spec-key">Show Start</span>
-          <span class="modal-spec-val">No earlier than 9pm</span>
-        </div>
-        <div class="modal-spec-row">
-          <span class="modal-spec-key">Show End</span>
-          <span class="modal-spec-val">No earlier than 1am</span>
-        </div>
-        <div class="modal-spec-row">
-          <span class="modal-spec-key">Load-In</span>
-          <span class="modal-spec-val">4 hours before show</span>
-        </div>
-        <div class="modal-spec-row">
-          <span class="modal-spec-key">First-Time Deposit</span>
-          <span class="modal-spec-val">$100 via Stripe upfront</span>
-        </div>
-      </div>
-      <button class="btn-book-modal" onclick="closeModal(); openModal('book')">Book This Venue →</button>
-    </div>
-  </div>
-
-  <!-- HOUSE RULES MODAL -->
-
-  <div class="modal" id="modal-rules">
-    <div class="modal-handle"><div class="modal-handle-bar"></div></div>
-    <div class="modal-header">
-      <div class="modal-title">House Rules</div>
-      <button class="modal-close" onclick="closeModal()">×</button>
-    </div>
-    <div class="modal-body">
-      <div class="modal-rules-list">
-        <div class="modal-rule">
-          <div class="modal-rule-icon">💵</div>
-          <div class="modal-rule-text">
-            <div class="modal-rule-title">The Door Is Yours</div>
-            <div class="modal-rule-desc">You run your own door and keep 100% of what you make. The $100 venue fee is the only thing the house takes. Bring your own change — ones and fives.</div>
-          </div>
-        </div>
-        <div class="modal-rule">
-          <div class="modal-rule-icon">🎶</div>
-          <div class="modal-rule-text">
-            <div class="modal-rule-title">Originals Only</div>
-            <div class="modal-rule-desc">No cover bands. No tribute acts. Minimum four acts on the bill. The show runs until at least 1am.</div>
-          </div>
-        </div>
-        <div class="modal-rule">
-          <div class="modal-rule-icon">📣</div>
-          <div class="modal-rule-text">
-            <div class="modal-rule-title">You Promote It</div>
-            <div class="modal-rule-desc">We blast it day-of. But promotion is on you — social media, flyers, Houston Press submission. You keep what you make so make it count.</div>
-          </div>
-        </div>
-        <div class="modal-rule">
-          <div class="modal-rule-icon">📋</div>
-          <div class="modal-rule-text">
-            <div class="modal-rule-title">Deposits & Cancellations</div>
-            <div class="modal-rule-desc">First-time bookers pay $100 via Stripe to hold the date. Cancel and you lose it. Reschedule with 5+ days notice. Tip the sound engineer.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- BOOKING MODAL -->
-
-  <div class="modal modal-tall" id="modal-book">
-    <div class="modal-handle"><div class="modal-handle-bar"></div></div>
-    <div class="modal-header">
       <div>
+        <div class="trust-item-title">Secured by Stripe</div>
+        <div class="trust-item-desc">All payments processed through Stripe. Money moves directly from promoter to venue with instant confirmation.</div>
+      </div>
+    </div>
+    <div class="trust-item">
+      <div class="trust-icon">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 2v2M8 12v2M2 8h2M12 8h2M4.22 4.22l1.42 1.42M10.36 10.36l1.42 1.42M4.22 11.78l1.42-1.42M10.36 5.64l1.42-1.42" stroke="#666" stroke-width="1.25" stroke-linecap="round"/>
+          <circle cx="8" cy="8" r="2" stroke="#666" stroke-width="1.25"/>
+        </svg>
+      </div>
+      <div>
+        <div class="trust-item-title">Powered by Multi-LLM Setup</div>
+        <div class="trust-item-desc">AI automatically generates professional booking confirmation emails using exact payment details — no manual copy-paste.</div>
+      </div>
+    </div>
+  </div>
+  <div class="trust-tagline">Simple <span>·</span> Reliable <span>·</span> Built for Venues</div><!-- VENUE: tagline -->
+</footer>
+
+<!-- ══════════════════════════════════════════════════════
+  BOOKING MODAL
+══════════════════════════════════════════════════════ -->
+
+<div class="modal-overlay" id="modal-overlay" onclick="maybeCloseModal(event)">
+  <div class="modal">
+    <div id="modal-form-section">
+      <div class="modal-header">
         <div class="modal-title">Lock Your Date</div>
-        <div class="modal-subtitle">White Swan Live · $100 venue fee</div>
+        <div class="modal-subtitle">White Swan Live · $100 venue fee</div><!-- VENUE: name + fee -->
+        <button class="modal-close" onclick="closeModal()">×</button>
       </div>
-      <button class="modal-close" onclick="closeModal()">×</button>
+      <div class="modal-body">
+        <div class="modal-date-badge">
+          <span class="modal-date-label">Selected Date</span>
+          <span class="modal-date-val" id="modal-date-val">—</span>
+        </div>
+        <div class="modal-form">
+          <div class="form-field"><label>Your Name</label><input type="text" id="f-name" placeholder="Artist / Promoter name" /></div>
+          <div class="form-field"><label>Email</label><input type="email" id="f-email" placeholder="you@example.com" /></div>
+          <div class="form-field"><label>Phone</label><input type="tel" id="f-phone" placeholder="(555) 000-0000" /></div>
+          <div class="form-field"><label>Expected Headcount</label><input type="number" id="f-headcount" placeholder="e.g. 80" /></div>
+          <div class="form-field"><label>Tell Us About The Show</label><textarea id="f-show" placeholder="Bands playing, genre, links to your music..."></textarea></div>
+        </div>
+        <div class="pay-summary">
+          <div class="pay-summary-title">Payment Summary</div>
+          <!-- VENUE: fee amounts -->
+          <div class="pay-row"><span class="pay-row-k">Venue fee</span><span class="pay-row-v">$100.00</span></div>
+          <div class="pay-row"><span class="pay-row-k">Processing</span><span class="pay-row-v">$0.00</span></div>
+          <div class="pay-row total"><span class="pay-row-k">Total due today</span><span class="pay-row-v">$100</span></div>
+        </div>
+        <button class="btn-confirm" onclick="submitBooking()">Confirm &amp; Pay $100 with Stripe →</button><!-- VENUE: fee in button -->
+        <div class="modal-secure-note">Secured via Stripe · Email + SMS confirmation · We'll reach out within 24hrs</div>
+      </div>
     </div>
-    <div class="modal-body" id="book-modal-body">
-      <!-- Cal -->
-      <div class="mcal-card">
-        <div class="mcal-header">
-          <div class="mcal-month" id="mcal-label">May 2026</div>
-          <div class="mcal-nav">
-            <button class="mcal-btn" onclick="mChangeMonth(-1)">←</button>
-            <button class="mcal-btn" onclick="mChangeMonth(1)">→</button>
-          </div>
-        </div>
-        <div class="mcal-grid">
-          <div class="mcal-days">
-            <div class="mcal-dn">Su</div><div class="mcal-dn">Mo</div><div class="mcal-dn">Tu</div>
-            <div class="mcal-dn">We</div><div class="mcal-dn">Th</div><div class="mcal-dn">Fr</div><div class="mcal-dn">Sa</div>
-          </div>
-          <div class="mcal-dates" id="mcal-dates"></div>
-        </div>
+    <div class="modal-success" id="modal-success">
+      <div class="success-icon">✓</div>
+      <div class="success-title">Date Locked</div>
+      <div class="success-sub">You're confirmed. We'll reach out within 24 hours to finalize details.</div>
+      <div class="success-details">
+        <div class="sd-row"><span class="sd-k">Venue</span><span class="sd-v">White Swan Live</span></div><!-- VENUE: name -->
+        <div class="sd-row"><span class="sd-k">Date</span><span class="sd-v" id="success-date">—</span></div>
+        <div class="sd-row"><span class="sd-k">Fee</span><span class="sd-v">$100.00 paid</span></div><!-- VENUE: fee -->
+        <div class="sd-row"><span class="sd-k">Contact</span><span class="sd-v">713-923-2837</span></div><!-- VENUE: phone -->
       </div>
-      <div id="mpill-wrap" style="display:none">
-        <div class="mpill">📅 <span id="mpill-text"></span></div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Your Name</label>
-        <input type="text" class="form-input" placeholder="Full name" id="book-name">
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <div class="form-group">
-          <label class="form-label">Email</label>
-          <input type="email" class="form-input" placeholder="you@email.com" id="book-email">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Phone</label>
-          <input type="tel" class="form-input" placeholder="(555) 000" id="book-phone">
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Expected Headcount</label>
-        <input type="number" class="form-input" placeholder="Rough attendance" id="book-guests">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Tell Us About The Show</label>
-        <textarea class="form-input" placeholder="Artists, vibe, production needs..." id="book-notes" style="min-height:64px;resize:none"></textarea>
-      </div>
-      <div class="payment-section">
-        <div class="payment-title">Payment Summary</div>
-        <div class="pay-row"><span class="pay-label">Venue fee</span><span class="pay-val">$100.00</span></div>
-        <div class="pay-row"><span class="pay-label">Processing</span><span class="pay-val">$0.00</span></div>
-        <div class="pay-row total"><span class="pay-label" style="font-weight:600">Total due today</span><span class="pay-val">$100.00</span></div>
-      </div>
-      <button class="btn-confirm" onclick="confirmBooking()">Confirm & Pay $100 →</button>
-      <p class="pay-note">Secured via Stripe · Email + SMS confirmation · We'll reach out within 24hrs</p>
-    </div>
-    <!-- Success state inside booking modal -->
-    <div class="modal-success" id="book-success" style="display:none">
-      <div class="modal-success-icon">✓</div>
-      <div class="modal-success-title">Date Locked</div>
-      <p class="modal-success-sub">You're confirmed. We'll reach out within 24 hours to finalize details.</p>
-      <div class="modal-success-detail">
-        <div class="msd-row"><span class="msd-k">Venue</span><span class="msd-v">White Swan Live</span></div>
-        <div class="msd-row"><span class="msd-k">Date</span><span class="msd-v" id="success-date-text">—</span></div>
-        <div class="msd-row"><span class="msd-k">Fee</span><span class="msd-v">$100.00 paid</span></div>
-        <div class="msd-row"><span class="msd-k">Contact</span><span class="msd-v">713-923-2837</span></div>
-      </div>
-      <button class="btn-confirm" onclick="closeModal()" style="margin-top:8px">Done</button>
+      <button class="btn-done" onclick="closeModal()">Done</button>
     </div>
   </div>
-
-  <!-- ALL BOOKINGS SCREEN -->
-
-  <div class="screen" id="screen-bookings">
-    <div class="admin-header">
-      <h1>All Bookings</h1>
-      <p>Across all venues</p>
-    </div>
-
-```
-<div class="bookings-table">
-  <div class="bookings-table-header">
-    <div class="th">Venue</div>
-    <div class="th">Guest</div>
-    <div class="th">Date</div>
-    <div class="th">Amount</div>
-  </div>
-  <div style="padding: 32px 16px; text-align: center; color: var(--text-faint); font-size: 13px;">
-    No bookings yet — they'll show up here as they come in.
-  </div>
-</div>
-```
-
-  </div>
-
 </div>
 
 <script>
-  // ── TABS ──
-  function switchTab(tab) {
-    document.querySelectorAll('.tab').forEach((t, i) => {
-      const tabs = ['admin', 'preview', 'bookings'];
-      t.classList.toggle('active', tabs[i] === tab);
-    });
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById('screen-' + tab).classList.add('active');
-  }
+/* ── Tabs ── */
+function showTab(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  ({ admin:0, preview:1, bookings:2 });
+  document.querySelectorAll('.tab-btn')[{admin:0,preview:1,bookings:2}[id]].classList.add('active');
+}
+function toggleAddForm() { document.getElementById('add-form').classList.toggle('open'); }
+function toggleAcc(id)   { document.getElementById(id).classList.toggle('open'); }
 
-  // ── ADD VENUE FORM ──
-  function toggleAddForm() {
-    const f = document.getElementById('add-form');
-    f.style.display = f.style.display === 'none' ? 'block' : 'none';
-  }
-  function saveVenue() {
-    const name = document.getElementById('new-name').value;
-    const slug = document.getElementById('new-slug').value;
-    if (!name) return;
-    const list = document.getElementById('venue-list');
-    const item = document.createElement('div');
-    item.className = 'venue-item';
-    item.innerHTML = `
-      <div class="venue-item-info">
-        <div class="venue-item-name">${name}</div>
-        <div class="venue-item-slug">/venue/${slug || name.toLowerCase().replace(/\s+/g,'-')}</div>
-      </div>
-      <div class="venue-item-actions">
-        <span class="badge-live">live</span>
-        <button class="btn-sm" onclick="switchTab('preview')">View</button>
-      </div>`;
-    list.appendChild(item);
-    const curr = parseInt(document.getElementById('stat-venues').textContent);
-    document.getElementById('stat-venues').textContent = curr + 1;
-    toggleAddForm();
-    ['new-name','new-slug','new-location','new-capacity','new-desc','new-email','new-phone','new-amenities','new-fee'].forEach(id => {
-      document.getElementById(id).value = '';
-    });
-  }
+/* ── Calendar ── */
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS   = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+let calYear, calMonth, selectedDate = null;
 
-  // ── MODALS ──
-  let activeModal = null;
-  function openModal(id) {
-    if (activeModal) closeModal();
-    const overlay = document.getElementById('modal-overlay');
-    const modal = document.getElementById('modal-' + id);
-    overlay.classList.add('open');
-    modal.classList.add('open');
-    document.body.style.overflow = 'hidden';
-    activeModal = id;
+function initCal() {
+  const now = new Date();
+  calYear = now.getFullYear(); calMonth = now.getMonth();
+  renderCal();
+}
+function renderCal() {
+  document.getElementById('cal-month-label').textContent = MONTHS[calMonth] + ' ' + calYear;
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+  DAYS.forEach(d => { const el = document.createElement('div'); el.className='cal-dow'; el.textContent=d; grid.appendChild(el); });
+  const today = new Date(); today.setHours(0,0,0,0);
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+  for (let i=0;i<firstDay;i++) { const el=document.createElement('div'); el.className='cal-day cal-day-empty'; grid.appendChild(el); }
+  for (let d=1;d<=daysInMonth;d++) {
+    const date   = new Date(calYear, calMonth, d);
+    const dow    = date.getDay();
+    const isPast = date < today;
+    const isAvail= !isPast && (dow===5||dow===6);
+    const isToday= date.toDateString()===today.toDateString();
+    const dateStr= date.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+    const isSel  = selectedDate===dateStr;
+    const el = document.createElement('div');
+    el.textContent = d;
+    el.className = 'cal-day'+(isPast?' cal-day-past':'')+(isAvail?' cal-day-avail':'')+(isToday?' cal-day-today':'')+(isSel?' cal-day-selected':'');
+    if (isAvail||isSel) el.onclick = () => selectDate(dateStr);
+    grid.appendChild(el);
   }
-  function closeModal() {
-    if (!activeModal) return;
-    document.getElementById('modal-overlay').classList.remove('open');
-    document.getElementById('modal-' + activeModal).classList.remove('open');
-    document.body.style.overflow = '';
-    activeModal = null;
-  }
+}
+function selectDate(dateStr) {
+  selectedDate = dateStr; renderCal();
+  document.getElementById('selected-date-text').textContent = dateStr;
+  document.getElementById('selected-date-display').classList.add('visible');
+  const btn = document.getElementById('btn-book');
+  btn.textContent = 'Continue to Payment — $100 →';
+  btn.classList.add('ready'); btn.disabled = false;
+}
+function calPrev() { calMonth--; if(calMonth<0){calMonth=11;calYear--;} renderCal(); }
+function calNext() { calMonth++; if(calMonth>11){calMonth=0;calYear++;} renderCal(); }
 
-  // ── MODAL CALENDAR ──
-  let mMonth = 4, mYear = 2026, mSelDate = null;
-  const bookedDates = [3, 8, 15, 22];
-  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+/* ── Modal ── */
+function openModal() {
+  if (!selectedDate) return;
+  document.getElementById('modal-date-val').textContent = selectedDate;
+  document.getElementById('modal-form-section').style.display = '';
+  document.getElementById('modal-success').classList.remove('visible');
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function maybeCloseModal(e) { if(e.target===document.getElementById('modal-overlay')) closeModal(); }
+function submitBooking() {
+  const name = document.getElementById('f-name').value.trim();
+  const email= document.getElementById('f-email').value.trim();
+  if (!name||!email) { alert('Please fill in at least your name and email.'); return; }
+  document.getElementById('modal-form-section').style.display='none';
+  document.getElementById('success-date').textContent = selectedDate;
+  document.getElementById('modal-success').classList.add('visible');
+  const tbody = document.getElementById('bookings-tbody');
+  if (tbody.querySelector('.empty-row')) tbody.innerHTML='';
+  const tr = document.createElement('tr');
+  tr.innerHTML=`<td style="color:var(--text)">White Swan Live</td><td>${name}</td><td>${selectedDate}</td><td style="font-family:var(--mono);font-weight:600;">$100.00</td>`;
+  tbody.appendChild(tr);
+  const count = parseInt(document.getElementById('admin-booking-count').textContent)+1;
+  document.getElementById('admin-booking-count').textContent = count;
+  document.getElementById('admin-revenue').textContent = '$'+(count*100);
+}
 
-  function renderMCal() {
-    document.getElementById('mcal-label').textContent = months[mMonth] + ' ' + mYear;
-    const wrap = document.getElementById('mcal-dates');
-    wrap.innerHTML = '';
-    const first = new Date(mYear, mMonth, 1).getDay();
-    const days = new Date(mYear, mMonth + 1, 0).getDate();
-    const today = new Date();
-    for (let i = 0; i < first; i++) {
-      const e = document.createElement('div');
-      e.className = 'mcal-date empty';
-      wrap.appendChild(e);
-    }
-    for (let d = 1; d <= days; d++) {
-      const el = document.createElement('div');
-      el.className = 'mcal-date';
-      el.textContent = d;
-      const dt = new Date(mYear, mMonth, d);
-      const isPast = dt < new Date(today.getFullYear(), today.getMonth(), today.getDate());
-      const isBooked = bookedDates.includes(d);
-      const isSel = mSelDate && mSelDate.getDate() === d && mSelDate.getMonth() === mMonth && mSelDate.getFullYear() === mYear;
-      if (isPast) el.classList.add('past');
-      else if (isBooked) el.classList.add('booked');
-      else if (isSel) el.classList.add('selected');
-      else el.addEventListener('click', () => mPickDate(d));
-      wrap.appendChild(el);
-    }
-  }
-  function mPickDate(d) {
-    mSelDate = new Date(mYear, mMonth, d);
-    const str = months[mMonth] + ' ' + d + ', ' + mYear;
-    document.getElementById('mpill-text').textContent = str;
-    document.getElementById('mpill-wrap').style.display = 'block';
-    document.getElementById('success-date-text').textContent = str;
-    renderMCal();
-  }
-  function mChangeMonth(dir) {
-    mMonth += dir;
-    if (mMonth > 11) { mMonth = 0; mYear++; }
-    if (mMonth < 0) { mMonth = 11; mYear--; }
-    renderMCal();
-  }
+/* ── Venue image fallback ── */
+(function() {
+  const style  = getComputedStyle(document.documentElement);
+  const imgVal = style.getPropertyValue('--venue-image').trim();
+  const imgUrl = imgVal.replace(/^url\(['"]?/,'').replace(/['"]?\)$/,'');
+  const photo  = document.getElementById('venue-photo');
+  if (!imgUrl || imgUrl==='') { photo.classList.add('no-image'); return; }
+  const img = new Image();
+  img.onerror = () => photo.classList.add('no-image');
+  img.src = imgUrl;
+})();
 
-  // ── BOOKING CONFIRM ──
-  function confirmBooking() {
-    const name = document.getElementById('book-name').value.trim();
-    const email = document.getElementById('book-email').value.trim();
-    if (!name || !email) {
-      if (!name) document.getElementById('book-name').style.borderColor = 'var(--red)';
-      if (!email) document.getElementById('book-email').style.borderColor = 'var(--red)';
-      return;
-    }
-    document.getElementById('book-modal-body').style.display = 'none';
-    document.getElementById('book-success').style.display = 'flex';
-    document.getElementById('book-success').style.flexDirection = 'column';
-    // update stats
-    const curr = parseInt(document.getElementById('stat-bookings').textContent);
-    document.getElementById('stat-bookings').textContent = curr + 1;
-    const rev = parseInt(document.getElementById('stat-revenue').textContent.replace('$','').replace(',','')) || 0;
-    document.getElementById('stat-revenue').textContent = '$' + (rev + 100).toLocaleString();
-  }
-
-  renderMCal();
+initCal();
 </script>
 
 </body>
