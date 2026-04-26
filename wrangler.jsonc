@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "venueportallanding",
+  "compatibility_date": "2026-04-26",
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": "booking-portal"
+  },
+  "compatibility_flags": [
+    "nodejs_compat"
+  ]
+}
