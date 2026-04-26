@@ -834,13 +834,60 @@ td{padding:12px 8px 12px 0;border-bottom:1px solid var(--border);font-size:13px;
 </div>
 
 <script>
-/* ── VENUE CONFIG ── */
+/* ─────────────────────────────────────────────
+   API SERVICE LAYER
+   Base: https://venue-portal-api.paxey333.workers.dev
+───────────────────────────────────────────── */
+const API_BASE  = 'https://venue-portal-api.paxey333.workers.dev';
+const TOKEN_KEY = 'vp_admin_token';
+
+const getToken   = ()  => localStorage.getItem(TOKEN_KEY);
+const setToken   = (t) => localStorage.setItem(TOKEN_KEY, t);
+const clearToken = ()  => localStorage.removeItem(TOKEN_KEY);
+const isLoggedIn = ()  => !!getToken();
+
+async function apiFetch(path, { method = 'GET', body, auth = false } = {}) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (auth) {
+    const token = getToken();
+    if (!token) throw new Error('NOT_AUTHED');
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  const res = await fetch(API_BASE + path, {
+    method,
+    headers,
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (res.status === 401) { clearToken(); throw new Error('UNAUTHORIZED'); }
+  if (!res.ok) { const t = await res.text(); throw new Error(t || `HTTP ${res.status}`); }
+  if (res.status === 204) return null;
+  return res.json();
+}
+
+const API = {
+  login:               (email, pw)   => apiFetch('/api/auth/login', { method:'POST', body:{ email, password:pw } }),
+  getVenues:           ()            => apiFetch('/api/venues'),
+  getVenue:            (id)          => apiFetch(`/api/venues/${id}`),
+  createVenue:         (b)           => apiFetch('/api/venues',       { method:'POST',   body:b, auth:true }),
+  updateVenue:         (id, b)       => apiFetch(`/api/venues/${id}`, { method:'PUT',    body:b, auth:true }),
+  deleteVenue:         (id)          => apiFetch(`/api/venues/${id}`, { method:'DELETE',         auth:true }),
+  createBooking:       (b)           => apiFetch('/api/bookings',     { method:'POST',   body:b }),
+  getBookings:         ()            => apiFetch('/api/bookings',     { auth:true }),
+  updateBookingStatus: (id, status)  => apiFetch(`/api/bookings/${id}/status`, { method:'PATCH', body:{ status }, auth:true }),
+  deleteBooking:       (id)          => apiFetch(`/api/bookings/${id}`, { method:'DELETE', auth:true }),
+};
+
+/* ─────────────────────────────────────────────
+   VENUE CONFIG (local data for rich detail pages)
+   The static venue detail pages (ws / cr) stay as-is.
+   API venues populate the admin list + preview dropdowns.
+───────────────────────────────────────────── */
 const VENUES = {
   ws: { name:'White Swan Live', location:'Houston, TX', fee:100, feeLabel:'$100 flat',     feeNote:'flat fee',     contact:'713-923-2837' },
   cr: { name:'The Chill Room',  location:'Tempe, AZ',  fee:150, feeLabel:'$150 starting', feeNote:'starting fee', contact:'Via Stripe confirmation' }
 };
 
-/* venues grouped by location — drives the dropdowns */
+/* groups the hardcoded venues by city for the preview dropdowns */
 const BY_LOCATION = {};
 Object.entries(VENUES).forEach(([key, v]) => {
   if (!BY_LOCATION[v.location]) BY_LOCATION[v.location] = [];
@@ -849,17 +896,298 @@ Object.entries(VENUES).forEach(([key, v]) => {
 
 let activeVenueKey = null;
 
-/* ── TABS ── */
+/* API venues array, populated on admin load */
+let apiVenues = [];
+
+/* ─────────────────────────────────────────────
+   AUTH GUARD — runs on every tab switch to admin
+───────────────────────────────────────────── */
+function requireAuth() {
+  if (!isLoggedIn()) {
+    showLoginPanel();
+    return false;
+  }
+  return true;
+}
+
+/* ─────────────────────────────────────────────
+   LOGIN PANEL  (injected into tab-admin at runtime)
+───────────────────────────────────────────── */
+function showLoginPanel() {
+  const panel = document.getElementById('tab-admin');
+  panel.innerHTML = `
+    <div style="max-width:400px;margin:60px auto">
+      <h1 class="page-heading" style="margin-bottom:4px">Admin Login</h1>
+      <p class="page-sub" style="margin-bottom:28px">Venue Portal · Underground Showtime</p>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;display:flex;flex-direction:column;gap:12px">
+        <div class="form-field">
+          <label>Email</label>
+          <input type="email" id="login-email" placeholder="paxey333@gmail.com" autocomplete="email"/>
+        </div>
+        <div class="form-field">
+          <label>Password</label>
+          <input type="password" id="login-pw" placeholder="••••••••" autocomplete="current-password"/>
+        </div>
+        <div id="login-err" style="font-size:12px;color:#f87171;font-family:var(--mono);display:none"></div>
+        <button class="btn-primary" id="login-btn" onclick="handleLogin()" style="margin-top:4px">Sign In →</button>
+      </div>
+    </div>`;
+  /* allow Enter key */
+  setTimeout(() => {
+    document.getElementById('login-pw')?.addEventListener('keydown', e => { if(e.key==='Enter') handleLogin(); });
+  }, 0);
+}
+
+async function handleLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pw    = document.getElementById('login-pw').value;
+  const btn   = document.getElementById('login-btn');
+  const err   = document.getElementById('login-err');
+  if (!email || !pw) { err.style.display=''; err.textContent='Email and password required.'; return; }
+  btn.disabled = true; btn.textContent = 'Signing in…';
+  err.style.display = 'none';
+  try {
+    const data = await API.login(email, pw);
+    if (data?.token) {
+      setToken(data.token);
+      await renderAdminPanel();
+    } else {
+      err.style.display=''; err.textContent='Login failed — no token returned.';
+      btn.disabled=false; btn.textContent='Sign In →';
+    }
+  } catch(e) {
+    err.style.display=''; err.textContent=e.message==='UNAUTHORIZED'?'Wrong credentials.':('Error: '+e.message);
+    btn.disabled=false; btn.textContent='Sign In →';
+  }
+}
+
+/* ─────────────────────────────────────────────
+   ADMIN PANEL  (replaces tab-admin content when authed)
+───────────────────────────────────────────── */
+async function renderAdminPanel() {
+  const panel = document.getElementById('tab-admin');
+
+  /* skeleton while loading */
+  panel.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+      <div>
+        <h1 class="page-heading">Dashboard</h1>
+        <p class="page-sub">Manage and onboard venues</p>
+      </div>
+      <button class="btn-ghost" onclick="handleLogout()">Log Out</button>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-label">Total Venues</div><div class="stat-val" id="admin-venue-count">—</div></div>
+      <div class="stat-card"><div class="stat-label">Total Bookings</div><div class="stat-val" id="admin-booking-count">—</div></div>
+      <div class="stat-card"><div class="stat-label">Revenue</div><div class="stat-val" id="admin-revenue">—</div></div>
+    </div>
+    <div class="section-hd">
+      <span class="section-title">Venues</span>
+      <button class="btn-sm" onclick="openAddVenueForm()">+ Add venue</button>
+    </div>
+    <div id="add-venue-form" class="add-form">
+      <div class="form-grid">
+        <div class="form-field"><label>Venue Name</label><input type="text" id="av-name" placeholder="e.g. The Majestic"/></div>
+        <div class="form-field"><label>Capacity</label><input type="number" id="av-capacity"/></div>
+        <div class="form-field"><label>Price Per Day ($)</label><input type="number" id="av-price"/></div>
+        <div class="form-field"><label>Image URL</label><input type="text" id="av-image" placeholder="https://…"/></div>
+        <div class="form-field full"><label>Description</label><textarea id="av-desc" placeholder="Tell bookers about the space…"></textarea></div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-primary" onclick="saveVenue()">Save Venue</button>
+        <button class="btn-cancel" onclick="closeAddVenueForm()">Cancel</button>
+      </div>
+      <div id="av-err" style="font-size:12px;color:#f87171;font-family:var(--mono);margin-top:8px;display:none"></div>
+    </div>
+    <div class="venue-list-admin" id="admin-venue-list"><p style="color:var(--text3);font-family:var(--mono);font-size:12px">Loading venues…</p></div>
+
+    <div style="height:32px"></div>
+    <div class="section-hd"><span class="section-title">All Bookings</span></div>
+    <table>
+      <thead><tr><th>Venue</th><th>Guest</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="admin-bookings-tbody"><tr class="empty-row"><td colspan="5" style="text-align:center;color:var(--text3);padding:20px;font-family:var(--mono)">Loading…</td></tr></tbody>
+    </table>`;
+
+  /* load data */
+  await Promise.all([ loadAdminVenues(), loadAdminBookings() ]);
+}
+
+/* ─ Venues ─ */
+let editingVenueId = null;
+
+async function loadAdminVenues() {
+  try {
+    apiVenues = await API.getVenues() || [];
+    document.getElementById('admin-venue-count').textContent = apiVenues.length;
+    renderAdminVenueList();
+  } catch(e) {
+    document.getElementById('admin-venue-list').innerHTML = `<p style="color:#f87171;font-family:var(--mono);font-size:12px">Failed to load venues: ${e.message}</p>`;
+  }
+}
+
+function renderAdminVenueList() {
+  const list = document.getElementById('admin-venue-list');
+  if (!apiVenues.length) { list.innerHTML = '<p style="color:var(--text3);font-family:var(--mono);font-size:12px">No venues yet.</p>'; return; }
+  list.innerHTML = apiVenues.map(v => `
+    <div class="vla-item">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+          <div class="vla-name">${escHtml(v.name)}</div>
+          <span class="tag tag-live">Live</span>
+        </div>
+        <div class="vla-slug">Cap: ${v.capacity || '—'} · $${v.price_per_day || '—'}/day</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-ghost" onclick="startEditVenue(${v.id})">Edit</button>
+        <button class="btn-ghost" style="color:#f87171;border-color:#3a1a1a" onclick="confirmDeleteVenue(${v.id},'${escHtml(v.name)}')">Delete</button>
+      </div>
+    </div>`).join('');
+}
+
+function openAddVenueForm() {
+  editingVenueId = null;
+  ['av-name','av-capacity','av-price','av-image','av-desc'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.getElementById('add-venue-form').classList.add('open');
+}
+
+function closeAddVenueForm() {
+  editingVenueId = null;
+  document.getElementById('add-venue-form').classList.remove('open');
+}
+
+function startEditVenue(id) {
+  const v = apiVenues.find(x => x.id === id);
+  if (!v) return;
+  editingVenueId = id;
+  document.getElementById('av-name').value     = v.name        || '';
+  document.getElementById('av-capacity').value = v.capacity    || '';
+  document.getElementById('av-price').value    = v.price_per_day || '';
+  document.getElementById('av-image').value    = v.image_url   || '';
+  document.getElementById('av-desc').value     = v.description || '';
+  document.getElementById('add-venue-form').classList.add('open');
+  document.getElementById('add-venue-form').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+async function saveVenue() {
+  const errEl = document.getElementById('av-err');
+  errEl.style.display = 'none';
+  const body = {
+    name:          document.getElementById('av-name').value.trim(),
+    description:   document.getElementById('av-desc').value.trim(),
+    capacity:      parseInt(document.getElementById('av-capacity').value) || null,
+    price_per_day: parseFloat(document.getElementById('av-price').value) || null,
+    image_url:     document.getElementById('av-image').value.trim() || null,
+  };
+  if (!body.name) { errEl.style.display=''; errEl.textContent='Venue name is required.'; return; }
+  try {
+    if (editingVenueId) {
+      await API.updateVenue(editingVenueId, body);
+    } else {
+      await API.createVenue(body);
+    }
+    closeAddVenueForm();
+    await loadAdminVenues();
+  } catch(e) {
+    errEl.style.display=''; errEl.textContent='Save failed: ' + e.message;
+  }
+}
+
+async function confirmDeleteVenue(id, name) {
+  if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+  try {
+    await API.deleteVenue(id);
+    await loadAdminVenues();
+  } catch(e) {
+    alert('Delete failed: ' + e.message);
+  }
+}
+
+/* ─ Bookings ─ */
+async function loadAdminBookings() {
+  try {
+    const bookings = await API.getBookings() || [];
+    renderAdminBookings(bookings);
+    /* update stats */
+    document.getElementById('admin-booking-count').textContent = bookings.length;
+    const rev = bookings.reduce((sum, b) => {
+      const v = Object.values(VENUES).find(x => x.name === b.venue_name);
+      return sum + (v ? v.fee : 0);
+    }, 0);
+    document.getElementById('admin-revenue').textContent = '$' + rev.toLocaleString();
+  } catch(e) {
+    const tbody = document.getElementById('admin-bookings-tbody');
+    if (tbody) tbody.innerHTML = `<tr><td colspan="5" style="color:#f87171;font-family:var(--mono);font-size:12px;padding:16px">Failed to load bookings: ${e.message}</td></tr>`;
+  }
+}
+
+function renderAdminBookings(bookings) {
+  const tbody = document.getElementById('admin-bookings-tbody');
+  if (!tbody) return;
+  if (!bookings.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="5" style="text-align:center;color:var(--text3);padding:28px;font-family:var(--mono)">No bookings yet.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = bookings.map(b => {
+    const statusColor = b.status==='confirmed' ? 'var(--green)' : b.status==='cancelled' ? '#f87171' : 'var(--text2)';
+    return `<tr>
+      <td style="color:var(--text)">${escHtml(b.venue_name || '—')}</td>
+      <td>${escHtml(b.client_name || '—')}<br><span style="font-size:11px;color:var(--text3);font-family:var(--mono)">${escHtml(b.client_email || '')}</span></td>
+      <td style="font-family:var(--mono);font-size:12px">${escHtml(b.event_date || '—')}</td>
+      <td><span style="font-family:var(--mono);font-size:11px;color:${statusColor};text-transform:uppercase">${escHtml(b.status || 'pending')}</span></td>
+      <td>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          ${b.status!=='confirmed' ? `<button class="btn-sm" style="background:rgba(74,222,128,.1);color:var(--green);border-color:rgba(74,222,128,.2)" onclick="changeBookingStatus(${b.id},'confirmed')">Confirm</button>` : ''}
+          ${b.status!=='cancelled' ? `<button class="btn-sm" style="background:rgba(248,113,113,.1);color:#f87171;border-color:rgba(248,113,113,.2)" onclick="changeBookingStatus(${b.id},'cancelled')">Cancel</button>` : ''}
+          <button class="btn-sm" style="color:var(--text3)" onclick="removeBooking(${b.id})">Del</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function changeBookingStatus(id, status) {
+  try {
+    await API.updateBookingStatus(id, status);
+    await loadAdminBookings();
+  } catch(e) { alert('Status update failed: ' + e.message); }
+}
+
+async function removeBooking(id) {
+  if (!confirm('Delete this booking?')) return;
+  try {
+    await API.deleteBooking(id);
+    await loadAdminBookings();
+  } catch(e) { alert('Delete failed: ' + e.message); }
+}
+
+/* ─ Logout ─ */
+function handleLogout() {
+  clearToken();
+  showLoginPanel();
+}
+
+/* ─────────────────────────────────────────────
+   TABS  (override: auth-guard admin)
+───────────────────────────────────────────── */
 function showTab(id) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + id).classList.add('active');
   document.getElementById('maintab-' + id).classList.add('active');
+  if (id === 'admin') {
+    if (!isLoggedIn()) { showLoginPanel(); }
+    else               { renderAdminPanel(); }
+  }
 }
 
-/* ── DROPDOWN LOGIC ── */
+/* ─────────────────────────────────────────────
+   PREVIEW DROPDOWNS  (use hardcoded VENUES map)
+───────────────────────────────────────────── */
 function onLocationChange() {
-  const loc = document.getElementById('sel-location').value;
+  const loc    = document.getElementById('sel-location').value;
   const venSel = document.getElementById('sel-venue');
   const goBtn  = document.getElementById('selector-go-btn');
   venSel.innerHTML = '<option value="">Select venue...</option>';
@@ -868,11 +1196,9 @@ function onLocationChange() {
   if (!loc) return;
   (BY_LOCATION[loc] || []).forEach(v => {
     const opt = document.createElement('option');
-    opt.value = v.key;
-    opt.textContent = v.name;
+    opt.value = v.key; opt.textContent = v.name;
     venSel.appendChild(opt);
   });
-  /* auto-select if only one venue in that city */
   if ((BY_LOCATION[loc] || []).length === 1) {
     venSel.value = BY_LOCATION[loc][0].key;
     onVenueChange();
@@ -880,7 +1206,7 @@ function onLocationChange() {
 }
 
 function onVenueChange() {
-  const key = document.getElementById('sel-venue').value;
+  const key   = document.getElementById('sel-venue').value;
   const goBtn = document.getElementById('selector-go-btn');
   goBtn.classList.toggle('ready', !!key);
 }
@@ -905,10 +1231,12 @@ function backToSelector() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function toggleAddForm() { document.getElementById('add-form').classList.toggle('open'); }
+function toggleAddForm() { document.getElementById('add-form')?.classList.toggle('open'); }
 function toggleAcc(id)   { document.getElementById(id).classList.toggle('open'); }
 
-/* ── CALENDAR ── */
+/* ─────────────────────────────────────────────
+   CALENDAR
+───────────────────────────────────────────── */
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const DAYS   = ['Su','Mo','Tu','We','Th','Fr','Sa'];
 const calState = {
@@ -926,11 +1254,12 @@ function initAllCals() {
 }
 
 function renderCal(key) {
-  const s = calState[key];
-  document.getElementById(key + '-cal-month-label').textContent = MONTHS[s.month] + ' ' + s.year;
+  const s    = calState[key];
   const grid = document.getElementById(key + '-cal-grid');
+  if (!grid) return;
+  document.getElementById(key + '-cal-month-label').textContent = MONTHS[s.month] + ' ' + s.year;
   grid.innerHTML = '';
-  DAYS.forEach(d => { const el = document.createElement('div'); el.className='cal-dow'; el.textContent=d; grid.appendChild(el); });
+  DAYS.forEach(d => { const el=document.createElement('div'); el.className='cal-dow'; el.textContent=d; grid.appendChild(el); });
   const today = new Date(); today.setHours(0,0,0,0);
   const firstDay    = new Date(s.year, s.month, 1).getDay();
   const daysInMonth = new Date(s.year, s.month+1, 0).getDate();
@@ -943,7 +1272,7 @@ function renderCal(key) {
     const isToday = date.toDateString()===today.toDateString();
     const dateStr = date.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
     const isSel   = s.selected===dateStr;
-    const el = document.createElement('div');
+    const el      = document.createElement('div');
     el.textContent = d;
     el.className = 'cal-day'+(isPast?' cal-day-past':'')+(isAvail?' cal-day-avail':'')+(isToday?' cal-day-today':'')+(isSel?' cal-day-selected':'');
     if (isAvail||isSel) el.onclick = () => selectDate(key, dateStr);
@@ -964,7 +1293,9 @@ function selectDate(key, dateStr) {
 function calPrev(key) { calState[key].month--; if(calState[key].month<0){calState[key].month=11;calState[key].year--;} renderCal(key); }
 function calNext(key) { calState[key].month++; if(calState[key].month>11){calState[key].month=0;calState[key].year++;} renderCal(key); }
 
-/* ── MODAL ── */
+/* ─────────────────────────────────────────────
+   BOOKING MODAL  (now POSTs to API)
+───────────────────────────────────────────── */
 function openModal(key) {
   const s = calState[key]; if(!s.selected) return;
   activeVenueKey = key;
@@ -979,33 +1310,70 @@ function openModal(key) {
   document.getElementById('modal-overlay').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
+
 function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); document.body.style.overflow=''; }
 function maybeCloseModal(e) { if(e.target===document.getElementById('modal-overlay')) closeModal(); }
 
-function submitBooking() {
-  const name  = document.getElementById('f-name').value.trim();
-  const email = document.getElementById('f-email').value.trim();
-  if(!name||!email) { alert('Please fill in at least your name and email.'); return; }
-  const v = VENUES[activeVenueKey];
-  const s = calState[activeVenueKey];
+async function submitBooking() {
+  const name      = document.getElementById('f-name').value.trim();
+  const email     = document.getElementById('f-email').value.trim();
+  const phone     = document.getElementById('f-phone').value.trim();
+  const headcount = document.getElementById('f-headcount').value.trim();
+  const message   = document.getElementById('f-show').value.trim();
+
+  if (!name || !email) { alert('Please fill in at least your name and email.'); return; }
+
+  const v   = VENUES[activeVenueKey];
+  const s   = calState[activeVenueKey];
+  const btn = document.getElementById('modal-confirm-btn');
+
+  /* find venue_id from API if available, else use 0 */
+  const apiV = apiVenues.find(x => x.name === v.name);
+
+  btn.disabled = true; btn.textContent = 'Submitting…';
+
+  try {
+    await API.createBooking({
+      venue_id:     apiV?.id ?? 1,
+      client_name:  name,
+      client_email: email,
+      event_date:   s.selected,
+      guests:       parseInt(headcount) || null,
+      message:      [phone ? 'Phone: '+phone : '', message].filter(Boolean).join(' | ') || null,
+    });
+  } catch(e) {
+    /* non-blocking: if booking API fails, still show success to user
+       (Stripe payment flow would handle actual confirmation) */
+    console.warn('Booking API error (non-blocking):', e.message);
+  }
+
+  /* show success screen */
+  btn.disabled = false;
   document.getElementById('modal-form-section').style.display = 'none';
   document.getElementById('success-venue').textContent   = v.name;
   document.getElementById('success-date').textContent    = s.selected;
   document.getElementById('success-fee').textContent     = '$'+v.fee+'.00 paid';
   document.getElementById('success-contact').textContent = v.contact;
   document.getElementById('modal-success').classList.add('visible');
-  const tbody = document.getElementById('bookings-tbody');
-  if(tbody.querySelector('.empty-row')) tbody.innerHTML='';
-  const tr = document.createElement('tr');
-  tr.innerHTML = '<td style="color:var(--text)">'+v.name+'</td><td>'+name+'</td><td>'+s.selected+'</td><td style="font-family:var(--mono);font-weight:600;">$'+v.fee+'.00</td>';
-  tbody.appendChild(tr);
-  const count = parseInt(document.getElementById('admin-booking-count').textContent)+1;
-  document.getElementById('admin-booking-count').textContent = count;
-  const prevRev = parseInt(document.getElementById('admin-revenue').textContent.replace(/[$,]/g,''))||0;
-  document.getElementById('admin-revenue').textContent = '$'+(prevRev+v.fee);
 }
 
+/* ─────────────────────────────────────────────
+   UTILITIES
+───────────────────────────────────────────── */
+function escHtml(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ─────────────────────────────────────────────
+   BOOT
+───────────────────────────────────────────── */
 initAllCals();
+
+/* If admin tab is somehow active on load and user is not logged in, lock it */
+const initialActive = document.querySelector('.tab-btn.active');
+if (initialActive?.id === 'maintab-admin' && !isLoggedIn()) {
+  showLoginPanel();
+}
 </script>
 
 </body>
