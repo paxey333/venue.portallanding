@@ -25,10 +25,12 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--sans);font-si
 
 /* ── NAV ── */
 .nav{display:flex;align-items:stretch;background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;position:sticky;top:0;z-index:100;transform:translateZ(0);-webkit-transform:translateZ(0)}
-.nav-brand{display:flex;align-items:center;gap:10px;padding:0 20px 0 0;border-right:1px solid var(--border);margin-right:2px;flex-shrink:0}
+.nav-brand{display:flex;align-items:center;gap:10px;padding:0 20px 0 0;border-right:1px solid var(--border);margin-right:2px;flex-shrink:0;text-decoration:none}
 .nav-mark{display:block;flex-shrink:0}
-.nav-wordmark{font-family:var(--display);font-weight:800;font-size:15px;letter-spacing:-.5px;color:var(--text)}
+.nav-brand-text{display:flex;flex-direction:column;gap:1px}
+.nav-wordmark{font-family:var(--display);font-weight:800;font-size:15px;letter-spacing:-.5px;color:var(--text);line-height:1}
 .nav-dot{color:var(--accent)}
+.nav-sub{font-family:var(--mono);font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);line-height:1}
 .nav-tabs{display:flex;flex:1;align-items:stretch}
 .tab-btn{background:none;border:none;cursor:pointer;font-family:var(--sans);font-size:13px;font-weight:500;color:var(--text3);padding:0 14px;height:52px;position:relative;transition:color .2s;white-space:nowrap;flex-shrink:0}
 .tab-btn:hover{color:var(--text2)}
@@ -52,8 +54,7 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--sans);font-si
 .stat-val{font-family:var(--display);font-size:30px;font-weight:700}
 .section-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .section-title{font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:var(--text3);font-family:var(--mono)}
-.section-title::before{content:'/ ';color:var(--accent);opacity:.7}
-.about-eyebrow::before{content:'/ ';color:var(--accent);opacity:.7}
+.section-title::before{content:'▸ ';color:var(--accent);font-size:7px;vertical-align:middle}
 .stat-label::before{content:'/ ';color:var(--accent);opacity:.7}
 .btn-sm{background:var(--surface2);color:var(--text);border:1px solid var(--border2);cursor:pointer;font-family:var(--sans);font-size:12px;font-weight:600;padding:7px 13px;border-radius:var(--radius);transition:background .15s}
 .btn-sm:hover{background:var(--border)}
@@ -222,6 +223,9 @@ background:linear-gradient(to top,rgba(0,0,0,.9) 0%,rgba(0,0,0,.2) 55%,transpare
 .btn-book.ready{background:var(--text);color:#111;border-color:var(--text);cursor:pointer}
 .btn-book.ready:hover{opacity:.9}
 .booking-footnote{font-size:10px;color:var(--text3);text-align:center;margin-top:8px;font-family:var(--mono);line-height:1.5}
+.venue-brand-stamp{display:flex;align-items:center;gap:5px;padding:8px 18px;border-top:1px solid var(--border);background:var(--bg)}
+.venue-brand-stamp svg{display:block;flex-shrink:0}
+.venue-brand-stamp span{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3)}
 
 /* modal */
 .modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.8);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:16px}
@@ -287,12 +291,13 @@ td{padding:12px 8px 12px 0;border-bottom:1px solid var(--border);font-size:13px;
 .about-stat:hover{border-color:rgba(245,166,35,0.25)}
 .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;transition:border-color .2s}
 .stat-card:hover{border-color:rgba(245,166,35,0.25)}
-.about-eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:var(--text3);font-family:var(--mono);margin-bottom:10px}
+.about-eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:var(--accent);font-family:var(--mono);margin-bottom:10px;opacity:.8}
 .about-title{font-family:var(--display);font-size:28px;font-weight:800;letter-spacing:-.5px;margin-bottom:10px;line-height:1.15}
 .about-tagline{font-size:15px;color:var(--text2);max-width:540px;line-height:1.6}
 .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
 .about-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 22px}
 .about-card-label{font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);font-family:var(--mono);margin-bottom:8px}
+.about-card-label::before{content:'▸ ';color:var(--accent);font-size:7px}
 .about-card-title{font-family:var(--display);font-size:16px;font-weight:700;margin-bottom:6px}
 .about-card-body{font-size:13px;color:var(--text2);line-height:1.6}
 .about-card-body strong{color:var(--text)}
@@ -315,6 +320,8 @@ td{padding:12px 8px 12px 0;border-bottom:1px solid var(--border);font-size:13px;
 @media(max-width:700px){
 .nav{position:sticky;top:0;z-index:100;flex-wrap:wrap;height:auto;padding:0 16px}
 .nav-brand{order:1;padding:14px 0;border-right:none;margin-right:auto}
+.nav-sub{display:none}
+.nav-wordmark{font-size:13px}
 .nav-right{order:2;padding:14px 0;border-left:none;margin-left:0}
 .nav-tabs{order:3;width:100%;border-top:1px solid var(--border)}
 .nav-tabs .tab-btn{flex:1;height:38px;font-size:10px;padding:0 4px;border-right:1px solid var(--border);white-space:nowrap;overflow:hidden}
@@ -352,12 +359,15 @@ td{padding:12px 8px 12px 0;border-bottom:1px solid var(--border);font-size:13px;
 
 <nav class="nav">
   <div class="nav-brand">
-    <svg class="nav-mark" width="20" height="14" viewBox="0 0 20 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M0 0L5.5 7L0 14H3.5L9 7L3.5 0H0Z" fill="#f5a623"/>
-      <path d="M8 0L13.5 7L8 14H11.5L17 7L11.5 0H8Z" fill="#f5a623" opacity="0.45"/>
-      <rect x="17" y="5.5" width="3" height="3" rx="0.5" fill="#f5a623" opacity="0.7"/>
+    <svg class="nav-mark" width="24" height="18" viewBox="0 0 24 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#f5a623"/>
+      <path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#f5a623" opacity="0.4"/>
+      <rect x="19.5" y="7" width="4" height="4" rx="1" fill="#f5a623" opacity="0.75"/>
     </svg>
-    <span class="nav-wordmark">Venue<span class="nav-dot">.</span>Portal</span>
+    <div class="nav-brand-text">
+      <span class="nav-wordmark">Venue<span class="nav-dot">.</span>Portal</span>
+      <span class="nav-sub">by LogosImagined</span>
+    </div>
   </div>
   <div class="nav-tabs">
     <button class="tab-btn" id="maintab-admin" onclick="showTab('admin')">Admin</button>
@@ -464,6 +474,13 @@ td{padding:12px 8px 12px 0;border-bottom:1px solid var(--border);font-size:13px;
       </div>
     </div>
     <div class="venue-photo-base"></div>
+    <div class="venue-brand-stamp">
+      <svg width="10" height="8" viewBox="0 0 24 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#f5a623"/>
+        <path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#f5a623" opacity="0.4"/>
+      </svg>
+      <span>Venue.Portal</span>
+    </div>
     <div class="key-stats">
       <div class="stat-pill"><div class="stat-pill-label">Stage</div><div class="stat-pill-val">200 sq ft<br>Raised Riser</div></div>
       <div class="stat-pill"><div class="stat-pill-label">Sound</div><div class="stat-pill-val">5,000W<br>Full PA</div></div>
@@ -543,7 +560,12 @@ td{padding:12px 8px 12px 0;border-bottom:1px solid var(--border);font-size:13px;
           </div>
           <div class="booking-cta-wrap">
             <button class="btn-book" id="ws-btn-book" onclick="openModal('ws')" disabled>Select a date above</button>
-            <div class="booking-footnote">Flat fee · No hidden charges · Email + SMS confirmation</div>
+            <div class="booking-footnote">Secured by Venue.Portal
+              <svg width="8" height="6" viewBox="0 0 24 18" fill="none" style="display:inline-block;vertical-align:middle;margin-left:4px;">
+                <path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#f5a623"/>
+                <path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#f5a623" opacity="0.4"/>
+              </svg>
+            </div>
           </div>
         </div>
       </div>
@@ -562,6 +584,13 @@ td{padding:12px 8px 12px 0;border-bottom:1px solid var(--border);font-size:13px;
       </div>
     </div>
     <div class="venue-photo-base"></div>
+    <div class="venue-brand-stamp">
+      <svg width="10" height="8" viewBox="0 0 24 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#f5a623"/>
+        <path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#f5a623" opacity="0.4"/>
+      </svg>
+      <span>Venue.Portal</span>
+    </div>
     <div class="key-stats">
       <div class="stat-pill"><div class="stat-pill-label">Private Area</div><div class="stat-pill-val">300 sq ft<br>Configurable</div></div>
       <div class="stat-pill"><div class="stat-pill-label">Lounge</div><div class="stat-pill-val">Front Section<br>Seats 12</div></div>
@@ -638,7 +667,12 @@ td{padding:12px 8px 12px 0;border-bottom:1px solid var(--border);font-size:13px;
           </div>
           <div class="booking-cta-wrap">
             <button class="btn-book" id="cr-btn-book" onclick="openModal('cr')" disabled>Select a date above</button>
-            <div class="booking-footnote">Flat fee · No hidden charges · Email + SMS confirmation</div>
+            <div class="booking-footnote">Secured by Venue.Portal
+              <svg width="8" height="6" viewBox="0 0 24 18" fill="none" style="display:inline-block;vertical-align:middle;margin-left:4px;">
+                <path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#f5a623"/>
+                <path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#f5a623" opacity="0.4"/>
+              </svg>
+            </div>
           </div>
         </div>
       </div>
@@ -664,9 +698,9 @@ td{padding:12px 8px 12px 0;border-bottom:1px solid var(--border);font-size:13px;
 
 <div id="tab-about" class="panel">
   <div class="about-hero">
-    <div class="about-eyebrow">Venue.Portal — By LogosImagined</div>
-    <div class="about-title">Your venue deserves a real booking system.</div>
-    <div class="about-tagline">We build independent venues a professional portal — live calendar, Stripe checkout, instant confirmation. Flat fee. You keep the door.</div>
+    <div class="about-eyebrow">/ Venue.Portal — by LogosImagined</div>
+    <div class="about-title">Independent venues deserve real infrastructure.</div>
+    <div class="about-tagline">We build your booking portal, manage your calendar, and handle your intake — flat fee, no cuts, no bloat. You keep the door. We keep it running.</div>
   </div>
 
   <div class="about-stat-row">
@@ -810,7 +844,13 @@ td{padding:12px 8px 12px 0;border-bottom:1px solid var(--border);font-size:13px;
       </div>
     </div>
   </div>
-  <div class="trust-tagline">Simple <span>·</span> Reliable <span>·</span> Built for Venues</div>
+  <div class="trust-tagline">
+    <svg width="12" height="9" viewBox="0 0 24 18" fill="none" style="display:inline-block;vertical-align:middle;margin-right:6px;">
+      <path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#f5a623"/>
+      <path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#f5a623" opacity="0.4"/>
+    </svg>
+    Venue.Portal <span style="margin:0 8px;opacity:.3">|</span> by LogosImagined <span style="margin:0 8px;opacity:.3">|</span> Flat fee. No cuts. No bloat.
+  </div>
 </footer>
 
 <!-- BOOKING MODAL -->
