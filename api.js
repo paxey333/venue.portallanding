@@ -14,7 +14,8 @@ const TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
 
 function corsHeaders(request) {
   const origin = (request && request.headers.get("Origin")) || "";
-  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  const isAllowed = ALLOWED_ORIGINS.includes(origin) || origin.endsWith(".pages.dev");
+  const allowedOrigin = isAllowed ? origin : ALLOWED_ORIGINS[0];
   return {
     "Access-Control-Allow-Origin": allowedOrigin,
     "Access-Control-Allow-Methods": "GET,POST,PUT,PATCH,DELETE,OPTIONS",
