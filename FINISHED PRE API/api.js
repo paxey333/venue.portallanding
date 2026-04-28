@@ -1,6 +1,5 @@
 const ALLOWED_ORIGIN = "https://venue-portal.pages.dev";
-const AUTH_EMAIL = "paxey333@gmail.com";
-const AUTH_PASSWORD = "portallanding123";
+const TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
 
 function corsHeaders() {
   return {
@@ -34,24 +33,68 @@ function parseBearerToken(request) {
   return auth.slice("Bearer ".length).trim();
 }
 
-function makeAdminToken() {
-  const raw = `${AUTH_EMAIL}:${Date.now()}`;
-  return btoa(raw);
+function toBase64(bytes) {
+  let binary = "";
+  for (const b of bytes) binary += String.fromCharCode(b);
+  return btoa(binary);
 }
 
-function isValidAdminToken(token) {
-  if (!token) return false;
+function fromBase64(base64) {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
+}
+
+async function signTokenPayload(payload, tokenSecret) {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(tokenSecret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payload));
+  return toBase64(new Uint8Array(signature));
+}
+
+async function makeAdminToken(email, tokenSecret) {
+  const expiry = Date.now() + TOKEN_TTL_MS;
+  const payload = `${email}.${expiry}`;
+  const encodedPayload = btoa(payload);
+  const signature = await signTokenPayload(encodedPayload, tokenSecret);
+  return `${encodedPayload}.${signature}`;
+}
+
+async function isValidAdminToken(token, tokenSecret, expectedEmail) {
+  if (!token || !tokenSecret || !expectedEmail) return false;
+  const parts = token.split(".");
+  if (parts.length !== 2) return false;
+  const [encodedPayload, providedSignature] = parts;
+  if (!encodedPayload || !providedSignature) return false;
   try {
-    const decoded = atob(token);
-    return decoded.startsWith(`${AUTH_EMAIL}:`);
+    const expectedSignature = await signTokenPayload(encodedPayload, tokenSecret);
+    if (expectedSignature !== providedSignature) return false;
+
+    const decoded = new TextDecoder().decode(fromBase64(encodedPayload));
+    const lastDot = decoded.lastIndexOf(".");
+    if (lastDot <= 0) return false;
+
+    const email = decoded.slice(0, lastDot);
+    const expiry = Number(decoded.slice(lastDot + 1));
+    if (email !== expectedEmail) return false;
+    if (!Number.isFinite(expiry)) return false;
+    return expiry > Date.now();
   } catch {
     return false;
   }
 }
 
-async function requireAdmin(request) {
+async function requireAdmin(request, tokenSecret, expectedEmail) {
   const token = parseBearerToken(request);
-  return isValidAdminToken(token);
+  return isValidAdminToken(token, tokenSecret, expectedEmail);
 }
 
 async function parseJson(request) {
@@ -95,15 +138,19 @@ export default {
     if (path === "/api/auth/login" && request.method === "POST") {
       await env.DB.prepare("SELECT 1 AS ok").first();
       const body = await parseJson(request);
-      if (body.email === AUTH_EMAIL && body.password === AUTH_PASSWORD) {
-        return jsonResponse({ token: makeAdminToken() });
+      if (!env.ADMIN_EMAIL || !env.ADMIN_PASSWORD || !env.TOKEN_SECRET) {
+        return jsonResponse({ error: "Auth configuration missing" }, 500);
+      }
+      if (body.email === env.ADMIN_EMAIL && body.password === env.ADMIN_PASSWORD) {
+        const token = await makeAdminToken(env.ADMIN_EMAIL, env.TOKEN_SECRET);
+        return jsonResponse({ token });
       }
       return jsonResponse({ error: "Invalid credentials" }, 401);
     }
 
     if (path === "/api/auth/set-password" && request.method === "POST") {
       await env.DB.prepare("SELECT 1 AS ok").first();
-      const authed = await requireAdmin(request);
+      const authed = await requireAdmin(request, env.TOKEN_SECRET, env.ADMIN_EMAIL);
       if (!authed) return jsonResponse({ error: "Unauthorized" }, 401);
       return jsonResponse({ ok: false, message: "Password rotation not enabled in this build." }, 501);
     }
@@ -118,7 +165,7 @@ export default {
     }
 
     if (path === "/api/venues" && request.method === "POST") {
-      const authed = await requireAdmin(request);
+      const authed = await requireAdmin(request, env.TOKEN_SECRET, env.ADMIN_EMAIL);
       if (!authed) return jsonResponse({ error: "Unauthorized" }, 401);
 
       const body = await parseJson(request);
@@ -155,7 +202,7 @@ export default {
     }
 
     if (venueByIdMatch && request.method === "PUT") {
-      const authed = await requireAdmin(request);
+      const authed = await requireAdmin(request, env.TOKEN_SECRET, env.ADMIN_EMAIL);
       if (!authed) return jsonResponse({ error: "Unauthorized" }, 401);
       const id = Number(venueByIdMatch[1]);
       const body = await parseJson(request);
@@ -185,7 +232,7 @@ export default {
     }
 
     if (venueByIdMatch && request.method === "DELETE") {
-      const authed = await requireAdmin(request);
+      const authed = await requireAdmin(request, env.TOKEN_SECRET, env.ADMIN_EMAIL);
       if (!authed) return jsonResponse({ error: "Unauthorized" }, 401);
       const id = Number(venueByIdMatch[1]);
       const res = await env.DB.prepare("DELETE FROM venues WHERE id = ?").bind(id).run();
@@ -228,7 +275,7 @@ export default {
     }
 
     if (path === "/api/bookings" && request.method === "GET") {
-      const authed = await requireAdmin(request);
+      const authed = await requireAdmin(request, env.TOKEN_SECRET, env.ADMIN_EMAIL);
       if (!authed) return jsonResponse({ error: "Unauthorized" }, 401);
       const rows = await env.DB.prepare(
         `SELECT b.id, b.venue_id, v.name AS venue_name, b.client_name, b.client_email, b.event_date, b.guests, b.message, b.status, b.created_at
@@ -241,7 +288,7 @@ export default {
 
     const bookingStatusMatch = path.match(/^\/api\/bookings\/(\d+)\/status$/);
     if (bookingStatusMatch && request.method === "PATCH") {
-      const authed = await requireAdmin(request);
+      const authed = await requireAdmin(request, env.TOKEN_SECRET, env.ADMIN_EMAIL);
       if (!authed) return jsonResponse({ error: "Unauthorized" }, 401);
       const id = Number(bookingStatusMatch[1]);
       const body = await parseJson(request);
@@ -266,7 +313,7 @@ export default {
 
     const bookingByIdMatch = path.match(/^\/api\/bookings\/(\d+)$/);
     if (bookingByIdMatch && request.method === "DELETE") {
-      const authed = await requireAdmin(request);
+      const authed = await requireAdmin(request, env.TOKEN_SECRET, env.ADMIN_EMAIL);
       if (!authed) return jsonResponse({ error: "Unauthorized" }, 401);
       const id = Number(bookingByIdMatch[1]);
       const res = await env.DB.prepare("DELETE FROM bookings WHERE id = ?").bind(id).run();
