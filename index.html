@@ -13,22 +13,23 @@
   --border:#2a2a2a;--border2:#333333;
   --text:#f5f5f5;--text2:#999999;--text3:#555555;
   --green:#4ade80;
+  --accent:#f59e0b;--accent-dim:rgba(245,158,11,0.12);
   --radius:6px;--radius-lg:10px;
   --mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;--display:'Syne',sans-serif;
 }
-html,body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.5;min-height:100%}
+html,body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.5;min-height:100%;overflow-x:hidden;-webkit-overflow-scrolling:touch}
 ::-webkit-scrollbar{width:6px}
 ::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 
 /* ── NAV ── */
-.nav{display:flex;align-items:stretch;background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;position:sticky;top:0;z-index:100}
+.nav{display:flex;align-items:stretch;background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;position:sticky;top:0;z-index:100;transform:translateZ(0);-webkit-transform:translateZ(0)}
 .nav-brand{font-family:var(--display);font-weight:800;font-size:16px;letter-spacing:-.5px;color:var(--text);padding:0 18px 0 0;border-right:1px solid var(--border);margin-right:2px;display:flex;align-items:center;white-space:nowrap;flex-shrink:0}
-.nav-brand span{color:var(--text2)}
+.nav-brand span{color:var(--accent)}
 .tab-btn{background:none;border:none;cursor:pointer;font-family:var(--sans);font-size:13px;font-weight:500;color:var(--text3);padding:0 14px;height:52px;position:relative;transition:color .2s;white-space:nowrap;flex-shrink:0}
 .tab-btn:hover{color:var(--text2)}
-.tab-btn.active{color:var(--text)}
-.tab-btn.active::after{content:’’;position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--text)}
+.tab-btn.active{color:var(--accent)}
+.tab-btn.active::after{content:’’;position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--accent)}
 .nav-right{margin-left:auto;display:flex;align-items:center;padding-left:16px;border-left:1px solid var(--border);flex-shrink:0}
 .nav-logo{display:flex;align-items:center;gap:8px}
 .nav-logo-mark{width:30px;height:30px;background:var(--text);border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -36,7 +37,7 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--sans);font-si
 .nav-logo-text{font-family:var(--display);font-weight:800;font-size:12px;letter-spacing:.06em;color:var(--text2);text-transform:uppercase;line-height:1.2}
 
 /* ── PANELS ── */
-.panel{display:none;padding:24px 20px 48px;max-width:980px;margin:0 auto}
+.panel{display:none;padding:24px 20px 48px;max-width:980px;margin:0 auto;overflow-x:hidden}
 .panel.active{display:block}
 .page-heading{font-family:var(--display);font-size:22px;font-weight:700;margin-bottom:5px}
 .page-sub{color:var(--text3);font-size:13px;margin-bottom:24px;font-family:var(--mono)}
@@ -55,7 +56,7 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--sans);font-si
 .vla-name{font-family:var(--display);font-size:15px;font-weight:700}
 .vla-slug{font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:2px}
 .tag{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 7px;border-radius:4px}
-.tag-live{background:#1a3a1a;color:var(--green)}
+.tag-live{background:rgba(245,158,11,0.12);color:var(--accent)}
 .btn-ghost{background:none;border:1px solid var(--border2);color:var(--text2);font-family:var(--sans);font-size:12px;font-weight:500;padding:6px 11px;border-radius:var(--radius);cursor:pointer;transition:border-color .15s,color .15s}
 .btn-ghost:hover{border-color:var(--text2);color:var(--text)}
 .add-form{display:none;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:14px}
@@ -203,7 +204,7 @@ background:linear-gradient(to top,rgba(0,0,0,.9) 0%,rgba(0,0,0,.2) 55%,transpare
 .cal-day-empty{cursor:default}
 .cal-day-past{color:var(--text3);cursor:default}
 .cal-day-avail{color:var(--text)}
-.cal-day-avail::after{content:’’;position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:3px;height:3px;border-radius:50%;background:var(--green)}
+.cal-day-avail::after{content:’’;position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:3px;height:3px;border-radius:50%;background:var(--accent)}
 .cal-day-selected{background:var(--text)!important;color:#111!important;font-weight:700}
 .cal-day-selected::after{display:none}
 .cal-day-today{outline:1px solid var(--border2)}
@@ -273,8 +274,8 @@ td{padding:12px 8px 12px 0;border-bottom:1px solid var(--border);font-size:13px;
 .empty-row td{text-align:center;color:var(--text3);padding:28px;font-family:var(--mono)}
 
 /* ── ABOUT SECTION ── */
-.about-hero{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px 36px;margin-bottom:20px;position:relative;overflow:hidden}
-.about-hero::before{content:‘VP’;position:absolute;right:28px;top:50%;transform:translateY(-50%);font-family:var(--display);font-size:120px;font-weight:800;color:var(--border);line-height:1;pointer-events:none;letter-spacing:-6px}
+.about-hero{background:linear-gradient(135deg,var(--surface) 0%,#1a1200 100%);border:1px solid rgba(245,158,11,0.25);border-radius:var(--radius-lg);padding:32px 36px;margin-bottom:20px;position:relative;overflow:hidden}
+.about-hero::before{content:’VP’;position:absolute;right:28px;top:50%;transform:translateY(-50%);font-family:var(--display);font-size:120px;font-weight:800;color:var(--accent-dim);line-height:1;pointer-events:none;letter-spacing:-6px}
 .about-eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:var(--text3);font-family:var(--mono);margin-bottom:10px}
 .about-title{font-family:var(--display);font-size:28px;font-weight:800;letter-spacing:-.5px;margin-bottom:10px;line-height:1.15}
 .about-tagline{font-size:15px;color:var(--text2);max-width:540px;line-height:1.6}
@@ -301,6 +302,7 @@ td{padding:12px 8px 12px 0;border-bottom:1px solid var(--border);font-size:13px;
 
 /* responsive */
 @media(max-width:700px){
+.nav{position:sticky;top:0;z-index:100}
 .panel{padding:16px 14px 32px}
 .about-grid{grid-template-columns:1fr}
 .about-stat-row{grid-template-columns:1fr 1fr}
@@ -637,9 +639,9 @@ td{padding:12px 8px 12px 0;border-bottom:1px solid var(--border);font-size:13px;
 
 <div id="tab-about" class="panel">
   <div class="about-hero">
-    <div class="about-eyebrow">Venue.Portal</div>
-    <div class="about-title">Professional booking infrastructure for independent venues.</div>
-    <p class="about-tagline">We build and manage a clean booking portal for your venue — structured intake, calendar availability, Stripe payments, and confirmation — all for a flat fee. No percentage cuts. No Ticketmaster bloat.</p>
+    <div class="about-eyebrow">Venue.Portal — By LogosImagined</div>
+    <div class="about-title">Your venue deserves a real booking system.</div>
+    <div class="about-tagline">We build independent venues a professional portal — live calendar, Stripe checkout, instant confirmation. Flat fee. You keep the door.</div>
   </div>
 
   <div class="about-stat-row">
