@@ -1,5 +1,6 @@
 {
-  "name": "venue-portal-api",
+  "name": "thevenueportal",
+  "account_id": "cd1d3c368a7c9ce0f24875b6c87feb69",
   "main": "api.js",
   "compatibility_date": "2024-01-01",
   "d1_databases": [

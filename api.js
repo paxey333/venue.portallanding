@@ -1,4 +1,4 @@
-const ALLOWED_ORIGIN = "https://venue-portlandingpages.dev";
+const ALLOWED_ORIGIN = "https://venue-portal.pages.dev";
 const AUTH_EMAIL = "paxey333@gmail.com";
 const AUTH_PASSWORD = "portallanding123";
 
@@ -78,6 +78,10 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const path = url.pathname;
+
+    if (path === "/" && request.method === "GET") {
+      return jsonResponse({ ok: true, service: "venue-portal-api" });
+    }
 
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: corsHeaders() });
