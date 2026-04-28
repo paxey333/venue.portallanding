@@ -1,0 +1,12 @@
+{
+  "name": "venue-portal-api",
+  "main": "api.js",
+  "compatibility_date": "2024-01-01",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "venue-portal-db",
+      "database_id": "5253aacd-dc38-4de0-9bc8-20062e0b3193"
+    }
+  ]
+}
