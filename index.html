@@ -839,12 +839,28 @@ td{padding:12px 8px 12px 0;border-bottom:1px solid var(--border);font-size:13px;
    Base: https://thevenueportal.paxey333.workers.dev
 ───────────────────────────────────────────── */
 const API_BASE  = 'https://thevenueportal.paxey333.workers.dev';
-const TOKEN_KEY = 'vp_admin_token';
+const TOKEN_KEY    = 'vp_admin_token';
+const ROLE_KEY     = 'vp_user_role';
+const NAME_KEY     = 'vp_user_name';
+const VENUE_ID_KEY = 'vp_venue_id';
 
 const getToken   = ()  => localStorage.getItem(TOKEN_KEY);
 const setToken   = (t) => localStorage.setItem(TOKEN_KEY, t);
 const clearToken = ()  => localStorage.removeItem(TOKEN_KEY);
 const isLoggedIn = ()  => !!getToken();
+const getRole    = ()  => localStorage.getItem(ROLE_KEY) || '';
+const setRole    = (r) => localStorage.setItem(ROLE_KEY, r);
+const getName    = ()  => localStorage.getItem(NAME_KEY) || '';
+const setName    = (n) => localStorage.setItem(NAME_KEY, n);
+const getVenueId = ()  => { const v = localStorage.getItem(VENUE_ID_KEY); return v ? parseInt(v, 10) : null; };
+const setVenueId = (id) => id != null ? localStorage.setItem(VENUE_ID_KEY, String(id)) : localStorage.removeItem(VENUE_ID_KEY);
+
+function clearSession() {
+  clearToken();
+  localStorage.removeItem(ROLE_KEY);
+  localStorage.removeItem(NAME_KEY);
+  localStorage.removeItem(VENUE_ID_KEY);
+}
 
 async function apiFetch(path, { method = 'GET', body, auth = false } = {}) {
   const headers = { 'Content-Type': 'application/json' };
@@ -875,6 +891,7 @@ const API = {
   getBookings:         ()            => apiFetch('/api/bookings',     { auth:true }),
   updateBookingStatus: (id, status)  => apiFetch(`/api/bookings/${id}/status`, { method:'PATCH', body:{ status }, auth:true }),
   deleteBooking:       (id)          => apiFetch(`/api/bookings/${id}`, { method:'DELETE', auth:true }),
+  getVenueStats:       (id)          => apiFetch(`/api/venues/${id}/stats`, { auth:true }),
 };
 
 /* ─────────────────────────────────────────────
@@ -917,8 +934,8 @@ function showLoginPanel() {
   const panel = document.getElementById('tab-admin');
   panel.innerHTML = `
     <div style="max-width:400px;margin:60px auto">
-      <h1 class="page-heading" style="margin-bottom:4px">Admin Login</h1>
-      <p class="page-sub" style="margin-bottom:28px">Venue Portal · Underground Showtime</p>
+      <h1 class="page-heading" style="margin-bottom:4px">Portal Login</h1>
+      <p class="page-sub" style="margin-bottom:28px">Venue Portal · Staff Access</p>
       <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;display:flex;flex-direction:column;gap:12px">
         <div class="form-field">
           <label>Email</label>
@@ -950,7 +967,14 @@ async function handleLogin() {
     const data = await API.login(email, pw);
     if (data?.token) {
       setToken(data.token);
-      await renderAdminPanel();
+      setRole(data.role || 'admin');
+      setName(data.name || '');
+      setVenueId(data.venue_id ?? null);
+      if (data.role === 'venue_owner') {
+        await renderVenueOwnerPanel();
+      } else {
+        await renderAdminPanel();
+      }
     } else {
       err.style.display=''; err.textContent='Login failed — no token returned.';
       btn.disabled=false; btn.textContent='Sign In →';
@@ -1165,8 +1189,109 @@ async function removeBooking(id) {
 
 /* ─ Logout ─ */
 function handleLogout() {
-  clearToken();
+  clearSession();
   showLoginPanel();
+}
+
+/* ─────────────────────────────────────────────
+   VENUE OWNER DASHBOARD
+───────────────────────────────────────────── */
+async function renderVenueOwnerPanel() {
+  const panel     = document.getElementById('tab-admin');
+  const ownerName = getName();
+  const venueId   = getVenueId();
+
+  panel.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+      <div>
+        <h1 class="page-heading">My Venue</h1>
+        <p class="page-sub">Welcome back${ownerName ? ', ' + escHtml(ownerName) : ''}</p>
+      </div>
+      <button class="btn-ghost" onclick="handleLogout()">Log Out</button>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-label">Total Bookings</div><div class="stat-val" id="vo-total">—</div></div>
+      <div class="stat-card"><div class="stat-label">Confirmed</div><div class="stat-val" id="vo-confirmed" style="color:var(--green)">—</div></div>
+      <div class="stat-card"><div class="stat-label">Pending</div><div class="stat-val" id="vo-pending">—</div></div>
+    </div>
+    <div id="vo-venue-info" style="margin-bottom:24px"></div>
+    <div class="section-hd"><span class="section-title">Bookings</span></div>
+    <table>
+      <thead><tr><th>Guest</th><th>Date</th><th>Guests</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="vo-bookings-tbody"><tr class="empty-row"><td colspan="5" style="text-align:center;color:var(--text3);padding:20px;font-family:var(--mono)">Loading…</td></tr></tbody>
+    </table>`;
+
+  if (!venueId) {
+    document.getElementById('vo-venue-info').innerHTML =
+      `<p style="color:#f87171;font-family:var(--mono);font-size:12px">No venue linked to this account. Contact your administrator.</p>`;
+    document.getElementById('vo-bookings-tbody').innerHTML =
+      `<tr class="empty-row"><td colspan="5" style="text-align:center;color:var(--text3);padding:28px;font-family:var(--mono)">No venue assigned.</td></tr>`;
+    return;
+  }
+
+  await loadVenueOwnerData(venueId);
+}
+
+async function loadVenueOwnerData(venueId) {
+  try {
+    const [stats, bookings] = await Promise.all([
+      API.getVenueStats(venueId),
+      API.getBookings()
+    ]);
+
+    if (stats?.venue) {
+      document.getElementById('vo-venue-info').innerHTML = `
+        <div class="vla-item">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+              <div class="vla-name">${escHtml(stats.venue.name)}</div>
+              <span class="tag tag-live">Live</span>
+            </div>
+            <div class="vla-slug">Cap: ${stats.venue.capacity || '—'} · $${stats.venue.price_per_day || '—'}/day</div>
+          </div>
+        </div>`;
+    }
+
+    document.getElementById('vo-total').textContent     = stats?.total_bookings     ?? 0;
+    document.getElementById('vo-confirmed').textContent = stats?.confirmed_bookings ?? 0;
+    document.getElementById('vo-pending').textContent   = stats?.pending_bookings   ?? 0;
+
+    renderVenueOwnerBookings(bookings || []);
+  } catch(e) {
+    const tbody = document.getElementById('vo-bookings-tbody');
+    if (tbody) tbody.innerHTML = `<tr><td colspan="5" style="color:#f87171;font-family:var(--mono);font-size:12px;padding:16px">Failed to load data: ${escHtml(e.message)}</td></tr>`;
+  }
+}
+
+function renderVenueOwnerBookings(bookings) {
+  const tbody = document.getElementById('vo-bookings-tbody');
+  if (!tbody) return;
+  if (!bookings.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="5" style="text-align:center;color:var(--text3);padding:28px;font-family:var(--mono)">No bookings yet.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = bookings.map(b => {
+    const statusColor = b.status==='confirmed' ? 'var(--green)' : b.status==='cancelled' ? '#f87171' : 'var(--text2)';
+    return `<tr>
+      <td style="color:var(--text)">${escHtml(b.client_name || '—')}<br><span style="font-size:11px;color:var(--text3);font-family:var(--mono)">${escHtml(b.client_email || '')}</span></td>
+      <td style="font-family:var(--mono);font-size:12px">${escHtml(b.event_date || '—')}</td>
+      <td style="font-family:var(--mono);font-size:12px">${b.guests || '—'}</td>
+      <td><span style="font-family:var(--mono);font-size:11px;color:${statusColor};text-transform:uppercase">${escHtml(b.status || 'pending')}</span></td>
+      <td>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          ${b.status!=='confirmed' ? `<button class="btn-sm" style="background:rgba(74,222,128,.1);color:var(--green);border-color:rgba(74,222,128,.2)" onclick="voChangeStatus(${b.id},'confirmed')">Confirm</button>` : ''}
+          ${b.status!=='cancelled' ? `<button class="btn-sm" style="background:rgba(248,113,113,.1);color:#f87171;border-color:rgba(248,113,113,.2)" onclick="voChangeStatus(${b.id},'cancelled')">Cancel</button>` : ''}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function voChangeStatus(id, status) {
+  try {
+    await API.updateBookingStatus(id, status);
+    await loadVenueOwnerData(getVenueId());
+  } catch(e) { alert('Status update failed: ' + e.message); }
 }
 
 /* ─────────────────────────────────────────────
@@ -1178,8 +1303,9 @@ function showTab(id) {
   document.getElementById('tab-' + id).classList.add('active');
   document.getElementById('maintab-' + id).classList.add('active');
   if (id === 'admin') {
-    if (!isLoggedIn()) { showLoginPanel(); }
-    else               { renderAdminPanel(); }
+    if (!isLoggedIn())                  { showLoginPanel(); }
+    else if (getRole()==='venue_owner') { renderVenueOwnerPanel(); }
+    else                                { renderAdminPanel(); }
   }
 }
 
@@ -1333,7 +1459,7 @@ async function submitBooking() {
   btn.disabled = true; btn.textContent = 'Submitting…';
 
   try {
-    await API.createBooking({
+    const booking = await API.createBooking({
       venue_id:     apiV?.id ?? 1,
       client_name:  name,
       client_email: email,
@@ -1341,20 +1467,24 @@ async function submitBooking() {
       guests:       parseInt(headcount) || null,
       message:      [phone ? 'Phone: '+phone : '', message].filter(Boolean).join(' | ') || null,
     });
-  } catch(e) {
-    /* non-blocking: if booking API fails, still show success to user
-       (Stripe payment flow would handle actual confirmation) */
-    console.warn('Booking API error (non-blocking):', e.message);
-  }
 
-  /* show success screen */
-  btn.disabled = false;
-  document.getElementById('modal-form-section').style.display = 'none';
-  document.getElementById('success-venue').textContent   = v.name;
-  document.getElementById('success-date').textContent    = s.selected;
-  document.getElementById('success-fee').textContent     = '$'+v.fee+'.00 paid';
-  document.getElementById('success-contact').textContent = v.contact;
-  document.getElementById('modal-success').classList.add('visible');
+    if (!booking || typeof booking !== 'object' || !booking.id) {
+      throw new Error('Invalid booking response');
+    }
+
+    /* show success screen */
+    btn.disabled = false;
+    document.getElementById('modal-form-section').style.display = 'none';
+    document.getElementById('success-venue').textContent   = v.name;
+    document.getElementById('success-date').textContent    = s.selected;
+    document.getElementById('success-fee').textContent     = '$'+v.fee+'.00 paid';
+    document.getElementById('success-contact').textContent = v.contact;
+    document.getElementById('modal-success').classList.add('visible');
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = 'Confirm & Pay $' + v.fee + ' with Stripe →';
+    alert('Booking failed. Please try again or contact us directly.');
+  }
 }
 
 /* ─────────────────────────────────────────────
@@ -1369,10 +1499,12 @@ function escHtml(str) {
 ───────────────────────────────────────────── */
 initAllCals();
 
-/* If admin tab is somehow active on load and user is not logged in, lock it */
+/* If admin tab is somehow active on load, route correctly */
 const initialActive = document.querySelector('.tab-btn.active');
-if (initialActive?.id === 'maintab-admin' && !isLoggedIn()) {
-  showLoginPanel();
+if (initialActive?.id === 'maintab-admin') {
+  if (!isLoggedIn())                  showLoginPanel();
+  else if (getRole()==='venue_owner') renderVenueOwnerPanel();
+  else                                renderAdminPanel();
 }
 </script>
 
