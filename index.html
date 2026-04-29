@@ -1035,7 +1035,9 @@ async function handleLogin() {
       setName(data.name || '');
       setVenueId(data.venue_id ?? null);
       if (data.role === 'venue_owner') {
-        await renderVenueOwnerPanel();
+        if (data.first_login) localStorage.setItem('vp_first_login', 'true');
+        window.location.replace('dashboard.html');
+        return;
       } else {
         await renderAdminPanel();
       }
@@ -1368,7 +1370,7 @@ function showTab(id) {
   document.getElementById('maintab-' + id).classList.add('active');
   if (id === 'admin') {
     if (!isLoggedIn())                  { showLoginPanel(); }
-    else if (getRole()==='venue_owner') { renderVenueOwnerPanel(); }
+    else if (getRole()==='venue_owner') { window.location.replace('dashboard.html'); }
     else                                { renderAdminPanel(); }
   }
 }
@@ -1567,7 +1569,7 @@ initAllCals();
 const initialActive = document.querySelector('.tab-btn.active');
 if (initialActive?.id === 'maintab-admin') {
   if (!isLoggedIn())                  showLoginPanel();
-  else if (getRole()==='venue_owner') renderVenueOwnerPanel();
+  else if (getRole()==='venue_owner') window.location.replace('dashboard.html');
   else                                renderAdminPanel();
 }
 </script>

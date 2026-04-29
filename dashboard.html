@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Venue.Portal — Owner Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#111111;--surface:#1a1a1a;--surface2:#222222;
+  --border:#282828;--border2:#333333;
+  --text:#f0f0f0;--text2:#888888;--text3:#444444;
+  --green:#4ade80;
+  --accent:#f5a623;--accent-warm:#c97d2e;
+  --accent-dim:rgba(245,166,35,0.12);--accent-glow:rgba(245,166,35,0.07);
+  --radius:6px;--radius-lg:10px;
+  --mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;--display:'Syne',sans-serif;
+}
+html,body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.5;min-height:100%;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* HEADER */
+.header{
+  display:flex;align-items:center;gap:16px;
+  background:var(--surface);border-bottom:1px solid var(--border);
+  height:52px;padding:0 20px;
+  position:sticky;top:0;z-index:100;
+  transform:translateZ(0);-webkit-transform:translateZ(0);
+}
+.header-left{display:flex;flex-direction:column;gap:2px;flex-shrink:0}
+.header-venue{font-family:var(--display);font-size:15px;font-weight:800;color:var(--text);line-height:1;letter-spacing:-.3px}
+.header-sub{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);line-height:1}
+.header-greeting{flex:1;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text3)}
+.header-right{margin-left:auto;flex-shrink:0}
+.btn-logout{background:none;border:1px solid var(--border2);color:var(--text2);font-family:var(--sans);font-size:12px;font-weight:500;padding:6px 13px;border-radius:var(--radius);cursor:pointer;transition:border-color .15s,color .15s}
+.btn-logout:hover{border-color:var(--text2);color:var(--text)}
+
+/* MAIN */
+.main{max-width:1100px;margin:0 auto;padding:24px 20px 64px}
+
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;transition:border-color .2s;cursor:default}
+.stat-card:hover{border-color:rgba(245,166,35,0.25)}
+.stat-label{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:8px}
+.stat-val{font-family:var(--display);font-size:30px;font-weight:700;line-height:1;margin-bottom:6px}
+.stat-sub{font-family:var(--mono);font-size:11px;line-height:1.4}
+
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+
+/* GENERIC CARD */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px}
+
+/* SECTION HEADER */
+.section-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.section-title{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3)}
+.s-accent{color:var(--accent);margin-right:4px}
+.section-aside{font-family:var(--display);font-size:13px;color:var(--text2)}
+
+/* BOOKING LIST */
+.booking-list{display:flex;flex-direction:column}
+.booking-item{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.booking-item:first-child{padding-top:0}
+.booking-item:last-child{border-bottom:none;padding-bottom:0}
+.booking-event{font-family:var(--display);font-size:14px;font-weight:700;margin-bottom:3px}
+.booking-meta{font-family:var(--mono);font-size:11px;color:var(--text3);line-height:1.5}
+.badge{font-family:var(--mono);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:3px 8px;border-radius:4px;flex-shrink:0;white-space:nowrap;align-self:flex-start}
+.badge-confirmed{background:rgba(74,222,128,0.1);color:var(--green);border:1px solid rgba(74,222,128,0.2)}
+.badge-pending{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(245,166,35,0.2)}
+.badge-cancelled{background:rgba(248,113,113,0.08);color:#f87171;border:1px solid rgba(248,113,113,0.2)}
+
+/* INQUIRY LIST */
+.inquiry-item{padding:12px 0;border-bottom:1px solid var(--border);transition:opacity .3s}
+.inquiry-item:first-child{padding-top:0}
+.inquiry-item:last-child{border-bottom:none;padding-bottom:0}
+.inquiry-item.fading{opacity:0}
+.inquiry-name{font-family:var(--display);font-size:14px;font-weight:700;margin-bottom:2px}
+.inquiry-meta{font-family:var(--mono);font-size:11px;color:var(--text3);margin-bottom:6px}
+.inquiry-note{font-family:var(--sans);font-size:12px;color:var(--text2);font-style:italic;margin-bottom:10px;line-height:1.5}
+.inquiry-actions{display:flex;gap:7px;align-items:center}
+.btn-accept{background:rgba(74,222,128,0.1);color:var(--green);border:1px solid rgba(74,222,128,0.2);font-family:var(--mono);font-size:10px;padding:4px 12px;border-radius:var(--radius);cursor:pointer;transition:background .15s}
+.btn-accept:hover{background:rgba(74,222,128,0.18)}
+.btn-decline{background:rgba(248,113,113,0.08);color:#f87171;border:1px solid rgba(248,113,113,0.2);font-family:var(--mono);font-size:10px;padding:4px 12px;border-radius:var(--radius);cursor:pointer;transition:background .15s}
+.btn-decline:hover{background:rgba(248,113,113,0.15)}
+.badge-accepted{display:inline-block;background:rgba(74,222,128,0.1);color:var(--green);border:1px solid rgba(74,222,128,0.2);font-family:var(--mono);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:3px 8px;border-radius:4px}
+
+/* CHART CARD */
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:16px}
+
+/* PROFILE CARD */
+.profile-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:16px}
+.profile-body{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:4px}
+.profile-field{margin-bottom:16px}
+.profile-field:last-child{margin-bottom:0}
+.pf-label{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:4px}
+.pf-val{font-family:var(--display);font-size:15px;font-weight:700;color:var(--text)}
+.pf-val-sm{font-family:var(--sans);font-size:13px;font-weight:500;color:var(--text2)}
+.status-row{display:flex;align-items:center;gap:7px}
+.dot-live{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0}
+.status-live-text{font-family:var(--mono);font-size:11px;color:var(--green)}
+
+/* FORMS */
+.form-field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.form-label{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3)}
+.form-input{background:var(--bg);border:1px solid var(--border2);color:var(--text);font-family:var(--sans);font-size:14px;padding:9px 11px;border-radius:var(--radius);outline:none;transition:border-color .15s;width:100%}
+.form-input:focus{border-color:var(--text2)}
+.form-actions{display:flex;gap:8px;margin-top:4px}
+.btn-primary{background:var(--accent);color:#111;border:none;cursor:pointer;font-family:var(--sans);font-size:13px;font-weight:700;padding:9px 18px;border-radius:var(--radius);transition:background .15s}
+.btn-primary:hover{background:var(--accent-warm)}
+.btn-cancel{background:none;border:1px solid var(--border2);color:var(--text3);font-family:var(--sans);font-size:13px;padding:9px 14px;border-radius:var(--radius);cursor:pointer}
+.btn-ghost{background:none;border:1px solid var(--border2);color:var(--text2);font-family:var(--sans);font-size:12px;font-weight:500;padding:6px 13px;border-radius:var(--radius);cursor:pointer;transition:border-color .15s,color .15s}
+.btn-ghost:hover{border-color:var(--text2);color:var(--text)}
+
+/* STRIPE BLOCK */
+.stripe-card{border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.stripe-disconnected{border:1px solid rgba(99,91,255,0.25);background:linear-gradient(135deg,#111111 0%,#16141f 100%)}
+.stripe-left{flex:1;min-width:200px}
+.stripe-eyebrow{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:6px}
+.stripe-heading{font-family:var(--display);font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px}
+.stripe-sub{font-family:var(--sans);font-size:13px;color:var(--text2)}
+.btn-stripe{background:#635BFF;color:#fff;border:none;font-family:var(--display);font-size:13px;font-weight:700;padding:10px 20px;border-radius:var(--radius);cursor:pointer;white-space:nowrap;transition:opacity .15s;flex-shrink:0}
+.btn-stripe:hover{opacity:.88}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.84);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:16px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:14px;width:100%;max-width:420px;overflow:hidden}
+.modal-header{padding:22px 24px 16px;border-bottom:1px solid var(--border)}
+.modal-title{font-family:var(--display);font-size:18px;font-weight:800;letter-spacing:-.3px;margin-bottom:3px}
+.modal-subtitle{font-family:var(--mono);font-size:11px;color:var(--text3)}
+.modal-body{padding:20px 24px 24px;display:flex;flex-direction:column;gap:12px}
+.pw-err{font-family:var(--mono);font-size:11px;color:#f87171;display:none}
+.modal-success{display:none;padding:32px 24px;text-align:center}
+.modal-success.visible{display:block}
+.success-label{font-family:var(--display);font-size:17px;font-weight:800;color:var(--green);margin-bottom:5px}
+.success-sub{font-family:var(--mono);font-size:11px;color:var(--text3)}
+
+/* EMPTY / ERROR */
+.empty-msg{font-family:var(--mono);font-size:12px;color:var(--text3);padding:8px 0}
+
+/* RESPONSIVE */
+@media(max-width:700px){
+  .stats-row{grid-template-columns:1fr 1fr}
+  .two-col{grid-template-columns:1fr}
+  .header-greeting{display:none}
+  .stripe-card{flex-direction:column;align-items:flex-start}
+  .profile-body{grid-template-columns:1fr}
+  .main{padding:16px 14px 48px}
+}
+@media(max-width:480px){
+  .stats-row{grid-template-columns:1fr}
+  .stat-val{font-size:26px}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-left">
+    <div class="header-venue" id="hdr-venue-name">Loading...</div>
+    <div class="header-sub">venue.portals — Owner Dashboard</div>
+  </div>
+  <div class="header-greeting" id="hdr-greeting"></div>
+  <div class="header-right">
+    <button class="btn-logout" onclick="handleLogout()">Log Out</button>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- STATS ROW -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Revenue</div>
+      <div class="stat-val" id="st-revenue">—</div>
+      <div class="stat-sub" id="st-revenue-sub" style="color:var(--text3)"></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Confirmed Bookings</div>
+      <div class="stat-val" id="st-bookings">—</div>
+      <div class="stat-sub" id="st-bookings-sub" style="color:var(--text3)"></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Pending Inquiries</div>
+      <div class="stat-val" id="st-inquiries">—</div>
+      <div class="stat-sub" id="st-inquiries-sub"></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total Bookings</div>
+      <div class="stat-val" id="st-views">—</div>
+      <div class="stat-sub" id="st-views-sub" style="color:var(--text3)"></div>
+    </div>
+  </div>
+
+  <!-- TWO COL: BOOKINGS + INQUIRIES -->
+  <div class="two-col">
+    <div class="card">
+      <div class="section-hd">
+        <div class="section-title"><span class="s-accent">&#9656;</span> Upcoming Bookings</div>
+      </div>
+      <div class="booking-list" id="booking-list"><div class="empty-msg">Loading...</div></div>
+    </div>
+    <div class="card">
+      <div class="section-hd">
+        <div class="section-title"><span class="s-accent">&#9656;</span> Pending Inquiries</div>
+      </div>
+      <div id="inquiry-list"><div class="empty-msg">Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- BOOKING HISTORY CHART -->
+  <div class="chart-card">
+    <div class="section-hd">
+      <div class="section-title"><span class="s-accent">&#9656;</span> Booking Activity — Last 6 Months</div>
+      <div class="section-aside" id="chart-total"></div>
+    </div>
+    <canvas id="revenue-chart"></canvas>
+  </div>
+
+  <!-- VENUE PROFILE -->
+  <div class="profile-card">
+    <div class="section-hd">
+      <div class="section-title"><span class="s-accent">&#9656;</span> Your Venue Profile</div>
+    </div>
+    <div class="profile-body" id="profile-body">
+      <div class="empty-msg">Loading...</div>
+    </div>
+  </div>
+
+  <!-- STRIPE CONNECT -->
+  <div class="stripe-card stripe-disconnected">
+    <div class="stripe-left">
+      <div class="stripe-eyebrow">Stripe Connect</div>
+      <div class="stripe-heading">Connect your Stripe account</div>
+      <div class="stripe-sub">Receive payouts directly to your bank. Setup takes 2 minutes.</div>
+    </div>
+    <button class="btn-stripe" onclick="alert('Stripe Connect coming soon.')">Connect Stripe &#8594;</button>
+  </div>
+
+</main>
+
+<!-- FIRST LOGIN MODAL -->
+<div class="modal-overlay" id="pw-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Set your password</div>
+      <div class="modal-subtitle">You're using a temporary password. Set a new one now.</div>
+    </div>
+    <div class="modal-body" id="pw-modal-body">
+      <div class="form-field" style="gap:6px">
+        <label class="form-label">New Password</label>
+        <input class="form-input" id="pw-new" type="password" placeholder="Min 8 characters" autocomplete="new-password"/>
+      </div>
+      <div class="form-field" style="gap:6px">
+        <label class="form-label">Confirm Password</label>
+        <input class="form-input" id="pw-confirm" type="password" placeholder="Repeat password" autocomplete="new-password"/>
+      </div>
+      <div class="pw-err" id="pw-err"></div>
+      <button class="btn-primary" style="font-family:var(--display);font-size:14px;font-weight:800;padding:11px 20px" onclick="submitPassword()">Update Password &#8594;</button>
+    </div>
+    <div class="modal-success" id="pw-success">
+      <div class="success-label">Password updated</div>
+      <div class="success-sub">Redirecting to your dashboard...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ─── CONFIG ─────────────────────────────────────────── */
+const API_BASE = 'https://thevenueportal.paxey333.workers.dev';
+
+/* ─── UTILS ─────────────────────────────────────────── */
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fmtDate(s){
+  if (!s) return '—';
+  try { return new Date(s).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
+  catch(e) { return s; }
+}
+
+/* ─── AUTH ──────────────────────────────────────────── */
+const TOKEN    = localStorage.getItem('vp_admin_token');
+const ROLE     = localStorage.getItem('vp_user_role');
+const USERNAME = localStorage.getItem('vp_user_name') || 'Owner';
+const VENUE_ID = parseInt(localStorage.getItem('vp_venue_id') || '0', 10) || null;
+
+if (!TOKEN || ROLE !== 'venue_owner') {
+  window.location.replace('index.html');
+}
+
+function handleLogout() {
+  ['vp_admin_token','vp_user_role','vp_user_name','vp_venue_id','vp_first_login'].forEach(k => localStorage.removeItem(k));
+  window.location.replace('index.html');
+}
+
+async function apiFetch(path) {
+  const res = await fetch(API_BASE + path, {
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN }
+  });
+  if (!res.ok) throw new Error('API ' + res.status);
+  return res.json();
+}
+
+/* ─── BOOT ───────────────────────────────────────────── */
+document.getElementById('hdr-greeting').textContent = 'Welcome back, ' + USERNAME;
+
+if (localStorage.getItem('vp_first_login') === 'true') {
+  document.getElementById('pw-modal').classList.add('open');
+}
+
+(async function init() {
+  if (!VENUE_ID) {
+    document.getElementById('hdr-venue-name').textContent = 'No Venue';
+    document.getElementById('booking-list').innerHTML = '<div class="empty-msg">No venue linked. Contact your administrator.</div>';
+    document.getElementById('inquiry-list').innerHTML  = '';
+    document.getElementById('profile-body').innerHTML  = '<div class="empty-msg">No venue assigned.</div>';
+    return;
+  }
+
+  try {
+    const [stats, bookings] = await Promise.all([
+      apiFetch('/api/venues/' + VENUE_ID + '/stats'),
+      apiFetch('/api/bookings')
+    ]);
+
+    const venue    = stats?.venue || {};
+    const allBooks = Array.isArray(bookings) ? bookings : [];
+    const confirmed = allBooks.filter(b => b.status === 'confirmed');
+    const pending   = allBooks.filter(b => b.status === 'pending');
+
+    document.getElementById('hdr-venue-name').textContent = venue.name || 'Your Venue';
+
+    /* Stats */
+    document.getElementById('st-revenue').textContent      = '—';
+    document.getElementById('st-revenue-sub').textContent  = 'Connect Stripe to track';
+    document.getElementById('st-bookings').textContent     = confirmed.length;
+    const nextBook = confirmed.sort((a,b) => a.event_date > b.event_date ? 1 : -1)[0];
+    document.getElementById('st-bookings-sub').textContent = nextBook ? 'Next: ' + fmtDate(nextBook.event_date) : 'None scheduled';
+
+    const iEl  = document.getElementById('st-inquiries');
+    const iSub = document.getElementById('st-inquiries-sub');
+    iEl.textContent      = pending.length;
+    iEl.style.color      = pending.length > 0 ? 'var(--accent)' : 'var(--text)';
+    iSub.textContent     = pending.length > 0 ? 'Requires action' : 'All clear';
+    iSub.style.color     = pending.length > 0 ? 'var(--accent)' : 'var(--text3)';
+
+    document.getElementById('st-views').textContent     = allBooks.length;
+    document.getElementById('st-views-sub').textContent = 'All time';
+
+    /* Bookings */
+    const bookEl = document.getElementById('booking-list');
+    if (!allBooks.length) {
+      bookEl.innerHTML = '<div class="empty-msg">No bookings yet.</div>';
+    } else {
+      bookEl.innerHTML = allBooks.slice(0, 8).map(b => `
+        <div class="booking-item">
+          <div style="min-width:0">
+            <div class="booking-event">${esc(b.client_name)}</div>
+            <div class="booking-meta">${esc(b.client_email)}<br>${fmtDate(b.event_date)}${b.guests ? ' &middot; ' + b.guests + ' guests' : ''}</div>
+          </div>
+          <span class="badge badge-${esc(b.status)}">${esc(b.status)}</span>
+        </div>`).join('');
+    }
+
+    /* Pending inquiries */
+    renderPending(pending);
+
+    /* Profile */
+    document.getElementById('profile-body').innerHTML = `
+      <div>
+        <div class="profile-field">
+          <div class="pf-label">Venue Name</div>
+          <div class="pf-val">${esc(venue.name || '—')}</div>
+        </div>
+        <div class="profile-field">
+          <div class="pf-label">Capacity</div>
+          <div class="pf-val">${venue.capacity ? venue.capacity.toLocaleString() : '—'}</div>
+        </div>
+        <div class="profile-field">
+          <div class="pf-label">Price per Day</div>
+          <div class="pf-val-sm">${venue.price_per_day ? '$' + Number(venue.price_per_day).toLocaleString() : '—'}</div>
+        </div>
+        <div class="profile-field">
+          <div class="pf-label">Listing Status</div>
+          <div class="status-row"><div class="dot-live"></div><div class="status-live-text">Live</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="profile-field">
+          <div class="pf-label">Total Bookings</div>
+          <div class="pf-val">${stats?.total_bookings ?? allBooks.length}</div>
+        </div>
+        <div class="profile-field">
+          <div class="pf-label">Confirmed</div>
+          <div class="pf-val" style="color:var(--green)">${stats?.confirmed_bookings ?? confirmed.length}</div>
+        </div>
+        <div class="profile-field">
+          <div class="pf-label">Pending</div>
+          <div class="pf-val" style="color:var(--accent)">${stats?.pending_bookings ?? pending.length}</div>
+        </div>
+      </div>`;
+
+    /* Chart — bookings per month for last 6 months */
+    const months = [];
+    const counts = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date();
+      d.setMonth(d.getMonth() - i);
+      const yr = d.getFullYear(), mo = d.getMonth();
+      months.push(d.toLocaleDateString('en-US', {month:'short'}));
+      counts.push(allBooks.filter(b => {
+        const bd = new Date(b.event_date || b.created_at || '');
+        return bd.getFullYear() === yr && bd.getMonth() === mo;
+      }).length);
+    }
+    document.getElementById('chart-total').textContent = allBooks.length + ' total';
+    new Chart(document.getElementById('revenue-chart').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: months,
+        datasets:[{
+          data: counts,
+          backgroundColor: 'rgba(245,166,35,0.15)',
+          borderColor: '#f5a623',
+          borderWidth: 1,
+          borderRadius: 4,
+          hoverBackgroundColor: 'rgba(245,166,35,0.28)',
+        }]
+      },
+      options:{
+        responsive:true,
+        maintainAspectRatio:true,
+        aspectRatio:3.5,
+        plugins:{
+          legend:{display:false},
+          tooltip:{
+            backgroundColor:'#1a1a1a',borderColor:'#333333',borderWidth:1,
+            titleColor:'#888888',bodyColor:'#f0f0f0',
+            titleFont:{family:'DM Mono',size:10},
+            bodyFont:{family:'Syne',size:14,weight:'700'},
+            callbacks:{label:ctx=>' '+ctx.parsed.y+' bookings'}
+          }
+        },
+        scales:{
+          x:{grid:{display:false},border:{display:false},ticks:{color:'#444444',font:{family:'DM Mono',size:10}}},
+          y:{grid:{color:'#1f1f1f'},border:{display:false},ticks:{color:'#444444',font:{family:'DM Mono',size:10},stepSize:1}}
+        }
+      }
+    });
+
+  } catch(e) {
+    console.error(e);
+    document.getElementById('hdr-venue-name').textContent = 'Error';
+    document.getElementById('booking-list').innerHTML = '<div class="empty-msg">Failed to load data.</div>';
+  }
+})();
+
+/* ─── PENDING INQUIRY ACTIONS ───────────────────────── */
+function renderPending(pending) {
+  const el = document.getElementById('inquiry-list');
+  if (!pending.length) {
+    el.innerHTML = '<div class="empty-msg">No pending inquiries.</div>';
+    return;
+  }
+  el.innerHTML = pending.map(q => `
+    <div class="inquiry-item" id="inq-${q.id}">
+      <div class="inquiry-name">${esc(q.client_name)}</div>
+      <div class="inquiry-meta">${esc(q.client_email)}<br>${fmtDate(q.event_date)}${q.guests ? ' &middot; ' + q.guests + ' guests' : ''}</div>
+      ${q.message ? `<div class="inquiry-note">"${esc(q.message)}"</div>` : ''}
+      <div class="inquiry-actions" id="inq-act-${q.id}">
+        <button class="btn-accept"  onclick="updateStatus(${q.id},'confirmed')">Accept</button>
+        <button class="btn-decline" onclick="updateStatus(${q.id},'cancelled')">Decline</button>
+      </div>
+    </div>`).join('');
+}
+
+async function updateStatus(id, status) {
+  try {
+    const res = await fetch(API_BASE + '/api/bookings/' + id + '/status', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
+      body: JSON.stringify({ status })
+    });
+    if (!res.ok) throw new Error('API ' + res.status);
+    if (status === 'confirmed') {
+      const act = document.getElementById('inq-act-' + id);
+      if (act) act.outerHTML = '<span class="badge-accepted">Accepted</span>';
+    } else {
+      const el = document.getElementById('inq-' + id);
+      if (el) { el.classList.add('fading'); setTimeout(() => el.remove(), 350); }
+    }
+  } catch(e) { alert('Failed to update booking: ' + e.message); }
+}
+
+/* ─── FIRST LOGIN MODAL ─────────────────────────────── */
+function submitPassword() {
+  const pw1 = document.getElementById('pw-new').value;
+  const pw2 = document.getElementById('pw-confirm').value;
+  const err = document.getElementById('pw-err');
+  err.style.display = 'none';
+  if (pw1.length < 8) { err.textContent = 'Password must be at least 8 characters.'; err.style.display = ''; return; }
+  if (pw1 !== pw2)    { err.textContent = 'Passwords do not match.'; err.style.display = ''; return; }
+  localStorage.removeItem('vp_first_login');
+  document.getElementById('pw-modal-body').style.display = 'none';
+  document.getElementById('pw-success').classList.add('visible');
+  setTimeout(() => document.getElementById('pw-modal').classList.remove('open'), 1500);
+}
+</script>
+</body>
+</html>
