@@ -604,7 +604,7 @@ export default {
       }
 
       // ── STRIPE: START CONNECT ONBOARDING ────────────────────────────────────
-      if (method === "GET" && pathParts[1] === "stripe" && pathParts[2] === "connect" && pathParts[3]) {
+      if (request.method === "GET" && pathParts[1] === "stripe" && pathParts[2] === "connect" && pathParts[3]) {
         if (!session || session.role !== "venue_owner") {
           return jsonResponse({ error: "Forbidden" }, 403, request);
         }
@@ -639,7 +639,7 @@ export default {
       }
 
       // ── STRIPE: STATUS ───────────────────────────────────────────────────────
-      if (method === "GET" && pathParts[1] === "stripe" && pathParts[2] === "status" && pathParts[3]) {
+      if (request.method === "GET" && pathParts[1] === "stripe" && pathParts[2] === "status" && pathParts[3]) {
         if (!session) return jsonResponse({ error: "Unauthorized" }, 401, request);
         const venueId = parseInt(pathParts[3]);
         if (session.role === "venue_owner" && session.venue_id !== venueId) {
@@ -659,7 +659,7 @@ export default {
       }
 
       // ── STRIPE: WEBHOOK ──────────────────────────────────────────────────────
-      if (method === "POST" && pathParts[1] === "stripe" && pathParts[2] === "webhook") {
+      if (request.method === "POST" && pathParts[1] === "stripe" && pathParts[2] === "webhook") {
         let event;
         try {
           event = await request.json();
