@@ -663,8 +663,6 @@ async function loadStripeStatus() {
 function wireStripeButton() {
   const btn = document.getElementById('btn-stripe-connect');
   if (!btn) return;
-  // Admins previewing the dashboard cannot connect Stripe on behalf of a venue owner
-  if (IS_ADMIN_PREVIEW) { btn.disabled = true; btn.title = 'Only the venue owner can connect Stripe'; return; }
   btn.addEventListener('click', async () => {
     btn.disabled = true;
     btn.textContent = 'Connecting…';

@@ -608,11 +608,13 @@ export default {
       if (stripeConnectMatch && request.method === "GET") {
         try {
           const session = await getSession(request, env);
-          if (!session || session.role !== "venue_owner") {
+          if (!session) return jsonResponse({ error: "Unauthorized" }, 401, request);
+          const venueId = parseInt(stripeConnectMatch[1]);
+          // venue_owner can only connect their own venue; admin/superadmin can connect any
+          if (session.role === "venue_owner" && session.venue_id !== venueId) {
             return jsonResponse({ error: "Forbidden" }, 403, request);
           }
-          const venueId = parseInt(stripeConnectMatch[1]);
-          if (session.venue_id !== venueId) {
+          if (session.role !== "venue_owner" && session.role !== "admin" && session.role !== "superadmin") {
             return jsonResponse({ error: "Forbidden" }, 403, request);
           }
 
