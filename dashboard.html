@@ -72,7 +72,6 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--sans);font-si
 .badge{font-family:var(--mono);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:3px 8px;border-radius:4px;flex-shrink:0;white-space:nowrap;align-self:flex-start}
 .badge-confirmed{background:rgba(74,222,128,0.1);color:var(--green);border:1px solid rgba(74,222,128,0.2)}
 .badge-pending{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(245,166,35,0.2)}
-.badge-cancelled{background:rgba(248,113,113,0.08);color:#f87171;border:1px solid rgba(248,113,113,0.2)}
 
 /* INQUIRY LIST */
 .inquiry-item{padding:12px 0;border-bottom:1px solid var(--border);transition:opacity .3s}
@@ -80,6 +79,7 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--sans);font-si
 .inquiry-item:last-child{border-bottom:none;padding-bottom:0}
 .inquiry-item.fading{opacity:0}
 .inquiry-name{font-family:var(--display);font-size:14px;font-weight:700;margin-bottom:2px}
+.inquiry-org{color:var(--text3);font-family:var(--sans);font-size:12px;font-weight:400}
 .inquiry-meta{font-family:var(--mono);font-size:11px;color:var(--text3);margin-bottom:6px}
 .inquiry-note{font-family:var(--sans);font-size:12px;color:var(--text2);font-style:italic;margin-bottom:10px;line-height:1.5}
 .inquiry-actions{display:flex;gap:7px;align-items:center}
@@ -103,6 +103,13 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--sans);font-si
 .status-row{display:flex;align-items:center;gap:7px}
 .dot-live{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0}
 .status-live-text{font-family:var(--mono);font-size:11px;color:var(--green)}
+.amenity-pills{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px}
+.amenity-pill{background:var(--surface2);border:1px solid var(--border2);color:var(--text2);font-family:var(--mono);font-size:10px;padding:4px 10px;border-radius:20px}
+.tier-badge{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(245,166,35,0.2);font-family:var(--mono);font-size:9px;padding:3px 9px;border-radius:4px;letter-spacing:.06em}
+.profile-hd-right{display:flex;align-items:center;gap:10px}
+.profile-display.hidden{display:none}
+.profile-edit-form{display:none;margin-top:16px}
+.profile-edit-form.active{display:block}
 
 /* FORMS */
 .form-field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
@@ -119,12 +126,19 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--sans);font-si
 /* STRIPE BLOCK */
 .stripe-card{border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
 .stripe-disconnected{border:1px solid rgba(99,91,255,0.25);background:linear-gradient(135deg,#111111 0%,#16141f 100%)}
+.stripe-connected{border:1px solid rgba(99,91,255,0.2);background:var(--surface)}
 .stripe-left{flex:1;min-width:200px}
 .stripe-eyebrow{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:6px}
 .stripe-heading{font-family:var(--display);font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px}
 .stripe-sub{font-family:var(--sans);font-size:13px;color:var(--text2)}
 .btn-stripe{background:#635BFF;color:#fff;border:none;font-family:var(--display);font-size:13px;font-weight:700;padding:10px 20px;border-radius:var(--radius);cursor:pointer;white-space:nowrap;transition:opacity .15s;flex-shrink:0}
 .btn-stripe:hover{opacity:.88}
+.stripe-stats{display:flex;gap:10px;flex-wrap:wrap;flex:1}
+.stripe-stat-pill{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:12px 16px;min-width:130px}
+.stripe-stat-label{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:4px}
+.stripe-stat-val{font-family:var(--display);font-size:13px;font-weight:700;color:var(--text)}
+.btn-stripe-manage{background:none;border:none;font-family:var(--mono);font-size:11px;color:var(--text2);cursor:pointer;text-decoration:underline;text-underline-offset:3px;flex-shrink:0;padding:0;align-self:center}
+.btn-stripe-manage:hover{color:var(--text)}
 
 /* MODAL */
 .modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.84);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:16px}
@@ -139,9 +153,6 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--sans);font-si
 .modal-success.visible{display:block}
 .success-label{font-family:var(--display);font-size:17px;font-weight:800;color:var(--green);margin-bottom:5px}
 .success-sub{font-family:var(--mono);font-size:11px;color:var(--text3)}
-
-/* EMPTY / ERROR */
-.empty-msg{font-family:var(--mono);font-size:12px;color:var(--text3);padding:8px 0}
 
 /* RESPONSIVE */
 @media(max-width:700px){
@@ -164,7 +175,7 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--sans);font-si
 <header class="header">
   <div class="header-left">
     <div class="header-venue" id="hdr-venue-name">Loading...</div>
-    <div class="header-sub">venue.portals — Owner Dashboard</div>
+    <div class="header-sub">venue.portals &mdash; Owner Dashboard</div>
   </div>
   <div class="header-greeting" id="hdr-greeting"></div>
   <div class="header-right">
@@ -178,24 +189,24 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--sans);font-si
   <!-- STATS ROW -->
   <div class="stats-row">
     <div class="stat-card">
-      <div class="stat-label">Revenue</div>
+      <div class="stat-label">/ Revenue This Month</div>
       <div class="stat-val" id="st-revenue">—</div>
-      <div class="stat-sub" id="st-revenue-sub" style="color:var(--text3)"></div>
+      <div class="stat-sub" id="st-revenue-sub"></div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">Confirmed Bookings</div>
+      <div class="stat-label">/ Upcoming Bookings</div>
       <div class="stat-val" id="st-bookings">—</div>
       <div class="stat-sub" id="st-bookings-sub" style="color:var(--text3)"></div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">Pending Inquiries</div>
+      <div class="stat-label">/ Pending Inquiries</div>
       <div class="stat-val" id="st-inquiries">—</div>
       <div class="stat-sub" id="st-inquiries-sub"></div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">Total Bookings</div>
+      <div class="stat-label">/ Profile Views</div>
       <div class="stat-val" id="st-views">—</div>
-      <div class="stat-sub" id="st-views-sub" style="color:var(--text3)"></div>
+      <div class="stat-sub" id="st-views-sub"></div>
     </div>
   </div>
 
@@ -205,20 +216,20 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--sans);font-si
       <div class="section-hd">
         <div class="section-title"><span class="s-accent">&#9656;</span> Upcoming Bookings</div>
       </div>
-      <div class="booking-list" id="booking-list"><div class="empty-msg">Loading...</div></div>
+      <div class="booking-list" id="booking-list"></div>
     </div>
     <div class="card">
       <div class="section-hd">
-        <div class="section-title"><span class="s-accent">&#9656;</span> Pending Inquiries</div>
+        <div class="section-title"><span class="s-accent">&#9656;</span> Inquiry Requests</div>
       </div>
-      <div id="inquiry-list"><div class="empty-msg">Loading...</div></div>
+      <div id="inquiry-list"></div>
     </div>
   </div>
 
-  <!-- BOOKING HISTORY CHART -->
+  <!-- REVENUE CHART -->
   <div class="chart-card">
     <div class="section-hd">
-      <div class="section-title"><span class="s-accent">&#9656;</span> Booking Activity — Last 6 Months</div>
+      <div class="section-title"><span class="s-accent">&#9656;</span> Revenue &mdash; Last 6 Months</div>
       <div class="section-aside" id="chart-total"></div>
     </div>
     <canvas id="revenue-chart"></canvas>
@@ -228,21 +239,72 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--sans);font-si
   <div class="profile-card">
     <div class="section-hd">
       <div class="section-title"><span class="s-accent">&#9656;</span> Your Venue Profile</div>
+      <div class="profile-hd-right">
+        <span class="tier-badge" id="tier-badge"></span>
+        <button class="btn-ghost" id="edit-btn" onclick="startProfileEdit()">Edit Profile</button>
+      </div>
     </div>
-    <div class="profile-body" id="profile-body">
-      <div class="empty-msg">Loading...</div>
+
+    <!-- Display state -->
+    <div class="profile-display" id="profile-display">
+      <div class="profile-body">
+        <div>
+          <div class="profile-field">
+            <div class="pf-label">Venue Name</div>
+            <div class="pf-val" id="pf-name"></div>
+          </div>
+          <div class="profile-field">
+            <div class="pf-label">Location</div>
+            <div class="pf-val-sm" id="pf-location"></div>
+          </div>
+          <div class="profile-field">
+            <div class="pf-label">Capacity</div>
+            <div class="pf-val" id="pf-capacity"></div>
+          </div>
+          <div class="profile-field">
+            <div class="pf-label">Price</div>
+            <div class="pf-val-sm" id="pf-price"></div>
+          </div>
+          <div class="profile-field">
+            <div class="pf-label">Hours</div>
+            <div class="pf-val-sm" id="pf-hours"></div>
+          </div>
+          <div class="profile-field">
+            <div class="pf-label">Listing Status</div>
+            <div class="status-row">
+              <div class="dot-live"></div>
+              <div class="status-live-text">Live</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="pf-label" style="margin-bottom:10px">Amenities</div>
+          <div class="amenity-pills" id="pf-amenities"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit state -->
+    <div class="profile-edit-form" id="profile-edit-form">
+      <div style="max-width:440px">
+        <div class="form-field">
+          <label class="form-label">Venue Name</label>
+          <input class="form-input" id="edit-name" type="text"/>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Location</label>
+          <input class="form-input" id="edit-location" type="text"/>
+        </div>
+        <div class="form-actions">
+          <button class="btn-primary" onclick="saveProfileEdit()">Save</button>
+          <button class="btn-cancel" onclick="cancelProfileEdit()">Cancel</button>
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- STRIPE CONNECT -->
-  <div class="stripe-card stripe-disconnected">
-    <div class="stripe-left">
-      <div class="stripe-eyebrow">Stripe Connect</div>
-      <div class="stripe-heading">Connect your Stripe account</div>
-      <div class="stripe-sub">Receive payouts directly to your bank. Setup takes 2 minutes.</div>
-    </div>
-    <button class="btn-stripe" onclick="alert('Stripe Connect coming soon.')">Connect Stripe &#8594;</button>
-  </div>
+  <div id="stripe-block"></div>
 
 </main>
 
@@ -273,22 +335,56 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--sans);font-si
 </div>
 
 <script>
-/* ─── CONFIG ─────────────────────────────────────────── */
-const API_BASE = 'https://thevenueportal.paxey333.workers.dev';
+const MOCK = {
+  venue: {
+    id: 2,
+    name: "The Chill Room",
+    location: "1320 E Broadway Rd Suite 108, Tempe AZ 85282",
+    capacity: 300,
+    price_per_day: 400,
+    tier: "Basic Portal",
+    listing_status: "live",
+    amenities: ["Full Bar", "Private 300 sq ft Area", "Front Lounge Seats 12", "Decor Flexibility", "Configurable Layout"],
+    hours: "Sun–Thu 2PM–12AM · Fri–Sat 2PM–2AM",
+    stripe_connected: false,
+  },
+  stats: {
+    revenue_this_month: 2800,
+    revenue_last_month: 2400,
+    upcoming_bookings: 5,
+    pending_inquiries: 2,
+    profile_views_this_month: 94,
+    profile_views_last_month: 71,
+    payout_pending: 800,
+  },
+  revenue_chart: {
+    labels: ["Nov", "Dec", "Jan", "Feb", "Mar", "Apr"],
+    data: [800, 1200, 1600, 2000, 2400, 2800],
+  },
+  bookings: [
+    { id: 1, event: "Birthday Celebration",  organizer: "Tanya R.",             date: "May 2, 2026",  guests: 40, deposit: 200, status: "confirmed" },
+    { id: 2, event: "Bachelorette Night",     organizer: "Priya M.",             date: "May 9, 2026",  guests: 25, deposit: 200, status: "confirmed" },
+    { id: 3, event: "Small Business Mixer",   organizer: "Tempe Founders Group", date: "May 16, 2026", guests: 60, deposit: 200, status: "pending"   },
+    { id: 4, event: "Private Dinner",         organizer: "James & Crew",         date: "May 23, 2026", guests: 20, deposit: 200, status: "confirmed" },
+    { id: 5, event: "Late Night Kickback",    organizer: "DJ Marko",             date: "May 30, 2026", guests: 80, deposit: 200, status: "pending"   },
+  ],
+  inquiries: [
+    { id: 1, name: "Aaliyah", org: "SoFlo Events",    date: "Jun 6, 2026",  capacity: 50, note: "Sweet 16, need full private area Friday night",          status: "new" },
+    { id: 2, name: "Derek",   org: "Indie Nights AZ", date: "Jun 20, 2026", capacity: 80, note: "Monthly listening party, looking for recurring booking", status: "new" },
+  ],
+};
 
 /* ─── UTILS ─────────────────────────────────────────── */
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function fmtDate(s){
-  if (!s) return '—';
-  try { return new Date(s).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
-  catch(e) { return s; }
-}
+function money(n){ return '$'+Number(n).toLocaleString(); }
+function pct(a,b){ return b===0 ? 0 : Math.round(((a-b)/b)*100); }
+function sign(n){ return n>=0 ? '+' : ''; }
 
 /* ─── AUTH ──────────────────────────────────────────── */
 const TOKEN    = localStorage.getItem('vp_admin_token');
 const ROLE     = localStorage.getItem('vp_user_role');
 const USERNAME = localStorage.getItem('vp_user_name') || 'Owner';
-const VENUE_ID = parseInt(localStorage.getItem('vp_venue_id') || '0', 10) || null;
+const VENUE_ID = localStorage.getItem('vp_venue_id');
 
 if (!TOKEN || ROLE !== 'venue_owner') {
   window.location.replace('index.html');
@@ -299,206 +395,206 @@ function handleLogout() {
   window.location.replace('index.html');
 }
 
-async function apiFetch(path) {
-  const res = await fetch(API_BASE + path, {
-    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN }
-  });
-  if (!res.ok) throw new Error('API ' + res.status);
-  return res.json();
+/* ─── HEADER ────────────────────────────────────────── */
+document.getElementById('hdr-venue-name').textContent = MOCK.venue.name;
+document.getElementById('hdr-greeting').textContent   = 'Welcome back, ' + USERNAME;
+
+/* ─── STATS ─────────────────────────────────────────── */
+(function renderStats() {
+  const s = MOCK.stats;
+  const revPct  = pct(s.revenue_this_month, s.revenue_last_month);
+  const viewPct = pct(s.profile_views_this_month, s.profile_views_last_month);
+  const nextB   = MOCK.bookings[0];
+
+  document.getElementById('st-revenue').textContent = money(s.revenue_this_month);
+  const rSub = document.getElementById('st-revenue-sub');
+  rSub.textContent = sign(revPct) + revPct + '% vs last month';
+  rSub.style.color = revPct >= 0 ? 'var(--green)' : '#f87171';
+
+  document.getElementById('st-bookings').textContent = s.upcoming_bookings;
+  document.getElementById('st-bookings-sub').textContent = nextB ? 'Next: ' + nextB.date : 'None scheduled';
+
+  const iEl  = document.getElementById('st-inquiries');
+  const iSub = document.getElementById('st-inquiries-sub');
+  iEl.textContent  = s.pending_inquiries;
+  iEl.style.color  = s.pending_inquiries > 0 ? 'var(--accent)' : 'var(--text)';
+  iSub.textContent = s.pending_inquiries > 0 ? 'Requires action' : 'All clear';
+  iSub.style.color = s.pending_inquiries > 0 ? 'var(--accent)' : 'var(--text3)';
+
+  document.getElementById('st-views').textContent = s.profile_views_this_month;
+  const vSub = document.getElementById('st-views-sub');
+  vSub.textContent = sign(viewPct) + viewPct + '% vs last month';
+  vSub.style.color = viewPct >= 0 ? 'var(--green)' : '#f87171';
+})();
+
+/* ─── BOOKINGS ──────────────────────────────────────── */
+(function renderBookings() {
+  document.getElementById('booking-list').innerHTML = MOCK.bookings.map(b => `
+    <div class="booking-item">
+      <div style="min-width:0">
+        <div class="booking-event">${esc(b.event)}</div>
+        <div class="booking-meta">${esc(b.organizer)}<br>${esc(b.date)} &middot; ${b.guests} guests &middot; ${money(b.deposit)} deposit</div>
+      </div>
+      <span class="badge badge-${b.status}">${esc(b.status)}</span>
+    </div>`).join('');
+})();
+
+/* ─── INQUIRIES ─────────────────────────────────────── */
+function renderInquiries() {
+  document.getElementById('inquiry-list').innerHTML = MOCK.inquiries.map(q => `
+    <div class="inquiry-item" id="inq-${q.id}">
+      <div class="inquiry-name">${esc(q.name)} <span class="inquiry-org">/ ${esc(q.org)}</span></div>
+      <div class="inquiry-meta">${esc(q.date)} &middot; ${q.capacity} capacity</div>
+      <div class="inquiry-note">"${esc(q.note)}"</div>
+      <div class="inquiry-actions" id="inq-act-${q.id}">
+        <button class="btn-accept"  onclick="acceptInquiry(${q.id})">Accept</button>
+        <button class="btn-decline" onclick="declineInquiry(${q.id})">Decline</button>
+      </div>
+    </div>`).join('');
+}
+renderInquiries();
+
+function acceptInquiry(id) {
+  const act = document.getElementById('inq-act-' + id);
+  if (act) act.outerHTML = '<span class="badge-accepted">Accepted</span>';
 }
 
-/* ─── BOOT ───────────────────────────────────────────── */
-document.getElementById('hdr-greeting').textContent = 'Welcome back, ' + USERNAME;
+function declineInquiry(id) {
+  const el = document.getElementById('inq-' + id);
+  if (!el) return;
+  el.classList.add('fading');
+  setTimeout(() => el.remove(), 350);
+}
 
+/* ─── CHART ─────────────────────────────────────────── */
+(function renderChart() {
+  const total = MOCK.revenue_chart.data.reduce((a, b) => a + b, 0);
+  document.getElementById('chart-total').textContent = money(total);
+
+  new Chart(document.getElementById('revenue-chart').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: MOCK.revenue_chart.labels,
+      datasets: [{
+        data: MOCK.revenue_chart.data,
+        backgroundColor: 'rgba(245,166,35,0.15)',
+        borderColor: '#f5a623',
+        borderWidth: 1,
+        borderRadius: 4,
+        hoverBackgroundColor: 'rgba(245,166,35,0.28)',
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      aspectRatio: 3.5,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1a1a1a',
+          borderColor: '#333333',
+          borderWidth: 1,
+          titleColor: '#888888',
+          bodyColor: '#f0f0f0',
+          titleFont: { family: 'DM Mono', size: 10 },
+          bodyFont: { family: 'Syne', size: 14, weight: '700' },
+          callbacks: { label: ctx => ' $' + ctx.parsed.y.toLocaleString() }
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          border: { display: false },
+          ticks: { color: '#444444', font: { family: 'DM Mono', size: 10 } }
+        },
+        y: {
+          grid: { color: '#1f1f1f' },
+          border: { display: false },
+          ticks: { color: '#444444', font: { family: 'DM Mono', size: 10 }, callback: v => '$' + (v/1000).toFixed(0) + 'k' }
+        }
+      }
+    }
+  });
+})();
+
+/* ─── VENUE PROFILE ─────────────────────────────────── */
+(function renderProfile() {
+  const v = MOCK.venue;
+  document.getElementById('pf-name').textContent     = v.name;
+  document.getElementById('pf-location').textContent = v.location;
+  document.getElementById('pf-capacity').textContent = v.capacity.toLocaleString() + ' capacity';
+  document.getElementById('pf-price').textContent    = '$400 / night';
+  document.getElementById('pf-hours').textContent    = v.hours;
+  document.getElementById('tier-badge').textContent  = v.tier.toUpperCase();
+  document.getElementById('pf-amenities').innerHTML  = v.amenities.map(a => `<span class="amenity-pill">${esc(a)}</span>`).join('');
+})();
+
+function startProfileEdit() {
+  document.getElementById('edit-name').value     = MOCK.venue.name;
+  document.getElementById('edit-location').value = MOCK.venue.location;
+  document.getElementById('profile-display').classList.add('hidden');
+  document.getElementById('profile-edit-form').classList.add('active');
+  document.getElementById('edit-btn').style.display = 'none';
+}
+
+function cancelProfileEdit() {
+  document.getElementById('profile-display').classList.remove('hidden');
+  document.getElementById('profile-edit-form').classList.remove('active');
+  document.getElementById('edit-btn').style.display = '';
+}
+
+function saveProfileEdit() {
+  const name = document.getElementById('edit-name').value.trim();
+  const loc  = document.getElementById('edit-location').value.trim();
+  if (name) { MOCK.venue.name = name; document.getElementById('pf-name').textContent = name; document.getElementById('hdr-venue-name').textContent = name; }
+  if (loc)  { MOCK.venue.location = loc; document.getElementById('pf-location').textContent = loc; }
+  cancelProfileEdit();
+}
+
+/* ─── STRIPE BLOCK ──────────────────────────────────── */
+(function renderStripe() {
+  const el = document.getElementById('stripe-block');
+  if (!MOCK.venue.stripe_connected) {
+    el.innerHTML = `
+      <div class="stripe-card stripe-disconnected">
+        <div class="stripe-left">
+          <div class="stripe-eyebrow">Stripe Connect</div>
+          <div class="stripe-heading">Connect your Stripe account</div>
+          <div class="stripe-sub">Receive payouts directly to your bank. Setup takes 2 minutes.</div>
+        </div>
+        <button class="btn-stripe" onclick="alert('Stripe Connect will be wired to the live integration. Coming soon.')">Connect Stripe &#8594;</button>
+      </div>`;
+  } else {
+    el.innerHTML = `
+      <div class="stripe-card stripe-connected">
+        <div class="stripe-left" style="flex:none;min-width:auto">
+          <div class="stripe-eyebrow">Stripe Connect</div>
+          <div class="stripe-heading" style="font-size:14px">Payouts Active</div>
+        </div>
+        <div class="stripe-stats">
+          <div class="stripe-stat-pill">
+            <div class="stripe-stat-label">/ Payout Pending</div>
+            <div class="stripe-stat-val">${money(MOCK.stats.payout_pending)}</div>
+          </div>
+          <div class="stripe-stat-pill">
+            <div class="stripe-stat-label">/ Next Payout</div>
+            <div class="stripe-stat-val">May 5, 2026</div>
+          </div>
+          <div class="stripe-stat-pill">
+            <div class="stripe-stat-label">/ Connected Account</div>
+            <div class="stripe-stat-val">&#8226;&#8226;&#8226;&#8226;4291</div>
+          </div>
+        </div>
+        <button class="btn-stripe-manage" onclick="alert('Stripe dashboard coming soon.')">Manage &#8594;</button>
+      </div>`;
+  }
+})();
+
+/* ─── FIRST LOGIN MODAL ─────────────────────────────── */
 if (localStorage.getItem('vp_first_login') === 'true') {
   document.getElementById('pw-modal').classList.add('open');
 }
 
-(async function init() {
-  if (!VENUE_ID) {
-    document.getElementById('hdr-venue-name').textContent = 'No Venue';
-    document.getElementById('booking-list').innerHTML = '<div class="empty-msg">No venue linked. Contact your administrator.</div>';
-    document.getElementById('inquiry-list').innerHTML  = '';
-    document.getElementById('profile-body').innerHTML  = '<div class="empty-msg">No venue assigned.</div>';
-    return;
-  }
-
-  try {
-    const [stats, bookings] = await Promise.all([
-      apiFetch('/api/venues/' + VENUE_ID + '/stats'),
-      apiFetch('/api/bookings')
-    ]);
-
-    const venue    = stats?.venue || {};
-    const allBooks = Array.isArray(bookings) ? bookings : [];
-    const confirmed = allBooks.filter(b => b.status === 'confirmed');
-    const pending   = allBooks.filter(b => b.status === 'pending');
-
-    document.getElementById('hdr-venue-name').textContent = venue.name || 'Your Venue';
-
-    /* Stats */
-    document.getElementById('st-revenue').textContent      = '—';
-    document.getElementById('st-revenue-sub').textContent  = 'Connect Stripe to track';
-    document.getElementById('st-bookings').textContent     = confirmed.length;
-    const nextBook = confirmed.sort((a,b) => a.event_date > b.event_date ? 1 : -1)[0];
-    document.getElementById('st-bookings-sub').textContent = nextBook ? 'Next: ' + fmtDate(nextBook.event_date) : 'None scheduled';
-
-    const iEl  = document.getElementById('st-inquiries');
-    const iSub = document.getElementById('st-inquiries-sub');
-    iEl.textContent      = pending.length;
-    iEl.style.color      = pending.length > 0 ? 'var(--accent)' : 'var(--text)';
-    iSub.textContent     = pending.length > 0 ? 'Requires action' : 'All clear';
-    iSub.style.color     = pending.length > 0 ? 'var(--accent)' : 'var(--text3)';
-
-    document.getElementById('st-views').textContent     = allBooks.length;
-    document.getElementById('st-views-sub').textContent = 'All time';
-
-    /* Bookings */
-    const bookEl = document.getElementById('booking-list');
-    if (!allBooks.length) {
-      bookEl.innerHTML = '<div class="empty-msg">No bookings yet.</div>';
-    } else {
-      bookEl.innerHTML = allBooks.slice(0, 8).map(b => `
-        <div class="booking-item">
-          <div style="min-width:0">
-            <div class="booking-event">${esc(b.client_name)}</div>
-            <div class="booking-meta">${esc(b.client_email)}<br>${fmtDate(b.event_date)}${b.guests ? ' &middot; ' + b.guests + ' guests' : ''}</div>
-          </div>
-          <span class="badge badge-${esc(b.status)}">${esc(b.status)}</span>
-        </div>`).join('');
-    }
-
-    /* Pending inquiries */
-    renderPending(pending);
-
-    /* Profile */
-    document.getElementById('profile-body').innerHTML = `
-      <div>
-        <div class="profile-field">
-          <div class="pf-label">Venue Name</div>
-          <div class="pf-val">${esc(venue.name || '—')}</div>
-        </div>
-        <div class="profile-field">
-          <div class="pf-label">Capacity</div>
-          <div class="pf-val">${venue.capacity ? venue.capacity.toLocaleString() : '—'}</div>
-        </div>
-        <div class="profile-field">
-          <div class="pf-label">Price per Day</div>
-          <div class="pf-val-sm">${venue.price_per_day ? '$' + Number(venue.price_per_day).toLocaleString() : '—'}</div>
-        </div>
-        <div class="profile-field">
-          <div class="pf-label">Listing Status</div>
-          <div class="status-row"><div class="dot-live"></div><div class="status-live-text">Live</div></div>
-        </div>
-      </div>
-      <div>
-        <div class="profile-field">
-          <div class="pf-label">Total Bookings</div>
-          <div class="pf-val">${stats?.total_bookings ?? allBooks.length}</div>
-        </div>
-        <div class="profile-field">
-          <div class="pf-label">Confirmed</div>
-          <div class="pf-val" style="color:var(--green)">${stats?.confirmed_bookings ?? confirmed.length}</div>
-        </div>
-        <div class="profile-field">
-          <div class="pf-label">Pending</div>
-          <div class="pf-val" style="color:var(--accent)">${stats?.pending_bookings ?? pending.length}</div>
-        </div>
-      </div>`;
-
-    /* Chart — bookings per month for last 6 months */
-    const months = [];
-    const counts = [];
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date();
-      d.setMonth(d.getMonth() - i);
-      const yr = d.getFullYear(), mo = d.getMonth();
-      months.push(d.toLocaleDateString('en-US', {month:'short'}));
-      counts.push(allBooks.filter(b => {
-        const bd = new Date(b.event_date || b.created_at || '');
-        return bd.getFullYear() === yr && bd.getMonth() === mo;
-      }).length);
-    }
-    document.getElementById('chart-total').textContent = allBooks.length + ' total';
-    new Chart(document.getElementById('revenue-chart').getContext('2d'), {
-      type: 'bar',
-      data: {
-        labels: months,
-        datasets:[{
-          data: counts,
-          backgroundColor: 'rgba(245,166,35,0.15)',
-          borderColor: '#f5a623',
-          borderWidth: 1,
-          borderRadius: 4,
-          hoverBackgroundColor: 'rgba(245,166,35,0.28)',
-        }]
-      },
-      options:{
-        responsive:true,
-        maintainAspectRatio:true,
-        aspectRatio:3.5,
-        plugins:{
-          legend:{display:false},
-          tooltip:{
-            backgroundColor:'#1a1a1a',borderColor:'#333333',borderWidth:1,
-            titleColor:'#888888',bodyColor:'#f0f0f0',
-            titleFont:{family:'DM Mono',size:10},
-            bodyFont:{family:'Syne',size:14,weight:'700'},
-            callbacks:{label:ctx=>' '+ctx.parsed.y+' bookings'}
-          }
-        },
-        scales:{
-          x:{grid:{display:false},border:{display:false},ticks:{color:'#444444',font:{family:'DM Mono',size:10}}},
-          y:{grid:{color:'#1f1f1f'},border:{display:false},ticks:{color:'#444444',font:{family:'DM Mono',size:10},stepSize:1}}
-        }
-      }
-    });
-
-  } catch(e) {
-    console.error(e);
-    document.getElementById('hdr-venue-name').textContent = 'Error';
-    document.getElementById('booking-list').innerHTML = '<div class="empty-msg">Failed to load data.</div>';
-  }
-})();
-
-/* ─── PENDING INQUIRY ACTIONS ───────────────────────── */
-function renderPending(pending) {
-  const el = document.getElementById('inquiry-list');
-  if (!pending.length) {
-    el.innerHTML = '<div class="empty-msg">No pending inquiries.</div>';
-    return;
-  }
-  el.innerHTML = pending.map(q => `
-    <div class="inquiry-item" id="inq-${q.id}">
-      <div class="inquiry-name">${esc(q.client_name)}</div>
-      <div class="inquiry-meta">${esc(q.client_email)}<br>${fmtDate(q.event_date)}${q.guests ? ' &middot; ' + q.guests + ' guests' : ''}</div>
-      ${q.message ? `<div class="inquiry-note">"${esc(q.message)}"</div>` : ''}
-      <div class="inquiry-actions" id="inq-act-${q.id}">
-        <button class="btn-accept"  onclick="updateStatus(${q.id},'confirmed')">Accept</button>
-        <button class="btn-decline" onclick="updateStatus(${q.id},'cancelled')">Decline</button>
-      </div>
-    </div>`).join('');
-}
-
-async function updateStatus(id, status) {
-  try {
-    const res = await fetch(API_BASE + '/api/bookings/' + id + '/status', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
-      body: JSON.stringify({ status })
-    });
-    if (!res.ok) throw new Error('API ' + res.status);
-    if (status === 'confirmed') {
-      const act = document.getElementById('inq-act-' + id);
-      if (act) act.outerHTML = '<span class="badge-accepted">Accepted</span>';
-    } else {
-      const el = document.getElementById('inq-' + id);
-      if (el) { el.classList.add('fading'); setTimeout(() => el.remove(), 350); }
-    }
-  } catch(e) { alert('Failed to update booking: ' + e.message); }
-}
-
-/* ─── FIRST LOGIN MODAL ─────────────────────────────── */
 function submitPassword() {
   const pw1 = document.getElementById('pw-new').value;
   const pw2 = document.getElementById('pw-confirm').value;
