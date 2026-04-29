@@ -642,10 +642,14 @@ function renderStripeDisconnected(errorMsg) {
     </div>`;
 }
 
+// Use the real venue_id from the token (localStorage), not the MOCK
+const EFFECTIVE_VENUE_ID = VENUE_ID || new URLSearchParams(window.location.search).get('venue_id');
+
 async function loadStripeStatus() {
   const el = document.getElementById('stripe-block');
+  if (!EFFECTIVE_VENUE_ID) { el.innerHTML = renderStripeDisconnected(); wireStripeButton(); return; }
   try {
-    const res = await fetch(API_BASE + '/api/stripe/status/' + MOCK.venue.id, {
+    const res = await fetch(API_BASE + '/api/stripe/status/' + EFFECTIVE_VENUE_ID, {
       headers: { 'Authorization': 'Bearer ' + TOKEN }
     });
     const data = await res.json();
@@ -659,22 +663,25 @@ async function loadStripeStatus() {
 function wireStripeButton() {
   const btn = document.getElementById('btn-stripe-connect');
   if (!btn) return;
+  // Admins previewing the dashboard cannot connect Stripe on behalf of a venue owner
+  if (IS_ADMIN_PREVIEW) { btn.disabled = true; btn.title = 'Only the venue owner can connect Stripe'; return; }
   btn.addEventListener('click', async () => {
     btn.disabled = true;
     btn.textContent = 'Connecting…';
     try {
-      const res = await fetch(API_BASE + '/api/stripe/connect/' + MOCK.venue.id, {
+      const res = await fetch(API_BASE + '/api/stripe/connect/' + EFFECTIVE_VENUE_ID, {
         headers: { 'Authorization': 'Bearer ' + TOKEN }
       });
       const data = await res.json();
       if (data.url) {
         window.location.href = data.url;
       } else {
-        throw new Error('no url');
+        const errMsg = data.error || 'Connection failed. Try again or contact support.';
+        throw new Error(errMsg);
       }
-    } catch {
+    } catch (e) {
       const el = document.getElementById('stripe-block');
-      el.innerHTML = renderStripeDisconnected('Connection failed. Try again or contact support.');
+      el.innerHTML = renderStripeDisconnected(e.message || 'Connection failed. Try again or contact support.');
       wireStripeButton();
     }
   });
