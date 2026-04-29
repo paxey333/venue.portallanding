@@ -23,3 +23,12 @@ CREATE TABLE IF NOT EXISTS bookings (
 
 CREATE INDEX IF NOT EXISTS idx_bookings_venue_id ON bookings (venue_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings (status);
+CREATE TABLE IF NOT EXISTS users (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  email       TEXT    NOT NULL UNIQUE,
+  password    TEXT    NOT NULL,
+  role        TEXT    NOT NULL CHECK(role IN ('superadmin','admin','venue_owner')),
+  venue_id    INTEGER REFERENCES venues(id) ON DELETE SET NULL,
+  name        TEXT    NOT NULL DEFAULT '',
+  created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+);

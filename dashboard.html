@@ -208,7 +208,9 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;bottom:-120p
     <div class="header-sub">Owner Dashboard</div>
   </div>
   <div class="header-greeting" id="hdr-greeting"></div>
-  <div class="header-right">
+  <div class="header-right" style="display:flex;align-items:center;gap:8px">
+    <div id="admin-preview-badge" style="display:none;font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);border:1px solid rgba(245,166,35,0.3);padding:3px 8px;border-radius:4px">Admin Preview</div>
+    <button id="btn-back-to-admin" style="display:none" class="btn-logout" onclick="window.location.href='index.html'">← Admin</button>
     <button class="btn-logout" onclick="handleLogout()">Log Out</button>
   </div>
 </header>
@@ -423,8 +425,9 @@ const TOKEN    = localStorage.getItem('vp_admin_token');
 const ROLE     = localStorage.getItem('vp_user_role');
 const USERNAME = localStorage.getItem('vp_user_name') || 'Owner';
 const VENUE_ID = localStorage.getItem('vp_venue_id');
+const IS_ADMIN_PREVIEW = (ROLE === 'superadmin' || ROLE === 'admin');
 
-if (!TOKEN || ROLE !== 'venue_owner') {
+if (!TOKEN || (ROLE !== 'venue_owner' && !IS_ADMIN_PREVIEW)) {
   window.location.replace('index.html');
 }
 
@@ -435,7 +438,11 @@ function handleLogout() {
 
 /* ─── HEADER ────────────────────────────────────────── */
 document.getElementById('hdr-venue-name').textContent = MOCK.venue.name;
-document.getElementById('hdr-greeting').textContent   = 'Welcome back, ' + USERNAME;
+document.getElementById('hdr-greeting').textContent   = IS_ADMIN_PREVIEW ? 'Previewing as venue owner' : 'Welcome back, ' + USERNAME;
+if (IS_ADMIN_PREVIEW) {
+  document.getElementById('admin-preview-badge').style.display = '';
+  document.getElementById('btn-back-to-admin').style.display   = '';
+}
 
 /* ─── STATS ─────────────────────────────────────────── */
 (function renderStats() {
