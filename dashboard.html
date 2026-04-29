@@ -597,41 +597,112 @@ function saveProfileEdit() {
 }
 
 /* ─── STRIPE BLOCK ──────────────────────────────────── */
-(function renderStripe() {
+const API_BASE = 'https://thevenueportal.paxey333.workers.dev';
+
+function renderStripeConnected() {
+  return `
+    <div class="stripe-card stripe-connected">
+      <div class="stripe-left" style="flex:none;min-width:auto">
+        <div class="stripe-eyebrow">/ Stripe Connected</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+          <div style="width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0"></div>
+          <span style="font-family:var(--mono);font-size:11px;color:var(--green)">Active</span>
+        </div>
+      </div>
+      <div class="stripe-stats">
+        <div class="stripe-stat-pill">
+          <div class="stripe-stat-label">/ Platform Fee</div>
+          <div class="stripe-stat-val">$50 per booking</div>
+        </div>
+        <div class="stripe-stat-pill">
+          <div class="stripe-stat-label">/ Payout</div>
+          <div class="stripe-stat-val">Direct to your bank</div>
+        </div>
+        <div class="stripe-stat-pill">
+          <div class="stripe-stat-label">/ Status</div>
+          <div class="stripe-stat-val">Active</div>
+        </div>
+      </div>
+      <button class="btn-stripe-manage" onclick="window.open('https://dashboard.stripe.com','_blank')">Manage account &#8594;</button>
+    </div>`;
+}
+
+function renderStripeDisconnected(errorMsg) {
+  return `
+    <div class="stripe-card stripe-disconnected">
+      <div class="stripe-left">
+        <div class="stripe-eyebrow">/ Stripe Connect</div>
+        <div class="stripe-heading">Connect your Stripe account</div>
+        <div class="stripe-sub">Receive payouts directly to your bank. Setup takes 2 minutes.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+        <button class="btn-stripe" id="btn-stripe-connect">Connect Stripe &#8594;</button>
+        ${errorMsg ? `<div style="font-family:var(--mono);font-size:11px;color:#f87171">${errorMsg}</div>` : ''}
+      </div>
+    </div>`;
+}
+
+async function loadStripeStatus() {
   const el = document.getElementById('stripe-block');
-  if (!MOCK.venue.stripe_connected) {
-    el.innerHTML = `
-      <div class="stripe-card stripe-disconnected">
-        <div class="stripe-left">
-          <div class="stripe-eyebrow">Stripe Connect</div>
-          <div class="stripe-heading">Connect your Stripe account</div>
-          <div class="stripe-sub">Receive payouts directly to your bank. Setup takes 2 minutes.</div>
-        </div>
-        <button class="btn-stripe" onclick="alert('Stripe Connect will be wired to the live integration. Coming soon.')">Connect Stripe &#8594;</button>
-      </div>`;
+  try {
+    const res = await fetch(API_BASE + '/api/stripe/status/' + MOCK.venue.id, {
+      headers: { 'Authorization': 'Bearer ' + TOKEN }
+    });
+    const data = await res.json();
+    el.innerHTML = data.connected ? renderStripeConnected() : renderStripeDisconnected();
+  } catch {
+    el.innerHTML = renderStripeDisconnected();
+  }
+  wireStripeButton();
+}
+
+function wireStripeButton() {
+  const btn = document.getElementById('btn-stripe-connect');
+  if (!btn) return;
+  btn.addEventListener('click', async () => {
+    btn.disabled = true;
+    btn.textContent = 'Connecting…';
+    try {
+      const res = await fetch(API_BASE + '/api/stripe/connect/' + MOCK.venue.id, {
+        headers: { 'Authorization': 'Bearer ' + TOKEN }
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('no url');
+      }
+    } catch {
+      const el = document.getElementById('stripe-block');
+      el.innerHTML = renderStripeDisconnected('Connection failed. Try again or contact support.');
+      wireStripeButton();
+    }
+  });
+}
+
+function showStripeBanner(msg, color, borderColor) {
+  const main = document.querySelector('.main');
+  const banner = document.createElement('div');
+  banner.style.cssText = `background:rgba(${color},0.1);border:1px solid rgba(${borderColor},0.2);border-radius:6px;padding:12px 16px;font-family:var(--mono);font-size:11px;color:rgb(${color});margin-bottom:16px`;
+  banner.textContent = msg;
+  main.insertBefore(banner, main.firstChild);
+  setTimeout(() => banner.remove(), 5000);
+}
+
+// Handle Stripe return params
+(function handleStripeReturn() {
+  const params = new URLSearchParams(window.location.search);
+  const stripeParam = params.get('stripe');
+  if (stripeParam === 'success') {
+    showStripeBanner('Stripe account connected. Payouts are now active.', '74,222,128', '74,222,128');
+    history.replaceState({}, '', window.location.pathname);
+    loadStripeStatus();
+  } else if (stripeParam === 'refresh') {
+    showStripeBanner('Stripe connection was interrupted. Please try connecting again.', '245,166,35', '245,166,35');
+    history.replaceState({}, '', window.location.pathname);
+    loadStripeStatus();
   } else {
-    el.innerHTML = `
-      <div class="stripe-card stripe-connected">
-        <div class="stripe-left" style="flex:none;min-width:auto">
-          <div class="stripe-eyebrow">Stripe Connect</div>
-          <div class="stripe-heading" style="font-size:14px">Payouts Active</div>
-        </div>
-        <div class="stripe-stats">
-          <div class="stripe-stat-pill">
-            <div class="stripe-stat-label">/ Payout Pending</div>
-            <div class="stripe-stat-val">${money(MOCK.stats.payout_pending)}</div>
-          </div>
-          <div class="stripe-stat-pill">
-            <div class="stripe-stat-label">/ Next Payout</div>
-            <div class="stripe-stat-val">May 5, 2026</div>
-          </div>
-          <div class="stripe-stat-pill">
-            <div class="stripe-stat-label">/ Connected Account</div>
-            <div class="stripe-stat-val">&#8226;&#8226;&#8226;&#8226;4291</div>
-          </div>
-        </div>
-        <button class="btn-stripe-manage" onclick="alert('Stripe dashboard coming soon.')">Manage &#8594;</button>
-      </div>`;
+    loadStripeStatus();
   }
 })();
 

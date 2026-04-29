@@ -2,6 +2,11 @@
    VENUE PORTAL — API WORKER
    Roles: superadmin | admin | venue_owner
    Auth: HMAC-SHA256 signed tokens, 24hr expiry
+
+   Required env vars (wrangler secrets):
+   STRIPE_SECRET_KEY         — sk_live_... or sk_test_...
+   STRIPE_PLATFORM_ACCOUNT_ID — acct_... (your Stripe account)
+   FRONTEND_URL              — https://venue-portal.pages.dev
 ───────────────────────────────────────────── */
 
 const ALLOWED_ORIGINS = [
@@ -596,6 +601,85 @@ export default {
         } catch (err) {
           return jsonResponse({ error: err.message }, 500, request);
         }
+      }
+
+      // ── STRIPE: START CONNECT ONBOARDING ────────────────────────────────────
+      if (method === "GET" && pathParts[1] === "stripe" && pathParts[2] === "connect" && pathParts[3]) {
+        if (!session || session.role !== "venue_owner") {
+          return jsonResponse({ error: "Forbidden" }, 403, request);
+        }
+        const venueId = parseInt(pathParts[3]);
+        if (session.venue_id !== venueId) {
+          return jsonResponse({ error: "Forbidden" }, 403, request);
+        }
+
+        const params = new URLSearchParams({
+          account: env.STRIPE_PLATFORM_ACCOUNT_ID,
+          refresh_url: env.FRONTEND_URL + "/dashboard.html?stripe=refresh",
+          return_url:  env.FRONTEND_URL + "/dashboard.html?stripe=success",
+          type: "account_onboarding",
+        });
+
+        const stripeRes = await fetch("https://api.stripe.com/v1/account_links", {
+          method: "POST",
+          headers: {
+            "Authorization": "Bearer " + env.STRIPE_SECRET_KEY,
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: params.toString(),
+        });
+
+        if (!stripeRes.ok) {
+          const err = await stripeRes.json().catch(() => ({}));
+          return jsonResponse({ error: err?.error?.message ?? "Stripe error" }, 502, request);
+        }
+
+        const data = await stripeRes.json();
+        return jsonResponse({ url: data.url }, 200, request);
+      }
+
+      // ── STRIPE: STATUS ───────────────────────────────────────────────────────
+      if (method === "GET" && pathParts[1] === "stripe" && pathParts[2] === "status" && pathParts[3]) {
+        if (!session) return jsonResponse({ error: "Unauthorized" }, 401, request);
+        const venueId = parseInt(pathParts[3]);
+        if (session.role === "venue_owner" && session.venue_id !== venueId) {
+          return jsonResponse({ error: "Forbidden" }, 403, request);
+        }
+
+        const row = await env.DB.prepare(
+          "SELECT stripe_account_id, stripe_connected FROM venues WHERE id = ?"
+        ).bind(venueId).first();
+
+        if (!row) return jsonResponse({ error: "Venue not found" }, 404, request);
+
+        return jsonResponse({
+          connected: row.stripe_connected === 1,
+          stripe_account_id: row.stripe_account_id ?? null,
+        }, 200, request);
+      }
+
+      // ── STRIPE: WEBHOOK ──────────────────────────────────────────────────────
+      if (method === "POST" && pathParts[1] === "stripe" && pathParts[2] === "webhook") {
+        let event;
+        try {
+          event = await request.json();
+        } catch {
+          return new Response("Bad Request", { status: 400 });
+        }
+
+        if (event.type === "account.updated" && event.account) {
+          const acct = event.data?.object ?? {};
+          if (acct.charges_enabled) {
+            await env.DB.prepare(
+              "UPDATE venues SET stripe_connected = 1, stripe_account_id = ? WHERE stripe_account_id = ?"
+            ).bind(acct.id, acct.id).run();
+          }
+        }
+
+        return new Response(JSON.stringify({ received: true }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
       }
 
       return textResponse("Not found", 404, request);
