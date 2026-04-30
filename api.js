@@ -653,8 +653,8 @@ export default {
 
           const params = new URLSearchParams({
             account: stripeAccountId,
-            refresh_url: (env.FRONTEND_URL || "https://venue-portal.pages.dev") + "/dashboard.html?stripe=refresh",
-            return_url:  (env.FRONTEND_URL || "https://venue-portal.pages.dev") + "/dashboard.html?stripe=success",
+            refresh_url: env.FRONTEND_URL + "/dashboard.html?stripe=refresh",
+            return_url:  env.FRONTEND_URL + "/dashboard.html?stripe=success",
             type: "account_onboarding",
           });
 
@@ -690,6 +690,7 @@ export default {
           const session = await getSession(request, env);
           if (!session) return jsonResponse({ error: "Unauthorized" }, 401, request);
           const venueId = parseInt(stripeStatusMatch[1]);
+          console.log("[stripe/status] venueId:", venueId, "role:", session.role);
           if (session.role === "venue_owner" && session.venue_id !== venueId) {
             return jsonResponse({ error: "Forbidden" }, 403, request);
           }
@@ -700,11 +701,13 @@ export default {
 
           if (!row) return jsonResponse({ error: "Venue not found" }, 404, request);
 
+          console.log("[stripe/status] result:", JSON.stringify(row));
           return jsonResponse({
             connected: row.stripe_connected === 1,
             stripe_account_id: row.stripe_account_id ?? null,
           }, 200, request);
         } catch (err) {
+          console.log("[stripe/status] error:", err.message);
           return jsonResponse({ error: err.message }, 500, request);
         }
       }
@@ -713,19 +716,20 @@ export default {
       if (path === "/api/stripe/webhook" && request.method === "POST") {
         try {
           const event = await request.json();
+          console.log("[stripe/webhook] event.type:", event.type, "account:", event.account);
           if (event.type === "account.updated" && event.account) {
             const acct = event.data?.object ?? {};
+            console.log("[stripe/webhook] charges_enabled:", acct.charges_enabled, "acct.id:", acct.id);
             if (acct.charges_enabled) {
-              await env.DB.prepare(
+              const result = await env.DB.prepare(
                 "UPDATE venues SET stripe_connected = 1, stripe_account_id = ? WHERE stripe_account_id = ?"
               ).bind(acct.id, acct.id).run();
+              console.log("[stripe/webhook] DB update changes:", result.meta?.changes);
             }
           }
-          return new Response(JSON.stringify({ received: true }), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-          });
+          return jsonResponse({ received: true }, 200, request);
         } catch (err) {
+          console.log("[stripe/webhook] error:", err.message);
           return jsonResponse({ error: err.message }, 500, request);
         }
       }
