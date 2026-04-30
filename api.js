@@ -618,8 +618,36 @@ export default {
             return jsonResponse({ error: "Forbidden" }, 403, request);
           }
 
+          // Get or create the venue's Stripe connected account
+          const venue = await env.DB.prepare(
+            "SELECT stripe_account_id FROM venues WHERE id = ?"
+          ).bind(venueId).first();
+          if (!venue) return jsonResponse({ error: "Venue not found" }, 404, request);
+
+          let stripeAccountId = venue.stripe_account_id;
+
+          if (!stripeAccountId) {
+            const createRes = await fetch("https://api.stripe.com/v1/accounts", {
+              method: "POST",
+              headers: {
+                "Authorization": "Bearer " + env.STRIPE_SECRET_KEY,
+                "Content-Type": "application/x-www-form-urlencoded",
+              },
+              body: new URLSearchParams({ type: "express" }).toString(),
+            });
+            if (!createRes.ok) {
+              const err = await createRes.json().catch(() => ({}));
+              return jsonResponse({ error: err?.error?.message ?? "Failed to create Stripe account" }, 502, request);
+            }
+            const acct = await createRes.json();
+            stripeAccountId = acct.id;
+            await env.DB.prepare(
+              "UPDATE venues SET stripe_account_id = ? WHERE id = ?"
+            ).bind(stripeAccountId, venueId).run();
+          }
+
           const params = new URLSearchParams({
-            account: env.STRIPE_PLATFORM_ACCOUNT_ID,
+            account: stripeAccountId,
             refresh_url: env.FRONTEND_URL + "/dashboard.html?stripe=refresh",
             return_url:  env.FRONTEND_URL + "/dashboard.html?stripe=success",
             type: "account_onboarding",
