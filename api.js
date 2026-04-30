@@ -608,9 +608,10 @@ export default {
       if (stripeConnectMatch && request.method === "GET") {
         try {
           const session = await getSession(request, env);
+          console.log("[stripe/connect] session:", JSON.stringify(session));
           if (!session) return jsonResponse({ error: "Unauthorized" }, 401, request);
           const venueId = parseInt(stripeConnectMatch[1]);
-          // venue_owner can only connect their own venue; admin/superadmin can connect any
+          console.log("[stripe/connect] venueId:", venueId, "session.venue_id:", session.venue_id, "role:", session.role);
           if (session.role === "venue_owner" && session.venue_id !== venueId) {
             return jsonResponse({ error: "Forbidden" }, 403, request);
           }
@@ -618,15 +619,16 @@ export default {
             return jsonResponse({ error: "Forbidden" }, 403, request);
           }
 
-          // Get or create the venue's Stripe connected account
           const venue = await env.DB.prepare(
             "SELECT stripe_account_id FROM venues WHERE id = ?"
           ).bind(venueId).first();
+          console.log("[stripe/connect] venue row:", JSON.stringify(venue));
           if (!venue) return jsonResponse({ error: "Venue not found" }, 404, request);
 
           let stripeAccountId = venue.stripe_account_id;
 
           if (!stripeAccountId) {
+            console.log("[stripe/connect] creating new Stripe Express account");
             const createRes = await fetch("https://api.stripe.com/v1/accounts", {
               method: "POST",
               headers: {
@@ -635,23 +637,28 @@ export default {
               },
               body: new URLSearchParams({ type: "express" }).toString(),
             });
+            const createBody = await createRes.json();
+            console.log("[stripe/connect] create account status:", createRes.status, "body:", JSON.stringify(createBody));
             if (!createRes.ok) {
-              const err = await createRes.json().catch(() => ({}));
-              return jsonResponse({ error: err?.error?.message ?? "Failed to create Stripe account" }, 502, request);
+              return jsonResponse({ error: createBody?.error?.message ?? "Failed to create Stripe account" }, 502, request);
             }
-            const acct = await createRes.json();
-            stripeAccountId = acct.id;
+            stripeAccountId = createBody.id;
             await env.DB.prepare(
               "UPDATE venues SET stripe_account_id = ? WHERE id = ?"
             ).bind(stripeAccountId, venueId).run();
           }
 
+          console.log("[stripe/connect] using stripeAccountId:", stripeAccountId);
+          console.log("[stripe/connect] FRONTEND_URL:", env.FRONTEND_URL);
+
           const params = new URLSearchParams({
             account: stripeAccountId,
-            refresh_url: env.FRONTEND_URL + "/dashboard.html?stripe=refresh",
-            return_url:  env.FRONTEND_URL + "/dashboard.html?stripe=success",
+            refresh_url: (env.FRONTEND_URL || "https://venue-portal.pages.dev") + "/dashboard.html?stripe=refresh",
+            return_url:  (env.FRONTEND_URL || "https://venue-portal.pages.dev") + "/dashboard.html?stripe=success",
             type: "account_onboarding",
           });
+
+          console.log("[stripe/connect] account_links params:", params.toString());
 
           const stripeRes = await fetch("https://api.stripe.com/v1/account_links", {
             method: "POST",
@@ -662,14 +669,16 @@ export default {
             body: params.toString(),
           });
 
+          const stripeBody = await stripeRes.json();
+          console.log("[stripe/connect] account_links status:", stripeRes.status, "body:", JSON.stringify(stripeBody));
+
           if (!stripeRes.ok) {
-            const err = await stripeRes.json().catch(() => ({}));
-            return jsonResponse({ error: err?.error?.message ?? "Stripe error" }, 502, request);
+            return jsonResponse({ error: stripeBody?.error?.message ?? "Stripe error" }, 502, request);
           }
 
-          const data = await stripeRes.json();
-          return jsonResponse({ url: data.url }, 200, request);
+          return jsonResponse({ url: stripeBody.url }, 200, request);
         } catch (err) {
+          console.log("[stripe/connect] caught error:", err.message, err.stack);
           return jsonResponse({ error: err.message }, 500, request);
         }
       }
