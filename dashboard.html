@@ -375,8 +375,30 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;bottom:-120p
 </div>
 
 <script>
-let allBookings = [];
 let currentVenue = {};
+
+const MOCK = {
+  stats: {
+    revenue_this_month: 2800,
+    revenue_last_month: 2400,
+    upcoming_bookings: 5,
+    pending_inquiries: 2,
+    profile_views_this_month: 94,
+    profile_views_last_month: 71,
+    payout_pending: 800,
+  },
+  revenue_chart: {
+    labels: ["Nov", "Dec", "Jan", "Feb", "Mar", "Apr"],
+    data: [800, 1200, 1600, 2000, 2400, 2800],
+  },
+  bookings: [
+    { id: 1, event: "Birthday Celebration",  organizer: "Tanya R.",             date: "May 2, 2026",  guests: 40, deposit: 200, status: "confirmed" },
+    { id: 2, event: "Bachelorette Night",     organizer: "Priya M.",             date: "May 9, 2026",  guests: 25, deposit: 200, status: "confirmed" },
+    { id: 3, event: "Small Business Mixer",   organizer: "Tempe Founders Group", date: "May 16, 2026", guests: 60, deposit: 200, status: "pending"   },
+    { id: 4, event: "Private Dinner",         organizer: "James & Crew",         date: "May 23, 2026", guests: 20, deposit: 200, status: "confirmed" },
+    { id: 5, event: "Late Night Kickback",    organizer: "DJ Marko",             date: "May 30, 2026", guests: 80, deposit: 200, status: "pending"   },
+  ],
+};
 
 /* ─── UTILS ─────────────────────────────────────────── */
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -410,68 +432,73 @@ if (IS_ADMIN_PREVIEW) {
 }
 
 /* ─── STATS ─────────────────────────────────────────── */
-function renderStats(bookings) {
-  const confirmed = bookings.filter(b => b.status === 'confirmed');
-  const pending   = bookings.filter(b => b.status === 'pending');
-  const nextB     = confirmed[0];
+(function renderStats() {
+  const s    = MOCK.stats;
+  const nextB = MOCK.bookings[0];
+  const revPct  = pct(s.revenue_this_month, s.revenue_last_month);
+  const viewPct = pct(s.profile_views_this_month, s.profile_views_last_month);
 
-  document.getElementById('st-revenue').textContent = '—';
+  document.getElementById('st-revenue').textContent = money(s.revenue_this_month);
   const rSub = document.getElementById('st-revenue-sub');
-  rSub.textContent = 'No revenue data yet';
-  rSub.style.color = 'var(--text3)';
+  rSub.textContent = sign(revPct) + revPct + '% vs last month';
+  rSub.style.color = revPct >= 0 ? 'var(--green)' : '#f87171';
 
-  document.getElementById('st-bookings').textContent = confirmed.length;
-  document.getElementById('st-bookings-sub').textContent = nextB ? 'Next: ' + nextB.event_date : 'None scheduled';
+  document.getElementById('st-bookings').textContent = s.upcoming_bookings;
+  document.getElementById('st-bookings-sub').textContent = nextB ? 'Next: ' + nextB.date : 'None scheduled';
 
   const iEl  = document.getElementById('st-inquiries');
   const iSub = document.getElementById('st-inquiries-sub');
-  iEl.textContent  = pending.length;
-  iEl.style.color  = pending.length > 0 ? 'var(--accent)' : 'var(--text)';
-  iSub.textContent = pending.length > 0 ? 'Requires action' : 'All clear';
-  iSub.style.color = pending.length > 0 ? 'var(--accent)' : 'var(--text3)';
+  iEl.textContent  = s.pending_inquiries;
+  iEl.style.color  = s.pending_inquiries > 0 ? 'var(--accent)' : 'var(--text)';
+  iSub.textContent = s.pending_inquiries > 0 ? 'Requires action' : 'All clear';
+  iSub.style.color = s.pending_inquiries > 0 ? 'var(--accent)' : 'var(--text3)';
 
-  document.getElementById('st-views').textContent = '—';
+  document.getElementById('st-views').textContent = s.profile_views_this_month;
   const vSub = document.getElementById('st-views-sub');
-  vSub.textContent = '';
-}
+  vSub.textContent = sign(viewPct) + viewPct + '% vs last month';
+  vSub.style.color = viewPct >= 0 ? 'var(--green)' : '#f87171';
+})();
 
 /* ─── BOOKINGS ──────────────────────────────────────── */
-function renderBookings(bookings) {
-  const list      = document.getElementById('booking-list');
-  const confirmed = bookings.filter(b => b.status === 'confirmed');
-  if (confirmed.length === 0) {
-    list.innerHTML = '<div style="font-family:var(--mono);font-size:11px;color:var(--text3);padding:8px 0">No confirmed bookings yet.</div>';
-    return;
-  }
-  list.innerHTML = confirmed.map(b => `
+(function renderBookings() {
+  document.getElementById('booking-list').innerHTML = MOCK.bookings.map(b => `
     <div class="booking-item">
       <div style="min-width:0">
-        <div class="booking-event">${esc(b.client_name)}</div>
-        <div class="booking-meta">${esc(b.event_date)} &middot; ${b.guests || 0} guests</div>
+        <div class="booking-event">${esc(b.event)}</div>
+        <div class="booking-meta">${esc(b.organizer)}<br>${esc(b.date)} &middot; ${b.guests} guests &middot; ${money(b.deposit)} deposit</div>
       </div>
-      <span class="badge badge-confirmed">confirmed</span>
+      <span class="badge badge-${b.status}">${esc(b.status)}</span>
     </div>`).join('');
-}
+})();
 
 /* ─── INQUIRIES ─────────────────────────────────────── */
-function renderInquiries(bookings) {
-  const list     = document.getElementById('inquiry-list');
-  const inquiries = bookings.filter(q => q.status === 'pending');
-  if (inquiries.length === 0) {
-    list.innerHTML = '<div style="font-family:var(--mono);font-size:11px;color:var(--text3);padding:8px 0">No pending inquiries.</div>';
-    return;
+async function renderInquiries() {
+  const list = document.getElementById('inquiry-list');
+  try {
+    const res = await fetch(API_BASE + '/api/bookings', {
+      headers: { 'Authorization': 'Bearer ' + TOKEN }
+    });
+    const data = await res.json();
+    const inquiries = Array.isArray(data) ? data.filter(q => q.status === 'pending') : [];
+    if (inquiries.length === 0) {
+      list.innerHTML = '<div style="font-family:var(--mono);font-size:11px;color:var(--text3);padding:8px 0">No pending inquiries.</div>';
+      return;
+    }
+    list.innerHTML = inquiries.map(q => `
+      <div class="inquiry-item" id="inq-${q.id}">
+        <div class="inquiry-name">${esc(q.client_name)}</div>
+        <div class="inquiry-meta">${esc(q.client_email)} &middot; ${esc(q.event_date)} &middot; ${q.guests || 0} guests</div>
+        <div class="inquiry-note">"${esc(q.message || '')}"</div>
+        <div class="inquiry-actions" id="inq-act-${q.id}">
+          <button class="btn-accept" onclick="acceptInquiry(${q.id})">Accept</button>
+          <button class="btn-decline" onclick="declineInquiry(${q.id})">Decline</button>
+        </div>
+      </div>`).join('');
+  } catch {
+    list.innerHTML = '<div style="font-family:var(--mono);font-size:11px;color:var(--text3);padding:8px 0">Could not load inquiries.</div>';
   }
-  list.innerHTML = inquiries.map(q => `
-    <div class="inquiry-item" id="inq-${q.id}">
-      <div class="inquiry-name">${esc(q.client_name)}</div>
-      <div class="inquiry-meta">${esc(q.client_email)} &middot; ${esc(q.event_date)} &middot; ${q.guests || 0} guests</div>
-      <div class="inquiry-note">"${esc(q.message || '')}"</div>
-      <div class="inquiry-actions" id="inq-act-${q.id}">
-        <button class="btn-accept" onclick="acceptInquiry(${q.id})">Accept</button>
-        <button class="btn-decline" onclick="declineInquiry(${q.id})">Decline</button>
-      </div>
-    </div>`).join('');
 }
+renderInquiries();
 
 async function acceptInquiry(id) {
   const act = document.getElementById('inq-act-' + id);
@@ -518,14 +545,15 @@ async function declineInquiry(id) {
 
 /* ─── CHART ─────────────────────────────────────────── */
 (function renderChart() {
-  document.getElementById('chart-total').textContent = '—';
+  const total = MOCK.revenue_chart.data.reduce((a, b) => a + b, 0);
+  document.getElementById('chart-total').textContent = money(total);
 
   new Chart(document.getElementById('revenue-chart').getContext('2d'), {
     type: 'bar',
     data: {
-      labels: ["Nov", "Dec", "Jan", "Feb", "Mar", "Apr"],
+      labels: MOCK.revenue_chart.labels,
       datasets: [{
-        data: [0, 0, 0, 0, 0, 0],
+        data: MOCK.revenue_chart.data,
         backgroundColor: 'rgba(245,166,35,0.15)',
         borderColor: '#f5a623',
         borderWidth: 1,
@@ -705,22 +733,6 @@ function showStripeBanner(msg, color, borderColor) {
   setTimeout(() => banner.remove(), 5000);
 }
 
-/* ─── INIT ──────────────────────────────────────────── */
-async function init() {
-  try {
-    const res = await fetch(API_BASE + '/api/bookings', {
-      headers: { 'Authorization': 'Bearer ' + TOKEN }
-    });
-    const data = await res.json();
-    allBookings = Array.isArray(data) ? data : [];
-  } catch {
-    allBookings = [];
-  }
-  renderStats(allBookings);
-  renderBookings(allBookings);
-  renderInquiries(allBookings);
-}
-init();
 loadVenueProfile();
 
 // Handle Stripe return params

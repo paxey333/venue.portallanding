@@ -1255,8 +1255,10 @@ function renderAdminBookings(bookings) {
     tbody.innerHTML = '<tr class="empty-row"><td colspan="5" style="text-align:center;color:var(--text3);padding:28px;font-family:var(--mono)">No bookings yet.</td></tr>';
     return;
   }
+  const statusColors = { confirmed:'var(--green)', accepted:'var(--accent)', pending:'var(--text2)', cancelled:'#f87171', declined:'#f87171' };
   tbody.innerHTML = bookings.map(b => {
-    const statusColor = b.status==='confirmed' ? 'var(--green)' : b.status==='cancelled' ? '#f87171' : 'var(--text2)';
+    const statusColor = statusColors[b.status] || 'var(--text2)';
+    const terminal = b.status === 'cancelled' || b.status === 'declined';
     return `<tr>
       <td style="color:var(--text)">${escHtml(b.venue_name || '—')}</td>
       <td>${escHtml(b.client_name || '—')}<br><span style="font-size:11px;color:var(--text3);font-family:var(--mono)">${escHtml(b.client_email || '')}</span></td>
@@ -1264,8 +1266,8 @@ function renderAdminBookings(bookings) {
       <td><span style="font-family:var(--mono);font-size:11px;color:${statusColor};text-transform:uppercase">${escHtml(b.status || 'pending')}</span></td>
       <td>
         <div style="display:flex;gap:6px;flex-wrap:wrap">
-          ${b.status!=='confirmed' ? `<button class="btn-sm" style="background:rgba(74,222,128,.1);color:var(--green);border-color:rgba(74,222,128,.2)" onclick="changeBookingStatus(${b.id},'confirmed')">Confirm</button>` : ''}
-          ${b.status!=='cancelled' ? `<button class="btn-sm" style="background:rgba(248,113,113,.1);color:#f87171;border-color:rgba(248,113,113,.2)" onclick="changeBookingStatus(${b.id},'cancelled')">Cancel</button>` : ''}
+          ${b.status !== 'confirmed' ? `<button class="btn-sm" style="background:rgba(74,222,128,.1);color:var(--green);border-color:rgba(74,222,128,.2)" onclick="changeBookingStatus(${b.id},'confirmed')">Confirm</button>` : ''}
+          ${!terminal ? `<button class="btn-sm" style="background:rgba(248,113,113,.1);color:#f87171;border-color:rgba(248,113,113,.2)" onclick="changeBookingStatus(${b.id},'cancelled')">Cancel</button>` : ''}
           <button class="btn-sm" style="color:var(--text3)" onclick="removeBooking(${b.id})">Del</button>
         </div>
       </td>
