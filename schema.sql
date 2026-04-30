@@ -24,9 +24,15 @@ CREATE TABLE IF NOT EXISTS bookings (
 CREATE INDEX IF NOT EXISTS idx_bookings_venue_id ON bookings (venue_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings (status);
 
--- Stripe Connect columns (run as migration on existing DB)
+-- Stripe Connect columns (applied via migration)
 -- ALTER TABLE venues ADD COLUMN stripe_account_id TEXT;
 -- ALTER TABLE venues ADD COLUMN stripe_connected INTEGER DEFAULT 0;
+
+-- Payment flow columns (applied via migration)
+-- ALTER TABLE bookings ADD COLUMN payment_link TEXT;
+-- ALTER TABLE bookings ADD COLUMN stripe_session_id TEXT;
+-- ALTER TABLE bookings ADD COLUMN total_amount INTEGER DEFAULT 50000;
+-- ALTER TABLE bookings ADD COLUMN platform_fee INTEGER DEFAULT 5000;
 CREATE TABLE IF NOT EXISTS users (
   id          INTEGER PRIMARY KEY AUTOINCREMENT,
   email       TEXT    NOT NULL UNIQUE,

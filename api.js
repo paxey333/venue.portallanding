@@ -67,6 +67,18 @@ async function hmacSign(data, secret) {
   return toBase64(new Uint8Array(sig));
 }
 
+async function hmacHex(data, secret) {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(data));
+  return Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
 async function hashPassword(password, secret) {
   return hmacSign(password, secret);
 }
@@ -178,6 +190,68 @@ export default {
           return jsonResponse({ ok: true }, 200, request);
         } catch (err) {
           return jsonResponse({ error: err.message }, 500, request);
+        }
+      }
+
+      // ── STRIPE WEBHOOK: checkout.session.completed ──────────────
+      if (path === "/webhooks/stripe" && request.method === "POST") {
+        try {
+          const rawBody = await request.text();
+          const sigHeader = request.headers.get("Stripe-Signature") || "";
+          const parts = Object.fromEntries(
+            sigHeader.split(",").map(p => { const [k, ...v] = p.split("="); return [k, v.join("=")]; })
+          );
+          const timestamp = parts["t"];
+          const v1 = parts["v1"];
+
+          if (!timestamp || !v1 || !env.STRIPE_WEBHOOK_SECRET) {
+            return new Response("Webhook Error: Missing signature", { status: 400 });
+          }
+          if (Math.abs(Date.now() / 1000 - Number(timestamp)) > 300) {
+            return new Response("Webhook Error: Timestamp too old", { status: 400 });
+          }
+          const expectedSig = await hmacHex(`${timestamp}.${rawBody}`, env.STRIPE_WEBHOOK_SECRET);
+          if (expectedSig !== v1) {
+            return new Response("Webhook Error: Invalid signature", { status: 400 });
+          }
+
+          const event = JSON.parse(rawBody);
+          console.log("[webhooks/stripe] event.type:", event.type);
+
+          if (event.type === "payment_intent.succeeded") {
+            const paymentIntent = event.data?.object ?? {};
+            const bookingId = paymentIntent.metadata?.booking_id;
+            if (bookingId) {
+              const booking = await env.DB.prepare(
+                "SELECT id, client_name, client_email, event_date FROM bookings WHERE id = ?"
+              ).bind(bookingId).first();
+              if (booking) {
+                await env.DB.prepare(
+                  "UPDATE bookings SET status='confirmed' WHERE id=?"
+                ).bind(booking.id).run();
+                if (env.RESEND_API_KEY) {
+                  await fetch("https://api.resend.com/emails", {
+                    method: "POST",
+                    headers: {
+                      "Authorization": "Bearer " + env.RESEND_API_KEY,
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                      from: "Venue Portal <onboarding@resend.dev>",
+                      to: [booking.client_email],
+                      subject: "Booking confirmed! See you on " + booking.event_date,
+                      html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto"><h2 style="color:#111">You're confirmed, ${booking.client_name}!</h2><p>Your booking for <strong>${booking.event_date}</strong> is fully confirmed. We look forward to seeing you!</p><p style="color:#888;font-size:13px">If you have questions, reply to this email.</p></div>`,
+                    }),
+                  });
+                }
+              }
+            }
+          }
+
+          return jsonResponse({ received: true }, 200, request);
+        } catch (err) {
+          console.log("[webhooks/stripe] error:", err.message);
+          return new Response("Webhook Error: " + err.message, { status: 500 });
         }
       }
 
@@ -518,28 +592,92 @@ export default {
           const id = Number(bookingStatusMatch[1]);
 
           if (session.role === "venue_owner") {
-            const booking = await env.DB.prepare(
+            const ownerCheck = await env.DB.prepare(
               "SELECT venue_id FROM bookings WHERE id = ?"
             ).bind(id).first();
-            if (!booking || booking.venue_id !== session.venue_id) {
+            if (!ownerCheck || ownerCheck.venue_id !== session.venue_id) {
               return jsonResponse({ error: "Unauthorized" }, 401, request);
             }
           }
 
           const body = await parseJson(request);
           const status = String(body.status || "").trim().toLowerCase();
-          if (!["pending", "confirmed", "cancelled"].includes(status)) {
-            return jsonResponse({ error: "Status must be pending, confirmed, or cancelled" }, 400, request);
+          if (!["pending", "confirmed", "cancelled", "accepted", "declined"].includes(status)) {
+            return jsonResponse({ error: "Invalid status" }, 400, request);
           }
 
-          const res = await env.DB.prepare(
-            "UPDATE bookings SET status = ? WHERE id = ?"
-          ).bind(status, id).run();
-          if (!res.meta.changes) return jsonResponse({ error: "Booking not found" }, 404, request);
+          if (status === "accepted") {
+            const booking = await env.DB.prepare(
+              `SELECT b.id, b.venue_id, b.client_name, b.client_email, b.event_date,
+                      v.stripe_account_id, v.stripe_connected
+               FROM bookings b JOIN venues v ON v.id = b.venue_id WHERE b.id = ?`
+            ).bind(id).first();
+            if (!booking) return jsonResponse({ error: "Booking not found" }, 404, request);
+            if (!booking.stripe_connected) {
+              return jsonResponse({ error: "Connect Stripe before accepting bookings." }, 400, request);
+            }
+
+            const plParams = new URLSearchParams({
+              "line_items[0][price_data][currency]": "usd",
+              "line_items[0][price_data][unit_amount]": "50000",
+              "line_items[0][price_data][product_data][name]": "Venue Booking Deposit",
+              "line_items[0][quantity]": "1",
+              "application_fee_amount": "5000",
+              "transfer_data[destination]": booking.stripe_account_id,
+            });
+            const plRes = await fetch("https://api.stripe.com/v1/payment_links", {
+              method: "POST",
+              headers: {
+                "Authorization": "Bearer " + env.STRIPE_SECRET_KEY,
+                "Content-Type": "application/x-www-form-urlencoded",
+              },
+              body: plParams.toString(),
+            });
+            const plBody = await plRes.json();
+            console.log("[bookings/accept] payment_link status:", plRes.status, JSON.stringify(plBody));
+            if (!plRes.ok) {
+              return jsonResponse({ error: plBody?.error?.message ?? "Failed to create payment link" }, 502, request);
+            }
+
+            const paymentLink = plBody.url;
+            const plId = plBody.id;
+
+            await env.DB.prepare(
+              "UPDATE bookings SET status='accepted', payment_link=?, stripe_session_id=? WHERE id=?"
+            ).bind(paymentLink, plId, id).run();
+
+            if (env.RESEND_API_KEY) {
+              await fetch("https://api.resend.com/emails", {
+                method: "POST",
+                headers: {
+                  "Authorization": "Bearer " + env.RESEND_API_KEY,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  from: "Venue Portal <onboarding@resend.dev>",
+                  to: [booking.client_email],
+                  subject: "Your booking request has been accepted — complete your deposit",
+                  html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto"><h2 style="color:#111">Great news, ${booking.client_name}!</h2><p>Your booking request for <strong>${booking.event_date}</strong> has been accepted.</p><p>To confirm your spot, complete your deposit:</p><p style="text-align:center;margin:32px 0"><a href="${paymentLink}" style="background:#f5a623;color:#111;font-weight:700;padding:14px 28px;border-radius:6px;text-decoration:none;display:inline-block">Complete Deposit &#8594;</a></p><p style="color:#888;font-size:13px">If you have questions, reply to this email.</p></div>`,
+                }),
+              });
+            }
+
+          } else if (status === "declined") {
+            const res = await env.DB.prepare(
+              "UPDATE bookings SET status='declined' WHERE id=?"
+            ).bind(id).run();
+            if (!res.meta.changes) return jsonResponse({ error: "Booking not found" }, 404, request);
+
+          } else {
+            const res = await env.DB.prepare(
+              "UPDATE bookings SET status = ? WHERE id = ?"
+            ).bind(status, id).run();
+            if (!res.meta.changes) return jsonResponse({ error: "Booking not found" }, 404, request);
+          }
 
           const updated = await env.DB.prepare(
             `SELECT b.id, b.venue_id, v.name AS venue_name, b.client_name, b.client_email,
-                    b.event_date, b.guests, b.message, b.status, b.created_at
+                    b.event_date, b.guests, b.message, b.status, b.created_at, b.payment_link
              FROM bookings b LEFT JOIN venues v ON v.id = b.venue_id WHERE b.id = ?`
           ).bind(id).first();
           return jsonResponse(updated, 200, request);

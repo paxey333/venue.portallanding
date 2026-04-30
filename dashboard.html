@@ -375,44 +375,8 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;bottom:-120p
 </div>
 
 <script>
-const MOCK = {
-  venue: {
-    id: 2,
-    name: "The Chill Room",
-    location: "1320 E Broadway Rd Suite 108, Tempe AZ 85282",
-    capacity: 300,
-    price_per_day: 400,
-    tier: "Basic Portal",
-    listing_status: "live",
-    amenities: ["Full Bar", "Private 300 sq ft Area", "Front Lounge Seats 12", "Decor Flexibility", "Configurable Layout"],
-    hours: "Sun–Thu 2PM–12AM · Fri–Sat 2PM–2AM",
-    stripe_connected: false,
-  },
-  stats: {
-    revenue_this_month: 2800,
-    revenue_last_month: 2400,
-    upcoming_bookings: 5,
-    pending_inquiries: 2,
-    profile_views_this_month: 94,
-    profile_views_last_month: 71,
-    payout_pending: 800,
-  },
-  revenue_chart: {
-    labels: ["Nov", "Dec", "Jan", "Feb", "Mar", "Apr"],
-    data: [800, 1200, 1600, 2000, 2400, 2800],
-  },
-  bookings: [
-    { id: 1, event: "Birthday Celebration",  organizer: "Tanya R.",             date: "May 2, 2026",  guests: 40, deposit: 200, status: "confirmed" },
-    { id: 2, event: "Bachelorette Night",     organizer: "Priya M.",             date: "May 9, 2026",  guests: 25, deposit: 200, status: "confirmed" },
-    { id: 3, event: "Small Business Mixer",   organizer: "Tempe Founders Group", date: "May 16, 2026", guests: 60, deposit: 200, status: "pending"   },
-    { id: 4, event: "Private Dinner",         organizer: "James & Crew",         date: "May 23, 2026", guests: 20, deposit: 200, status: "confirmed" },
-    { id: 5, event: "Late Night Kickback",    organizer: "DJ Marko",             date: "May 30, 2026", guests: 80, deposit: 200, status: "pending"   },
-  ],
-  inquiries: [
-    { id: 1, name: "Aaliyah", org: "SoFlo Events",    date: "Jun 6, 2026",  capacity: 50, note: "Sweet 16, need full private area Friday night",          status: "new" },
-    { id: 2, name: "Derek",   org: "Indie Nights AZ", date: "Jun 20, 2026", capacity: 80, note: "Monthly listening party, looking for recurring booking", status: "new" },
-  ],
-};
+let allBookings = [];
+let currentVenue = {};
 
 /* ─── UTILS ─────────────────────────────────────────── */
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -426,6 +390,7 @@ const ROLE     = localStorage.getItem('vp_user_role');
 const USERNAME = localStorage.getItem('vp_user_name') || 'Owner';
 const VENUE_ID = localStorage.getItem('vp_venue_id');
 const IS_ADMIN_PREVIEW = (ROLE === 'superadmin' || ROLE === 'admin');
+const API_BASE = 'https://thevenueportal.paxey333.workers.dev';
 
 if (!TOKEN || (ROLE !== 'venue_owner' && !IS_ADMIN_PREVIEW)) {
   window.location.replace('index.html');
@@ -437,7 +402,7 @@ function handleLogout() {
 }
 
 /* ─── HEADER ────────────────────────────────────────── */
-document.getElementById('hdr-venue-name').textContent = MOCK.venue.name;
+document.getElementById('hdr-venue-name').textContent = USERNAME;
 document.getElementById('hdr-greeting').textContent   = IS_ADMIN_PREVIEW ? 'Previewing as venue owner' : 'Welcome back, ' + USERNAME;
 if (IS_ADMIN_PREVIEW) {
   document.getElementById('admin-preview-badge').style.display = '';
@@ -445,83 +410,122 @@ if (IS_ADMIN_PREVIEW) {
 }
 
 /* ─── STATS ─────────────────────────────────────────── */
-(function renderStats() {
-  const s = MOCK.stats;
-  const revPct  = pct(s.revenue_this_month, s.revenue_last_month);
-  const viewPct = pct(s.profile_views_this_month, s.profile_views_last_month);
-  const nextB   = MOCK.bookings[0];
+function renderStats(bookings) {
+  const confirmed = bookings.filter(b => b.status === 'confirmed');
+  const pending   = bookings.filter(b => b.status === 'pending');
+  const nextB     = confirmed[0];
 
-  document.getElementById('st-revenue').textContent = money(s.revenue_this_month);
+  document.getElementById('st-revenue').textContent = '—';
   const rSub = document.getElementById('st-revenue-sub');
-  rSub.textContent = sign(revPct) + revPct + '% vs last month';
-  rSub.style.color = revPct >= 0 ? 'var(--green)' : '#f87171';
+  rSub.textContent = 'No revenue data yet';
+  rSub.style.color = 'var(--text3)';
 
-  document.getElementById('st-bookings').textContent = s.upcoming_bookings;
-  document.getElementById('st-bookings-sub').textContent = nextB ? 'Next: ' + nextB.date : 'None scheduled';
+  document.getElementById('st-bookings').textContent = confirmed.length;
+  document.getElementById('st-bookings-sub').textContent = nextB ? 'Next: ' + nextB.event_date : 'None scheduled';
 
   const iEl  = document.getElementById('st-inquiries');
   const iSub = document.getElementById('st-inquiries-sub');
-  iEl.textContent  = s.pending_inquiries;
-  iEl.style.color  = s.pending_inquiries > 0 ? 'var(--accent)' : 'var(--text)';
-  iSub.textContent = s.pending_inquiries > 0 ? 'Requires action' : 'All clear';
-  iSub.style.color = s.pending_inquiries > 0 ? 'var(--accent)' : 'var(--text3)';
+  iEl.textContent  = pending.length;
+  iEl.style.color  = pending.length > 0 ? 'var(--accent)' : 'var(--text)';
+  iSub.textContent = pending.length > 0 ? 'Requires action' : 'All clear';
+  iSub.style.color = pending.length > 0 ? 'var(--accent)' : 'var(--text3)';
 
-  document.getElementById('st-views').textContent = s.profile_views_this_month;
+  document.getElementById('st-views').textContent = '—';
   const vSub = document.getElementById('st-views-sub');
-  vSub.textContent = sign(viewPct) + viewPct + '% vs last month';
-  vSub.style.color = viewPct >= 0 ? 'var(--green)' : '#f87171';
-})();
+  vSub.textContent = '';
+}
 
 /* ─── BOOKINGS ──────────────────────────────────────── */
-(function renderBookings() {
-  document.getElementById('booking-list').innerHTML = MOCK.bookings.map(b => `
+function renderBookings(bookings) {
+  const list      = document.getElementById('booking-list');
+  const confirmed = bookings.filter(b => b.status === 'confirmed');
+  if (confirmed.length === 0) {
+    list.innerHTML = '<div style="font-family:var(--mono);font-size:11px;color:var(--text3);padding:8px 0">No confirmed bookings yet.</div>';
+    return;
+  }
+  list.innerHTML = confirmed.map(b => `
     <div class="booking-item">
       <div style="min-width:0">
-        <div class="booking-event">${esc(b.event)}</div>
-        <div class="booking-meta">${esc(b.organizer)}<br>${esc(b.date)} &middot; ${b.guests} guests &middot; ${money(b.deposit)} deposit</div>
+        <div class="booking-event">${esc(b.client_name)}</div>
+        <div class="booking-meta">${esc(b.event_date)} &middot; ${b.guests || 0} guests</div>
       </div>
-      <span class="badge badge-${b.status}">${esc(b.status)}</span>
+      <span class="badge badge-confirmed">confirmed</span>
     </div>`).join('');
-})();
+}
 
 /* ─── INQUIRIES ─────────────────────────────────────── */
-function renderInquiries() {
-  document.getElementById('inquiry-list').innerHTML = MOCK.inquiries.map(q => `
+function renderInquiries(bookings) {
+  const list     = document.getElementById('inquiry-list');
+  const inquiries = bookings.filter(q => q.status === 'pending');
+  if (inquiries.length === 0) {
+    list.innerHTML = '<div style="font-family:var(--mono);font-size:11px;color:var(--text3);padding:8px 0">No pending inquiries.</div>';
+    return;
+  }
+  list.innerHTML = inquiries.map(q => `
     <div class="inquiry-item" id="inq-${q.id}">
-      <div class="inquiry-name">${esc(q.name)} <span class="inquiry-org">/ ${esc(q.org)}</span></div>
-      <div class="inquiry-meta">${esc(q.date)} &middot; ${q.capacity} capacity</div>
-      <div class="inquiry-note">"${esc(q.note)}"</div>
+      <div class="inquiry-name">${esc(q.client_name)}</div>
+      <div class="inquiry-meta">${esc(q.client_email)} &middot; ${esc(q.event_date)} &middot; ${q.guests || 0} guests</div>
+      <div class="inquiry-note">"${esc(q.message || '')}"</div>
       <div class="inquiry-actions" id="inq-act-${q.id}">
-        <button class="btn-accept"  onclick="acceptInquiry(${q.id})">Accept</button>
+        <button class="btn-accept" onclick="acceptInquiry(${q.id})">Accept</button>
         <button class="btn-decline" onclick="declineInquiry(${q.id})">Decline</button>
       </div>
     </div>`).join('');
 }
-renderInquiries();
 
-function acceptInquiry(id) {
+async function acceptInquiry(id) {
   const act = document.getElementById('inq-act-' + id);
-  if (act) act.outerHTML = '<span class="badge-accepted">Accepted</span>';
+  if (!act) return;
+  const btn = act.querySelector('.btn-accept');
+  if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
+  try {
+    const res = await fetch(API_BASE + '/api/bookings/' + id + '/status', {
+      method: 'PATCH',
+      headers: { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'accepted' }),
+    });
+    if (!res.ok) {
+      if (btn) { btn.disabled = false; btn.textContent = 'Accept'; }
+      const errEl = document.createElement('div');
+      errEl.style.cssText = 'font-family:var(--mono);font-size:10px;color:#f87171;margin-top:5px';
+      errEl.textContent = 'Failed — check Stripe';
+      act.after(errEl);
+      return;
+    }
+    act.outerHTML = '<span style="font-family:var(--mono);font-size:10px;color:var(--accent)">Payment link sent</span>';
+  } catch {
+    if (btn) { btn.disabled = false; btn.textContent = 'Accept'; }
+    const errEl = document.createElement('div');
+    errEl.style.cssText = 'font-family:var(--mono);font-size:10px;color:#f87171;margin-top:5px';
+    errEl.textContent = 'Failed — check Stripe';
+    act.after(errEl);
+  }
 }
 
-function declineInquiry(id) {
+async function declineInquiry(id) {
   const el = document.getElementById('inq-' + id);
   if (!el) return;
+  try {
+    await fetch(API_BASE + '/api/bookings/' + id + '/status', {
+      method: 'PATCH',
+      headers: { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'declined' }),
+    });
+  } catch { /* still remove from UI */ }
   el.classList.add('fading');
   setTimeout(() => el.remove(), 350);
 }
 
 /* ─── CHART ─────────────────────────────────────────── */
 (function renderChart() {
-  const total = MOCK.revenue_chart.data.reduce((a, b) => a + b, 0);
-  document.getElementById('chart-total').textContent = money(total);
+  document.getElementById('chart-total').textContent = '—';
 
   new Chart(document.getElementById('revenue-chart').getContext('2d'), {
     type: 'bar',
     data: {
-      labels: MOCK.revenue_chart.labels,
+      labels: ["Nov", "Dec", "Jan", "Feb", "Mar", "Apr"],
       datasets: [{
-        data: MOCK.revenue_chart.data,
+        data: [0, 0, 0, 0, 0, 0],
         backgroundColor: 'rgba(245,166,35,0.15)',
         borderColor: '#f5a623',
         borderWidth: 1,
@@ -563,20 +567,29 @@ function declineInquiry(id) {
 })();
 
 /* ─── VENUE PROFILE ─────────────────────────────────── */
-(function renderProfile() {
-  const v = MOCK.venue;
-  document.getElementById('pf-name').textContent     = v.name;
-  document.getElementById('pf-location').textContent = v.location;
-  document.getElementById('pf-capacity').textContent = v.capacity.toLocaleString() + ' capacity';
-  document.getElementById('pf-price').textContent    = '$400 / night';
-  document.getElementById('pf-hours').textContent    = v.hours;
-  document.getElementById('tier-badge').textContent  = v.tier.toUpperCase();
-  document.getElementById('pf-amenities').innerHTML  = v.amenities.map(a => `<span class="amenity-pill">${esc(a)}</span>`).join('');
-})();
+async function loadVenueProfile() {
+  if (!EFFECTIVE_VENUE_ID) return;
+  try {
+    const res = await fetch(API_BASE + '/api/venues/' + EFFECTIVE_VENUE_ID, {
+      headers: { 'Authorization': 'Bearer ' + TOKEN }
+    });
+    const v = await res.json();
+    if (!v || v.error) return;
+    currentVenue = v;
+    document.getElementById('hdr-venue-name').textContent = v.name || '';
+    document.getElementById('pf-name').textContent        = v.name || '';
+    document.getElementById('pf-location').textContent    = v.description || '—';
+    document.getElementById('pf-capacity').textContent    = v.capacity ? v.capacity.toLocaleString() + ' capacity' : '—';
+    document.getElementById('pf-price').textContent       = v.price_per_day ? '$' + v.price_per_day + ' / night' : '—';
+    document.getElementById('pf-hours').textContent       = '—';
+    document.getElementById('tier-badge').textContent     = 'BASIC PORTAL';
+    document.getElementById('pf-amenities').innerHTML     = '';
+  } catch {}
+}
 
 function startProfileEdit() {
-  document.getElementById('edit-name').value     = MOCK.venue.name;
-  document.getElementById('edit-location').value = MOCK.venue.location;
+  document.getElementById('edit-name').value     = currentVenue.name || '';
+  document.getElementById('edit-location').value = currentVenue.description || '';
   document.getElementById('profile-display').classList.add('hidden');
   document.getElementById('profile-edit-form').classList.add('active');
   document.getElementById('edit-btn').style.display = 'none';
@@ -591,13 +604,12 @@ function cancelProfileEdit() {
 function saveProfileEdit() {
   const name = document.getElementById('edit-name').value.trim();
   const loc  = document.getElementById('edit-location').value.trim();
-  if (name) { MOCK.venue.name = name; document.getElementById('pf-name').textContent = name; document.getElementById('hdr-venue-name').textContent = name; }
-  if (loc)  { MOCK.venue.location = loc; document.getElementById('pf-location').textContent = loc; }
+  if (name) { currentVenue.name = name; document.getElementById('pf-name').textContent = name; document.getElementById('hdr-venue-name').textContent = name; }
+  if (loc)  { currentVenue.description = loc; document.getElementById('pf-location').textContent = loc; }
   cancelProfileEdit();
 }
 
 /* ─── STRIPE BLOCK ──────────────────────────────────── */
-const API_BASE = 'https://thevenueportal.paxey333.workers.dev';
 
 function renderStripeConnected() {
   return `
@@ -642,7 +654,6 @@ function renderStripeDisconnected(errorMsg) {
     </div>`;
 }
 
-// Use the real venue_id from the token (localStorage), not the MOCK
 const EFFECTIVE_VENUE_ID = VENUE_ID || new URLSearchParams(window.location.search).get('venue_id');
 
 async function loadStripeStatus() {
@@ -693,6 +704,24 @@ function showStripeBanner(msg, color, borderColor) {
   main.insertBefore(banner, main.firstChild);
   setTimeout(() => banner.remove(), 5000);
 }
+
+/* ─── INIT ──────────────────────────────────────────── */
+async function init() {
+  try {
+    const res = await fetch(API_BASE + '/api/bookings', {
+      headers: { 'Authorization': 'Bearer ' + TOKEN }
+    });
+    const data = await res.json();
+    allBookings = Array.isArray(data) ? data : [];
+  } catch {
+    allBookings = [];
+  }
+  renderStats(allBookings);
+  renderBookings(allBookings);
+  renderInquiries(allBookings);
+}
+init();
+loadVenueProfile();
 
 // Handle Stripe return params
 (function handleStripeReturn() {
