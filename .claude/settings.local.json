@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx wrangler *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(curl *)",
+      "Bash(openssl rand *)",
+      "Bash(echo \"vp_hmac_secret_2025_$\\(openssl rand -hex 16\\)\")",
+      "Bash(tee /dev/stderr)",
+      "Bash(python3 -m json.tool)",
+      "Bash(python3 -c ' *)",
+      "Bash(git *)",
+      "Bash(python3 *)",
+      "Bash(wrangler d1 *)",
+      "Bash(wrangler tail *)",
+      "Bash(wrangler versions *)",
+      "Bash(wrangler deploy *)",
+      "Bash(wrangler secret *)",
+      "Bash(wrangler whoami *)",
+      "Bash(wrangler pages *)",
+      "Bash(python -c ' *)",
+      "Bash(python gallery_patch.py)",
+      "Bash(del *)"
+    ]
+  }
+}

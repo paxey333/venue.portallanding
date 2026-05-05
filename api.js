@@ -345,8 +345,11 @@ export default {
             return jsonResponse({ error: "venue_id is required for venue_owner role" }, 400, request);
           }
 
-          const plainPassword = generatePassword();
-          const hashedPassword = await hashPassword(plainPassword, env.TOKEN_SECRET);
+          const providedPassword = String(body.password || "").trim();
+          if (!providedPassword) {
+            return jsonResponse({ error: "password is required" }, 400, request);
+          }
+          const hashedPassword = await hashPassword(providedPassword, env.TOKEN_SECRET);
 
           await env.DB.prepare(
             "INSERT INTO users (email, password, role, venue_id, name) VALUES (?, ?, ?, ?, ?)"
@@ -356,8 +359,28 @@ export default {
             "SELECT id, email, role, venue_id, name, created_at FROM users WHERE email = ?"
           ).bind(email).first();
 
-          // Return plain password ONCE — not stored anywhere after this
-          return jsonResponse({ ...created, generated_password: plainPassword }, 201, request);
+          if (env.RESEND_API_KEY) {
+            let venueName = "";
+            if (venueId) {
+              const venueRow = await env.DB.prepare("SELECT name FROM venues WHERE id = ?").bind(venueId).first();
+              venueName = venueRow?.name || "";
+            }
+            await fetch("https://api.resend.com/emails", {
+              method: "POST",
+              headers: {
+                "Authorization": "Bearer " + env.RESEND_API_KEY,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                from: "Venue Portal <onboarding@resend.dev>",
+                to: [email],
+                subject: "Your Venue Portal is ready",
+                html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto"><h2 style="color:#111">Welcome to Venue Portal, ${name}!</h2>${venueName ? `<p>Your venue <strong>${venueName}</strong> has been set up and is ready to go.</p>` : ""}<p>Log in to manage your bookings and venue profile.</p><p><strong>Email:</strong> ${email}<br><strong>Temporary password:</strong> ${providedPassword}</p><p style="color:#888;font-size:13px">Please change your password after your first login.</p><p style="text-align:center;margin:32px 0"><a href="https://venue-portal.pages.dev/dashboard.html" style="background:#f5a623;color:#111;font-weight:700;padding:14px 28px;border-radius:6px;text-decoration:none;display:inline-block">Go to Dashboard &#8594;</a></p></div>`,
+              }),
+            });
+          }
+
+          return jsonResponse(created, 201, request);
         } catch (err) {
           if (err.message && err.message.includes("UNIQUE")) {
             return jsonResponse({ error: "A user with that email already exists" }, 409, request);
@@ -609,57 +632,77 @@ export default {
           if (status === "accepted") {
             const booking = await env.DB.prepare(
               `SELECT b.id, b.venue_id, b.client_name, b.client_email, b.event_date,
-                      v.stripe_account_id, v.stripe_connected
+                      v.name AS venue_name, v.stripe_account_id, v.stripe_connected
                FROM bookings b JOIN venues v ON v.id = b.venue_id WHERE b.id = ?`
             ).bind(id).first();
+            console.log("[bookings/accept] booking lookup:", JSON.stringify(booking));
             if (!booking) return jsonResponse({ error: "Booking not found" }, 404, request);
+            console.log("[bookings/accept] venue stripe_account_id:", booking.stripe_account_id, "stripe_connected:", booking.stripe_connected);
             if (!booking.stripe_connected) {
               return jsonResponse({ error: "Connect Stripe before accepting bookings." }, 400, request);
             }
 
-            const plParams = new URLSearchParams({
-              "line_items[0][price_data][currency]": "usd",
-              "line_items[0][price_data][unit_amount]": "50000",
-              "line_items[0][price_data][product_data][name]": "Venue Booking Deposit",
-              "line_items[0][quantity]": "1",
-              "application_fee_amount": "5000",
-              "transfer_data[destination]": booking.stripe_account_id,
-            });
-            const plRes = await fetch("https://api.stripe.com/v1/payment_links", {
-              method: "POST",
+            const venueName = booking.venue_name;
+            const stripeAccountId = booking.stripe_account_id;
+            const bookingId = booking.id;
+
+            const stripeBody = new URLSearchParams();
+            stripeBody.append('payment_method_types[]', 'card');
+            stripeBody.append('mode', 'payment');
+            stripeBody.append('line_items[0][price_data][currency]', 'usd');
+            stripeBody.append('line_items[0][price_data][unit_amount]', '50000');
+            stripeBody.append('line_items[0][price_data][product_data][name]', `Venue Booking - ${venueName}`);
+            stripeBody.append('line_items[0][quantity]', '1');
+            // Connect split re-enabled when venue owner has separate Stripe account
+            // application_fee_amount: 5000, transfer_data destination: stripeAccountId
+            stripeBody.append('success_url', 'https://venue-portal.pages.dev/booking-confirmed');
+            stripeBody.append('cancel_url', 'https://venue-portal.pages.dev/booking-cancelled');
+            stripeBody.append('metadata[booking_id]', String(bookingId));
+
+            const stripeRes = await fetch('https://api.stripe.com/v1/checkout/sessions', {
+              method: 'POST',
               headers: {
-                "Authorization": "Bearer " + env.STRIPE_SECRET_KEY,
-                "Content-Type": "application/x-www-form-urlencoded",
+                'Authorization': `Bearer ${env.STRIPE_SECRET_KEY}`,
+                'Content-Type': 'application/x-www-form-urlencoded'
               },
-              body: plParams.toString(),
+              body: stripeBody.toString()
             });
-            const plBody = await plRes.json();
-            console.log("[bookings/accept] payment_link status:", plRes.status, JSON.stringify(plBody));
-            if (!plRes.ok) {
-              return jsonResponse({ error: plBody?.error?.message ?? "Failed to create payment link" }, 502, request);
+
+            const stripeData = await stripeRes.json();
+            console.log('[stripe] status:', stripeRes.status, 'body:', JSON.stringify(stripeData));
+
+            if (!stripeRes.ok) {
+              return jsonResponse({ error: stripeData.error?.message || 'Stripe error' }, 400, request);
             }
 
-            const paymentLink = plBody.url;
-            const plId = plBody.id;
+            const paymentLink = stripeData.url;
+            const sessionId = stripeData.id;
 
             await env.DB.prepare(
               "UPDATE bookings SET status='accepted', payment_link=?, stripe_session_id=? WHERE id=?"
-            ).bind(paymentLink, plId, id).run();
+            ).bind(paymentLink, sessionId, id).run();
 
             if (env.RESEND_API_KEY) {
-              await fetch("https://api.resend.com/emails", {
+              const emailPayload = {
+                from: "Venue Portal <onboarding@resend.dev>",
+                // Sends to real promoter email — requires verified Resend domain to
+                // deliver to any address. Until domain verified, only delivers to
+                // paxey333@gmail.com for testing.
+                to: [booking.client_email],
+                subject: "Your booking request has been accepted — complete your deposit",
+                html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto"><h2 style="color:#111">Great news, ${booking.client_name}!</h2><p>Your booking request for <strong>${booking.event_date}</strong> has been accepted.</p><p>To confirm your spot, complete your deposit:</p><p style="text-align:center;margin:32px 0"><a href="${paymentLink}" style="background:#f5a623;color:#111;font-weight:700;padding:14px 28px;border-radius:6px;text-decoration:none;display:inline-block">Complete Deposit &#8594;</a></p><p style="color:#888;font-size:13px">If you have questions, reply to this email.</p></div>`,
+              };
+              console.log("[bookings/accept] resend payload:", JSON.stringify({ ...emailPayload, html: "[omitted]" }));
+              const resendRes = await fetch("https://api.resend.com/emails", {
                 method: "POST",
                 headers: {
                   "Authorization": "Bearer " + env.RESEND_API_KEY,
                   "Content-Type": "application/json",
                 },
-                body: JSON.stringify({
-                  from: "Venue Portal <onboarding@resend.dev>",
-                  to: [booking.client_email],
-                  subject: "Your booking request has been accepted — complete your deposit",
-                  html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto"><h2 style="color:#111">Great news, ${booking.client_name}!</h2><p>Your booking request for <strong>${booking.event_date}</strong> has been accepted.</p><p>To confirm your spot, complete your deposit:</p><p style="text-align:center;margin:32px 0"><a href="${paymentLink}" style="background:#f5a623;color:#111;font-weight:700;padding:14px 28px;border-radius:6px;text-decoration:none;display:inline-block">Complete Deposit &#8594;</a></p><p style="color:#888;font-size:13px">If you have questions, reply to this email.</p></div>`,
-                }),
+                body: JSON.stringify(emailPayload),
               });
+              const resendBody = await resendRes.json();
+              console.log("[bookings/accept] resend response status:", resendRes.status, "body:", JSON.stringify(resendBody));
             }
 
           } else if (status === "declined") {
@@ -682,6 +725,7 @@ export default {
           ).bind(id).first();
           return jsonResponse(updated, 200, request);
         } catch (err) {
+          console.log("[bookings/status] caught error:", err.message, JSON.stringify(err));
           return jsonResponse({ error: err.message }, 500, request);
         }
       }
@@ -868,6 +912,60 @@ export default {
           return jsonResponse({ received: true }, 200, request);
         } catch (err) {
           console.log("[stripe/webhook] error:", err.message);
+          return jsonResponse({ error: err.message }, 500, request);
+        }
+      }
+
+      // ── AI DRAFT REPLY ───────────────────────────────────────────────────────
+      if (path === "/api/draft-reply" && request.method === "POST") {
+        console.log("[draft-reply] route hit");
+        try {
+          const session = await getSession(request, env);
+          if (!isAnyRole(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
+
+          console.log("[draft-reply] API key present:", !!env.ANTHROPIC_API_KEY);
+
+          const body = await parseJson(request);
+          console.log("[draft-reply] venue:", JSON.stringify(body.venue));
+          console.log("[draft-reply] inquiry:", JSON.stringify(body.inquiry));
+
+          const venue   = body.venue   || {};
+          const inquiry = body.inquiry || {};
+
+          const systemPrompt = `You are a professional venue coordinator writing on behalf of a venue called ${venue.name || "the venue"}. \nThe venue is located at ${venue.location || ""}. \nCapacity: ${venue.capacity || ""} guests.\nPrice: $${venue.price_per_day || ""} per night.\nAmenities: ${Array.isArray(venue.amenities) ? venue.amenities.join(", ") : ""}.\nHours: ${venue.hours || ""}.\nWrite warm, professional, concise inquiry responses. No fluff. No emoji. Sign off with the venue name only.`;
+
+          const userPrompt = `Draft a reply to this venue inquiry:\nName: ${inquiry.client_name || ""}\nEmail: ${inquiry.client_email || ""}\nEvent date: ${inquiry.event_date || ""}\nGuests: ${inquiry.guests || ""}\nMessage: "${inquiry.message || ""}"\n\nWrite a warm professional response confirming we received their inquiry, mention availability for their date, highlight one or two relevant amenities, state the $${venue.price_per_day || ""} per night rate, and invite them to confirm so we can send the booking deposit link.`;
+
+          const anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "anthropic-version": "2023-06-01",
+              "x-api-key": env.ANTHROPIC_API_KEY,
+            },
+            body: JSON.stringify({
+              model: "claude-sonnet-4-6",
+              max_tokens: 1000,
+              system: systemPrompt,
+              messages: [{ role: "user", content: userPrompt }],
+            }),
+          });
+
+          const anthropicData = await anthropicRes.json();
+          console.log("[draft-reply] Anthropic status:", anthropicRes.status, "body:", JSON.stringify(anthropicData));
+
+          if (!anthropicRes.ok) {
+            return jsonResponse({ error: anthropicData?.error?.message || "Anthropic API error" }, 502, request);
+          }
+
+          if (!anthropicData.content || !anthropicData.content[0] || !anthropicData.content[0].text) {
+            console.log("[draft-reply] unexpected response shape:", JSON.stringify(anthropicData));
+            return jsonResponse({ error: "Unexpected response from Anthropic" }, 502, request);
+          }
+
+          return jsonResponse({ draft: anthropicData.content[0].text }, 200, request);
+        } catch (err) {
+          console.log("[draft-reply] caught error:", err.message, err.stack);
           return jsonResponse({ error: err.message }, 500, request);
         }
       }

@@ -9,37 +9,39 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#111111;--surface:#161412;--surface2:#1e1b17;
-  --border:#232018;--border2:#2e2a22;
-  --text:#f0f0f0;--text2:#888888;--text3:#444444;
-  --green:#4ade80;
-  --accent:#f5a623;--accent-warm:#c97d2e;
-  --accent-dim:rgba(245,166,35,0.12);--accent-glow:rgba(245,166,35,0.07);
+  --bg:#13161f;--surface:#1a1f2e;--surface2:#1e2535;
+  --border:#252b3b;--border2:#2e3548;
+  --text:#f0f0f0;--text2:#7a8499;--text3:#3d4560;
+  --accent:#ffffff;--accent-warm:#c8d0e0;--accent-soft:#f0f4ff;
+  --accent-dim:rgba(255,255,255,0.07);--accent-glow:rgba(255,255,255,0.04);
+  --green:#4ade80;--alert:#e85d3a;--silver:#a0aec0;
   --radius:6px;--radius-lg:10px;
   --mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;--display:'Syne',sans-serif;
 }
-html,body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.5;min-height:100%;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+html{background:var(--bg)}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.5;min-height:100%;overflow-x:hidden;-webkit-overflow-scrolling:touch;position:relative}
 ::-webkit-scrollbar{width:6px}
 ::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 
 /* TEXTURE */
-.grain-overlay{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.028;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");background-repeat:repeat;background-size:256px 256px}
-body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.016) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.016) 1px,transparent 1px);background-size:48px 48px}
-body::after{content:'';position:fixed;z-index:0;pointer-events:none;bottom:-120px;left:-120px;width:540px;height:540px;background:radial-gradient(circle at center,rgba(245,166,35,.05) 0%,rgba(245,166,35,.018) 40%,transparent 70%);border-radius:50%}
+.grain-overlay{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.022;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");background-repeat:repeat;background-size:256px 256px}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background-image:radial-gradient(ellipse at 15% 60%,rgba(100,80,220,0.07) 0%,transparent 50%),radial-gradient(ellipse at 85% 10%,rgba(255,255,255,0.04) 0%,transparent 40%),radial-gradient(ellipse at 55% 85%,rgba(30,37,53,0.8) 0%,transparent 60%)}
+body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background-image:repeating-linear-gradient(-35deg,transparent 0px,transparent 60px,rgba(255,255,255,0.013) 60px,rgba(255,255,255,0.013) 61px),repeating-linear-gradient(55deg,transparent 0px,transparent 80px,rgba(160,174,192,0.016) 80px,rgba(160,174,192,0.016) 81px)}
 
 /* HEADER */
 .header{
   display:flex;align-items:center;gap:16px;
-  background:var(--surface);border-bottom:1px solid var(--border);
+  background:rgba(19,22,31,0.88);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border-bottom:1px solid rgba(255,255,255,0.1);
   height:auto;min-height:52px;padding:12px 20px;
   position:sticky;top:0;z-index:100;
   transform:translateZ(0);-webkit-transform:translateZ(0);
 }
-.header-left{display:flex;flex-direction:column;gap:0;flex-shrink:0}
+.header-left{display:flex;flex-direction:column;gap:0;flex-shrink:1;min-width:0}
 .header-brand{display:flex;align-items:center;gap:6px;margin-bottom:5px}
 .header-brand-name{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3)}
-.header-venue{font-family:var(--display);font-size:16px;font-weight:800;color:var(--text);line-height:1;letter-spacing:-.3px}
+.header-venue{font-family:var(--display);font-size:16px;font-weight:800;color:var(--text);line-height:1;letter-spacing:-.3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .header-sub{font-family:var(--mono);font-size:8px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-top:2px}
 .header-greeting{flex:1;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text3)}
 .header-right{margin-left:auto;flex-shrink:0}
@@ -51,22 +53,23 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;bottom:-120p
 
 /* STATS ROW */
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;transition:border-color .2s;cursor:default;position:relative;overflow:hidden}
-.stat-card:hover{border-color:rgba(245,166,35,0.25)}
+.stat-card{background:linear-gradient(135deg,#1a1f2e 0%,#161b28 100%);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;transition:border-color .2s,box-shadow .2s;cursor:default;position:relative;overflow:hidden}
+.stat-card:hover{border-color:rgba(255,255,255,0.2);box-shadow:0 0 0 1px rgba(255,255,255,0.06)}
 .stat-card::before{content:'';position:absolute;bottom:-24px;left:-24px;width:100px;height:100px;border-radius:50%;pointer-events:none}
-.stat-card:nth-child(1)::before{background:radial-gradient(circle,rgba(245,166,35,.1) 0%,transparent 70%)}
-.stat-card:nth-child(2)::before{background:radial-gradient(circle,rgba(74,222,128,.08) 0%,transparent 70%)}
-.stat-card:nth-child(3)::before{background:radial-gradient(circle,rgba(245,166,35,.09) 0%,transparent 70%)}
-.stat-card:nth-child(4)::before{background:radial-gradient(circle,rgba(100,150,255,.07) 0%,transparent 70%)}
-.stat-label{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:10px;display:flex;align-items:center;gap:5px}
+.stat-card:nth-child(1)::before{background:radial-gradient(circle,rgba(255,255,255,0.06) 0%,transparent 70%)}
+.stat-card:nth-child(2)::before{background:radial-gradient(circle,rgba(74,222,128,0.06) 0%,transparent 70%)}
+.stat-card:nth-child(3)::before{background:radial-gradient(circle,rgba(255,255,255,0.05) 0%,transparent 70%)}
+.stat-card:nth-child(4)::before{background:radial-gradient(circle,rgba(100,150,255,0.06) 0%,transparent 70%)}
+.stat-label{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--silver);margin-bottom:10px;display:flex;align-items:center;gap:5px}
 .stat-label::before{content:'';width:5px;height:5px;border-radius:50%;flex-shrink:0}
 .stat-card:nth-child(1) .stat-label::before{background:var(--accent)}
 .stat-card:nth-child(2) .stat-label::before{background:var(--green)}
 .stat-card:nth-child(3) .stat-label::before{background:var(--accent)}
 .stat-card:nth-child(4) .stat-label::before{background:#6496ff}
 .stat-val{font-family:var(--display);font-size:30px;font-weight:800;line-height:1;margin-bottom:6px}
-.stat-val-amber{background:linear-gradient(90deg,var(--text) 0%,var(--accent) 120%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.stat-val-green{background:linear-gradient(90deg,var(--text) 0%,var(--green) 120%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-val-amber{color:#ffffff;background:linear-gradient(90deg,#d8dce8 0%,#ffffff 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-val-white{color:#ffffff;background:linear-gradient(90deg,#d8dce8 0%,#ffffff 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-val-green{color:var(--green);background:linear-gradient(90deg,var(--text) 0%,var(--green) 120%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .stat-sub{font-family:var(--mono);font-size:11px;line-height:1.4}
 
 /* TWO COL */
@@ -77,7 +80,7 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;bottom:-120p
 
 /* SECTION HEADER */
 .section-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-.section-title{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);display:flex;align-items:center;gap:5px}
+.section-title{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--silver);display:flex;align-items:center;gap:5px}
 .s-accent{color:var(--accent);font-size:8px}
 .section-aside{font-family:var(--display);font-size:13px;color:var(--text2)}
 
@@ -90,7 +93,7 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;bottom:-120p
 .booking-meta{font-family:var(--mono);font-size:10px;color:var(--text3);line-height:1.5}
 .badge{font-family:var(--mono);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:3px 8px;border-radius:4px;flex-shrink:0;white-space:nowrap;align-self:flex-start}
 .badge-confirmed{background:rgba(74,222,128,0.1);color:var(--green);border:1px solid rgba(74,222,128,0.2)}
-.badge-pending{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(245,166,35,0.2)}
+.badge-pending{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(255,255,255,0.2)}
 
 /* INQUIRY LIST */
 .inquiry-item{padding:11px 0;border-bottom:1px solid var(--border);transition:opacity .3s}
@@ -102,9 +105,9 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;bottom:-120p
 .inquiry-meta{font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:5px}
 .inquiry-note{font-family:var(--sans);font-size:12px;color:var(--text2);font-style:italic;margin-bottom:9px;line-height:1.5}
 .inquiry-actions{display:flex;gap:7px;align-items:center}
-.btn-accept{background:rgba(74,222,128,0.1);color:var(--green);border:1px solid rgba(74,222,128,0.2);font-family:var(--mono);font-size:10px;padding:4px 12px;border-radius:var(--radius);cursor:pointer;transition:background .15s}
+.btn-accept{background:rgba(74,222,128,0.1);color:var(--green);border:1px solid rgba(74,222,128,0.2);font-family:var(--mono);font-size:10px;padding:4px 12px;border-radius:var(--radius);cursor:pointer;transition:background .15s;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .btn-accept:hover{background:rgba(74,222,128,0.18)}
-.btn-decline{background:rgba(248,113,113,0.08);color:#f87171;border:1px solid rgba(248,113,113,0.2);font-family:var(--mono);font-size:10px;padding:4px 12px;border-radius:var(--radius);cursor:pointer;transition:background .15s}
+.btn-decline{background:rgba(248,113,113,0.08);color:#f87171;border:1px solid rgba(248,113,113,0.2);font-family:var(--mono);font-size:10px;padding:4px 12px;border-radius:var(--radius);cursor:pointer;transition:background .15s;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .btn-decline:hover{background:rgba(248,113,113,0.15)}
 .badge-accepted{display:inline-block;background:rgba(74,222,128,0.1);color:var(--green);border:1px solid rgba(74,222,128,0.2);font-family:var(--mono);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:3px 8px;border-radius:4px}
 
@@ -124,7 +127,7 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;bottom:-120p
 .status-live-text{font-family:var(--mono);font-size:11px;color:var(--green)}
 .amenity-pills{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px}
 .amenity-pill{background:var(--surface2);border:1px solid var(--border2);color:var(--text2);font-family:var(--mono);font-size:10px;padding:4px 10px;border-radius:20px}
-.tier-badge{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(245,166,35,.2);font-family:var(--mono);font-size:9px;padding:3px 9px;border-radius:4px;letter-spacing:.08em}
+.tier-badge{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(255,255,255,.2);font-family:var(--mono);font-size:9px;padding:3px 9px;border-radius:4px;letter-spacing:.08em}
 .profile-hd-right{display:flex;align-items:center;gap:10px}
 .profile-display.hidden{display:none}
 .profile-edit-form{display:none;margin-top:16px}
@@ -146,7 +149,7 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;bottom:-120p
 
 /* STRIPE BLOCK */
 .stripe-card{border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;position:relative;z-index:1}
-.stripe-disconnected{border:1px solid rgba(99,91,255,0.25);background:linear-gradient(135deg,#111111 0%,#16141f 100%)}
+.stripe-disconnected{border:1px solid rgba(99,91,255,0.25);background:linear-gradient(135deg,#0e1018 0%,#14172a 100%)}
 .stripe-connected{border:1px solid rgba(99,91,255,0.2);background:var(--surface)}
 .stripe-left{flex:1;min-width:200px}
 .stripe-eyebrow{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:6px}
@@ -175,19 +178,93 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;bottom:-120p
 .success-label{font-family:var(--display);font-size:17px;font-weight:800;color:var(--green);margin-bottom:5px}
 .success-sub{font-family:var(--mono);font-size:11px;color:var(--text3)}
 
+/* URGENT CARD ACCENT */
+.card-urgent{border-left:2px solid var(--accent)}
+
+/* MOBILE NAV */
+.mobile-nav{
+  display:none;
+  position:fixed;bottom:0;left:0;right:0;z-index:200;
+  background:var(--surface);border-top:1px solid var(--border);
+  height:calc(56px + env(safe-area-inset-bottom));
+  padding:0 0 env(safe-area-inset-bottom);
+}
+.mobile-nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  background:none;border:none;cursor:pointer;
+  font-family:var(--mono);font-size:8px;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--text3);transition:color .15s;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+}
+.mobile-nav-item svg{stroke:var(--text3);transition:stroke .15s}
+.mobile-nav-item.active{color:var(--accent)}
+.mobile-nav-item.active svg{stroke:var(--accent)}
+.logout-short{display:none}
+
 /* RESPONSIVE */
-@media(max-width:700px){
-  .stats-row{grid-template-columns:1fr 1fr}
-  .two-col{grid-template-columns:1fr}
+@media(max-width:768px){
+  /* Header */
+  .header{padding:10px 16px;min-height:44px;overflow:hidden;gap:8px}
+  .header-left{flex:1;min-width:0}
+  .header-right{flex-shrink:0}
   .header-greeting{display:none}
+  .header-venue{font-size:14px}
+  .logout-full{display:none}
+  .logout-short{display:inline}
+  #admin-preview-badge{display:none !important}
+  #btn-back-to-admin{font-size:11px;padding:5px 8px;white-space:nowrap}
+  /* Stats */
+  .stats-row{grid-template-columns:repeat(2,1fr);gap:8px}
+  .stat-card{padding:12px 14px}
+  .stat-val{font-size:24px;letter-spacing:0}
+  .stat-label{font-size:8px}
+  /* Layout */
+  .main{padding:14px 14px calc(80px + env(safe-area-inset-bottom))}
+  .stat-val{transform:translateZ(0)}
+  .card{padding:14px}
+  .two-col{grid-template-columns:1fr;gap:10px}
+  /* Calendar */
+  .bk-cal-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .bk-cal-grid{min-width:560px}
+  .bk-dow-full{display:none}
+  .bk-dow-short{display:inline}
+  .bk-cal-day{min-height:52px}
+  /* Chart */
+  .chart-card{padding:14px}
+  /* Stripe */
   .stripe-card{flex-direction:column;align-items:flex-start}
+  .btn-stripe{width:100%;margin-top:12px;box-sizing:border-box}
+  /* Profile */
   .profile-body{grid-template-columns:1fr}
-  .main{padding:16px 14px 48px}
+  /* Typography */
+  .booking-event{font-size:13px}
+  .inquiry-name{font-size:13px}
+  /* Bottom nav */
+  .mobile-nav{display:flex}
 }
-@media(max-width:480px){
-  .stats-row{grid-template-columns:1fr}
-  .stat-val{font-size:26px}
-}
+
+/* BOOKING CALENDAR */
+.cal-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:16px;position:relative;z-index:1}
+.cal-mnav-btn{background:none;border:1px solid var(--border2);color:var(--text2);font-family:var(--mono);font-size:14px;width:26px;height:26px;border-radius:var(--radius);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .15s,color .15s;padding:0;line-height:1}
+.cal-mnav-btn:hover{border-color:var(--text2);color:var(--text)}
+.bk-cal-wrap{width:100%;overflow:hidden}
+.bk-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;width:100%}
+.bk-cal-dow{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);text-align:center;padding:4px 0 8px}
+.bk-dow-short{display:none}
+.bk-cal-day{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);min-height:64px;position:relative;padding:6px 5px 5px;overflow:hidden}
+.bk-cal-day.today{border-color:rgba(245,166,35,0.4)}
+.bk-cal-day.today .bk-day-num{color:var(--accent)}
+.bk-cal-day.past{opacity:0.4}
+.bk-cal-day.out{background:var(--bg);border-color:var(--border);opacity:0.25}
+.bk-day-num{font-family:var(--mono);font-size:10px;color:var(--text3);position:absolute;top:6px;right:7px;line-height:1}
+.bk-cal-pill{background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.2);border-radius:3px;padding:2px 5px;font-family:var(--mono);font-size:9px;color:var(--green);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;display:block;margin-top:18px}
+.bk-cal-pill.pending{background:rgba(245,166,35,0.12);border-color:rgba(245,166,35,0.2);color:var(--accent)}
+
+/* DRAFT REPLY */
+@keyframes pulse-load{0%,100%{opacity:0.4}50%{opacity:1}}
+.draft-loading{animation:pulse-load 1s ease infinite}
+.btn-draft{background:none;border:1px solid var(--border2);color:var(--text2);font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:var(--radius);cursor:pointer;transition:border-color .15s,color .15s;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.btn-draft:hover{border-color:var(--text2);color:var(--text)}
 </style>
 </head>
 <body>
@@ -198,9 +275,9 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;bottom:-120p
   <div class="header-left">
     <div class="header-brand">
       <svg width="16" height="12" viewBox="0 0 24 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#f5a623"/>
-        <path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#f5a623" opacity="0.4"/>
-        <rect x="19.5" y="7" width="4" height="4" rx="1" fill="#f5a623" opacity="0.75"/>
+        <path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#ffffff"/>
+        <path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#ffffff" opacity="0.4"/>
+        <rect x="19.5" y="7" width="4" height="4" rx="1" fill="#ffffff" opacity="0.75"/>
       </svg>
       <span class="header-brand-name">Venue<span style="color:var(--accent)">.</span>Portal</span>
     </div>
@@ -208,10 +285,10 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;bottom:-120p
     <div class="header-sub">Owner Dashboard</div>
   </div>
   <div class="header-greeting" id="hdr-greeting"></div>
-  <div class="header-right" style="display:flex;align-items:center;gap:8px">
-    <div id="admin-preview-badge" style="display:none;font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);border:1px solid rgba(245,166,35,0.3);padding:3px 8px;border-radius:4px">Admin Preview</div>
-    <button id="btn-back-to-admin" style="display:none" class="btn-logout" onclick="window.location.href='index.html'">← Admin</button>
-    <button class="btn-logout" onclick="handleLogout()">Log Out</button>
+  <div class="header-right" style="display:flex;align-items:center;gap:5px;min-width:0;overflow:hidden;flex-shrink:1">
+    <div id="admin-preview-badge" style="display:none;font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);border:1px solid rgba(255,255,255,0.3);padding:3px 8px;border-radius:4px">Admin Preview</div>
+    <button id="btn-back-to-admin" style="display:none;padding:5px 8px;font-size:12px;flex-shrink:0" class="btn-logout" onclick="window.location.href='index.html'">←</button>
+    <button class="btn-logout" style="flex-shrink:0" onclick="handleLogout()"><span class="logout-full">Log Out</span><span class="logout-short">Out</span></button>
   </div>
 </header>
 
@@ -219,10 +296,10 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;bottom:-120p
 <main class="main">
 
   <!-- STATS ROW -->
-  <div class="stats-row">
+  <div class="stats-row" id="stats-overview">
     <div class="stat-card">
       <div class="stat-label">Revenue This Month</div>
-      <div class="stat-val stat-val-amber" id="st-revenue">—</div>
+      <div class="stat-val stat-val-white" id="st-revenue">—</div>
       <div class="stat-sub" id="st-revenue-sub"></div>
     </div>
     <div class="stat-card">
@@ -236,7 +313,7 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;bottom:-120p
       <div class="stat-sub" id="st-inquiries-sub"></div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">Profile Views</div>
+      <div class="stat-label">Acceptance Rate</div>
       <div class="stat-val" id="st-views">—</div>
       <div class="stat-sub" id="st-views-sub"></div>
     </div>
@@ -244,17 +321,32 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;bottom:-120p
 
   <!-- TWO COL: BOOKINGS + INQUIRIES -->
   <div class="two-col">
-    <div class="card">
+    <div class="card" id="booking-section">
       <div class="section-hd">
         <div class="section-title"><span class="s-accent">&#9656;</span> Upcoming Bookings</div>
       </div>
       <div class="booking-list" id="booking-list"></div>
     </div>
-    <div class="card">
+    <div class="card card-urgent" id="inquiry-section">
       <div class="section-hd">
         <div class="section-title"><span class="s-accent">&#9656;</span> Inquiry Requests</div>
       </div>
       <div id="inquiry-list"></div>
+    </div>
+  </div>
+
+  <!-- BOOKING CALENDAR -->
+  <div class="cal-card" id="cal-card-section">
+    <div class="section-hd">
+      <div class="section-title"><span class="s-accent">&#9656;</span> Booking Calendar</div>
+      <div style="display:flex;align-items:center;gap:7px">
+        <button class="cal-mnav-btn" onclick="shiftCalMonth(-1)">&#8249;</button>
+        <span id="cal-month-label" style="font-family:var(--display);font-size:12px;font-weight:700;min-width:110px;text-align:center;color:var(--text2)"></span>
+        <button class="cal-mnav-btn" onclick="shiftCalMonth(1)">&#8250;</button>
+      </div>
+    </div>
+    <div class="bk-cal-wrap">
+      <div class="bk-cal-grid" id="bk-cal-grid"></div>
     </div>
   </div>
 
@@ -268,12 +360,12 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;bottom:-120p
   </div>
 
   <!-- VENUE PROFILE -->
-  <div class="profile-card">
+  <div class="profile-card" id="profile-section">
     <div class="section-hd">
       <div class="section-title"><span class="s-accent">&#9656;</span> Your Venue Profile</div>
       <div class="profile-hd-right">
         <span class="tier-badge" id="tier-badge"></span>
-        <button class="btn-ghost" id="edit-btn" onclick="startProfileEdit()">Edit Profile</button>
+        <button class="btn-ghost" id="edit-btn" onclick="startProfileEdit()" style="display:inline-flex;align-items:center;gap:5px"><svg width="9" height="7" viewBox="0 0 24 18" fill="none" style="opacity:0.7;flex-shrink:0"><path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="currentColor"/><path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="currentColor" opacity="0.4"/><rect x="19.5" y="7" width="4" height="4" rx="1" fill="currentColor" opacity="0.75"/></svg>Edit Profile</button>
       </div>
     </div>
 
@@ -328,7 +420,7 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;bottom:-120p
           <input class="form-input" id="edit-location" type="text"/>
         </div>
         <div class="form-actions">
-          <button class="btn-primary" onclick="saveProfileEdit()">Save</button>
+          <button class="btn-primary" onclick="saveProfileEdit()" style="display:inline-flex;align-items:center;gap:5px"><svg width="9" height="7" viewBox="0 0 24 18" fill="none" style="opacity:0.7;flex-shrink:0"><path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#111"/><path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#111" opacity="0.4"/><rect x="19.5" y="7" width="4" height="4" rx="1" fill="#111" opacity="0.75"/></svg>Save</button>
           <button class="btn-cancel" onclick="cancelProfileEdit()">Cancel</button>
         </div>
       </div>
@@ -336,8 +428,8 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;bottom:-120p
 
     <div class="venue-brand-stamp">
       <svg width="10" height="7" viewBox="0 0 24 18" fill="none">
-        <path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#f5a623"/>
-        <path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#f5a623" opacity="0.4"/>
+        <path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#ffffff"/>
+        <path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#ffffff" opacity="0.4"/>
       </svg>
       <span>Venue.Portal &mdash; by LogosImagined</span>
     </div>
@@ -374,8 +466,28 @@ body::after{content:'';position:fixed;z-index:0;pointer-events:none;bottom:-120p
   </div>
 </div>
 
+<nav class="mobile-nav" id="mobile-nav">
+  <button class="mobile-nav-item" id="mnav-overview" onclick="scrollToSection('stats-overview')">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+    <span>Overview</span>
+  </button>
+  <button class="mobile-nav-item" id="mnav-bookings" onclick="scrollToSection('booking-section')">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="2" y1="5" x2="14" y2="5"/><line x1="2" y1="9" x2="14" y2="9"/><line x1="2" y1="13" x2="14" y2="13"/></svg>
+    <span>Bookings</span>
+  </button>
+  <button class="mobile-nav-item" id="mnav-calendar" onclick="scrollToSection('cal-card-section')">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="1" y="3" width="14" height="12" rx="1"/><line x1="1" y1="7" x2="15" y2="7"/><line x1="5" y1="1" x2="5" y2="5"/><line x1="11" y1="1" x2="11" y2="5"/></svg>
+    <span>Calendar</span>
+  </button>
+  <button class="mobile-nav-item" id="mnav-profile" onclick="scrollToSection('profile-section')">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="5" r="3"/><rect x="2" y="11" width="12" height="4" rx="2"/></svg>
+    <span>Profile</span>
+  </button>
+</nav>
+
 <script>
 let currentVenue = {};
+let allBookings  = [];
 
 const MOCK = {
   stats: {
@@ -398,6 +510,14 @@ const MOCK = {
     { id: 4, event: "Private Dinner",         organizer: "James & Crew",         date: "May 23, 2026", guests: 20, deposit: 200, status: "confirmed" },
     { id: 5, event: "Late Night Kickback",    organizer: "DJ Marko",             date: "May 30, 2026", guests: 80, deposit: 200, status: "pending"   },
   ],
+  venue: {
+    get name()          { return currentVenue.name          || 'Your Venue'; },
+    get location()      { return currentVenue.description   || ''; },
+    get capacity()      { return currentVenue.capacity      || 200; },
+    get price_per_day() { return currentVenue.price_per_day || 500; },
+    amenities: ['Sound system', 'Stage lighting', 'Full bar', 'Parking'],
+    hours: '6pm – 2am',
+  },
 };
 
 /* ─── UTILS ─────────────────────────────────────────── */
@@ -412,11 +532,25 @@ const ROLE     = localStorage.getItem('vp_user_role');
 const USERNAME = localStorage.getItem('vp_user_name') || 'Owner';
 const VENUE_ID = localStorage.getItem('vp_venue_id');
 const IS_ADMIN_PREVIEW = (ROLE === 'superadmin' || ROLE === 'admin');
-const API_BASE = 'https://thevenueportal.paxey333.workers.dev';
+const API_BASE      = 'https://thevenueportal.paxey333.workers.dev';
+const ANTHROPIC_API = 'https://api.anthropic.com/v1/messages';
 
-if (!TOKEN || (ROLE !== 'venue_owner' && !IS_ADMIN_PREVIEW)) {
-  window.location.replace('index.html');
-}
+(function guardAuth() {
+  if (!TOKEN || (ROLE !== 'venue_owner' && !IS_ADMIN_PREVIEW)) {
+    console.log('Token missing on refresh — retrying');
+    setTimeout(() => {
+      const tok  = localStorage.getItem('vp_admin_token');
+      const role = localStorage.getItem('vp_user_role');
+      const isAdmin = (role === 'superadmin' || role === 'admin');
+      if (!tok || (role !== 'venue_owner' && !isAdmin)) {
+        window.location.replace('index.html');
+      } else {
+        window.location.reload();
+      }
+    }, 100);
+    throw new Error('auth-pending');
+  }
+})();
 
 function handleLogout() {
   ['vp_admin_token','vp_user_role','vp_user_name','vp_venue_id','vp_first_login'].forEach(k => localStorage.removeItem(k));
@@ -427,49 +561,137 @@ function handleLogout() {
 document.getElementById('hdr-venue-name').textContent = USERNAME;
 document.getElementById('hdr-greeting').textContent   = IS_ADMIN_PREVIEW ? 'Previewing as venue owner' : 'Welcome back, ' + USERNAME;
 if (IS_ADMIN_PREVIEW) {
-  document.getElementById('admin-preview-badge').style.display = '';
-  document.getElementById('btn-back-to-admin').style.display   = '';
+  if (window.innerWidth > 768) {
+    document.getElementById('admin-preview-badge').style.display = 'block';
+  }
+  document.getElementById('btn-back-to-admin').style.display = 'inline-block';
 }
 
 /* ─── STATS ─────────────────────────────────────────── */
-(function renderStats() {
-  const s    = MOCK.stats;
-  const nextB = MOCK.bookings[0];
-  const revPct  = pct(s.revenue_this_month, s.revenue_last_month);
-  const viewPct = pct(s.profile_views_this_month, s.profile_views_last_month);
+async function renderStats() {
+  if (!EFFECTIVE_VENUE_ID) {
+    const row = document.getElementById('stats-overview');
+    if (row) row.innerHTML = '<div style="grid-column:1/-1;font-family:var(--mono);font-size:11px;color:#f87171;padding:12px 0">Could not load venue data. Please log out and back in.</div>';
+    return;
+  }
+  const endpoint = API_BASE + '/api/venues/' + EFFECTIVE_VENUE_ID + '/stats';
+  try {
+    const res = await fetch(endpoint, { headers: { 'Authorization': 'Bearer ' + TOKEN } });
+    const s = await res.json();
+    if (!res.ok || s.error) throw new Error(s.error || 'Stats fetch failed');
 
-  document.getElementById('st-revenue').textContent = money(s.revenue_this_month);
-  const rSub = document.getElementById('st-revenue-sub');
-  rSub.textContent = sign(revPct) + revPct + '% vs last month';
-  rSub.style.color = revPct >= 0 ? 'var(--green)' : '#f87171';
+    if (typeof s !== 'object' || s === null) {
+      console.log('[renderStats] unexpected response shape:', s);
+      return;
+    }
 
-  document.getElementById('st-bookings').textContent = s.upcoming_bookings;
-  document.getElementById('st-bookings-sub').textContent = nextB ? 'Next: ' + nextB.date : 'None scheduled';
+    const confirmed   = s.confirmed_bookings != null ? Number(s.confirmed_bookings) : null;
+    const pending     = s.pending_bookings   != null ? Number(s.pending_bookings)   : null;
+    const total       = s.total_bookings     != null ? Number(s.total_bookings)     : null;
+    const pricePerDay = s.venue?.price_per_day || 0;
 
-  const iEl  = document.getElementById('st-inquiries');
-  const iSub = document.getElementById('st-inquiries-sub');
-  iEl.textContent  = s.pending_inquiries;
-  iEl.style.color  = s.pending_inquiries > 0 ? 'var(--accent)' : 'var(--text)';
-  iSub.textContent = s.pending_inquiries > 0 ? 'Requires action' : 'All clear';
-  iSub.style.color = s.pending_inquiries > 0 ? 'var(--accent)' : 'var(--text3)';
+    const revEl = document.getElementById('st-revenue');
+    if (revEl && confirmed !== null) revEl.textContent = money(confirmed * pricePerDay);
 
-  document.getElementById('st-views').textContent = s.profile_views_this_month;
-  const vSub = document.getElementById('st-views-sub');
-  vSub.textContent = sign(viewPct) + viewPct + '% vs last month';
-  vSub.style.color = viewPct >= 0 ? 'var(--green)' : '#f87171';
-})();
+    const bkEl = document.getElementById('st-bookings');
+    if (bkEl && confirmed !== null) bkEl.textContent = confirmed;
+
+    const iEl  = document.getElementById('st-inquiries');
+    const iSub = document.getElementById('st-inquiries-sub');
+    if (iEl && pending !== null) {
+      iEl.textContent  = pending;
+      iEl.style.color  = pending > 0 ? 'var(--accent)' : 'var(--text)';
+      if (iSub) { iSub.textContent = pending > 0 ? 'Requires action' : 'All clear'; iSub.style.color = pending > 0 ? 'var(--accent)' : 'var(--text3)'; }
+    }
+
+    const vEl  = document.getElementById('st-views');
+    const vSub = document.getElementById('st-views-sub');
+    if (vEl && total !== null) {
+      vEl.textContent = total === 0 ? '--' : Math.round(((confirmed || 0) / total) * 100) + '%';
+      if (vSub) { vSub.textContent = 'of all inquiries confirmed'; vSub.style.color = 'var(--text3)'; }
+    }
+  } catch (e) {
+    console.log('[renderStats] fetch error (' + endpoint + '):', e.message);
+    // Preserve last known values — only show -- if still at initial placeholder
+    ['st-revenue','st-bookings','st-inquiries','st-views'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el && el.textContent === '—') {
+        el.textContent = '--';
+        el.style.fontFamily = 'var(--mono)';
+        el.style.fontSize   = '11px';
+        el.style.color      = 'var(--text3)';
+      }
+    });
+  }
+}
 
 /* ─── BOOKINGS ──────────────────────────────────────── */
-(function renderBookings() {
-  document.getElementById('booking-list').innerHTML = MOCK.bookings.map(b => `
-    <div class="booking-item">
-      <div style="min-width:0">
-        <div class="booking-event">${esc(b.event)}</div>
-        <div class="booking-meta">${esc(b.organizer)}<br>${esc(b.date)} &middot; ${b.guests} guests &middot; ${money(b.deposit)} deposit</div>
-      </div>
-      <span class="badge badge-${b.status}">${esc(b.status)}</span>
-    </div>`).join('');
-})();
+async function renderBookings() {
+  const listEl = document.getElementById('booking-list');
+  listEl.innerHTML = '<div style="font-family:var(--mono);font-size:11px;color:var(--text3);padding:8px 0">Loading...</div>';
+  try {
+    const res = await fetch(API_BASE + '/api/bookings', {
+      headers: { 'Authorization': 'Bearer ' + TOKEN }
+    });
+    const data = await res.json();
+    if (!res.ok || !Array.isArray(data)) throw new Error('Failed to load bookings');
+    allBookings = data;
+    renderCalendarDots();
+
+    const confirmed = data
+      .filter(b => b.status === 'confirmed')
+      .sort((a, b) => a.event_date.localeCompare(b.event_date))
+      .slice(0, 8);
+
+    const nextDate = confirmed.length > 0 ? confirmed[0].event_date : null;
+    document.getElementById('st-bookings-sub').textContent = nextDate ? 'Next: ' + nextDate : 'None scheduled';
+
+    if (confirmed.length === 0) {
+      listEl.innerHTML = '<div style="text-align:center;padding:24px 0"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><div style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-top:10px">No upcoming bookings</div></div>';
+      return;
+    }
+    listEl.innerHTML = confirmed.map(b => `
+      <div class="booking-item">
+        <div style="min-width:0">
+          <div class="booking-event">${esc(b.client_name)}</div>
+          <div class="booking-meta">${esc(b.client_email)}<br>${esc(b.event_date)}${b.guests ? ' &middot; ' + b.guests + ' guests' : ''}</div>
+        </div>
+        <span class="badge badge-confirmed">confirmed</span>
+      </div>`).join('');
+  } catch (e) {
+    console.log('[renderBookings] fetch error (' + API_BASE + '/api/bookings):', e.message);
+    listEl.innerHTML = '<div style="font-family:var(--mono);font-size:11px;color:#f87171;padding:8px 0">' + esc(e.message || 'Error loading bookings') + '</div>';
+  }
+}
+
+/* ─── TIMER BADGE + DATE UTILS ─────────────────────── */
+function toLocalDateStr(d) {
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function normalizeDate(str) {
+  if (!str) return '';
+  if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+  const d = new Date(str);
+  return isNaN(d) ? str : toLocalDateStr(d);
+}
+function timerBadge(created_at) {
+  if (!created_at) return '';
+  const created = new Date(created_at);
+  if (isNaN(created)) return '';
+  const diffHrs = (Date.now() - created.getTime()) / 3600000;
+  let text, color, bg, bdr, bold = '';
+  if (diffHrs >= 24) {
+    const days = Math.floor(diffHrs / 24), hrs = Math.floor(diffHrs % 24);
+    text = days + 'd ' + hrs + 'h'; color = '#f87171'; bg = 'rgba(248,113,113,0.1)'; bdr = 'rgba(248,113,113,0.2)'; bold = 'font-weight:700;';
+  } else if (diffHrs >= 12) {
+    text = Math.floor(diffHrs) + 'h'; color = '#f87171'; bg = 'rgba(248,113,113,0.1)'; bdr = 'rgba(248,113,113,0.2)';
+  } else if (diffHrs >= 2) {
+    text = Math.floor(diffHrs) + 'h'; color = 'var(--accent)'; bg = 'var(--accent-dim)'; bdr = 'rgba(255,255,255,0.2)';
+  } else {
+    text = diffHrs < 1 ? '< 1h' : Math.floor(diffHrs) + 'h'; color = 'var(--green)'; bg = 'rgba(74,222,128,0.1)'; bdr = 'rgba(74,222,128,0.2)';
+  }
+  return `<span style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.06em;padding:3px 8px;border-radius:4px;background:${bg};color:${color};border:1px solid ${bdr};${bold}margin-left:7px;flex-shrink:0;white-space:nowrap">${text}</span>`;
+}
 
 /* ─── INQUIRIES ─────────────────────────────────────── */
 async function renderInquiries() {
@@ -479,22 +701,26 @@ async function renderInquiries() {
       headers: { 'Authorization': 'Bearer ' + TOKEN }
     });
     const data = await res.json();
+    if (!Array.isArray(data)) console.log('[renderInquiries] unexpected response shape:', data);
     const inquiries = Array.isArray(data) ? data.filter(q => q.status === 'pending') : [];
     if (inquiries.length === 0) {
-      list.innerHTML = '<div style="font-family:var(--mono);font-size:11px;color:var(--text3);padding:8px 0">No pending inquiries.</div>';
+      list.innerHTML = '<div style="text-align:center;padding:24px 0"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="1.5" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><div style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-top:10px">No pending inquiries</div></div>';
       return;
     }
     list.innerHTML = inquiries.map(q => `
       <div class="inquiry-item" id="inq-${q.id}">
-        <div class="inquiry-name">${esc(q.client_name)}</div>
+        <div class="inquiry-name" style="display:flex;align-items:center;gap:0">${esc(q.client_name)}${timerBadge(q.created_at)}</div>
         <div class="inquiry-meta">${esc(q.client_email)} &middot; ${esc(q.event_date)} &middot; ${q.guests || 0} guests</div>
         <div class="inquiry-note">"${esc(q.message || '')}"</div>
         <div class="inquiry-actions" id="inq-act-${q.id}">
+          <button class="btn-draft" onclick="draftReply(${q.id})">Draft Reply</button>
           <button class="btn-accept" onclick="acceptInquiry(${q.id})">Accept</button>
           <button class="btn-decline" onclick="declineInquiry(${q.id})">Decline</button>
         </div>
+        <div id="inq-draft-${q.id}"></div>
       </div>`).join('');
-  } catch {
+  } catch (e) {
+    console.log('[renderInquiries] fetch error (' + API_BASE + '/api/bookings):', e.message);
     list.innerHTML = '<div style="font-family:var(--mono);font-size:11px;color:var(--text3);padding:8px 0">Could not load inquiries.</div>';
   }
 }
@@ -548,23 +774,24 @@ async function declineInquiry(id) {
   const total = MOCK.revenue_chart.data.reduce((a, b) => a + b, 0);
   document.getElementById('chart-total').textContent = money(total);
 
-  new Chart(document.getElementById('revenue-chart').getContext('2d'), {
+  if (window.revenueChart) window.revenueChart.destroy();
+  window.revenueChart = new Chart(document.getElementById('revenue-chart').getContext('2d'), {
     type: 'bar',
     data: {
       labels: MOCK.revenue_chart.labels,
       datasets: [{
         data: MOCK.revenue_chart.data,
-        backgroundColor: 'rgba(245,166,35,0.15)',
+        backgroundColor: 'rgba(255,255,255,0.15)',
         borderColor: '#f5a623',
         borderWidth: 1,
         borderRadius: 4,
-        hoverBackgroundColor: 'rgba(245,166,35,0.28)',
+        hoverBackgroundColor: 'rgba(255,255,255,0.28)',
       }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: true,
-      aspectRatio: 3.5,
+      aspectRatio: window.innerWidth <= 768 ? 2.5 : 3.5,
       plugins: {
         legend: { display: false },
         tooltip: {
@@ -602,7 +829,7 @@ async function loadVenueProfile() {
       headers: { 'Authorization': 'Bearer ' + TOKEN }
     });
     const v = await res.json();
-    if (!v || v.error) return;
+    if (!v || v.error) { console.log('[loadVenueProfile] bad response:', v); return; }
     currentVenue = v;
     document.getElementById('hdr-venue-name').textContent = v.name || '';
     document.getElementById('pf-name').textContent        = v.name || '';
@@ -612,7 +839,7 @@ async function loadVenueProfile() {
     document.getElementById('pf-hours').textContent       = '—';
     document.getElementById('tier-badge').textContent     = 'BASIC PORTAL';
     document.getElementById('pf-amenities').innerHTML     = '';
-  } catch {}
+  } catch (e) { console.log('[loadVenueProfile] fetch error (' + API_BASE + '/api/venues/' + EFFECTIVE_VENUE_ID + '):', e.message); }
 }
 
 function startProfileEdit() {
@@ -734,6 +961,9 @@ function showStripeBanner(msg, color, borderColor) {
 }
 
 loadVenueProfile();
+renderStats();
+renderBookings();
+renderCalendar();
 
 // Handle Stripe return params
 (function handleStripeReturn() {
@@ -750,6 +980,196 @@ loadVenueProfile();
   } else {
     loadStripeStatus();
   }
+})();
+
+/* ─── BOOKING CALENDAR ──────────────────────────────── */
+let calMonthOffset = 0;
+
+function shiftCalMonth(delta) {
+  calMonthOffset += delta;
+  renderCalendar();
+}
+
+function renderCalendar() {
+  const grid = document.getElementById('bk-cal-grid');
+  if (!grid) return;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const todayStr = toLocalDateStr(today);
+  const target   = new Date(today.getFullYear(), today.getMonth() + calMonthOffset, 1);
+  const curMonth = target.getMonth();
+  const label    = document.getElementById('cal-month-label');
+  if (label) label.textContent = target.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  const start = new Date(target);
+  const dow   = start.getDay();
+  start.setDate(start.getDate() - (dow === 0 ? 6 : dow - 1));
+  const dowFull  = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const dowShort = ['M','T','W','T','F','S','S'];
+  let html = dowFull.map((n,i) =>
+    `<div class="bk-cal-dow"><span class="bk-dow-full">${n}</span><span class="bk-dow-short">${dowShort[i]}</span></div>`
+  ).join('');
+  for (let i = 0; i < 42; i++) {
+    const d = new Date(start); d.setDate(start.getDate() + i);
+    const dStr    = toLocalDateStr(d);
+    const isToday = dStr === todayStr;
+    const isPast  = d < today;
+    const isOut   = d.getMonth() !== curMonth;
+    let cls = 'bk-cal-day';
+    if (isToday) cls += ' today';
+    if (isPast)  cls += ' past';
+    if (isOut)   cls += ' out';
+    html += `<div class="${cls}" data-date="${dStr}"><span class="bk-day-num">${d.getDate()}</span></div>`;
+  }
+  grid.innerHTML = html;
+  renderCalendarDots();
+}
+
+function renderCalendarDots() {
+  const grid = document.getElementById('bk-cal-grid');
+  if (!grid || !allBookings.length) return;
+  grid.querySelectorAll('.bk-cal-pill').forEach(el => el.remove());
+  allBookings.forEach(b => {
+    if (b.status !== 'confirmed' && b.status !== 'pending') return;
+    const dStr = normalizeDate(b.event_date);
+    const cell = grid.querySelector('[data-date="' + dStr + '"]');
+    if (!cell) return;
+    const pill = document.createElement('span');
+    pill.className = 'bk-cal-pill' + (b.status === 'pending' ? ' pending' : '');
+    pill.textContent = b.client_name || 'Booking';
+    pill.title = (b.client_name || '') + ' · ' + b.event_date;
+    cell.appendChild(pill);
+  });
+}
+
+/* ─── AI DRAFT REPLY ────────────────────────────────── */
+let activeDraftId = null;
+
+function closeDraftPanel() {
+  if (activeDraftId !== null) {
+    const panel = document.getElementById('inq-draft-' + activeDraftId);
+    if (panel) panel.innerHTML = '';
+    activeDraftId = null;
+  }
+}
+
+async function draftReply(id) {
+  closeDraftPanel();
+  const inquiry = allBookings.find(b => b.id === id);
+  if (!inquiry) return;
+  activeDraftId = id;
+  const panel = document.getElementById('inq-draft-' + id);
+  if (!panel) return;
+  showDraftLoading(panel);
+  await callDraftAPI(id, inquiry);
+}
+
+function showDraftLoading(panel) {
+  panel.innerHTML = `<div style="background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:16px;margin-top:8px"><div class="draft-loading" style="font-family:var(--mono);font-size:11px;color:var(--text3)">Drafting reply...</div></div>`;
+}
+
+async function callDraftAPI(id, inquiry) {
+  const panel = document.getElementById('inq-draft-' + id);
+  if (!panel) return;
+  try {
+    const res = await fetch(API_BASE + '/api/draft-reply', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + TOKEN,
+      },
+      body: JSON.stringify({
+        venue: {
+          name:         MOCK.venue.name,
+          location:     MOCK.venue.location,
+          capacity:     MOCK.venue.capacity,
+          price_per_day: MOCK.venue.price_per_day,
+          amenities:    MOCK.venue.amenities,
+          hours:        MOCK.venue.hours,
+        },
+        inquiry: {
+          client_name:  inquiry.client_name,
+          client_email: inquiry.client_email,
+          event_date:   inquiry.event_date,
+          guests:       inquiry.guests,
+          message:      inquiry.message,
+        },
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'API error');
+    const draft = data.draft;
+    const taId  = 'draft-ta-' + id;
+    panel.innerHTML = `
+      <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:16px;margin-top:8px">
+        <textarea id="${taId}" style="width:100%;min-height:140px;background:var(--bg);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:var(--sans);font-size:13px;line-height:1.6;padding:12px;resize:vertical;outline:none">${esc(draft)}</textarea>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+          <button id="draft-copy-${id}" onclick="copyDraft('${taId}',${id})" style="background:var(--accent);color:#111;font-family:var(--display);font-size:12px;font-weight:700;padding:7px 14px;border-radius:var(--radius);border:none;cursor:pointer">Copy Reply</button>
+          <button onclick="regenerateDraft(${id})" style="background:none;border:1px solid var(--border2);color:var(--text2);font-family:var(--mono);font-size:9px;text-transform:uppercase;padding:7px 14px;border-radius:var(--radius);cursor:pointer">Regenerate</button>
+          <button onclick="closeDraftPanel()" style="background:none;border:1px solid var(--border2);color:var(--text2);font-family:var(--mono);font-size:9px;text-transform:uppercase;padding:7px 14px;border-radius:var(--radius);cursor:pointer">Close</button>
+        </div>
+      </div>`;
+  } catch(e) {
+    panel.innerHTML = `
+      <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:16px;margin-top:8px">
+        <div style="font-family:var(--mono);font-size:11px;color:#f87171;margin-bottom:10px">Could not generate draft. Try again.</div>
+        <button onclick="regenerateDraft(${id})" style="background:none;border:1px solid var(--border2);color:var(--text2);font-family:var(--mono);font-size:9px;text-transform:uppercase;padding:7px 14px;border-radius:var(--radius);cursor:pointer">Retry</button>
+      </div>`;
+  }
+}
+
+async function regenerateDraft(id) {
+  const inquiry = allBookings.find(b => b.id === id);
+  if (!inquiry) return;
+  activeDraftId = id;
+  const panel = document.getElementById('inq-draft-' + id);
+  if (!panel) return;
+  showDraftLoading(panel);
+  await callDraftAPI(id, inquiry);
+}
+
+function copyDraft(taId, id) {
+  const ta  = document.getElementById(taId);
+  const btn = document.getElementById('draft-copy-' + id);
+  if (!ta || !btn) return;
+  const revert = () => { if (btn) btn.textContent = 'Copy Reply'; };
+  navigator.clipboard.writeText(ta.value).then(() => {
+    btn.textContent = 'Copied'; setTimeout(revert, 2000);
+  }).catch(() => {
+    ta.select(); document.execCommand('copy');
+    btn.textContent = 'Copied'; setTimeout(revert, 2000);
+  });
+}
+
+/* ─── MOBILE NAV ────────────────────────────────────── */
+function scrollToSection(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+(function initMobileNav() {
+  const items = [
+    { secId: 'stats-overview',   navId: 'mnav-overview' },
+    { secId: 'booking-section',  navId: 'mnav-bookings' },
+    { secId: 'cal-card-section', navId: 'mnav-calendar' },
+    { secId: 'profile-section',  navId: 'mnav-profile' },
+  ];
+  const setActive = (navId) => {
+    document.querySelectorAll('.mobile-nav-item').forEach(b => b.classList.remove('active'));
+    const btn = document.getElementById(navId);
+    if (btn) btn.classList.add('active');
+  };
+  setActive('mnav-overview');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const item = items.find(s => s.secId === entry.target.id);
+        if (item) setActive(item.navId);
+      }
+    });
+  }, { threshold: 0.25, rootMargin: '0px 0px -40% 0px' });
+  items.forEach(s => {
+    const el = document.getElementById(s.secId);
+    if (el) obs.observe(el);
+  });
 })();
 
 /* ─── FIRST LOGIN MODAL ─────────────────────────────── */
