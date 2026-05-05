@@ -178,6 +178,29 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
 .success-label{font-family:var(--display);font-size:17px;font-weight:800;color:var(--green);margin-bottom:5px}
 .success-sub{font-family:var(--mono);font-size:11px;color:var(--text3)}
 
+/* CALENDAR CARD */
+.cal-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:16px;position:relative;z-index:1}
+.bk-cal-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.bk-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.bk-cal-dow{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);text-align:center;padding:4px 0 8px}
+.bk-dow-short{display:none}
+.bk-cal-day{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);min-height:64px;position:relative;padding:6px 5px 5px;overflow:hidden}
+.bk-cal-day.today{border-color:rgba(245,166,35,0.4)}
+.bk-cal-day.today .bk-day-num{color:var(--accent)}
+.bk-cal-day.past{opacity:0.4}
+.bk-cal-day.out{background:var(--bg);border-color:var(--border);opacity:0.25}
+.bk-day-num{font-family:var(--mono);font-size:10px;color:var(--text3);position:absolute;top:6px;right:7px;line-height:1}
+.bk-cal-pill{background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.2);border-radius:3px;padding:2px 5px;font-family:var(--mono);font-size:9px;color:var(--green);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;display:block;margin-top:18px}
+.bk-cal-pill.pending{background:rgba(245,166,35,0.12);border-color:rgba(245,166,35,0.2);color:var(--accent)}
+.cal-mnav-btn{background:none;border:1px solid var(--border2);color:var(--text2);font-family:var(--mono);font-size:14px;width:26px;height:26px;border-radius:var(--radius);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .15s,color .15s;padding:0;line-height:1}
+.cal-mnav-btn:hover{border-color:var(--text2);color:var(--text)}
+@media(max-width:768px){
+  .bk-cal-grid{min-width:560px}
+  .bk-dow-full{display:none}
+  .bk-dow-short{display:inline}
+  .bk-cal-day{min-height:52px}
+}
+
 /* URGENT CARD ACCENT */
 .card-urgent{border-left:2px solid var(--accent)}
 
@@ -242,23 +265,6 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
   /* Bottom nav */
   .mobile-nav{display:flex}
 }
-
-/* BOOKING CALENDAR */
-.cal-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:16px;position:relative;z-index:1}
-.cal-mnav-btn{background:none;border:1px solid var(--border2);color:var(--text2);font-family:var(--mono);font-size:14px;width:26px;height:26px;border-radius:var(--radius);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .15s,color .15s;padding:0;line-height:1}
-.cal-mnav-btn:hover{border-color:var(--text2);color:var(--text)}
-.bk-cal-wrap{width:100%;overflow:hidden}
-.bk-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;width:100%}
-.bk-cal-dow{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);text-align:center;padding:4px 0 8px}
-.bk-dow-short{display:none}
-.bk-cal-day{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);min-height:64px;position:relative;padding:6px 5px 5px;overflow:hidden}
-.bk-cal-day.today{border-color:rgba(245,166,35,0.4)}
-.bk-cal-day.today .bk-day-num{color:var(--accent)}
-.bk-cal-day.past{opacity:0.4}
-.bk-cal-day.out{background:var(--bg);border-color:var(--border);opacity:0.25}
-.bk-day-num{font-family:var(--mono);font-size:10px;color:var(--text3);position:absolute;top:6px;right:7px;line-height:1}
-.bk-cal-pill{background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.2);border-radius:3px;padding:2px 5px;font-family:var(--mono);font-size:9px;color:var(--green);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;display:block;margin-top:18px}
-.bk-cal-pill.pending{background:rgba(245,166,35,0.12);border-color:rgba(245,166,35,0.2);color:var(--accent)}
 
 /* DRAFT REPLY */
 @keyframes pulse-load{0%,100%{opacity:0.4}50%{opacity:1}}
