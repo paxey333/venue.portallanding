@@ -180,7 +180,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
 
 /* CALENDAR CARD */
 .cal-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:16px;position:relative;z-index:1}
-.bk-cal-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.bk-cal-wrap{width:100%;overflow:hidden}
 .bk-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
 .bk-cal-dow{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);text-align:center;padding:4px 0 8px}
 .bk-dow-short{display:none}
@@ -194,12 +194,6 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
 .bk-cal-pill.pending{background:rgba(245,166,35,0.12);border-color:rgba(245,166,35,0.2);color:var(--accent)}
 .cal-mnav-btn{background:none;border:1px solid var(--border2);color:var(--text2);font-family:var(--mono);font-size:14px;width:26px;height:26px;border-radius:var(--radius);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .15s,color .15s;padding:0;line-height:1}
 .cal-mnav-btn:hover{border-color:var(--text2);color:var(--text)}
-@media(max-width:768px){
-  .bk-cal-grid{min-width:560px}
-  .bk-dow-full{display:none}
-  .bk-dow-short{display:inline}
-  .bk-cal-day{min-height:52px}
-}
 
 /* URGENT CARD ACCENT */
 .card-urgent{border-left:2px solid var(--accent)}
@@ -247,11 +241,9 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
   .card{padding:14px}
   .two-col{grid-template-columns:1fr;gap:10px}
   /* Calendar */
-  .bk-cal-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
-  .bk-cal-grid{min-width:560px}
-  .bk-dow-full{display:none}
-  .bk-dow-short{display:inline}
-  .bk-cal-day{min-height:52px}
+  .bk-cal-wrap{width:100%;overflow:hidden}
+  .bk-cal-grid{width:100%}
+  .bk-cal-day{min-height:48px}
   /* Chart */
   .chart-card{padding:14px}
   /* Stripe */
