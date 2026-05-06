@@ -487,41 +487,61 @@ export default {
         try {
           const id = Number(venueByIdMatch[1]);
           const row = await env.DB.prepare(
-            `SELECT id, name, description, capacity, price_per_day, image_url, created_at
+            `SELECT id, name, description, capacity, price_per_day, image_url, hours, amenities, gallery, video_url, created_at
              FROM venues WHERE id = ?`
           ).bind(id).first();
           if (!row) return jsonResponse({ error: "Venue not found" }, 404, request);
-          return jsonResponse(row, 200, request);
+          let amenities = [];
+          try { const a = row.amenities ? JSON.parse(row.amenities) : []; amenities = Array.isArray(a) ? a : []; } catch(e) { amenities = []; }
+          let gallery = [];
+          try { const g = row.gallery ? JSON.parse(row.gallery) : []; gallery = Array.isArray(g) ? g : []; } catch(e) { gallery = []; }
+          return jsonResponse({ ...row, amenities, gallery }, 200, request);
         } catch (err) {
           return jsonResponse({ error: err.message }, 500, request);
         }
       }
 
-      if (venueByIdMatch && request.method === "PUT") {
+      if (venueByIdMatch && (request.method === "PUT" || request.method === "PATCH")) {
         try {
           const session = await getSession(request, env);
           if (!isAdminOrAbove(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
           const id = Number(venueByIdMatch[1]);
           const body = await parseJson(request);
-          const name = String(body.name || "").trim();
-          if (!name) return jsonResponse({ error: "Venue name is required" }, 400, request);
 
-          const res = await env.DB.prepare(
-            `UPDATE venues SET name=?, description=?, capacity=?, price_per_day=?, image_url=? WHERE id=?`
-          ).bind(
-            name,
-            body.description ? String(body.description) : null,
-            toIntOrNull(body.capacity),
-            toNumberOrNull(body.price_per_day),
-            body.image_url ? String(body.image_url) : null,
-            id
-          ).run();
+          const fields = [];
+          const values = [];
+          if ('name' in body) {
+            const name = String(body.name || "").trim();
+            if (!name) return jsonResponse({ error: "Venue name is required" }, 400, request);
+            fields.push('name=?'); values.push(name);
+          }
+          if ('description' in body)   { fields.push('description=?');   values.push(body.description ? String(body.description) : null); }
+          if ('capacity' in body)      { fields.push('capacity=?');      values.push(toIntOrNull(body.capacity)); }
+          if ('price_per_day' in body) { fields.push('price_per_day=?'); values.push(toNumberOrNull(body.price_per_day)); }
+          if ('image_url' in body)     { fields.push('image_url=?');     values.push(body.image_url ? String(body.image_url) : null); }
+          if ('hours' in body)         { fields.push('hours=?');         values.push(body.hours ? String(body.hours) : null); }
+          if ('video_url' in body)     { fields.push('video_url=?');     values.push(body.video_url ? String(body.video_url) : null); }
+          if ('amenities' in body)     { fields.push('amenities=?');     values.push(Array.isArray(body.amenities) ? JSON.stringify(body.amenities) : null); }
+          if ('gallery' in body)       { fields.push('gallery=?');       values.push(Array.isArray(body.gallery) ? JSON.stringify(body.gallery) : null); }
 
-          if (!res.meta.changes) return jsonResponse({ error: "Venue not found" }, 404, request);
+          if (!fields.length) return jsonResponse({ error: "No fields to update" }, 400, request);
+
+          const exists = await env.DB.prepare("SELECT id FROM venues WHERE id=?").bind(id).first();
+          if (!exists) return jsonResponse({ error: "Venue not found" }, 404, request);
+
+          values.push(id);
+          await env.DB.prepare(
+            `UPDATE venues SET ${fields.join(', ')} WHERE id=?`
+          ).bind(...values).run();
+
           const updated = await env.DB.prepare(
-            `SELECT id, name, description, capacity, price_per_day, image_url, created_at FROM venues WHERE id=?`
+            `SELECT id, name, description, capacity, price_per_day, image_url, hours, amenities, gallery, video_url, created_at FROM venues WHERE id=?`
           ).bind(id).first();
-          return jsonResponse(updated, 200, request);
+          let amenities = [];
+          try { const a = updated.amenities ? JSON.parse(updated.amenities) : []; amenities = Array.isArray(a) ? a : []; } catch(e) { amenities = []; }
+          let gallery = [];
+          try { const g = updated.gallery ? JSON.parse(updated.gallery) : []; gallery = Array.isArray(g) ? g : []; } catch(e) { gallery = []; }
+          return jsonResponse({ ...updated, amenities, gallery }, 200, request);
         } catch (err) {
           return jsonResponse({ error: err.message }, 500, request);
         }

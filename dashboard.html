@@ -195,6 +195,29 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
 .cal-mnav-btn{background:none;border:1px solid var(--border2);color:var(--text2);font-family:var(--mono);font-size:14px;width:26px;height:26px;border-radius:var(--radius);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .15s,color .15s;padding:0;line-height:1}
 .cal-mnav-btn:hover{border-color:var(--text2);color:var(--text)}
 
+/* MEDIA CARD */
+.media-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:16px;position:relative;z-index:1}
+
+/* AMENITY TOGGLES */
+.amenity-toggle{background:var(--surface2);border:1px solid var(--border2);color:var(--text2);font-family:var(--mono);font-size:10px;padding:5px 11px;border-radius:20px;cursor:pointer;transition:background .15s,border-color .15s,color .15s;white-space:nowrap}
+.amenity-toggle.active{background:var(--accent-dim);border-color:rgba(245,166,35,0.35);color:var(--accent)}
+.amenity-toggle:hover{border-color:var(--text3);color:var(--text)}
+
+/* VISUAL UPGRADES */
+.stat-card{transition:border-color .2s,box-shadow .2s}
+.stat-card:hover{border-color:rgba(245,166,35,0.2);box-shadow:0 0 0 1px rgba(245,166,35,0.06)}
+.booking-item{transition:background .15s}
+.booking-item:hover{background:rgba(255,255,255,0.02)}
+.inquiry-item{transition:background .15s}
+.inquiry-item:hover{background:rgba(255,255,255,0.02)}
+.section-title{letter-spacing:.08em}
+.profile-card{transition:border-color .2s}
+
+@media(max-width:768px){
+  .profile-edit-form > div[style*="grid"]{grid-template-columns:1fr !important}
+  .media-card img{border-radius:4px}
+}
+
 /* URGENT CARD ACCENT */
 .card-urgent{border-left:2px solid var(--accent)}
 
@@ -404,26 +427,69 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
         <div>
           <div class="pf-label" style="margin-bottom:10px">Amenities</div>
           <div class="amenity-pills" id="pf-amenities"></div>
+          <div class="profile-field">
+            <div class="pf-label">Hours</div>
+            <div class="pf-val-sm" id="pf-hours-display"></div>
+          </div>
+          <div class="profile-field">
+            <div class="pf-label">About</div>
+            <div class="pf-val-sm" id="pf-description-display" style="line-height:1.6;color:var(--text2)"></div>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Edit state -->
     <div class="profile-edit-form" id="profile-edit-form">
-      <div style="max-width:440px">
-        <div class="form-field">
-          <label class="form-label">Venue Name</label>
-          <input class="form-input" id="edit-name" type="text"/>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:760px">
+        <div>
+          <div class="form-field">
+            <label class="form-label">Venue Name</label>
+            <input class="form-input" id="edit-name" type="text" placeholder="The Chill Room"/>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Location / Address</label>
+            <input class="form-input" id="edit-location" type="text" placeholder="1320 E Broadway Rd, Tempe AZ"/>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Capacity</label>
+            <input class="form-input" id="edit-capacity" type="number" placeholder="300"/>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Price Per Night ($)</label>
+            <input class="form-input" id="edit-price" type="number" placeholder="400"/>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Hours of Operation</label>
+            <input class="form-input" id="edit-hours" type="text" placeholder="Sun–Thu 2PM–12AM · Fri–Sat 2PM–2AM"/>
+          </div>
+          <div class="form-field">
+            <label class="form-label">About the Venue</label>
+            <textarea class="form-input" id="edit-description" rows="3" placeholder="Describe your venue..." style="resize:vertical;min-height:80px;line-height:1.6"></textarea>
+          </div>
         </div>
-        <div class="form-field">
-          <label class="form-label">Location</label>
-          <input class="form-input" id="edit-location" type="text"/>
-        </div>
-        <div class="form-actions">
-          <button class="btn-primary" onclick="saveProfileEdit()" style="display:inline-flex;align-items:center;gap:5px"><svg width="9" height="7" viewBox="0 0 24 18" fill="none" style="opacity:0.7;flex-shrink:0"><path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#111"/><path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#111" opacity="0.4"/><rect x="19.5" y="7" width="4" height="4" rx="1" fill="#111" opacity="0.75"/></svg>Save</button>
-          <button class="btn-cancel" onclick="cancelProfileEdit()">Cancel</button>
+        <div>
+          <div class="form-field">
+            <label class="form-label">Amenities</label>
+            <div id="amenity-toggle-grid" style="display:flex;flex-wrap:wrap;gap:7px;margin-top:4px"></div>
+          </div>
+          <div class="form-field" style="margin-top:16px">
+            <label class="form-label">YouTube / Video URL</label>
+            <input class="form-input" id="edit-video" type="text" placeholder="https://youtube.com/watch?v=..."/>
+            <div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:4px">Paste a YouTube link to embed a venue preview video</div>
+          </div>
+          <div class="form-field" style="margin-top:16px">
+            <label class="form-label">Gallery Photos</label>
+            <div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-bottom:8px">Paste image URLs — one per line, up to 6 photos</div>
+            <textarea class="form-input" id="edit-gallery" rows="5" placeholder="https://example.com/photo1.jpg&#10;https://example.com/photo2.jpg" style="resize:vertical;font-size:11px;font-family:var(--mono);line-height:1.7"></textarea>
+          </div>
         </div>
       </div>
+      <div class="form-actions" style="margin-top:16px">
+        <button class="btn-primary" onclick="saveProfileEdit()">Save Changes</button>
+        <button class="btn-cancel" onclick="cancelProfileEdit()">Cancel</button>
+      </div>
+      <div id="edit-save-err" style="display:none;font-family:var(--mono);font-size:11px;color:#f87171;margin-top:8px"></div>
     </div>
 
     <div class="venue-brand-stamp">
@@ -433,6 +499,17 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
       </svg>
       <span>Venue.Portal &mdash; by LogosImagined</span>
     </div>
+  </div>
+
+  <!-- MEDIA & GALLERY -->
+  <div class="media-card" id="media-section">
+    <div class="section-hd">
+      <div class="section-title"><span class="s-accent">&#9656;</span> Media &amp; Gallery</div>
+      <div style="font-family:var(--mono);font-size:9px;color:var(--text3)">Edit via Profile</div>
+    </div>
+    <div id="media-gallery-grid"></div>
+    <div id="media-video-wrap"></div>
+    <div id="media-empty" style="display:none;font-family:var(--mono);font-size:11px;color:var(--text3);padding:20px 0;text-align:center">No photos or video added yet. Click Edit Profile to add media.</div>
   </div>
 
   <!-- STRIPE CONNECT -->
@@ -822,6 +899,25 @@ async function declineInquiry(id) {
 })();
 
 /* ─── VENUE PROFILE ─────────────────────────────────── */
+const AMENITY_OPTIONS = ['Full Bar','Stage','Sound System','Dance Floor','Outdoor Patio','Green Room','Parking','Private Area','AV Equipment','Catering Kitchen','Projector','Security','BYOB Allowed','21+ Only','All Ages'];
+
+function renderAmenityToggles(selected = []) {
+  const grid = document.getElementById('amenity-toggle-grid');
+  if (!grid) return;
+  grid.innerHTML = AMENITY_OPTIONS.map(a => {
+    const active = selected.includes(a);
+    return `<button type="button" onclick="toggleAmenity(this,'${a}')" class="amenity-toggle${active ? ' active' : ''}" data-amenity="${a}">${a}</button>`;
+  }).join('');
+}
+
+function toggleAmenity(el, name) {
+  el.classList.toggle('active');
+}
+
+function getSelectedAmenities() {
+  return [...document.querySelectorAll('.amenity-toggle.active')].map(el => el.dataset.amenity);
+}
+
 async function loadVenueProfile() {
   if (!EFFECTIVE_VENUE_ID) return;
   try {
@@ -830,21 +926,53 @@ async function loadVenueProfile() {
     });
     const v = await res.json();
     if (!v || v.error) { console.log('[loadVenueProfile] bad response:', v); return; }
+    let amenities = v.amenities;
+    if (typeof amenities === 'string') {
+      try { amenities = JSON.parse(amenities); } catch(e) { amenities = []; }
+    }
+    if (!Array.isArray(amenities)) amenities = [];
+    let gallery = v.gallery;
+    if (typeof gallery === 'string') {
+      try { gallery = JSON.parse(gallery); } catch(e) { gallery = []; }
+    }
+    if (!Array.isArray(gallery)) gallery = [];
+    v.amenities = amenities;
+    v.gallery = gallery;
     currentVenue = v;
     document.getElementById('hdr-venue-name').textContent = v.name || '';
     document.getElementById('pf-name').textContent        = v.name || '';
     document.getElementById('pf-location').textContent    = v.description || '—';
     document.getElementById('pf-capacity').textContent    = v.capacity ? v.capacity.toLocaleString() + ' capacity' : '—';
     document.getElementById('pf-price').textContent       = v.price_per_day ? '$' + v.price_per_day + ' / night' : '—';
-    document.getElementById('pf-hours').textContent       = '—';
+    const pfHours = document.getElementById('pf-hours');
+    if (pfHours) pfHours.textContent = v.hours || '—';
+    const pfHoursDisplay = document.getElementById('pf-hours-display');
+    if (pfHoursDisplay) pfHoursDisplay.textContent = v.hours || '—';
+    const pfDescDisplay = document.getElementById('pf-description-display');
+    if (pfDescDisplay) pfDescDisplay.textContent = v.description || '—';
     document.getElementById('tier-badge').textContent     = 'BASIC PORTAL';
-    document.getElementById('pf-amenities').innerHTML     = '';
+    const amenEl = document.getElementById('pf-amenities');
+    if (amenEl) {
+      amenEl.innerHTML = amenities.length
+        ? amenities.map(a => `<span class="amenity-pill">${esc(a)}</span>`).join('')
+        : '';
+    }
+    renderMedia();
   } catch (e) { console.log('[loadVenueProfile] fetch error (' + API_BASE + '/api/venues/' + EFFECTIVE_VENUE_ID + '):', e.message); }
 }
 
 function startProfileEdit() {
-  document.getElementById('edit-name').value     = currentVenue.name || '';
-  document.getElementById('edit-location').value = currentVenue.description || '';
+  document.getElementById('edit-name').value        = currentVenue.name || '';
+  document.getElementById('edit-location').value    = currentVenue.description || '';
+  document.getElementById('edit-capacity').value    = currentVenue.capacity || '';
+  document.getElementById('edit-price').value       = currentVenue.price_per_day || '';
+  document.getElementById('edit-hours').value       = currentVenue.hours || '';
+  document.getElementById('edit-description').value = currentVenue.description || '';
+  document.getElementById('edit-video').value       = currentVenue.video_url || '';
+  const gallery = Array.isArray(currentVenue.gallery) ? currentVenue.gallery : [];
+  document.getElementById('edit-gallery').value     = gallery.join('\n');
+  const amenities = Array.isArray(currentVenue.amenities) ? currentVenue.amenities : [];
+  renderAmenityToggles(amenities);
   document.getElementById('profile-display').classList.add('hidden');
   document.getElementById('profile-edit-form').classList.add('active');
   document.getElementById('edit-btn').style.display = 'none';
@@ -856,12 +984,59 @@ function cancelProfileEdit() {
   document.getElementById('edit-btn').style.display = '';
 }
 
-function saveProfileEdit() {
-  const name = document.getElementById('edit-name').value.trim();
-  const loc  = document.getElementById('edit-location').value.trim();
-  if (name) { currentVenue.name = name; document.getElementById('pf-name').textContent = name; document.getElementById('hdr-venue-name').textContent = name; }
-  if (loc)  { currentVenue.description = loc; document.getElementById('pf-location').textContent = loc; }
-  cancelProfileEdit();
+async function saveProfileEdit() {
+  const errEl = document.getElementById('edit-save-err');
+  errEl.style.display = 'none';
+  const galleryRaw = document.getElementById('edit-gallery').value.trim();
+  const gallery = galleryRaw ? galleryRaw.split('\n').map(s => s.trim()).filter(Boolean).slice(0,6) : [];
+  const body = {
+    name:          document.getElementById('edit-name').value.trim(),
+    description:   document.getElementById('edit-description').value.trim(),
+    capacity:      parseInt(document.getElementById('edit-capacity').value) || null,
+    price_per_day: parseFloat(document.getElementById('edit-price').value) || null,
+    hours:         document.getElementById('edit-hours').value.trim(),
+    video_url:     document.getElementById('edit-video').value.trim() || null,
+    amenities:     getSelectedAmenities(),
+    gallery:       gallery,
+  };
+  if (!body.name) { errEl.style.display=''; errEl.textContent='Venue name is required.'; return; }
+  try {
+    const res = await fetch(API_BASE + '/api/venues/' + EFFECTIVE_VENUE_ID, {
+      method: 'PATCH',
+      headers: { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Save failed');
+    currentVenue = { ...currentVenue, ...body };
+    cancelProfileEdit();
+    loadVenueProfile();
+  } catch(e) {
+    errEl.style.display = '';
+    errEl.textContent = 'Save failed: ' + e.message;
+  }
+}
+
+function renderMedia() {
+  const gallery = Array.isArray(currentVenue.gallery) ? currentVenue.gallery : [];
+  const video   = currentVenue.video_url || '';
+  const grid    = document.getElementById('media-gallery-grid');
+  const vidWrap = document.getElementById('media-video-wrap');
+  const empty   = document.getElementById('media-empty');
+  if (!grid || !vidWrap || !empty) return;
+  if (!gallery.length && !video) { empty.style.display=''; grid.innerHTML=''; vidWrap.innerHTML=''; return; }
+  empty.style.display = 'none';
+  if (gallery.length) {
+    grid.innerHTML = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:${video ? '16px' : '0'}">${gallery.map(url => `<div style="aspect-ratio:16/9;border-radius:var(--radius);overflow:hidden;background:var(--surface2);border:1px solid var(--border)"><img src="${esc(url)}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.style.opacity=0.3"/></div>`).join('')}</div>`;
+  } else { grid.innerHTML = ''; }
+  if (video) {
+    let videoId = '';
+    try {
+      const u = new URL(video);
+      videoId = u.searchParams.get('v') || u.pathname.split('/').pop();
+    } catch(e) { videoId = video; }
+    vidWrap.innerHTML = `<div style="aspect-ratio:16/9;border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--border)"><iframe width="100%" height="100%" src="https://www.youtube.com/embed/${esc(videoId)}" frameborder="0" allowfullscreen style="display:block"></iframe></div>`;
+  } else { vidWrap.innerHTML = ''; }
 }
 
 /* ─── STRIPE BLOCK ──────────────────────────────────── */
