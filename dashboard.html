@@ -960,6 +960,8 @@ function showStripeBanner(msg, color, borderColor) {
   setTimeout(() => banner.remove(), 5000);
 }
 
+let calMonthOffset = 0;
+
 loadVenueProfile();
 renderStats();
 renderBookings();
@@ -983,8 +985,6 @@ renderCalendar();
 })();
 
 /* ─── BOOKING CALENDAR ──────────────────────────────── */
-let calMonthOffset = 0;
-
 function shiftCalMonth(delta) {
   calMonthOffset += delta;
   renderCalendar();
