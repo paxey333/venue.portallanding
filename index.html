@@ -524,6 +524,25 @@ tbody tr:hover td{color:var(--text)}
   .landing-trust-pill{font-size:9px;padding:4px 10px}
   .landing-sub{font-size:13px}
 }
+/* REVIEWS */
+.review-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 22px;transition:border-color .2s}
+.review-card:hover{border-color:rgba(245,166,35,0.2)}
+.review-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
+.review-avatar{width:36px;height:36px;border-radius:50%;background:var(--accent-dim);border:1px solid rgba(245,166,35,0.25);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:14px;font-weight:700;color:var(--accent);flex-shrink:0}
+.review-name{font-family:var(--display);font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px}
+.review-meta{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3)}
+.review-stars{display:flex;gap:2px;margin-left:auto;padding-top:2px;flex-shrink:0}
+.star{font-size:14px;color:var(--border2)}
+.star.filled{color:var(--accent)}
+.review-body{font-family:var(--sans);font-size:14px;line-height:1.7;color:var(--text2);border-left:2px solid var(--border2);padding-left:14px;margin-bottom:14px;font-style:italic}
+.review-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.review-tag{background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.2);color:#4ade80;font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.08em;padding:3px 9px;border-radius:4px}
+.review-date{font-family:var(--mono);font-size:9px;color:var(--text3)}
+.review-coming{background:var(--surface);border:1px dashed var(--border2);border-radius:10px;padding:28px 22px}
+.review-coming-inner{max-width:480px}
+.review-coming-label{font-family:var(--display);font-size:15px;font-weight:700;color:var(--text);margin-bottom:8px}
+.review-coming-sub{font-family:var(--sans);font-size:13px;color:var(--text2);line-height:1.6}
+.review-coming-pill{background:var(--surface2);border:1px solid var(--border2);color:var(--text3);font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.08em;padding:4px 10px;border-radius:20px}
 </style>
 
 </head>
@@ -547,7 +566,7 @@ tbody tr:hover td{color:var(--text)}
   <div class="nav-tabs">
     <button class="tab-btn" id="maintab-admin" onclick="showTab('admin')">Admin</button>
     <button class="tab-btn active" id="maintab-preview" onclick="showTab('preview')">Venue Preview</button>
-    <button class="tab-btn" id="maintab-bookings" onclick="showTab('bookings')">All Bookings</button>
+    <button class="tab-btn" id="maintab-reviews" onclick="showTab('reviews')">Reviews</button>
     <button class="tab-btn" id="maintab-about" onclick="showTab('about')">About</button>
   </div>
   <div class="nav-right">
@@ -914,16 +933,61 @@ tbody tr:hover td{color:var(--text)}
 
 <!-- ALL BOOKINGS -->
 
-<div id="tab-bookings" class="panel">
-  <h1 class="page-heading">All Bookings</h1>
-  <div class="heading-rule"></div>
-  <p class="page-sub">Across all venues</p>
-  <table>
-    <thead><tr><th>Venue</th><th>Guest</th><th>Date</th><th>Amount</th></tr></thead>
-    <tbody id="bookings-tbody">
-      <tr class="empty-row"><td colspan="4">No bookings yet — they'll show up here as they come in.</td></tr>
-    </tbody>
-  </table>
+<div id="tab-reviews" class="panel">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px">
+    <div>
+      <h1 class="page-heading">Reviews</h1>
+      <div class="heading-rule"></div>
+      <p class="page-sub">What organizers and venues are saying</p>
+    </div>
+    <div style="font-family:var(--mono);font-size:9px;color:var(--text3);text-align:right;line-height:1.8;padding-top:4px">
+      VERIFIED REVIEWS<br>
+      <span style="color:var(--accent);font-size:13px;font-weight:700;font-family:var(--display)">4.9</span> / 5.0
+    </div>
+  </div>
+
+  <!-- REVIEW CARDS -->
+  <div id="reviews-list" style="display:flex;flex-direction:column;gap:14px">
+
+    <!-- REVIEW 1 — REAL -->
+    <div class="review-card">
+      <div class="review-header">
+        <div class="review-avatar">M</div>
+        <div>
+          <div class="review-name">Mark A.</div>
+          <div class="review-meta">Venue Owner · The Chill Room · Tempe, AZ</div>
+        </div>
+        <div class="review-stars">
+          <span class="star filled">&#9733;</span>
+          <span class="star filled">&#9733;</span>
+          <span class="star filled">&#9733;</span>
+          <span class="star filled">&#9733;</span>
+          <span class="star filled">&#9733;</span>
+        </div>
+      </div>
+      <div class="review-body">
+        "Before this we were handling everything through DMs and spreadsheets. Inquiries would come in at 2am and nothing was organized. Venue Portal cleaned all of that up — we have a real intake system now, deposits come in automatically, and I can see everything from the dashboard. It actually feels professional."
+      </div>
+      <div class="review-footer">
+        <span class="review-tag">Verified Venue Owner</span>
+        <span class="review-date">May 2026</span>
+      </div>
+    </div>
+
+    <!-- MORE COMING SOON -->
+    <div class="review-coming">
+      <div class="review-coming-inner">
+        <div class="review-coming-label">More reviews incoming</div>
+        <div class="review-coming-sub">We are onboarding our first wave of venues. Reviews from organizers and owners will appear here as bookings are confirmed.</div>
+        <div style="display:flex;gap:6px;margin-top:14px;flex-wrap:wrap">
+          <span class="review-coming-pill">Organizers</span>
+          <span class="review-coming-pill">Venue Owners</span>
+          <span class="review-coming-pill">Event Promoters</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </div>
 
 <!-- ABOUT -->
