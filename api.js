@@ -703,10 +703,10 @@ export default {
               "UPDATE bookings SET status='accepted', payment_link=?, stripe_session_id=? WHERE id=?"
             ).bind(paymentLink, sessionId, id).run();
 
-            // TEST MODE — match $1 test amount. Restore to venue.price_per_day before launch.
+            // TEST — $1 booking total. Restore to venue.price_per_day before launch.
             await env.DB.prepare(
-              "UPDATE bookings SET total_amount = 100 WHERE id = ?"
-            ).bind(id).run();
+              "UPDATE bookings SET total_amount = ? WHERE id = ?"
+            ).bind(1, bookingId).run();
 
             if (env.RESEND_API_KEY) {
               const emailPayload = {
@@ -921,10 +921,30 @@ export default {
       }
 
       // ── STRIPE: WEBHOOK ──────────────────────────────────────────────────────
+      // TODO: also need to handle: payment_intent.payment_failed, charge.refunded, account.updated
       if (path === "/api/stripe/webhook" && request.method === "POST") {
         try {
           const event = await request.json();
           console.log("[stripe/webhook] event.type:", event.type, "account:", event.account);
+
+          if (event.type === "checkout.session.completed") {
+            const session = event.data?.object ?? {};
+            const sessionId = session.id;
+            console.log("Webhook: checkout.session.completed for session", sessionId);
+
+            const result = await env.DB.prepare(
+              "UPDATE bookings SET status = 'confirmed' WHERE stripe_session_id = ?"
+            ).bind(sessionId).run();
+
+            console.log("Booking status update result:", JSON.stringify(result));
+
+            if (result.meta && result.meta.changes === 0) {
+              console.log("WARNING: No booking found with session_id", sessionId);
+            }
+
+            return jsonResponse({ ok: true }, 200, request);
+          }
+
           if (event.type === "account.updated" && event.account) {
             const acct = event.data?.object ?? {};
             console.log("[stripe/webhook] charges_enabled:", acct.charges_enabled, "acct.id:", acct.id);
