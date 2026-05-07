@@ -768,7 +768,7 @@ async function renderBookings() {
       <div class="booking-item">
         <div style="min-width:0">
           <div class="booking-event">${esc(b.client_name)}</div>
-          <div class="booking-meta">${esc(b.client_email)}<br>${esc(b.event_date)}${b.guests ? ' &middot; ' + b.guests + ' guests' : ''}</div>
+          <div class="booking-meta">${esc(b.client_email)}<br>${esc(fmtDate(b.event_date))}${b.guests ? ' &middot; ' + b.guests + ' guests' : ''}</div>
         </div>
         <span class="badge badge-confirmed">confirmed</span>
       </div>`).join('');
@@ -826,7 +826,7 @@ async function renderInquiries() {
     list.innerHTML = inquiries.map(q => `
       <div class="inquiry-item" id="inq-${q.id}">
         <div class="inquiry-name" style="display:flex;align-items:center;gap:0">${esc(q.client_name)}${timerBadge(q.created_at)}</div>
-        <div class="inquiry-meta">${esc(q.client_email)} &middot; ${esc(q.event_date)} &middot; ${q.guests || 0} guests</div>
+        <div class="inquiry-meta">${esc(q.client_email)} &middot; ${esc(fmtDate(q.event_date))} &middot; ${q.guests || 0} guests</div>
         <div class="inquiry-note">"${esc(q.message || '')}"</div>
         <div class="inquiry-actions" id="inq-act-${q.id}">
           <button class="btn-draft" onclick="draftReply(${q.id})">Draft Reply</button>
