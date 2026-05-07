@@ -703,6 +703,11 @@ export default {
               "UPDATE bookings SET status='accepted', payment_link=?, stripe_session_id=? WHERE id=?"
             ).bind(paymentLink, sessionId, id).run();
 
+            // TEST MODE — match $1 test amount. Restore to venue.price_per_day before launch.
+            await env.DB.prepare(
+              "UPDATE bookings SET total_amount = 100 WHERE id = ?"
+            ).bind(id).run();
+
             if (env.RESEND_API_KEY) {
               const emailPayload = {
                 from: "Venue Portal <onboarding@resend.dev>",
