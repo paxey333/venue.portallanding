@@ -499,6 +499,12 @@ export default {
       if (venueByIdMatch && request.method === "GET") {
         try {
           const id = Number(venueByIdMatch[1]);
+          const session = await getSession(request, env);
+          if (!isAnyRole(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
+          console.log("[GET /api/venues/:id] user:", session.user_id, "role:", session.role, "session.venue_id:", session.venue_id, "requested venue_id:", id);
+          if (session.role === "venue_owner" && session.venue_id !== id) {
+            return jsonResponse({ error: "Forbidden" }, 403, request);
+          }
           const row = await env.DB.prepare(
             `SELECT id, name, description, capacity, price_per_day, image_url, hours, amenities, gallery, video_url, created_at
              FROM venues WHERE id = ?`
@@ -517,8 +523,12 @@ export default {
       if (venueByIdMatch && (request.method === "PUT" || request.method === "PATCH")) {
         try {
           const session = await getSession(request, env);
-          if (!isAdminOrAbove(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
+          if (!isAnyRole(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
           const id = Number(venueByIdMatch[1]);
+          console.log("[PATCH /api/venues/:id] user:", session.user_id, "role:", session.role, "session.venue_id:", session.venue_id, "requested venue_id:", id);
+          if (session.role === "venue_owner" && session.venue_id !== id) {
+            return jsonResponse({ error: "Forbidden" }, 403, request);
+          }
           const body = await parseJson(request);
 
           const fields = [];

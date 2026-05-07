@@ -630,7 +630,8 @@ const ANTHROPIC_API = 'https://api.anthropic.com/v1/messages';
 })();
 
 function handleLogout() {
-  ['vp_admin_token','vp_user_role','vp_user_name','vp_venue_id','vp_first_login'].forEach(k => localStorage.removeItem(k));
+  // Clear ALL localStorage so a stale venue_id from a previous session can't leak into a new login.
+  localStorage.clear();
   window.location.replace('index.html');
 }
 
@@ -1084,7 +1085,10 @@ function renderStripeDisconnected(errorMsg) {
     </div>`;
 }
 
-const EFFECTIVE_VENUE_ID = VENUE_ID || new URLSearchParams(window.location.search).get('venue_id');
+// Venue owners can ONLY see their own token-bound venue. URL param is admin-preview only.
+const EFFECTIVE_VENUE_ID = IS_ADMIN_PREVIEW
+  ? (new URLSearchParams(window.location.search).get('venue_id') || VENUE_ID)
+  : VENUE_ID;
 
 async function loadStripeStatus() {
   const el = document.getElementById('stripe-block');
