@@ -958,14 +958,41 @@ export default {
         try {
           const event = await request.json();
           console.log("[stripe/webhook] event.type:", event.type, "account:", event.account);
-          if (event.type === "account.updated" && event.account) {
-            const acct = event.data?.object ?? {};
-            console.log("[stripe/webhook] charges_enabled:", acct.charges_enabled, "acct.id:", acct.id);
-            if (acct.charges_enabled) {
+
+          const isV1 = event.type === "account.updated";
+          const isV2 = event.type === "v2.core.account.updated";
+
+          if (isV1 || isV2) {
+            // Log the full body the first time we see one of these so we can confirm v2 shape.
+            console.log("Webhook account event received:", JSON.stringify(event));
+
+            // Extract account id — try every plausible location across v1/v2 payloads.
+            const acct = event.data?.object ?? event.data ?? {};
+            const acctId =
+              acct.id ||
+              event.account ||
+              event.data?.id ||
+              acct.account ||
+              null;
+
+            // charges_enabled lives directly on the account in v1; v2 may nest under
+            // configuration.merchant.charges_enabled or capabilities — check several paths.
+            const chargesEnabled =
+              acct.charges_enabled === true ||
+              acct.configuration?.merchant?.charges_enabled === true ||
+              acct.configuration?.customer?.charges_enabled === true ||
+              acct.capabilities?.card_payments === "active" ||
+              false;
+
+            console.log("[stripe/webhook] parsed acctId:", acctId, "chargesEnabled:", chargesEnabled, "format:", isV2 ? "v2" : "v1");
+
+            if (chargesEnabled && acctId) {
               const result = await env.DB.prepare(
                 "UPDATE venues SET stripe_connected = 1, stripe_account_id = ? WHERE stripe_account_id = ?"
-              ).bind(acct.id, acct.id).run();
+              ).bind(acctId, acctId).run();
               console.log("[stripe/webhook] DB update changes:", result.meta?.changes);
+            } else if (!acctId) {
+              console.log("[stripe/webhook] WARNING: could not extract account id from event payload");
             }
           }
           return jsonResponse({ received: true }, 200, request);
