@@ -22,7 +22,11 @@
       "Bash(wrangler pages *)",
       "Bash(python -c ' *)",
       "Bash(python gallery_patch.py)",
-      "Bash(del *)"
+      "Bash(del *)",
+      "Bash(awk 'NR==572{print \"START:\"} NR>=572 && NR<=575' index.html)",
+      "Bash(awk 'NR>=569 && NR<=575 {print NR\": \"substr\\($0,1,120\\)}' index.html)",
+      "Bash(sed -i '571,573d' index.html)",
+      "Bash(awk 'NR>=568 && NR<=574 {print NR\": \"substr\\($0,1,80\\)}' index.html)"
     ]
   }
 }
