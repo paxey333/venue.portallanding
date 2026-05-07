@@ -248,6 +248,19 @@ export default {
             }
           }
 
+          if (event.type === "checkout.session.completed") {
+            const sess = event.data?.object ?? {};
+            console.log("Webhook: checkout.session.completed for session", sess.id);
+            const result = await env.DB.prepare(
+              "UPDATE bookings SET status = 'confirmed' WHERE stripe_session_id = ?"
+            ).bind(sess.id).run();
+            console.log("Booking status update result:", JSON.stringify(result));
+            if (result.meta && result.meta.changes === 0) {
+              console.log("WARNING: No booking found with session_id", sess.id);
+            }
+            return jsonResponse({ ok: true }, 200, request);
+          }
+
           return jsonResponse({ received: true }, 200, request);
         } catch (err) {
           console.log("[webhooks/stripe] error:", err.message);
@@ -703,10 +716,10 @@ export default {
               "UPDATE bookings SET status='accepted', payment_link=?, stripe_session_id=? WHERE id=?"
             ).bind(paymentLink, sessionId, id).run();
 
-            // TEST — $1 booking total. Restore to venue.price_per_day before launch.
+            // TEST — 100 cents = $1.00 booking total. Restore to venue.price_per_day * 100 before launch.
             await env.DB.prepare(
               "UPDATE bookings SET total_amount = ? WHERE id = ?"
-            ).bind(1, bookingId).run();
+            ).bind(100, bookingId).run();
 
             if (env.RESEND_API_KEY) {
               const emailPayload = {
@@ -920,31 +933,13 @@ export default {
         }
       }
 
-      // ── STRIPE: WEBHOOK ──────────────────────────────────────────────────────
-      // TODO: also need to handle: payment_intent.payment_failed, charge.refunded, account.updated
+      // ── STRIPE: WEBHOOK (Connect dashboard — account.updated only) ──────────
+      // Booking-related events (payment_intent.succeeded, checkout.session.completed)
+      // live in /webhooks/stripe which is signature-verified.
       if (path === "/api/stripe/webhook" && request.method === "POST") {
         try {
           const event = await request.json();
           console.log("[stripe/webhook] event.type:", event.type, "account:", event.account);
-
-          if (event.type === "checkout.session.completed") {
-            const session = event.data?.object ?? {};
-            const sessionId = session.id;
-            console.log("Webhook: checkout.session.completed for session", sessionId);
-
-            const result = await env.DB.prepare(
-              "UPDATE bookings SET status = 'confirmed' WHERE stripe_session_id = ?"
-            ).bind(sessionId).run();
-
-            console.log("Booking status update result:", JSON.stringify(result));
-
-            if (result.meta && result.meta.changes === 0) {
-              console.log("WARNING: No booking found with session_id", sessionId);
-            }
-
-            return jsonResponse({ ok: true }, 200, request);
-          }
-
           if (event.type === "account.updated" && event.account) {
             const acct = event.data?.object ?? {};
             console.log("[stripe/webhook] charges_enabled:", acct.charges_enabled, "acct.id:", acct.id);
