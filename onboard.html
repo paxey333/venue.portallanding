@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Venue Onboarding — Venue.Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#111111;--surface:#161412;--surface2:#1e1b17;
+  --border:#232018;--border2:#2e2a22;
+  --text:#f0f0f0;--text2:#888888;--text3:#444444;
+  --green:#4ade80;
+  --accent:#f5a623;--accent-warm:#c97d2e;
+  --accent-dim:rgba(245,166,35,0.12);--accent-glow:rgba(245,166,35,0.07);
+  --radius:6px;--radius-lg:10px;
+  --mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;--display:'Syne',sans-serif;
+}
+html,body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.5;min-height:100%}
+body{position:relative;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.016) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.016) 1px,transparent 1px);background-size:48px 48px}
+body::after{content:'';position:fixed;z-index:0;pointer-events:none;bottom:-120px;left:-120px;width:540px;height:540px;background:radial-gradient(circle at center,rgba(245,166,35,.05) 0%,rgba(245,166,35,.018) 40%,transparent 70%);border-radius:50%}
+
+/* HEADER */
+.header{
+  position:sticky;top:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:12px 20px;min-height:52px;
+}
+.header-left{display:flex;flex-direction:column;gap:0;flex-shrink:1;min-width:0}
+.header-brand{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:3px}
+.header-title{font-family:var(--display);font-size:14px;font-weight:800;color:var(--text);line-height:1;letter-spacing:-.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.beta-badge{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);background:var(--accent-dim);border:1px solid rgba(245,166,35,0.25);padding:5px 10px;border-radius:var(--radius);flex-shrink:0}
+
+/* MAIN */
+.main{position:relative;z-index:1;max-width:720px;margin:0 auto;padding:32px 20px 80px}
+
+/* HERO */
+.hero{margin-bottom:24px}
+.hero-eyebrow{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:var(--accent);margin-bottom:10px}
+.hero-title{font-family:var(--display);font-size:28px;font-weight:800;letter-spacing:-.5px;line-height:1.15;margin-bottom:10px}
+.hero-sub{font-size:14px;color:var(--text2);line-height:1.6;max-width:540px}
+
+/* CARD */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:14px}
+.card-title{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:14px}
+
+/* FORM */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-row.single{grid-template-columns:1fr}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field:last-child{margin-bottom:0}
+.field-full{grid-column:1 / -1}
+.label{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3)}
+.label .req{color:var(--accent);margin-left:3px}
+.input,.textarea{
+  width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);
+  font-family:var(--sans);font-size:13px;line-height:1.5;
+  padding:10px 12px;border-radius:var(--radius);
+  transition:border-color .15s;
+}
+.textarea{resize:vertical;min-height:72px;line-height:1.6}
+.input:focus,.textarea:focus{outline:none;border-color:var(--accent)}
+.input::placeholder,.textarea::placeholder{color:var(--text3)}
+
+.amenity-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.amenity-opt{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);padding:9px 11px;cursor:pointer;transition:border-color .15s,background .15s}
+.amenity-opt:hover{border-color:var(--text3)}
+.amenity-opt input{width:14px;height:14px;accent-color:var(--accent);cursor:pointer;flex-shrink:0}
+.amenity-opt span{font-family:var(--mono);font-size:10px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.amenity-opt:has(input:checked){background:var(--accent-dim);border-color:rgba(245,166,35,0.35)}
+.amenity-opt:has(input:checked) span{color:var(--accent)}
+
+.submit-wrap{margin-top:18px}
+.submit-err{display:none;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);color:#f87171;font-family:var(--mono);font-size:11px;padding:10px 12px;border-radius:var(--radius);margin-bottom:12px;line-height:1.5}
+.submit-btn{
+  width:100%;background:var(--accent);color:#111;
+  font-family:var(--display);font-weight:700;font-size:14px;letter-spacing:.02em;
+  padding:14px;border-radius:var(--radius);border:none;cursor:pointer;
+  transition:background .15s;
+}
+.submit-btn:hover{background:var(--accent-warm);color:#fff}
+.submit-btn:disabled{background:var(--border2);color:var(--text3);cursor:not-allowed}
+
+/* SUCCESS STATE */
+.success-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:40px 28px;text-align:center}
+.success-icon{display:flex;justify-content:center;margin-bottom:18px}
+.success-icon-circle{width:54px;height:54px;border-radius:50%;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.25);display:flex;align-items:center;justify-content:center}
+.success-h{font-family:var(--display);font-size:24px;font-weight:800;letter-spacing:-.4px;margin-bottom:12px}
+.success-p{font-size:14px;color:var(--text2);line-height:1.6;max-width:440px;margin:0 auto 10px}
+
+@media(max-width:700px){
+  .header{padding:10px 14px}
+  .header-title{font-size:13px}
+  .main{padding:24px 14px 80px}
+  .hero-title{font-size:22px}
+  .card{padding:16px}
+  .form-row{grid-template-columns:1fr}
+  .amenity-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:480px){
+  .amenity-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="header-brand">VENUE.PORTAL</div>
+    <div class="header-title">Venue Onboarding</div>
+  </div>
+  <div class="beta-badge">BETA</div>
+</div>
+
+<main class="main">
+
+  <div class="hero">
+    <div class="hero-eyebrow">BETA ONBOARDING — FREE BUILD</div>
+    <h1 class="hero-title">Tell us about your venue</h1>
+    <p class="hero-sub">Fill this out and we will build your venue portal in 48 hours. No upfront cost during beta.</p>
+  </div>
+
+  <form id="onboard-form" novalidate>
+
+    <!-- CARD 1: BASICS -->
+    <div class="card">
+      <div class="card-title">Venue Basics</div>
+      <div class="form-row">
+        <div class="field field-full">
+          <label class="label" for="f-name">Venue Name<span class="req">*</span></label>
+          <input class="input" id="f-name" name="venue_name" type="text" required placeholder="The Chill Room"/>
+        </div>
+        <div class="field field-full">
+          <label class="label" for="f-address">Address<span class="req">*</span></label>
+          <input class="input" id="f-address" name="address" type="text" required placeholder="1320 E Broadway Rd, Tempe AZ"/>
+        </div>
+        <div class="field">
+          <label class="label" for="f-capacity">Capacity</label>
+          <input class="input" id="f-capacity" name="capacity" type="number" min="0" placeholder="300"/>
+        </div>
+        <div class="field">
+          <label class="label" for="f-price">Starting price per night ($)</label>
+          <input class="input" id="f-price" name="price_per_day" type="number" min="0" placeholder="400"/>
+        </div>
+        <div class="field field-full">
+          <label class="label" for="f-hours">Hours of operation</label>
+          <input class="input" id="f-hours" name="hours" type="text" placeholder="Sun–Thu 2PM–12AM, Fri–Sat 2PM–2AM"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARD 2: DESCRIPTION -->
+    <div class="card">
+      <div class="card-title">Description and Vibe</div>
+      <div class="field">
+        <label class="label" for="f-desc">Short description / vibe</label>
+        <textarea class="textarea" id="f-desc" name="description" rows="3" placeholder="What makes your venue special? Who is it for?"></textarea>
+      </div>
+      <div class="field">
+        <label class="label" for="f-rules">House rules</label>
+        <textarea class="textarea" id="f-rules" name="house_rules" rows="3" placeholder="Any rules organizers should know? Sound limits, age restrictions, etc."></textarea>
+      </div>
+    </div>
+
+    <!-- CARD 3: AMENITIES -->
+    <div class="card">
+      <div class="card-title">Amenities</div>
+      <div class="amenity-grid" id="amenity-grid"></div>
+    </div>
+
+    <!-- CARD 4: MEDIA -->
+    <div class="card">
+      <div class="card-title">Media</div>
+      <div class="field">
+        <label class="label" for="f-photos">Photo links</label>
+        <textarea class="textarea" id="f-photos" name="photo_links" rows="5" placeholder="Paste 3-5 image URLs, one per line. Or email photos to onboard@venueportal.us"></textarea>
+      </div>
+      <div class="field">
+        <label class="label" for="f-video">YouTube video URL (optional)</label>
+        <input class="input" id="f-video" name="video_url" type="text" placeholder="https://youtube.com/..."/>
+      </div>
+    </div>
+
+    <!-- CARD 5: CONTACT -->
+    <div class="card">
+      <div class="card-title">Contact</div>
+      <div class="form-row">
+        <div class="field">
+          <label class="label" for="f-cname">Your name<span class="req">*</span></label>
+          <input class="input" id="f-cname" name="contact_name" type="text" required placeholder="Marcus A."/>
+        </div>
+        <div class="field">
+          <label class="label" for="f-cemail">Email<span class="req">*</span></label>
+          <input class="input" id="f-cemail" name="contact_email" type="email" required placeholder="you@example.com"/>
+        </div>
+        <div class="field field-full">
+          <label class="label" for="f-cphone">Phone (optional)</label>
+          <input class="input" id="f-cphone" name="contact_phone" type="tel" placeholder="(555) 123-4567"/>
+        </div>
+        <div class="field field-full">
+          <label class="label" for="f-notes">Anything else we should know?</label>
+          <textarea class="textarea" id="f-notes" name="additional_notes" rows="2" placeholder="Optional"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="submit-wrap">
+      <div class="submit-err" id="submit-err"></div>
+      <button class="submit-btn" id="submit-btn" type="submit">Submit Venue Details &rarr;</button>
+    </div>
+
+  </form>
+
+</main>
+
+<script>
+const API_BASE = 'https://thevenueportal.paxey333.workers.dev';
+const AMENITIES = ['Full Bar','Stage','Sound System','Dance Floor','Outdoor Patio','Green Room','Parking','Private Area','AV Equipment','Catering Kitchen','Projector','Security','BYOB Allowed','21+ Only','All Ages'];
+
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+(function renderAmenities(){
+  const grid = document.getElementById('amenity-grid');
+  grid.innerHTML = AMENITIES.map(a => `
+    <label class="amenity-opt">
+      <input type="checkbox" name="amenities" value="${esc(a)}"/>
+      <span>${esc(a)}</span>
+    </label>
+  `).join('');
+})();
+
+function showError(msg){
+  const err = document.getElementById('submit-err');
+  err.textContent = msg;
+  err.style.display = 'block';
+  err.scrollIntoView({ behavior:'smooth', block:'center' });
+}
+function clearError(){
+  const err = document.getElementById('submit-err');
+  err.style.display = 'none';
+  err.textContent = '';
+}
+
+function showSuccess(){
+  document.getElementById('onboard-form').outerHTML = `
+    <div class="success-card">
+      <div class="success-icon">
+        <div class="success-icon-circle">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 12.5 9.5 18 20 7"/></svg>
+        </div>
+      </div>
+      <div class="success-h">Submission received</div>
+      <div class="success-p">We will review your venue details and reach out within 48 hours to get your portal live.</div>
+      <div class="success-p" style="margin-top:8px">In the meantime, check your email for a confirmation.</div>
+    </div>
+  `;
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+document.getElementById('onboard-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  clearError();
+
+  const venueName    = document.getElementById('f-name').value.trim();
+  const address      = document.getElementById('f-address').value.trim();
+  const contactName  = document.getElementById('f-cname').value.trim();
+  const contactEmail = document.getElementById('f-cemail').value.trim();
+
+  if (!venueName)    { showError('Venue name is required.'); return; }
+  if (!address)      { showError('Address is required.'); return; }
+  if (!contactName)  { showError('Your name is required.'); return; }
+  if (!contactEmail) { showError('Email is required.'); return; }
+  if (!/^\S+@\S+\.\S+$/.test(contactEmail)) { showError('Please enter a valid email.'); return; }
+
+  const amenities = [...document.querySelectorAll('input[name="amenities"]:checked')].map(el => el.value);
+
+  const body = {
+    venue_name:       venueName,
+    address:          address,
+    capacity:         document.getElementById('f-capacity').value.trim() || null,
+    price_per_day:    document.getElementById('f-price').value.trim() || null,
+    hours:            document.getElementById('f-hours').value.trim(),
+    description:      document.getElementById('f-desc').value.trim(),
+    house_rules:      document.getElementById('f-rules').value.trim(),
+    amenities:        amenities,
+    photo_links:      document.getElementById('f-photos').value.trim(),
+    video_url:        document.getElementById('f-video').value.trim(),
+    contact_name:     contactName,
+    contact_email:    contactEmail,
+    contact_phone:    document.getElementById('f-cphone').value.trim(),
+    additional_notes: document.getElementById('f-notes').value.trim(),
+  };
+
+  const btn = document.getElementById('submit-btn');
+  const orig = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+
+  try {
+    const res = await fetch(API_BASE + '/api/onboard', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || data.error) {
+      throw new Error(data.error || 'Submission failed. Please try again.');
+    }
+    showSuccess();
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = orig;
+    showError(err.message || 'Submission failed. Please try again.');
+  }
+});
+</script>
+</body>
+</html>

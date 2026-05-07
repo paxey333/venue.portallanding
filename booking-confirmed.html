@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Booking Confirmed — Venue.Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#111111;--surface:#161412;--surface2:#1e1b17;
+  --border:#232018;--border2:#2e2a22;
+  --text:#f0f0f0;--text2:#888888;--text3:#444444;
+  --green:#4ade80;
+  --accent:#f5a623;--accent-warm:#c97d2e;
+  --accent-dim:rgba(245,166,35,0.12);--accent-glow:rgba(245,166,35,0.07);
+  --radius:6px;--radius-lg:10px;
+  --mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;--display:'Syne',sans-serif;
+}
+html,body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.5;min-height:100%}
+body{position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.016) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.016) 1px,transparent 1px);background-size:48px 48px}
+body::after{content:'';position:fixed;z-index:0;pointer-events:none;bottom:-120px;left:-120px;width:540px;height:540px;background:radial-gradient(circle at center,rgba(245,166,35,.05) 0%,rgba(245,166,35,.018) 40%,transparent 70%);border-radius:50%}
+
+.wrap{position:relative;z-index:1;width:100%;max-width:560px;display:flex;flex-direction:column;align-items:center;gap:18px}
+.brand{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--text3)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px 28px;width:100%}
+.icon-wrap{display:flex;justify-content:center;margin-bottom:18px}
+.icon-circle{width:54px;height:54px;border-radius:50%;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.25);display:flex;align-items:center;justify-content:center}
+.h1{font-family:var(--display);font-size:28px;font-weight:800;letter-spacing:-.4px;text-align:center;margin-bottom:10px;line-height:1.15}
+.sub{font-size:14px;color:var(--text2);text-align:center;line-height:1.6;max-width:420px;margin:0 auto}
+.divider{height:1px;background:var(--border);margin:24px 0}
+
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px 22px}
+.detail{display:flex;flex-direction:column;gap:4px;min-width:0}
+.detail-label{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3)}
+.detail-val{font-family:var(--sans);font-size:13px;color:var(--text);line-height:1.4;word-break:break-word}
+.detail-val.mono{font-family:var(--mono);font-size:12px}
+.detail-val.accent{color:var(--accent);font-family:var(--display);font-weight:700}
+
+.next-title{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:12px}
+.next-list{list-style:none;display:flex;flex-direction:column;gap:10px}
+.next-item{display:flex;gap:10px;font-size:13px;color:var(--text2);line-height:1.6}
+.next-num{font-family:var(--mono);font-size:11px;color:var(--accent);flex-shrink:0;width:18px}
+
+.foot{text-align:center;font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:24px}
+.foot a{color:var(--text2);text-decoration:none;border-bottom:1px solid var(--border2)}
+.foot a:hover{color:var(--accent);border-bottom-color:var(--accent)}
+
+.btn-row{display:flex;justify-content:center;margin-top:20px}
+.btn-primary{background:var(--accent);color:#111;font-family:var(--display);font-weight:700;font-size:13px;letter-spacing:.02em;padding:11px 22px;border-radius:var(--radius);border:none;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:background .15s}
+.btn-primary:hover{background:var(--accent-warm);color:#fff}
+
+.loading{text-align:center;font-family:var(--mono);font-size:11px;color:var(--text3);padding:40px 0}
+.error{color:#f87171;font-size:13px;line-height:1.6;text-align:center;padding:24px 0}
+
+@media(max-width:560px){
+  .card{padding:24px 20px}
+  .h1{font-size:24px}
+  .detail-grid{grid-template-columns:1fr;gap:14px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">VENUE.PORTAL</div>
+  <div class="card" id="card">
+    <div class="loading" id="loading">Loading your confirmation...</div>
+  </div>
+  <div class="foot">Questions? Email <a href="mailto:support@venueportal.us">support@venueportal.us</a></div>
+</div>
+
+<script>
+const API_BASE = 'https://thevenueportal.paxey333.workers.dev';
+
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function fmtDate(s){
+  if (!s) return '—';
+  const d = new Date(s + (s.length === 10 ? 'T00:00:00' : ''));
+  if (isNaN(d)) return s;
+  return d.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric', year:'numeric' });
+}
+
+function fmtMoney(cents){
+  if (cents == null) return '—';
+  const n = Number(cents) / 100;
+  return '$' + n.toLocaleString('en-US', { minimumFractionDigits: n % 1 === 0 ? 0 : 2, maximumFractionDigits: 2 });
+}
+
+function renderConfirmed(b, sessionId){
+  const conf = (sessionId || '').slice(-8).toUpperCase() || '—';
+  return `
+    <div class="icon-wrap">
+      <div class="icon-circle">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 12.5 9.5 18 20 7"/></svg>
+      </div>
+    </div>
+    <h1 class="h1">Booking Confirmed</h1>
+    <div class="sub">Your deposit has been processed and your event is locked in.</div>
+    <div class="divider"></div>
+    <div class="detail-grid">
+      <div class="detail"><div class="detail-label">Confirmation #</div><div class="detail-val mono">${esc(conf)}</div></div>
+      <div class="detail"><div class="detail-label">Venue</div><div class="detail-val">${esc(b.venue_name || '—')}</div></div>
+      <div class="detail"><div class="detail-label">Date</div><div class="detail-val">${esc(fmtDate(b.event_date))}</div></div>
+      <div class="detail"><div class="detail-label">Guests</div><div class="detail-val">${esc(b.guests || '—')}</div></div>
+      <div class="detail"><div class="detail-label">Amount Paid</div><div class="detail-val accent">${esc(fmtMoney(b.total_amount))}</div></div>
+      <div class="detail"><div class="detail-label">Email Confirmation</div><div class="detail-val mono" style="font-size:11px">${esc(b.client_email || '—')}</div></div>
+    </div>
+    <div class="divider"></div>
+    <div class="next-title">What happens next</div>
+    <ul class="next-list">
+      <li class="next-item"><span class="next-num">1.</span><span>The venue has been notified and will reach out within 24 hours.</span></li>
+      <li class="next-item"><span class="next-num">2.</span><span>A confirmation email is on its way to your inbox.</span></li>
+      <li class="next-item"><span class="next-num">3.</span><span>Bring your event details to the venue contact when they reach out.</span></li>
+    </ul>
+    <div class="btn-row"><a class="btn-primary" href="/">Back to venues</a></div>
+  `;
+}
+
+(async function(){
+  const params = new URLSearchParams(window.location.search);
+  const sessionId = params.get('session_id');
+  const card = document.getElementById('card');
+  if (!sessionId) {
+    card.innerHTML = '<div class="error">No session ID provided. Contact support@venueportal.us with your payment confirmation.</div>';
+    return;
+  }
+  try {
+    const res = await fetch(API_BASE + '/api/bookings/by-session/' + encodeURIComponent(sessionId));
+    if (!res.ok) {
+      card.innerHTML = '<div class="error">Could not find booking. Contact support@venueportal.us with your payment confirmation.</div>';
+      return;
+    }
+    const b = await res.json();
+    card.innerHTML = renderConfirmed(b, sessionId);
+  } catch (e) {
+    card.innerHTML = '<div class="error">Could not find booking. Contact support@venueportal.us with your payment confirmation.</div>';
+  }
+})();
+</script>
+</body>
+</html>

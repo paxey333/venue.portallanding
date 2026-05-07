@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Booking Not Completed — Venue.Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#111111;--surface:#161412;--surface2:#1e1b17;
+  --border:#232018;--border2:#2e2a22;
+  --text:#f0f0f0;--text2:#888888;--text3:#444444;
+  --green:#4ade80;
+  --accent:#f5a623;--accent-warm:#c97d2e;
+  --accent-dim:rgba(245,166,35,0.12);--accent-glow:rgba(245,166,35,0.07);
+  --radius:6px;--radius-lg:10px;
+  --mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;--display:'Syne',sans-serif;
+}
+html,body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.5;min-height:100%}
+body{position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.016) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.016) 1px,transparent 1px);background-size:48px 48px}
+body::after{content:'';position:fixed;z-index:0;pointer-events:none;bottom:-120px;left:-120px;width:540px;height:540px;background:radial-gradient(circle at center,rgba(245,166,35,.05) 0%,rgba(245,166,35,.018) 40%,transparent 70%);border-radius:50%}
+
+.wrap{position:relative;z-index:1;width:100%;max-width:480px;display:flex;flex-direction:column;align-items:center;gap:18px}
+.brand{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--text3)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px 28px;width:100%;text-align:center}
+.icon-wrap{display:flex;justify-content:center;margin-bottom:18px}
+.icon-circle{width:54px;height:54px;border-radius:50%;background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.25);display:flex;align-items:center;justify-content:center}
+.h1{font-family:var(--display);font-size:24px;font-weight:800;letter-spacing:-.4px;margin-bottom:10px;line-height:1.2}
+.sub{font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:18px}
+.body-text{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:24px;max-width:380px;margin-left:auto;margin-right:auto}
+
+.btn-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn-primary{background:var(--accent);color:#111;font-family:var(--display);font-weight:700;font-size:13px;letter-spacing:.02em;padding:11px 22px;border-radius:var(--radius);border:none;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;transition:background .15s}
+.btn-primary:hover{background:var(--accent-warm);color:#fff}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border2);font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em;padding:11px 18px;border-radius:var(--radius);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;transition:border-color .15s,color .15s}
+.btn-ghost:hover{border-color:var(--text2);color:var(--text)}
+
+.foot{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.18em;color:var(--text3);margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">VENUE.PORTAL</div>
+  <div class="card">
+    <div class="icon-wrap">
+      <div class="icon-circle">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f5a623" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 20h20L12 3z"/><line x1="12" y1="10" x2="12" y2="14"/><circle cx="12" cy="17.2" r="0.6" fill="#f5a623" stroke="none"/></svg>
+      </div>
+    </div>
+    <h1 class="h1">Booking Not Completed</h1>
+    <div class="sub">Your booking was cancelled and no payment was processed.</div>
+    <div class="body-text">If this was a mistake or you ran into an issue, you can try again or reach out for help.</div>
+    <div class="btn-row">
+      <button class="btn-primary" onclick="window.history.back()">Try Again</button>
+      <a class="btn-ghost" href="mailto:support@venueportal.us">Contact Support</a>
+    </div>
+  </div>
+  <div class="foot">VENUE.PORTAL</div>
+</div>
+</body>
+</html>

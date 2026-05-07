@@ -675,8 +675,8 @@ export default {
             stripeBody.append('line_items[0][quantity]', '1');
             // Connect split re-enabled when venue owner has separate Stripe account
             // application_fee_amount: 5000, transfer_data destination: stripeAccountId
-            stripeBody.append('success_url', 'https://venue-portal.pages.dev/booking-confirmed');
-            stripeBody.append('cancel_url', 'https://venue-portal.pages.dev/booking-cancelled');
+            stripeBody.append('success_url', env.FRONTEND_URL + '/booking-confirmed.html?session_id={CHECKOUT_SESSION_ID}');
+            stripeBody.append('cancel_url', env.FRONTEND_URL + '/booking-cancelled.html?session_id={CHECKOUT_SESSION_ID}');
             stripeBody.append('metadata[booking_id]', String(bookingId));
 
             const stripeRes = await fetch('https://api.stripe.com/v1/checkout/sessions', {
@@ -986,6 +986,94 @@ export default {
           return jsonResponse({ draft: anthropicData.content[0].text }, 200, request);
         } catch (err) {
           console.log("[draft-reply] caught error:", err.message, err.stack);
+          return jsonResponse({ error: err.message }, 500, request);
+        }
+      }
+
+      // ── BOOKING LOOKUP BY STRIPE SESSION (public) ───────────────
+      const bookingBySessionMatch = path.match(/^\/api\/bookings\/by-session\/(.+)$/);
+      if (bookingBySessionMatch && request.method === "GET") {
+        try {
+          const sessionId = decodeURIComponent(bookingBySessionMatch[1]);
+          const row = await env.DB.prepare(
+            `SELECT b.id, b.client_name, b.client_email, b.event_date, b.guests,
+                    b.total_amount, b.status, b.created_at,
+                    v.name AS venue_name, v.description AS venue_location
+             FROM bookings b
+             LEFT JOIN venues v ON b.venue_id = v.id
+             WHERE b.stripe_session_id = ?`
+          ).bind(sessionId).first();
+          if (!row) return jsonResponse({ error: "Booking not found" }, 404, request);
+          return jsonResponse(row, 200, request);
+        } catch (err) {
+          return jsonResponse({ error: err.message }, 500, request);
+        }
+      }
+
+      // ── ONBOARDING SUBMISSION (public) ──────────────────────────
+      if (path === "/api/onboard" && request.method === "POST") {
+        try {
+          const body = await parseJson(request);
+          const venueName    = String(body.venue_name || "").trim();
+          const contactEmail = String(body.contact_email || "").trim();
+          if (!venueName)    return jsonResponse({ error: "venue_name is required" }, 400, request);
+          if (!contactEmail) return jsonResponse({ error: "contact_email is required" }, 400, request);
+
+          const esc = (s) => String(s == null ? "" : s)
+            .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+          const amenities = Array.isArray(body.amenities) ? body.amenities : [];
+          const row = (label, val) => `<tr><td style="padding:6px 12px 6px 0;color:#888;font-family:monospace;font-size:11px;text-transform:uppercase;letter-spacing:.08em;vertical-align:top;white-space:nowrap">${esc(label)}</td><td style="padding:6px 0;color:#111;font-size:14px;line-height:1.5">${esc(val) || '<span style="color:#bbb">—</span>'}</td></tr>`;
+          const html = `
+            <div style="font-family:sans-serif;max-width:640px;margin:0 auto;padding:20px;background:#fff;color:#111">
+              <h2 style="margin:0 0 4px;font-size:20px">New Venue Onboarding</h2>
+              <div style="color:#888;font-size:12px;margin-bottom:18px">${esc(venueName)}</div>
+              <table style="width:100%;border-collapse:collapse;border-top:1px solid #eee">
+                ${row('Venue Name',      body.venue_name)}
+                ${row('Address',         body.address)}
+                ${row('Capacity',        body.capacity)}
+                ${row('Price / Night',   body.price_per_day)}
+                ${row('Hours',           body.hours)}
+                ${row('Description',     body.description)}
+                ${row('House Rules',     body.house_rules)}
+                ${row('Amenities',       amenities.join(', '))}
+                ${row('Photo Links',     body.photo_links)}
+                ${row('Video URL',       body.video_url)}
+                ${row('Contact Name',    body.contact_name)}
+                ${row('Contact Email',   body.contact_email)}
+                ${row('Contact Phone',   body.contact_phone)}
+                ${row('Additional Notes',body.additional_notes)}
+              </table>
+              <div style="margin-top:16px;color:#888;font-size:11px">Submitted via /onboard.html</div>
+            </div>`;
+
+          if (!env.RESEND_API_KEY) {
+            console.log("[onboard] RESEND_API_KEY not configured; submission logged only:", venueName);
+            return jsonResponse({ ok: true, message: "Submission received" }, 200, request);
+          }
+
+          const adminEmail = env.ADMIN_EMAIL || "paxey333@gmail.com";
+          const resendRes = await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: {
+              "Authorization": "Bearer " + env.RESEND_API_KEY,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              from: "Venue Portal <onboard@venueportal.us>",
+              to: [adminEmail],
+              reply_to: contactEmail,
+              subject: "New Venue Onboarding Submission — " + venueName,
+              html
+            })
+          });
+          if (!resendRes.ok) {
+            const errText = await resendRes.text();
+            console.log("[onboard] resend error:", resendRes.status, errText);
+            return jsonResponse({ error: "Email delivery failed" }, 502, request);
+          }
+          return jsonResponse({ ok: true, message: "Submission received" }, 200, request);
+        } catch (err) {
+          console.log("[onboard] error:", err.message);
           return jsonResponse({ error: err.message }, 500, request);
         }
       }
