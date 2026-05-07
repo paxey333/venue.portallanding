@@ -218,6 +218,46 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
   .media-card img{border-radius:4px}
 }
 
+/* COMPACT STATS ROW */
+.stats-compact .stat-card{padding:14px 16px}
+.stats-compact .stat-val{font-size:24px}
+@media(max-width:768px){
+  .stats-compact .stat-val{font-size:22px}
+}
+
+/* COMPACT STRIPE SUMMARY (when connected) */
+.stripe-compact{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:12px 16px;
+  transition:border-color .2s
+}
+.stripe-compact:hover{border-color:rgba(74,222,128,0.2)}
+.stripe-compact-left{display:flex;align-items:center;gap:10px;min-width:0}
+.stripe-compact-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0}
+.stripe-compact-text{font-family:var(--mono);font-size:11px;color:var(--green);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stripe-compact-manage{font-family:var(--mono);font-size:10px;color:var(--text3);text-decoration:none;cursor:pointer;transition:color .15s;flex-shrink:0;background:none;border:none;padding:0}
+.stripe-compact-manage:hover{color:var(--accent)}
+
+/* STRIPE ACTION BANNER (when not connected) */
+.stripe-action-banner{
+  background:var(--accent-dim);border:1px solid rgba(245,166,35,0.25);
+  border-radius:var(--radius);padding:8px 14px;margin-bottom:8px;
+  font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--accent)
+}
+
+/* SLIM EMPTY STATE (inquiries — 0 pending) */
+.inquiries-empty-slim{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:6px 4px
+}
+.inquiries-empty-slim-left{display:flex;align-items:center;gap:10px;min-width:0}
+.inquiries-empty-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0}
+.inquiries-empty-text{font-family:var(--mono);font-size:11px;color:var(--text2)}
+.scroll-link{font-family:var(--mono);font-size:10px;color:var(--text3);text-decoration:none;cursor:pointer;transition:color .15s;background:none;border:none;padding:0}
+.scroll-link:hover{color:var(--accent)}
+
 /* URGENT CARD ACCENT */
 .card-urgent{border-left:2px solid var(--accent)}
 
@@ -318,8 +358,34 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
 <!-- MAIN -->
 <main class="main">
 
+  <!-- INQUIRY REQUESTS (top priority) -->
+  <div class="card card-urgent" id="inquiry-section" style="margin-bottom:16px">
+    <div class="section-hd">
+      <div class="section-title"><span class="s-accent">&#9656;</span> Inquiry Requests</div>
+    </div>
+    <div id="inquiry-list"></div>
+  </div>
+
+  <!-- BOOKING CALENDAR -->
+  <div class="cal-card" id="cal-card-section">
+    <div class="section-hd">
+      <div class="section-title"><span class="s-accent">&#9656;</span> Booking Calendar</div>
+      <div style="display:flex;align-items:center;gap:7px">
+        <button class="cal-mnav-btn" onclick="shiftCalMonth(-1)">&#8249;</button>
+        <span id="cal-month-label" style="font-family:var(--display);font-size:12px;font-weight:700;min-width:110px;text-align:center;color:var(--text2)"></span>
+        <button class="cal-mnav-btn" onclick="shiftCalMonth(1)">&#8250;</button>
+      </div>
+    </div>
+    <div class="bk-cal-wrap">
+      <div class="bk-cal-grid" id="bk-cal-grid"></div>
+    </div>
+  </div>
+
+  <!-- STRIPE CONNECT -->
+  <div id="stripe-block" style="margin-bottom:16px"></div>
+
   <!-- STATS ROW -->
-  <div class="stats-row" id="stats-overview">
+  <div class="stats-row stats-compact" id="stats-overview">
     <div class="stat-card">
       <div class="stat-label">Revenue This Month</div>
       <div class="stat-val stat-val-white" id="st-revenue">—</div>
@@ -342,35 +408,12 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
     </div>
   </div>
 
-  <!-- TWO COL: BOOKINGS + INQUIRIES -->
-  <div class="two-col">
-    <div class="card" id="booking-section">
-      <div class="section-hd">
-        <div class="section-title"><span class="s-accent">&#9656;</span> Upcoming Bookings</div>
-      </div>
-      <div class="booking-list" id="booking-list"></div>
-    </div>
-    <div class="card card-urgent" id="inquiry-section">
-      <div class="section-hd">
-        <div class="section-title"><span class="s-accent">&#9656;</span> Inquiry Requests</div>
-      </div>
-      <div id="inquiry-list"></div>
-    </div>
-  </div>
-
-  <!-- BOOKING CALENDAR -->
-  <div class="cal-card" id="cal-card-section">
+  <!-- UPCOMING BOOKINGS -->
+  <div class="card" id="booking-section">
     <div class="section-hd">
-      <div class="section-title"><span class="s-accent">&#9656;</span> Booking Calendar</div>
-      <div style="display:flex;align-items:center;gap:7px">
-        <button class="cal-mnav-btn" onclick="shiftCalMonth(-1)">&#8249;</button>
-        <span id="cal-month-label" style="font-family:var(--display);font-size:12px;font-weight:700;min-width:110px;text-align:center;color:var(--text2)"></span>
-        <button class="cal-mnav-btn" onclick="shiftCalMonth(1)">&#8250;</button>
-      </div>
+      <div class="section-title"><span class="s-accent">&#9656;</span> Upcoming Bookings</div>
     </div>
-    <div class="bk-cal-wrap">
-      <div class="bk-cal-grid" id="bk-cal-grid"></div>
-    </div>
+    <div class="booking-list" id="booking-list"></div>
   </div>
 
   <!-- REVENUE CHART -->
@@ -512,9 +555,6 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
     <div id="media-empty" style="display:none;font-family:var(--mono);font-size:11px;color:var(--text3);padding:20px 0;text-align:center">No photos or video added yet. Click Edit Profile to add media.</div>
   </div>
 
-  <!-- STRIPE CONNECT -->
-  <div id="stripe-block"></div>
-
 </main>
 
 <!-- FIRST LOGIN MODAL -->
@@ -544,17 +584,17 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;back
 </div>
 
 <nav class="mobile-nav" id="mobile-nav">
-  <button class="mobile-nav-item" id="mnav-overview" onclick="scrollToSection('stats-overview')">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
-    <span>Overview</span>
-  </button>
-  <button class="mobile-nav-item" id="mnav-bookings" onclick="scrollToSection('booking-section')">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="2" y1="5" x2="14" y2="5"/><line x1="2" y1="9" x2="14" y2="9"/><line x1="2" y1="13" x2="14" y2="13"/></svg>
-    <span>Bookings</span>
+  <button class="mobile-nav-item" id="mnav-inquiries" onclick="scrollToSection('inquiry-section')">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 4h12a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V5a1 1 0 011-1z"/><polyline points="15,5 8,10 1,5"/></svg>
+    <span>Inquiries</span>
   </button>
   <button class="mobile-nav-item" id="mnav-calendar" onclick="scrollToSection('cal-card-section')">
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="1" y="3" width="14" height="12" rx="1"/><line x1="1" y1="7" x2="15" y2="7"/><line x1="5" y1="1" x2="5" y2="5"/><line x1="11" y1="1" x2="11" y2="5"/></svg>
     <span>Calendar</span>
+  </button>
+  <button class="mobile-nav-item" id="mnav-bookings" onclick="scrollToSection('booking-section')">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="2" y1="5" x2="14" y2="5"/><line x1="2" y1="9" x2="14" y2="9"/><line x1="2" y1="13" x2="14" y2="13"/></svg>
+    <span>Bookings</span>
   </button>
   <button class="mobile-nav-item" id="mnav-profile" onclick="scrollToSection('profile-section')">
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="5" r="3"/><rect x="2" y="11" width="12" height="4" rx="2"/></svg>
@@ -820,7 +860,14 @@ async function renderInquiries() {
     if (!Array.isArray(data)) console.log('[renderInquiries] unexpected response shape:', data);
     const inquiries = Array.isArray(data) ? data.filter(q => q.status === 'pending') : [];
     if (inquiries.length === 0) {
-      list.innerHTML = '<div style="text-align:center;padding:24px 0"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="1.5" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><div style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-top:10px">No pending inquiries</div></div>';
+      list.innerHTML = `
+        <div class="inquiries-empty-slim">
+          <div class="inquiries-empty-slim-left">
+            <div class="inquiries-empty-dot"></div>
+            <div class="inquiries-empty-text">All caught up — no pending inquiries</div>
+          </div>
+          <button type="button" class="scroll-link" onclick="scrollToSection('cal-card-section')">View calendar &rarr;</button>
+        </div>`;
       return;
     }
     list.innerHTML = inquiries.map(q => `
@@ -1089,36 +1136,21 @@ function renderMedia() {
 
 /* ─── STRIPE BLOCK ──────────────────────────────────── */
 
-function renderStripeConnected() {
+function renderStripeConnected(acctId) {
+  const masked = acctId ? 'acct_••••' + String(acctId).slice(-4) : 'acct_••••';
   return `
-    <div class="stripe-card stripe-connected">
-      <div class="stripe-left" style="flex:none;min-width:auto">
-        <div class="stripe-eyebrow">/ Stripe Connected</div>
-        <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
-          <div style="width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0"></div>
-          <span style="font-family:var(--mono);font-size:11px;color:var(--green)">Active</span>
-        </div>
+    <div class="stripe-compact">
+      <div class="stripe-compact-left">
+        <div class="stripe-compact-dot"></div>
+        <div class="stripe-compact-text">Stripe Connected &middot; ${esc(masked)} &middot; Payouts active</div>
       </div>
-      <div class="stripe-stats">
-        <div class="stripe-stat-pill">
-          <div class="stripe-stat-label">/ Platform Fee</div>
-          <div class="stripe-stat-val">$50 per booking</div>
-        </div>
-        <div class="stripe-stat-pill">
-          <div class="stripe-stat-label">/ Payout</div>
-          <div class="stripe-stat-val">Direct to your bank</div>
-        </div>
-        <div class="stripe-stat-pill">
-          <div class="stripe-stat-label">/ Status</div>
-          <div class="stripe-stat-val">Active</div>
-        </div>
-      </div>
-      <button class="btn-stripe-manage" onclick="window.open('https://dashboard.stripe.com','_blank')">Manage account &#8594;</button>
+      <button type="button" class="stripe-compact-manage" onclick="window.open('https://dashboard.stripe.com','_blank')">Manage &rarr;</button>
     </div>`;
 }
 
 function renderStripeDisconnected(errorMsg) {
   return `
+    <div class="stripe-action-banner">ACTION REQUIRED &mdash; connect your bank to enable payouts</div>
     <div class="stripe-card stripe-disconnected">
       <div class="stripe-left">
         <div class="stripe-eyebrow">/ Stripe Connect</div>
@@ -1147,7 +1179,7 @@ async function loadStripeStatus() {
     });
     if (handleAuth(res)) return;
     const data = await res.json();
-    el.innerHTML = data.connected ? renderStripeConnected() : renderStripeDisconnected();
+    el.innerHTML = data.connected ? renderStripeConnected(data.stripe_account_id) : renderStripeDisconnected();
   } catch {
     el.innerHTML = renderStripeDisconnected('Could not check Stripe status. Refresh to try again.');
   }
@@ -1375,9 +1407,9 @@ function scrollToSection(id) {
 
 (function initMobileNav() {
   const items = [
-    { secId: 'stats-overview',   navId: 'mnav-overview' },
-    { secId: 'booking-section',  navId: 'mnav-bookings' },
+    { secId: 'inquiry-section',  navId: 'mnav-inquiries' },
     { secId: 'cal-card-section', navId: 'mnav-calendar' },
+    { secId: 'booking-section',  navId: 'mnav-bookings' },
     { secId: 'profile-section',  navId: 'mnav-profile' },
   ];
   const setActive = (navId) => {
@@ -1385,7 +1417,7 @@ function scrollToSection(id) {
     const btn = document.getElementById(navId);
     if (btn) btn.classList.add('active');
   };
-  setActive('mnav-overview');
+  setActive('mnav-inquiries');
   const obs = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
