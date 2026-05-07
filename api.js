@@ -1059,7 +1059,8 @@ export default {
               "Content-Type": "application/json"
             },
             body: JSON.stringify({
-              from: "Venue Portal <onboard@venueportal.us>",
+              // TODO: switch to onboard@venueportal.us once domain verified in Resend
+              from: "Venue Portal <onboarding@resend.dev>",
               to: [adminEmail],
               reply_to: contactEmail,
               subject: "New Venue Onboarding Submission — " + venueName,
