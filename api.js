@@ -670,7 +670,8 @@ export default {
             stripeBody.append('payment_method_types[]', 'card');
             stripeBody.append('mode', 'payment');
             stripeBody.append('line_items[0][price_data][currency]', 'usd');
-            stripeBody.append('line_items[0][price_data][unit_amount]', '50000');
+            // TEST MODE — $1 booking. Restore to actual venue price_per_day before launch.
+            stripeBody.append('line_items[0][price_data][unit_amount]', '100');
             stripeBody.append('line_items[0][price_data][product_data][name]', `Venue Booking - ${venueName}`);
             stripeBody.append('line_items[0][quantity]', '1');
             // Connect split re-enabled when venue owner has separate Stripe account
