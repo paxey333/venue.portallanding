@@ -672,6 +672,14 @@ export default {
             return jsonResponse({ error: "Invalid status" }, 400, request);
           }
 
+          // Prevent double-accept: if already accepted/confirmed, short-circuit with 409.
+          if (status === "accepted") {
+            const current = await env.DB.prepare("SELECT status FROM bookings WHERE id = ?").bind(id).first();
+            if (current && (current.status === "accepted" || current.status === "confirmed")) {
+              return jsonResponse({ error: "Already processed" }, 409, request);
+            }
+          }
+
           if (status === "accepted") {
             const booking = await env.DB.prepare(
               `SELECT b.id, b.venue_id, b.client_name, b.client_email, b.event_date,

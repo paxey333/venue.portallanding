@@ -548,6 +548,19 @@ tbody tr:hover td{color:var(--text)}
 </head>
 <body>
 <div class="grain-overlay"></div>
+<div id="session-expired-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:300;background:rgba(245,166,35,0.08);border-bottom:1px solid rgba(245,166,35,0.25);font-family:var(--mono);font-size:11px;color:var(--accent);text-align:center;padding:10px 16px">Your session expired. Please log in again.</div>
+<script>
+(function(){
+  if (new URLSearchParams(window.location.search).get('session_expired') === '1') {
+    const b = document.getElementById('session-expired-banner');
+    if (b) {
+      b.style.display = 'block';
+      setTimeout(() => { b.style.transition = 'opacity .3s'; b.style.opacity = '0'; setTimeout(() => b.remove(), 350); }, 5000);
+    }
+    history.replaceState({}, '', window.location.pathname);
+  }
+})();
+</script>
 
 <!-- NAV — 4 tabs, logo top right -->
 
