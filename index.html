@@ -995,24 +995,24 @@ tbody tr:hover td{color:var(--text)}
 <div id="tab-about" class="panel">
   <!-- HERO -->
   <div class="about-hero">
-    <div class="about-eyebrow">Venue.Portal — by LogosImagined</div>
-    <div class="about-title">Independent venues deserve real infrastructure.</div>
-    <div class="about-tagline">We build your booking portal, host it, and keep it running — flat fee, no percentage cuts, no bloat. You keep the door. We keep it professional.</div>
+    <div class="about-eyebrow">BETA — LIMITED VENUES</div>
+    <div class="about-title">Your venue. Professional. Automated.</div>
+    <div class="about-tagline">We are onboarding our first wave of independent venues at zero build cost. Get your portal live, get structured bookings, get paid — while we're still in beta.</div>
   </div>
 
   <!-- STATS -->
   <div class="about-stat-row">
     <div class="about-stat">
-      <div class="about-stat-num" style="background:linear-gradient(90deg,#ffffff 0%,rgba(255,255,255,0.6) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">0%</div>
-      <div class="about-stat-label">of your door money taken</div>
+      <div class="about-stat-num" style="background:linear-gradient(90deg,#ffffff 0%,rgba(255,255,255,0.6) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">FREE</div>
+      <div class="about-stat-label">Portal build during beta</div>
     </div>
     <div class="about-stat">
-      <div class="about-stat-num">48h</div>
-      <div class="about-stat-label">Portal live after signup</div>
+      <div class="about-stat-num">$20</div>
+      <div class="about-stat-label">Per month management fee</div>
     </div>
     <div class="about-stat">
-      <div class="about-stat-num">24h</div>
-      <div class="about-stat-label">Booking confirmation</div>
+      <div class="about-stat-num">$50</div>
+      <div class="about-stat-label">Platform fee per booking</div>
     </div>
   </div>
 
@@ -1032,15 +1032,15 @@ tbody tr:hover td{color:var(--text)}
       <div class="about-card-label">How It Works</div>
       <div class="about-card-title">Simple. Flat fee. You keep everything else.</div>
       <div class="about-card-body">
-        <strong>Portal Build</strong> — We set up your page, embed your photos, configure your availability and house rules. Live in 48 hours.<br><br>
-        <strong>Monthly Management</strong> — We keep your calendar current, manage intake flow, handle updates. Flat monthly rate.<br><br>
-        <strong>You Get Paid</strong> — Organizers find your venue, pick a date, pay the deposit via Stripe. Money goes directly to you. We never touch the door.
-        <div class="pill-row" style="margin-top:16px">
-          <span class="pill">Flat fee only</span>
-          <span class="pill">Stripe payments</span>
-          <span class="pill">24hr confirmation</span>
-          <span class="pill">Calendar managed for you</span>
-          <span class="pill">Zero percentage cuts</span>
+        <strong>Portal Build</strong> — Free during beta. We build your venue page, set up your calendar, configure Stripe payments, and go live in 48 hours. No upfront cost.<br><br>
+        <strong>Monthly Management</strong> — $20/month flat. Covers platform infrastructure, AI-assisted tools, booking management, and ongoing support. Cancel anytime.<br><br>
+        <strong>Per Booking Fee</strong> — $50 flat per confirmed booking. Taken automatically at checkout. No percentage cuts, no surprise fees. Every other dollar goes directly to you via Stripe.
+        <div class="pill-row">
+          <span class="pill">Free to start</span>
+          <span class="pill">$20/mo management</span>
+          <span class="pill">$50 per booking</span>
+          <span class="pill">Stripe direct payouts</span>
+          <span class="pill">No percentage cuts</span>
         </div>
       </div>
     </div>
@@ -1089,6 +1089,24 @@ tbody tr:hover td{color:var(--text)}
 
   <div class="about-divider"></div>
 
+  <!-- BETA BANNER -->
+  <div class="about-grid" style="margin-bottom:14px">
+    <div class="about-card about-full" style="background:linear-gradient(135deg,#0d1018 0%,#14172a 100%);border:1px solid rgba(245,166,35,0.2);position:relative;overflow:hidden">
+      <div style="position:absolute;right:20px;top:50%;transform:translateY(-50%);font-family:var(--display);font-size:80px;font-weight:800;color:rgba(245,166,35,0.04);pointer-events:none;line-height:1">BETA</div>
+      <div class="about-card-label" style="color:var(--accent)">Limited Availability</div>
+      <div class="about-card-title">Beta access is free. Spots are limited.</div>
+      <div class="about-card-body">We are onboarding a small number of independent venues at no build cost while we validate the platform. Once beta closes, portal builds return to standard pricing. If you are reading this, you are early.<br><br>
+      <strong>What beta venues get:</strong> Free portal build, priority onboarding, direct line to the team, and locked-in $20/month rate for as long as you stay active.
+      </div>
+      <div class="pill-row" style="margin-top:14px">
+        <span class="pill" style="border-color:rgba(245,166,35,0.2);color:var(--accent)">Free build</span>
+        <span class="pill" style="border-color:rgba(245,166,35,0.2);color:var(--accent)">Priority onboarding</span>
+        <span class="pill" style="border-color:rgba(245,166,35,0.2);color:var(--accent)">Rate locked for life</span>
+        <span class="pill" style="border-color:rgba(245,166,35,0.2);color:var(--accent)">Direct team access</span>
+      </div>
+    </div>
+  </div>
+
   <!-- PRICING -->
   <div class="about-grid">
     <div class="about-card about-full">
@@ -1098,21 +1116,26 @@ tbody tr:hover td{color:var(--text)}
         <table class="about-compare">
           <thead>
             <tr>
-              <th>Tier</th>
-              <th>Fee</th>
-              <th>What you get</th>
+              <th>What</th>
+              <th>Cost</th>
+              <th>Details</th>
             </tr>
           </thead>
           <tbody>
             <tr class="highlight">
               <td>Portal Build</td>
-              <td>$300–$600</td>
-              <td>Full venue page, photos, rules, live calendar, Stripe — delivered in 48hrs</td>
+              <td style="color:var(--green)">FREE</td>
+              <td>Full venue page, calendar, Stripe — live in 48hrs. Beta only.</td>
             </tr>
             <tr class="highlight">
               <td>Monthly Management</td>
-              <td>$100–$200/mo</td>
-              <td>Ongoing updates, booking management, availability calendar kept current</td>
+              <td style="color:var(--green)">$20 / mo</td>
+              <td>Platform, AI tools, booking management, support. Cancel anytime.</td>
+            </tr>
+            <tr class="highlight">
+              <td>Per Booking Fee</td>
+              <td style="color:var(--green)">$50 flat</td>
+              <td>Taken at checkout. Everything else goes directly to you.</td>
             </tr>
             <tr>
               <td>Ticketmaster</td>
@@ -1123,6 +1146,11 @@ tbody tr:hover td{color:var(--text)}
               <td>Eventbrite</td>
               <td>% per booking</td>
               <td>Generic product, no relationship with your venue or scene</td>
+            </tr>
+            <tr>
+              <td>Managing DMs</td>
+              <td>Your time</td>
+              <td>2am texts, missed leads, no deposit system, no structure</td>
             </tr>
           </tbody>
         </table>
@@ -1137,12 +1165,19 @@ tbody tr:hover td{color:var(--text)}
     <div class="about-card">
       <div class="about-card-label">Who We Are</div>
       <div class="about-card-title">Built by people in the scene</div>
-      <div class="about-card-body">LogosImagined is an AI-native ops company building infrastructure for independent music venues and event organizers. We're not a ticketing giant. We're operators — we understand the underground and we build tools that respect how it actually works.</div>
+      <div class="about-card-body">LogosImagined is an AI-native operations company building infrastructure for independent music venues and event promoters. We are not a ticketing platform. We are operators — we understand the underground and we build tools that respect how it actually works.</div>
     </div>
     <div class="about-card">
       <div class="about-card-label">The Commitment</div>
       <div class="about-card-title">We don't scale by taking your money</div>
-      <div class="about-card-body">Every platform that gets big starts taking a percentage. We don't. Our model is flat fee — your success doesn't cost you more. The more shows you book, the more you make. That's how it should work.</div>
+      <div class="about-card-body">Every platform that grows starts taking a percentage. We do not. Our model is flat fee — your success does not cost you more. The more events you book, the more you keep. We never take a cut of the door. Ever.
+        <div class="pill-row">
+          <span class="pill">Flat fee only</span>
+          <span class="pill">Stripe direct payouts</span>
+          <span class="pill">No percentage cuts</span>
+          <span class="pill">Cancel anytime</span>
+        </div>
+      </div>
     </div>
   </div>
 
