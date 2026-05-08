@@ -635,6 +635,8 @@ export default {
             body.message ? String(body.message) : null
           ).run();
 
+          console.log("[INQUIRY SUBMIT] venue_id:", body.venue_id, "client:", body.client_name, "inserted as id:", result.meta.last_row_id);
+
           const created = await env.DB.prepare(
             `SELECT id, venue_id, client_name, client_email, event_date, guests, message, status, created_at
              FROM bookings WHERE id = ?`
