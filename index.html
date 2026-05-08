@@ -1365,9 +1365,11 @@ const API = {
    The static venue detail pages (ws / cr) stay as-is.
    API venues populate the admin list + preview dropdowns.
 ───────────────────────────────────────────── */
+// `id` MUST match the D1 venues.id used in /api/bookings POST.
+// Inquiries submitted from a venue's listing route to that venue_id — never hardcode.
 const VENUES = {
-  ws: { name:'White Swan Live', location:'Houston, TX', fee:100, feeLabel:'$100 flat',     feeNote:'flat fee',     contact:'713-923-2837' },
-  cr: { name:'The Chill Room',  location:'Tempe, AZ',  fee:150, feeLabel:'$150 starting', feeNote:'starting fee', contact:'Via Stripe confirmation' }
+  ws: { id: null, name:'White Swan Live', location:'Houston, TX', fee:100, feeLabel:'$100 flat',     feeNote:'flat fee',     contact:'713-923-2837' },
+  cr: { id: 1,    name:'The Chill Room',  location:'Tempe, AZ',  fee:150, feeLabel:'$150 starting', feeNote:'starting fee', contact:'Via Stripe confirmation' }
 };
 
 /* groups the hardcoded venues by city for the preview dropdowns */
@@ -2055,6 +2057,15 @@ async function submitBooking() {
   const s   = calState[activeVenueKey];
   const btn = document.getElementById('modal-confirm-btn');
 
+  // Resolve the venue's D1 id from its config — NEVER hardcode.
+  const activeVenue = VENUES[activeVenueKey] || {};
+  const venueId     = activeVenue.id;
+  if (!venueId) {
+    errEl.textContent = 'This venue is not yet onboarded for online inquiries. Please contact the venue directly.';
+    errEl.style.display = '';
+    return;
+  }
+
   /* convert "Month Day, Year" → YYYY-MM-DD */
   const dateObj   = new Date(s.selected);
   const eventDate = dateObj.getFullYear() + '-' +
@@ -2068,7 +2079,7 @@ async function submitBooking() {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        venue_id:     1,
+        venue_id:     venueId,
         client_name:  name,
         client_email: email,
         event_date:   eventDate,

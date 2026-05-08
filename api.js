@@ -646,7 +646,10 @@ export default {
                ORDER BY b.id DESC`
             ).bind(session.venue_id).all();
           }
-          return jsonResponse(rows.results || [], 200, request);
+          const results = rows.results || [];
+          const pendingCount = results.filter(r => r.status === 'pending').length;
+          console.log("[INQUIRIES] fetched for venue_id:", filterVenueId, "returning:", results.length, "bookings (", pendingCount, "pending inquiries )");
+          return jsonResponse(results, 200, request);
         } catch (err) {
           return jsonResponse({ error: err.message }, 500, request);
         }
