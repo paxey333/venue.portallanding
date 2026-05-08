@@ -626,6 +626,9 @@ export default {
           const session = await getSession(request, env);
           if (!isAnyRole(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
 
+          const filterVenueId = isAdminOrAbove(session) ? "ALL" : session.venue_id;
+          console.log("[FILTER] GET /api/bookings hit by user:", session.user_id ?? session.email, "role:", session.role, "session venue_id:", session.venue_id, "WHERE clause venue_id:", filterVenueId);
+
           let rows;
           if (isAdminOrAbove(session)) {
             rows = await env.DB.prepare(
@@ -809,6 +812,8 @@ export default {
           const session = await getSession(request, env);
           if (!isAnyRole(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
           const id = Number(venueStatsMatch[1]);
+
+          console.log("[FILTER] GET /api/venues/:id/stats hit by user:", session.user_id ?? session.email, "role:", session.role, "session venue_id:", session.venue_id, "WHERE clause venue_id:", id);
 
           if (session.role === "venue_owner" && session.venue_id !== id) {
             return jsonResponse({ error: "Unauthorized" }, 401, request);

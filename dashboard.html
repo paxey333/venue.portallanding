@@ -1222,6 +1222,15 @@ function showStripeBanner(msg, color, borderColor) {
 
 let calMonthOffset = 0;
 
+// Clear any stale data structures from previous session.
+// If the venue_id differs from last load (e.g., admin previewing a different venue,
+// or a re-login), drop in-memory caches before fetching fresh data.
+if (window._lastVenueId && window._lastVenueId !== EFFECTIVE_VENUE_ID) {
+  allBookings = [];
+  currentVenue = {};
+}
+window._lastVenueId = EFFECTIVE_VENUE_ID;
+
 loadVenueProfile();
 renderStats();
 renderBookings();
