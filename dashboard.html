@@ -783,7 +783,10 @@ async function renderBookings() {
   const listEl = document.getElementById('booking-list');
   listEl.innerHTML = '<div style="font-family:var(--mono);font-size:11px;color:var(--text3);padding:8px 0">Loading bookings...</div>';
   try {
-    const res = await fetch(API_BASE + '/api/bookings', {
+    // Always scope by EFFECTIVE_VENUE_ID so admin preview can't see other venues' bookings.
+    const endpoint = API_BASE + '/api/bookings?venue_id=' + encodeURIComponent(EFFECTIVE_VENUE_ID);
+    console.log('[FETCH]', endpoint, 'EFFECTIVE_VENUE_ID:', EFFECTIVE_VENUE_ID, 'role:', ROLE);
+    const res = await fetch(endpoint, {
       headers: { 'Authorization': 'Bearer ' + TOKEN }
     });
     if (handleAuth(res)) return;
@@ -852,7 +855,9 @@ async function renderInquiries() {
   const list = document.getElementById('inquiry-list');
   list.innerHTML = '<div style="font-family:var(--mono);font-size:11px;color:var(--text3);padding:8px 0">Loading pending inquiries...</div>';
   try {
-    const res = await fetch(API_BASE + '/api/bookings', {
+    const endpoint = API_BASE + '/api/bookings?venue_id=' + encodeURIComponent(EFFECTIVE_VENUE_ID);
+    console.log('[FETCH]', endpoint, 'EFFECTIVE_VENUE_ID:', EFFECTIVE_VENUE_ID, 'role:', ROLE);
+    const res = await fetch(endpoint, {
       headers: { 'Authorization': 'Bearer ' + TOKEN }
     });
     if (handleAuth(res)) return;
@@ -1296,13 +1301,14 @@ function renderCalendarDots() {
   const grid = document.getElementById('bk-cal-grid');
   if (!grid || !allBookings.length) return;
   grid.querySelectorAll('.bk-cal-pill').forEach(el => el.remove());
-  allBookings.forEach(b => {
-    if (b.status !== 'confirmed' && b.status !== 'pending') return;
+  // Calendar shows confirmed bookings only — pending/declined/cancelled never render here.
+  const calendarBookings = allBookings.filter(b => b.status === 'confirmed');
+  calendarBookings.forEach(b => {
     const dStr = normalizeDate(b.event_date);
     const cell = grid.querySelector('[data-date="' + dStr + '"]');
     if (!cell) return;
     const pill = document.createElement('span');
-    pill.className = 'bk-cal-pill' + (b.status === 'pending' ? ' pending' : '');
+    pill.className = 'bk-cal-pill';
     pill.textContent = b.client_name || 'Booking';
     pill.title = (b.client_name || '') + ' · ' + b.event_date;
     cell.appendChild(pill);

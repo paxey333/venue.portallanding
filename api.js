@@ -653,11 +653,25 @@ export default {
           const session = await getSession(request, env);
           if (!isAnyRole(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
 
-          const filterVenueId = isAdminOrAbove(session) ? "ALL" : session.venue_id;
-          console.log("[FILTER] GET /api/bookings hit by user:", session.user_id ?? session.email, "role:", session.role, "session venue_id:", session.venue_id, "WHERE clause venue_id:", filterVenueId);
+          // Honour ?venue_id= query param for admin/superadmin (used by admin-preview dashboard
+          // to scope to a single venue). venue_owner is ALWAYS forced to their own venue_id.
+          const queryVenueIdRaw = url.searchParams.get("venue_id");
+          const queryVenueId    = queryVenueIdRaw ? parseInt(queryVenueIdRaw, 10) : null;
+
+          let filterVenueId;
+          if (isAdminOrAbove(session)) {
+            filterVenueId = (queryVenueId && !isNaN(queryVenueId)) ? queryVenueId : "ALL";
+          } else {
+            // Block venue_owner from spoofing another venue via query param.
+            if (queryVenueId && queryVenueId !== session.venue_id) {
+              return jsonResponse({ error: "Forbidden" }, 403, request);
+            }
+            filterVenueId = session.venue_id;
+          }
+          console.log("[FILTER] GET /api/bookings hit by user:", session.user_id ?? session.email, "role:", session.role, "session venue_id:", session.venue_id, "query venue_id:", queryVenueId, "WHERE clause venue_id:", filterVenueId);
 
           let rows;
-          if (isAdminOrAbove(session)) {
+          if (filterVenueId === "ALL") {
             rows = await env.DB.prepare(
               `SELECT b.id, b.venue_id, v.name AS venue_name, b.client_name, b.client_email,
                       b.event_date, b.guests, b.message, b.status, b.created_at
@@ -671,7 +685,7 @@ export default {
                FROM bookings b LEFT JOIN venues v ON v.id = b.venue_id
                WHERE b.venue_id = ?
                ORDER BY b.id DESC`
-            ).bind(session.venue_id).all();
+            ).bind(filterVenueId).all();
           }
           const results = rows.results || [];
           const pendingCount = results.filter(r => r.status === 'pending').length;
