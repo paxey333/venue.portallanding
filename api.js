@@ -340,29 +340,33 @@ export default {
       if (path === "/api/users" && request.method === "POST") {
         try {
           const session = await getSession(request, env);
-          if (!isSuperAdmin(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
+          if (!isAdminOrAbove(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
 
           const body = await parseJson(request);
           const email = String(body.email || "").trim().toLowerCase();
           const role = String(body.role || "").trim();
-          const name = String(body.name || "").trim();
+          let name = String(body.name || "").trim();
           const venueId = toIntOrNull(body.venue_id);
 
-          if (!email || !role || !name) {
-            return jsonResponse({ error: "email, role, and name are required" }, 400, request);
+          if (!email)        return jsonResponse({ error: "email is required" }, 400, request);
+          if (!role)         return jsonResponse({ error: "role is required" }, 400, request);
+          if (!["admin", "venue_owner", "promoter", "superadmin"].includes(role)) {
+            return jsonResponse({ error: "invalid role" }, 400, request);
           }
-          if (!["admin", "venue_owner"].includes(role)) {
-            return jsonResponse({ error: "role must be admin or venue_owner" }, 400, request);
+          // Only superadmin can create admin or superadmin accounts.
+          if ((role === "admin" || role === "superadmin") && !isSuperAdmin(session)) {
+            return jsonResponse({ error: "Only superadmin can create admin or superadmin accounts" }, 403, request);
           }
           if (role === "venue_owner" && !venueId) {
             return jsonResponse({ error: "venue_id is required for venue_owner role" }, 400, request);
           }
 
+          if (!name) name = email.split("@")[0];
+
+          // Password: use provided, or auto-generate.
           const providedPassword = String(body.password || "").trim();
-          if (!providedPassword) {
-            return jsonResponse({ error: "password is required" }, 400, request);
-          }
-          const hashedPassword = await hashPassword(providedPassword, env.TOKEN_SECRET);
+          const plainPassword = providedPassword || generatePassword();
+          const hashedPassword = await hashPassword(plainPassword, env.TOKEN_SECRET);
 
           await env.DB.prepare(
             "INSERT INTO users (email, password, role, venue_id, name) VALUES (?, ?, ?, ?, ?)"
@@ -388,12 +392,13 @@ export default {
                 from: "Venue Portal <onboarding@resend.dev>",
                 to: [email],
                 subject: "Your Venue Portal is ready",
-                html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto"><h2 style="color:#111">Welcome to Venue Portal, ${name}!</h2>${venueName ? `<p>Your venue <strong>${venueName}</strong> has been set up and is ready to go.</p>` : ""}<p>Log in to manage your bookings and venue profile.</p><p><strong>Email:</strong> ${email}<br><strong>Temporary password:</strong> ${providedPassword}</p><p style="color:#888;font-size:13px">Please change your password after your first login.</p><p style="text-align:center;margin:32px 0"><a href="https://venue-portal.pages.dev/dashboard.html" style="background:#f5a623;color:#111;font-weight:700;padding:14px 28px;border-radius:6px;text-decoration:none;display:inline-block">Go to Dashboard &#8594;</a></p></div>`,
+                html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto"><h2 style="color:#111">Welcome to Venue Portal, ${name}!</h2>${venueName ? `<p>Your venue <strong>${venueName}</strong> has been set up and is ready to go.</p>` : ""}<p>Log in to manage your bookings and venue profile.</p><p><strong>Email:</strong> ${email}<br><strong>Temporary password:</strong> ${plainPassword}</p><p style="color:#888;font-size:13px">Please change your password after your first login.</p><p style="text-align:center;margin:32px 0"><a href="https://venue-portal.pages.dev/dashboard.html" style="background:#f5a623;color:#111;font-weight:700;padding:14px 28px;border-radius:6px;text-decoration:none;display:inline-block">Go to Dashboard &#8594;</a></p></div>`,
               }),
             });
           }
 
-          return jsonResponse(created, 201, request);
+          // Return plaintext password ONLY on creation — never persisted in any other response.
+          return jsonResponse({ ...created, password: plainPassword }, 201, request);
         } catch (err) {
           if (err.message && err.message.includes("UNIQUE")) {
             return jsonResponse({ error: "A user with that email already exists" }, 409, request);
@@ -402,13 +407,15 @@ export default {
         }
       }
 
-      // ── USERS: GET ALL (superadmin only) ────────────────────────
+      // ── USERS: GET ALL (admin or above) ─────────────────────────
       if (path === "/api/users" && request.method === "GET") {
         try {
           const session = await getSession(request, env);
-          if (!isSuperAdmin(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
+          if (!isAdminOrAbove(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
           const rows = await env.DB.prepare(
-            "SELECT id, email, role, venue_id, name, created_at FROM users ORDER BY id DESC"
+            `SELECT u.id, u.email, u.role, u.venue_id, u.name, u.created_at, v.name AS venue_name
+             FROM users u LEFT JOIN venues v ON v.id = u.venue_id
+             ORDER BY u.id DESC`
           ).all();
           return jsonResponse(rows.results || [], 200, request);
         } catch (err) {
@@ -416,14 +423,24 @@ export default {
         }
       }
 
-      // ── USERS: DELETE + RESET PASSWORD (superadmin only) ────────
+      // ── USERS: DELETE + RESET PASSWORD (admin or above) ────────
       const userByIdMatch = path.match(/^\/api\/users\/(\d+)$/);
 
       if (userByIdMatch && request.method === "DELETE") {
         try {
           const session = await getSession(request, env);
-          if (!isSuperAdmin(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
+          if (!isAdminOrAbove(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
           const id = Number(userByIdMatch[1]);
+          const target = await env.DB.prepare("SELECT id, email, role FROM users WHERE id = ?").bind(id).first();
+          if (!target) return jsonResponse({ error: "User not found" }, 404, request);
+          // Prevent self-delete.
+          if (session.email && target.email && target.email.toLowerCase() === String(session.email).toLowerCase()) {
+            return jsonResponse({ error: "You cannot delete your own account" }, 403, request);
+          }
+          // Admin cannot delete admin or superadmin — only superadmin can.
+          if ((target.role === "admin" || target.role === "superadmin") && !isSuperAdmin(session)) {
+            return jsonResponse({ error: "Only superadmin can delete admin or superadmin accounts" }, 403, request);
+          }
           const res = await env.DB.prepare("DELETE FROM users WHERE id = ?").bind(id).run();
           if (!res.meta.changes) return jsonResponse({ error: "User not found" }, 404, request);
           return new Response(null, { status: 204, headers: corsHeaders(request) });
@@ -435,8 +452,18 @@ export default {
       if (userByIdMatch && request.method === "PATCH") {
         try {
           const session = await getSession(request, env);
-          if (!isSuperAdmin(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
+          if (!isAdminOrAbove(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
           const id = Number(userByIdMatch[1]);
+          const target = await env.DB.prepare("SELECT id, email, role FROM users WHERE id = ?").bind(id).first();
+          if (!target) return jsonResponse({ error: "User not found" }, 404, request);
+          // Prevent self-reset (use the proper change-password flow instead).
+          if (session.email && target.email && target.email.toLowerCase() === String(session.email).toLowerCase()) {
+            return jsonResponse({ error: "You cannot reset your own password from here" }, 403, request);
+          }
+          // Admin cannot reset admin or superadmin — only superadmin can.
+          if ((target.role === "admin" || target.role === "superadmin") && !isSuperAdmin(session)) {
+            return jsonResponse({ error: "Only superadmin can reset admin or superadmin passwords" }, 403, request);
+          }
           const plainPassword = generatePassword();
           const hashedPassword = await hashPassword(plainPassword, env.TOKEN_SECRET);
           const res = await env.DB.prepare(

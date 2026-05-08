@@ -524,6 +524,43 @@ tbody tr:hover td{color:var(--text)}
   .landing-trust-pill{font-size:9px;padding:4px 10px}
   .landing-sub{font-size:13px}
 }
+/* USER MANAGEMENT */
+.user-row{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 18px;transition:border-color .15s;gap:12px}
+.user-row:hover{border-color:rgba(245,166,35,0.2)}
+.user-row-left{flex:1;min-width:0}
+.user-email{font-family:var(--display);font-size:14px;font-weight:700;color:var(--text);margin-bottom:3px;overflow-wrap:break-word}
+.user-meta{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3)}
+.user-row-actions{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap}
+.btn-ghost-sm{background:none;border:1px solid var(--border2);color:var(--text2);font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.08em;padding:5px 10px;border-radius:var(--radius);cursor:pointer;transition:border-color .15s,color .15s}
+.btn-ghost-sm:hover{border-color:var(--text2);color:var(--text)}
+
+.user-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(4px);z-index:500;align-items:center;justify-content:center;padding:20px}
+.user-modal-overlay.open{display:flex}
+.user-modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px;max-width:460px;width:100%;max-height:90vh;overflow-y:auto}
+.user-modal-title{font-family:var(--display);font-size:20px;font-weight:800;letter-spacing:-.3px;margin-bottom:6px}
+.user-modal-sub{font-family:var(--sans);font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:18px}
+.user-form-field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.user-form-label{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3)}
+.user-form-input{width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-family:var(--sans);font-size:13px;padding:10px 12px;border-radius:var(--radius);transition:border-color .15s}
+.user-form-input:focus{outline:none;border-color:var(--accent)}
+.user-modal-err{display:none;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);color:#f87171;font-family:var(--mono);font-size:11px;padding:9px 12px;border-radius:var(--radius);margin-bottom:12px;line-height:1.5}
+.user-modal-err.show{display:block}
+.user-modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
+
+.user-cred-row{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:10px}
+.user-cred-label{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:6px}
+.user-cred-value{font-family:var(--mono);font-size:13px;color:var(--text);overflow-wrap:break-word}
+.user-cred-pw{font-family:var(--mono);font-size:14px;color:var(--accent);background:var(--bg);border:1px solid var(--border2);padding:8px 12px;border-radius:var(--radius);flex:1;overflow-wrap:break-word;word-break:break-all}
+.btn-copy{background:none;border:1px solid var(--border2);color:var(--text2);font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.08em;padding:8px 12px;border-radius:var(--radius);cursor:pointer;transition:border-color .15s,color .15s;flex-shrink:0}
+.btn-copy:hover{border-color:var(--accent);color:var(--accent)}
+.btn-copy.copied{border-color:var(--green);color:var(--green)}
+
+@media(max-width:640px){
+  .user-row{flex-direction:column;align-items:stretch}
+  .user-row-actions{justify-content:flex-end}
+  .user-modal{padding:20px}
+}
+
 /* REVIEWS */
 .review-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px 22px;transition:border-color .2s}
 .review-card:hover{border-color:rgba(245,166,35,0.2)}
@@ -577,6 +614,7 @@ tbody tr:hover td{color:var(--text)}
   </div>
   <div class="nav-tabs">
     <button class="tab-btn" id="maintab-admin" onclick="showTab('admin')">Admin</button>
+    <button class="tab-btn" id="maintab-users" onclick="showTab('users')" style="display:none">Users</button>
     <button class="tab-btn active" id="maintab-preview" onclick="showTab('preview')">Venue Preview</button>
     <button class="tab-btn" id="maintab-about" onclick="showTab('about')">About</button>
     <button class="tab-btn" id="maintab-reviews" onclick="showTab('reviews')">Reviews</button>
@@ -939,6 +977,99 @@ tbody tr:hover td{color:var(--text)}
   </div>
 
 </div><!-- /tab-preview -->
+
+<!-- USER MANAGEMENT (admin / superadmin only) -->
+
+<div id="tab-users" class="panel">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px">
+    <div>
+      <h1 class="page-heading">User Management</h1>
+      <div class="heading-rule"></div>
+      <p class="page-sub">Create logins for venue owners and promoters. Manage existing accounts.</p>
+    </div>
+    <button class="btn-primary" onclick="openCreateUserModal()">+ Create User</button>
+  </div>
+  <div id="users-list" style="display:flex;flex-direction:column;gap:8px"></div>
+</div>
+
+<!-- CREATE USER MODAL -->
+<div class="user-modal-overlay" id="user-modal-overlay" onclick="if(event.target===this) closeCreateUserModal()">
+  <div class="user-modal">
+    <div class="user-modal-title">Create User</div>
+    <div class="user-modal-sub">Generate a login for a venue owner, promoter, or admin.</div>
+    <div class="user-form-field">
+      <label class="user-form-label">Email</label>
+      <input class="user-form-input" id="cu-email" type="email" placeholder="someone@example.com"/>
+    </div>
+    <div class="user-form-field">
+      <label class="user-form-label">Role</label>
+      <select class="user-form-input" id="cu-role" onchange="onCreateUserRoleChange()">
+        <option value="venue_owner">Venue Owner</option>
+        <option value="promoter">Promoter</option>
+        <option value="admin" id="cu-role-admin-opt">Admin</option>
+      </select>
+    </div>
+    <div class="user-form-field" id="cu-venue-wrap">
+      <label class="user-form-label">Venue</label>
+      <select class="user-form-input" id="cu-venue"></select>
+    </div>
+    <div class="user-form-field">
+      <label class="user-form-label" style="display:flex;align-items:center;gap:8px">
+        <input type="checkbox" id="cu-autogen" checked onchange="onAutogenToggle()"/>
+        <span>Auto-generate password</span>
+      </label>
+    </div>
+    <div class="user-form-field" id="cu-password-wrap" style="display:none">
+      <label class="user-form-label">Password</label>
+      <input class="user-form-input" id="cu-password" type="text" placeholder="Min 8 chars"/>
+    </div>
+    <div class="user-modal-err" id="cu-err"></div>
+    <div class="user-modal-actions">
+      <button class="btn-cancel" onclick="closeCreateUserModal()">Cancel</button>
+      <button class="btn-primary" id="cu-submit" onclick="submitCreateUser()">Create User</button>
+    </div>
+  </div>
+</div>
+
+<!-- USER CREATED SUCCESS MODAL -->
+<div class="user-modal-overlay" id="user-success-overlay" onclick="if(event.target===this) closeUserSuccessModal()">
+  <div class="user-modal">
+    <div class="user-modal-title" style="color:var(--green)">User created</div>
+    <div class="user-modal-sub" id="us-summary"></div>
+    <div class="user-cred-row">
+      <div class="user-cred-label">EMAIL</div>
+      <div class="user-cred-value" id="us-email"></div>
+    </div>
+    <div class="user-cred-row">
+      <div class="user-cred-label" style="color:var(--accent)">PASSWORD — copy now, this won't be shown again</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <code class="user-cred-pw" id="us-password"></code>
+        <button type="button" class="btn-copy" onclick="copyUserPassword()">Copy</button>
+      </div>
+    </div>
+    <div class="user-modal-actions">
+      <button class="btn-primary" onclick="closeUserSuccessModal()">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- PASSWORD RESET RESULT MODAL -->
+<div class="user-modal-overlay" id="user-reset-overlay" onclick="if(event.target===this) closeUserResetModal()">
+  <div class="user-modal">
+    <div class="user-modal-title" style="color:var(--accent)">Password reset</div>
+    <div class="user-modal-sub" id="ur-summary"></div>
+    <div class="user-cred-row">
+      <div class="user-cred-label" style="color:var(--accent)">NEW PASSWORD — copy now, this won't be shown again</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <code class="user-cred-pw" id="ur-password"></code>
+        <button type="button" class="btn-copy" onclick="copyResetPassword()">Copy</button>
+      </div>
+    </div>
+    <div class="user-modal-actions">
+      <button class="btn-primary" onclick="closeUserResetModal()">Done</button>
+    </div>
+  </div>
+</div>
 
 <!-- ALL BOOKINGS -->
 
@@ -1358,6 +1489,10 @@ const API = {
   updateBookingStatus: (id, status)  => apiFetch(`/api/bookings/${id}/status`, { method:'PATCH', body:{ status }, auth:true }),
   deleteBooking:       (id)          => apiFetch(`/api/bookings/${id}`, { method:'DELETE', auth:true }),
   getVenueStats:       (id)          => apiFetch(`/api/venues/${id}/stats`, { auth:true }),
+  getUsers:            ()            => apiFetch('/api/users',                                  { auth:true }),
+  createUser:          (b)           => apiFetch('/api/users',          { method:'POST',   body:b, auth:true }),
+  resetUserPassword:   (id)          => apiFetch(`/api/users/${id}`,    { method:'PATCH',          auth:true }),
+  deleteUser:          (id)          => apiFetch(`/api/users/${id}`,    { method:'DELETE',         auth:true }),
 };
 
 /* ─────────────────────────────────────────────
@@ -1522,6 +1657,7 @@ async function handleLogin() {
       setRole(data.role || 'admin');
       setName(data.name || '');
       setVenueId(data.venue_id ?? null);
+      refreshUsersTabVisibility();
       if (data.role === 'venue_owner') {
         if (data.first_login) localStorage.setItem('vp_first_login', 'true');
         window.location.replace('dashboard.html');
@@ -1769,9 +1905,203 @@ async function removeBooking(id) {
   } catch(e) { alert('Delete failed: ' + e.message); }
 }
 
+/* ─────────────────────────────────────────────
+   USER MANAGEMENT  (admin / superadmin only)
+───────────────────────────────────────────── */
+let _usersList = [];
+
+function fmtUserDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  if (isNaN(d)) return iso;
+  return d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+}
+
+async function loadUsers() {
+  const list = document.getElementById('users-list');
+  list.innerHTML = '<div style="font-family:var(--mono);font-size:11px;color:var(--text3);padding:12px 0">Loading users...</div>';
+  try {
+    const users = await API.getUsers() || [];
+    _usersList = users;
+    if (!users.length) {
+      list.innerHTML = '<div style="font-family:var(--mono);font-size:11px;color:var(--text3);padding:12px 0">No users yet.</div>';
+      return;
+    }
+    list.innerHTML = users.map(u => {
+      const venueLabel = u.venue_name ? escHtml(u.venue_name) : (u.venue_id ? 'venue #' + u.venue_id : 'No venue');
+      return `
+        <div class="user-row">
+          <div class="user-row-left">
+            <div class="user-email">${escHtml(u.email)}</div>
+            <div class="user-meta">${escHtml(u.role)} &middot; ${venueLabel} &middot; created ${escHtml(fmtUserDate(u.created_at))}</div>
+          </div>
+          <div class="user-row-actions">
+            <button class="btn-ghost-sm" onclick="resetUserPassword(${u.id})">Reset Password</button>
+            <button class="btn-ghost-sm" onclick="confirmDeleteUser(${u.id})" style="color:#f87171">Remove</button>
+          </div>
+        </div>`;
+    }).join('');
+  } catch(e) {
+    list.innerHTML = `<div style="font-family:var(--mono);font-size:11px;color:#f87171;padding:12px 0">Could not load users: ${escHtml(e.message)}</div>`;
+  }
+}
+
+function openCreateUserModal() {
+  // Populate venue dropdown from already-loaded apiVenues if present, else fetch.
+  const venueSel = document.getElementById('cu-venue');
+  const fillVenues = (vs) => {
+    venueSel.innerHTML = (vs || []).map(v => `<option value="${v.id}">${escHtml(v.name)} (id=${v.id})</option>`).join('') || '<option value="">No venues available</option>';
+  };
+  if (Array.isArray(apiVenues) && apiVenues.length) {
+    fillVenues(apiVenues);
+  } else {
+    fillVenues([]);
+    API.getVenues().then(vs => { apiVenues = vs || []; fillVenues(apiVenues); }).catch(() => {});
+  }
+
+  // Hide Admin role option for non-superadmin.
+  const adminOpt = document.getElementById('cu-role-admin-opt');
+  if (adminOpt) adminOpt.style.display = (getRole() === 'superadmin') ? '' : 'none';
+
+  document.getElementById('cu-email').value = '';
+  document.getElementById('cu-role').value = 'venue_owner';
+  document.getElementById('cu-autogen').checked = true;
+  document.getElementById('cu-password').value = '';
+  document.getElementById('cu-password-wrap').style.display = 'none';
+  document.getElementById('cu-err').classList.remove('show');
+  document.getElementById('cu-err').textContent = '';
+  document.getElementById('cu-submit').disabled = false;
+  document.getElementById('cu-submit').textContent = 'Create User';
+  onCreateUserRoleChange();
+  document.getElementById('user-modal-overlay').classList.add('open');
+}
+
+function closeCreateUserModal() {
+  document.getElementById('user-modal-overlay').classList.remove('open');
+}
+
+function onCreateUserRoleChange() {
+  const role = document.getElementById('cu-role').value;
+  const wrap = document.getElementById('cu-venue-wrap');
+  wrap.style.display = (role === 'venue_owner') ? '' : 'none';
+}
+
+function onAutogenToggle() {
+  const auto = document.getElementById('cu-autogen').checked;
+  document.getElementById('cu-password-wrap').style.display = auto ? 'none' : '';
+}
+
+async function submitCreateUser() {
+  const email = document.getElementById('cu-email').value.trim().toLowerCase();
+  const role  = document.getElementById('cu-role').value;
+  const autoGen = document.getElementById('cu-autogen').checked;
+  const manualPw = document.getElementById('cu-password').value;
+  const venueId = (role === 'venue_owner') ? parseInt(document.getElementById('cu-venue').value, 10) : null;
+  const errEl = document.getElementById('cu-err');
+  const submitBtn = document.getElementById('cu-submit');
+  const showErr = (m) => { errEl.textContent = m; errEl.classList.add('show'); };
+  errEl.classList.remove('show');
+
+  if (!email || !/^\S+@\S+\.\S+$/.test(email)) { showErr('Valid email is required.'); return; }
+  if (!role)                                    { showErr('Role is required.'); return; }
+  if (role === 'venue_owner' && !venueId)       { showErr('Venue is required for venue owners.'); return; }
+  if (!autoGen && manualPw.length < 8)          { showErr('Manual password must be at least 8 characters.'); return; }
+
+  const body = { email, role };
+  if (venueId) body.venue_id = venueId;
+  if (!autoGen) body.password = manualPw;
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Creating...';
+  try {
+    const created = await API.createUser(body);
+    if (!created || !created.email) throw new Error('Unexpected response');
+    closeCreateUserModal();
+    showUserSuccessModal(created);
+    await loadUsers();
+  } catch(e) {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Create User';
+    showErr(e.message || 'Could not create user.');
+  }
+}
+
+function showUserSuccessModal(user) {
+  const venueLabel = user.venue_name ? user.venue_name : (user.venue_id ? 'venue #' + user.venue_id : 'No venue');
+  document.getElementById('us-summary').textContent = user.role + ' · ' + venueLabel;
+  document.getElementById('us-email').textContent = user.email;
+  document.getElementById('us-password').textContent = user.password || '(not returned)';
+  document.getElementById('user-success-overlay').classList.add('open');
+}
+
+function closeUserSuccessModal() {
+  document.getElementById('user-success-overlay').classList.remove('open');
+}
+
+function copyUserPassword() {
+  const pw = document.getElementById('us-password').textContent;
+  navigator.clipboard.writeText(pw).then(() => {
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = 'Copied';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1600);
+  }).catch(() => {});
+}
+
+async function resetUserPassword(id) {
+  const u = _usersList.find(x => x.id === id);
+  const label = u ? u.email : ('user #' + id);
+  if (!confirm(`Reset password for ${label}? They will need the new password to log in.`)) return;
+  try {
+    const res = await API.resetUserPassword(id);
+    if (!res || !res.generated_password) throw new Error('Unexpected response');
+    document.getElementById('ur-summary').textContent = label;
+    document.getElementById('ur-password').textContent = res.generated_password;
+    document.getElementById('user-reset-overlay').classList.add('open');
+  } catch(e) {
+    alert('Reset failed: ' + (e.message || 'unknown error'));
+  }
+}
+
+function closeUserResetModal() {
+  document.getElementById('user-reset-overlay').classList.remove('open');
+}
+
+function copyResetPassword() {
+  const pw = document.getElementById('ur-password').textContent;
+  navigator.clipboard.writeText(pw).then(() => {
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = 'Copied';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1600);
+  }).catch(() => {});
+}
+
+async function confirmDeleteUser(id) {
+  const u = _usersList.find(x => x.id === id);
+  const label = u ? u.email : ('user #' + id);
+  if (!confirm(`Remove ${label}? This cannot be undone.`)) return;
+  try {
+    await API.deleteUser(id);
+    await loadUsers();
+  } catch(e) {
+    alert('Remove failed: ' + (e.message || 'unknown error'));
+  }
+}
+
+function refreshUsersTabVisibility() {
+  const role = getRole();
+  const showUsers = isLoggedIn() && (role === 'admin' || role === 'superadmin');
+  const btn = document.getElementById('maintab-users');
+  if (btn) btn.style.display = showUsers ? '' : 'none';
+}
+
 /* ─ Logout ─ */
 function handleLogout() {
   clearSession();
+  refreshUsersTabVisibility();
   showLoginPanel();
 }
 
@@ -1881,6 +2211,10 @@ async function voChangeStatus(id, status) {
    TABS  (override: auth-guard admin)
 ───────────────────────────────────────────── */
 function showTab(id) {
+  // Role gate the Users tab — never let a non-admin land on it via deep-link.
+  if (id === 'users' && !(isLoggedIn() && (getRole() === 'admin' || getRole() === 'superadmin'))) {
+    id = isLoggedIn() ? 'admin' : 'preview';
+  }
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + id).classList.add('active');
@@ -1890,6 +2224,10 @@ function showTab(id) {
     else if (getRole()==='venue_owner') { window.location.replace('dashboard.html'); }
     else                                { renderAdminPanel(); }
   }
+  if (id === 'users') {
+    loadUsers();
+  }
+  refreshUsersTabVisibility();
 }
 
 /* ─────────────────────────────────────────────
@@ -2128,6 +2466,9 @@ if (initialActive?.id === 'maintab-admin') {
   else if (getRole()==='venue_owner') window.location.replace('dashboard.html');
   else                                renderAdminPanel();
 }
+
+// Reveal the Users tab if the existing session is admin/superadmin.
+refreshUsersTabVisibility();
 </script>
 
 </body>
