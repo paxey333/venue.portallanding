@@ -990,6 +990,8 @@ export default {
           if (!row) return jsonResponse({ error: "Venue not found" }, 404, request);
 
           console.log("[stripe/status] result:", JSON.stringify(row));
+          // Explicit scoping log — confirms admin preview returns the previewed venue's data, not the admin's.
+          console.log("[STRIPE STATUS] checking venue_id:", venueId, "returning connected:", row.stripe_connected === 1, "account:", row.stripe_account_id);
           return jsonResponse({
             connected: row.stripe_connected === 1,
             stripe_account_id: row.stripe_account_id ?? null,

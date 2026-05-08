@@ -895,8 +895,9 @@ async function renderInquiries() {
 renderInquiries();
 
 async function acceptInquiry(id) {
+  console.log('[INQUIRY ACTION]', 'accepted', 'booking_id:', id, 'token:', !!TOKEN);
   const act = document.getElementById('inq-act-' + id);
-  if (!act) return;
+  if (!act) { console.log('[INQUIRY ACTION] missing actions container for id', id); return; }
   const btn = act.querySelector('.btn-accept');
   if (btn) { btn.disabled = true; btn.textContent = 'Processing...'; }
   const showInlineErr = (msg) => {
@@ -931,15 +932,34 @@ async function acceptInquiry(id) {
 }
 
 async function declineInquiry(id) {
+  console.log('[INQUIRY ACTION]', 'declined', 'booking_id:', id, 'token:', !!TOKEN);
   const el = document.getElementById('inq-' + id);
-  if (!el) return;
+  if (!el) { console.log('[INQUIRY ACTION] missing inquiry row for id', id); return; }
+  const act = document.getElementById('inq-act-' + id);
+  const btn = act ? act.querySelector('.btn-decline') : null;
+  if (btn) { btn.disabled = true; btn.textContent = 'Declining...'; }
   try {
-    await fetch(API_BASE + '/api/bookings/' + id + '/status', {
+    const res = await fetch(API_BASE + '/api/bookings/' + id + '/status', {
       method: 'PATCH',
       headers: { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: 'declined' }),
     });
-  } catch { /* still remove from UI */ }
+    if (handleAuth(res)) return;
+    if (!res.ok) {
+      if (btn) { btn.disabled = false; btn.textContent = 'Decline'; }
+      let msg = 'Could not decline. Try again.';
+      try { const d = await res.json(); if (d && d.error) msg = d.error; } catch {}
+      const errEl = document.createElement('div');
+      errEl.style.cssText = 'font-family:var(--mono);font-size:10px;color:#f87171;margin-top:5px';
+      errEl.textContent = msg;
+      if (act) act.after(errEl);
+      return;
+    }
+  } catch (e) {
+    if (btn) { btn.disabled = false; btn.textContent = 'Decline'; }
+    console.log('[INQUIRY ACTION] decline network error:', e && e.message);
+    return;
+  }
   el.classList.add('fading');
   setTimeout(() => el.remove(), 350);
 }
