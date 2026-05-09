@@ -1171,12 +1171,27 @@ function renderMedia() {
 function renderStripeConnected(acctId) {
   const masked = acctId ? 'acct_••••' + String(acctId).slice(-4) : 'acct_••••';
   return `
-    <div class="stripe-compact">
-      <div class="stripe-compact-left">
-        <div class="stripe-compact-dot"></div>
-        <div class="stripe-compact-text">Stripe Connected &middot; ${esc(masked)} &middot; Payouts active</div>
+    <div class="stripe-card stripe-connected">
+      <div class="stripe-left">
+        <div class="stripe-eyebrow">Payouts · Active</div>
+        <div class="stripe-heading" style="display:flex;align-items:center;gap:10px">
+          Stripe Connected
+          <span style="display:inline-flex;align-items:center;gap:5px;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.25);border-radius:20px;padding:3px 10px;font-family:var(--mono);font-size:9px;font-weight:400;color:var(--green);letter-spacing:.08em">
+            <span style="width:5px;height:5px;border-radius:50%;background:var(--green);display:inline-block"></span>
+            LIVE
+          </span>
+        </div>
+        <div class="stripe-sub" style="margin-top:4px">${esc(masked)} · Deposits go directly to your bank</div>
       </div>
-      <button type="button" class="stripe-compact-manage" onclick="window.open('https://dashboard.stripe.com','_blank')">Manage &rarr;</button>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0">
+        <button type="button" class="btn-stripe" style="background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.3);color:var(--green)"
+          onclick="window.open('https://dashboard.stripe.com','_blank')">
+          View Payouts →
+        </button>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--text3)">
+          Secured by Stripe Connect
+        </div>
+      </div>
     </div>`;
 }
 
