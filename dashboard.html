@@ -1203,6 +1203,7 @@ const EFFECTIVE_VENUE_ID = IS_ADMIN_PREVIEW
 
 async function loadStripeStatus() {
   const el = document.getElementById('stripe-block');
+  if (IS_ADMIN_PREVIEW) { el.style.display = 'none'; return; }
   if (!EFFECTIVE_VENUE_ID) { el.innerHTML = renderStripeDisconnected(); wireStripeButton(); return; }
   el.innerHTML = '<div style="font-family:var(--mono);font-size:11px;color:var(--text3);padding:14px 0;text-align:center">Checking Stripe status...</div>';
   try {
