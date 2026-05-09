@@ -392,7 +392,7 @@ tbody tr:hover td{color:var(--text)}
 .nav-wordmark{font-size:13px}
 .nav-right{order:2;padding:14px 0;border-left:none;margin-left:0}
 .nav-tabs{order:3;width:100%;border-top:1px solid var(--border)}
-.nav-tabs .tab-btn{flex:1;height:38px;font-size:10px;padding:0 4px;border-right:1px solid var(--border);white-space:nowrap;overflow:hidden}
+.nav-tabs .tab-btn{flex:1;height:38px;font-size:10px;padding:0 4px;border-right:1px solid var(--border);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .nav-tabs .tab-btn:last-child{border-right:none}
 .panel{padding:16px 14px 32px}
 .about-grid{grid-template-columns:1fr}
@@ -615,7 +615,7 @@ tbody tr:hover td{color:var(--text)}
   <div class="nav-tabs">
     <button class="tab-btn" id="maintab-admin" onclick="showTab('admin')">Admin</button>
     <button class="tab-btn" id="maintab-users" onclick="showTab('users')" style="display:none">Users</button>
-    <button class="tab-btn active" id="maintab-preview" onclick="showTab('preview')">Venue Preview</button>
+    <button class="tab-btn active" id="maintab-preview" onclick="showTab('preview')">Preview</button>
     <button class="tab-btn" id="maintab-about" onclick="showTab('about')">About</button>
     <button class="tab-btn" id="maintab-reviews" onclick="showTab('reviews')">Reviews</button>
   </div>
@@ -1619,11 +1619,11 @@ function requireAuth() {
 function showLoginPanel() {
   const panel = document.getElementById('tab-admin');
   panel.innerHTML = `
-    <div style="max-width:400px;margin:60px auto">
+    <div style="max-width:400px;margin:clamp(20px,6vh,60px) auto;padding:0 4px">
       <h1 class="page-heading" style="margin-bottom:4px">Portal Login</h1>
       <div class="heading-rule"></div>
       <p class="page-sub" style="margin-bottom:28px">Venue Portal · Staff Access</p>
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;display:flex;flex-direction:column;gap:12px">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:clamp(16px,5vw,24px);display:flex;flex-direction:column;gap:14px">
         <div class="form-field">
           <label>Email</label>
           <input type="email" id="login-email" placeholder="paxey333@gmail.com" autocomplete="email"/>
