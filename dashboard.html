@@ -853,7 +853,7 @@ function timerBadge(created_at) {
 /* ─── INQUIRIES ─────────────────────────────────────── */
 async function renderInquiries() {
   const list = document.getElementById('inquiry-list');
-  list.innerHTML = '<div style="font-family:var(--mono);font-size:11px;color:var(--text3);padding:8px 0">Loading pending inquiries...</div>';
+  list.innerHTML = '<div style="font-family:var(--mono);font-size:11px;color:var(--text3);padding:8px 0">Loading inquiries...</div>';
   try {
     const endpoint = API_BASE + '/api/bookings?venue_id=' + encodeURIComponent(EFFECTIVE_VENUE_ID);
     console.log('[FETCH]', endpoint, 'EFFECTIVE_VENUE_ID:', EFFECTIVE_VENUE_ID, 'role:', ROLE);
@@ -863,7 +863,7 @@ async function renderInquiries() {
     if (handleAuth(res)) return;
     const data = await res.json();
     if (!Array.isArray(data)) console.log('[renderInquiries] unexpected response shape:', data);
-    const inquiries = Array.isArray(data) ? data.filter(q => q.status === 'pending') : [];
+    const inquiries = Array.isArray(data) ? data.filter(q => q.status === 'pending' || q.status === 'declined') : [];
     if (inquiries.length === 0) {
       list.innerHTML = `
         <div class="inquiries-empty-slim">
@@ -881,9 +881,13 @@ async function renderInquiries() {
         <div class="inquiry-meta">${esc(q.client_email)} &middot; ${esc(fmtDate(q.event_date))} &middot; ${q.guests || 0} guests</div>
         <div class="inquiry-note">"${esc(q.message || '')}"</div>
         <div class="inquiry-actions" id="inq-act-${q.id}">
-          <button class="btn-draft" onclick="draftReply(${q.id})">Draft Reply</button>
-          <button class="btn-accept" onclick="acceptInquiry(${q.id})">Accept</button>
-          <button class="btn-decline" onclick="declineInquiry(${q.id})">Decline</button>
+          ${q.status === 'pending' ? `
+            <button class="btn-draft"   onclick="draftReply(${q.id})">Draft Reply</button>
+            <button class="btn-accept"  onclick="acceptInquiry(${q.id})">Accept</button>
+            <button class="btn-decline" onclick="declineInquiry(${q.id})">Decline</button>
+          ` : `
+            <span style="font-family:var(--mono);font-size:11px;color:var(--text3)">Declined</span>
+          `}
         </div>
         <div id="inq-draft-${q.id}"></div>
       </div>`).join('');
@@ -892,7 +896,10 @@ async function renderInquiries() {
     list.innerHTML = '<div style="font-family:var(--mono);font-size:11px;color:var(--text3);padding:8px 0">Could not load inquiries.</div>';
   }
 }
-renderInquiries();
+document.addEventListener('DOMContentLoaded', () => {
+  renderInquiries();
+  renderBookings();
+});
 
 async function acceptInquiry(id) {
   console.log('[INQUIRY ACTION]', 'accepted', 'booking_id:', id, 'token:', !!TOKEN);
@@ -1258,7 +1265,6 @@ window._lastVenueId = EFFECTIVE_VENUE_ID;
 
 loadVenueProfile();
 renderStats();
-renderBookings();
 renderCalendar();
 
 // Handle Stripe return params
