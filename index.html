@@ -426,7 +426,7 @@ tbody tr:hover td{color:var(--text)}
 
 /* ── LANDING HERO ── */
 .landing-hero{
-  padding:48px 0 32px;
+  padding:0;
   max-width:600px;
   margin:0 auto;
   text-align:center;
@@ -523,6 +523,7 @@ tbody tr:hover td{color:var(--text)}
   .landing-trust-row{gap:6px}
   .landing-trust-pill{font-size:9px;padding:4px 10px}
   .landing-sub{font-size:13px}
+  #venue-selector-bar img{object-position:center 20%}
 }
 /* USER MANAGEMENT */
 .user-row{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 18px;transition:border-color .15s;gap:12px}
@@ -683,7 +684,13 @@ tbody tr:hover td{color:var(--text)}
 
   <!-- TWO-DROPDOWN SELECTOR -->
 
-  <div id="venue-selector-bar">
+  <div id="venue-selector-bar" style="position:relative;overflow:hidden;border-radius:16px;margin-bottom:32px">
+    <div style="position:absolute;inset:0;z-index:0">
+      <img src="/images/venue-hero.avif" alt="Live music venue"
+        style="width:100%;height:100%;object-fit:cover;object-position:center 30%"/>
+      <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(10,12,18,0.55) 0%,rgba(10,12,18,0.75) 60%,rgba(10,12,18,0.97) 100%)"></div>
+    </div>
+    <div style="position:relative;z-index:1;padding:60px 24px 48px">
     <div class="landing-hero">
 
       <!-- TOP BADGE -->
@@ -747,6 +754,7 @@ tbody tr:hover td{color:var(--text)}
         <span>2 venues live now across TX and AZ</span>
       </div>
 
+    </div>
     </div>
   </div>
 
