@@ -1494,17 +1494,27 @@ if (localStorage.getItem('vp_first_login') === 'true') {
   document.getElementById('pw-modal').classList.add('open');
 }
 
-function submitPassword() {
+async function submitPassword() {
   const pw1 = document.getElementById('pw-new').value;
   const pw2 = document.getElementById('pw-confirm').value;
   const err = document.getElementById('pw-err');
   err.style.display = 'none';
   if (pw1.length < 8) { err.textContent = 'Password must be at least 8 characters.'; err.style.display = ''; return; }
   if (pw1 !== pw2)    { err.textContent = 'Passwords do not match.'; err.style.display = ''; return; }
-  localStorage.removeItem('vp_first_login');
-  document.getElementById('pw-modal-body').style.display = 'none';
-  document.getElementById('pw-success').classList.add('visible');
-  setTimeout(() => document.getElementById('pw-modal').classList.remove('open'), 1500);
+  try {
+    const res = await fetch(API_BASE + '/api/auth/change-password', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
+      body: JSON.stringify({ new_password: pw1 })
+    });
+    if (!res.ok) { const d = await res.json().catch(() => ({})); err.textContent = d.error || 'Update failed.'; err.style.display = ''; return; }
+    localStorage.removeItem('vp_first_login');
+    document.getElementById('pw-modal-body').style.display = 'none';
+    document.getElementById('pw-success').classList.add('visible');
+    setTimeout(() => document.getElementById('pw-modal').classList.remove('open'), 1500);
+  } catch(e) {
+    err.textContent = 'Network error. Try again.'; err.style.display = '';
+  }
 }
 </script>
 </body>
