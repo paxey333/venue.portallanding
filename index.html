@@ -613,7 +613,7 @@ tbody tr:hover td{color:var(--text)}
     </div>
   </div>
   <div class="nav-tabs">
-    <button class="tab-btn" id="maintab-admin" onclick="showTab('admin')">Admin</button>
+    <button class="tab-btn" id="maintab-admin" onclick="showTab('admin')">Login</button>
     <button class="tab-btn" id="maintab-users" onclick="showTab('users')" style="display:none">Users</button>
     <button class="tab-btn active" id="maintab-preview" onclick="showTab('preview')">Preview</button>
     <button class="tab-btn" id="maintab-about" onclick="showTab('about')">About</button>
@@ -1628,6 +1628,7 @@ function showLoginPanel() {
       <div class="heading-rule"></div>
       <p class="page-sub" style="margin-bottom:28px">Venue Portal · Owner Access</p>
       <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:clamp(16px,5vw,24px);display:flex;flex-direction:column;gap:14px">
+        <input type="text" style="display:none" autocomplete="username"/>
         <div class="form-field">
           <label>Email</label>
           <input type="email" id="login-email" placeholder="your@email.com" autocomplete="email"/>
@@ -1683,6 +1684,9 @@ async function handleLogin() {
    ADMIN PANEL  (replaces tab-admin content when authed)
 ───────────────────────────────────────────── */
 async function renderAdminPanel() {
+  const role = getRole();
+  document.getElementById('maintab-admin').textContent =
+    (role === 'superadmin' || role === 'admin') ? 'Admin' : 'Dashboard';
   const panel = document.getElementById('tab-admin');
 
   /* skeleton while loading */
