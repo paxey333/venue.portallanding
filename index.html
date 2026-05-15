@@ -998,6 +998,10 @@ tbody tr:hover td{color:var(--text)}
     <div class="user-modal-title">Create User</div>
     <div class="user-modal-sub">Generate a login for a venue owner, promoter, or admin.</div>
     <div class="user-form-field">
+      <label class="user-form-label">Name</label>
+      <input class="user-form-input" id="cu-name" type="text" placeholder="Display name (optional)"/>
+    </div>
+    <div class="user-form-field">
       <label class="user-form-label">Email</label>
       <input class="user-form-input" id="cu-email" type="email" placeholder="someone@example.com"/>
     </div>
@@ -1963,6 +1967,7 @@ function openCreateUserModal() {
   const adminOpt = document.getElementById('cu-role-admin-opt');
   if (adminOpt) adminOpt.style.display = (getRole() === 'superadmin') ? '' : 'none';
 
+  document.getElementById('cu-name').value = '';
   document.getElementById('cu-email').value = '';
   document.getElementById('cu-role').value = 'venue_owner';
   document.getElementById('cu-autogen').checked = true;
@@ -1992,6 +1997,7 @@ function onAutogenToggle() {
 }
 
 async function submitCreateUser() {
+  const name = document.getElementById('cu-name').value.trim();
   const email = document.getElementById('cu-email').value.trim().toLowerCase();
   const role  = document.getElementById('cu-role').value;
   const autoGen = document.getElementById('cu-autogen').checked;
@@ -2008,6 +2014,7 @@ async function submitCreateUser() {
   if (!autoGen && manualPw.length < 8)          { showErr('Manual password must be at least 8 characters.'); return; }
 
   const body = { email, role };
+  if (name) body.name = name;
   if (venueId) body.venue_id = venueId;
   if (!autoGen) body.password = manualPw;
 
