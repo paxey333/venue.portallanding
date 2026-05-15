@@ -6,11 +6,11 @@
    Required env vars (wrangler secrets):
    STRIPE_SECRET_KEY         — sk_live_... or sk_test_...
    STRIPE_PLATFORM_ACCOUNT_ID — acct_... (your Stripe account)
-   FRONTEND_URL              — https://venue-portal.pages.dev
+   FRONTEND_URL              — https://venueportal.us
 ───────────────────────────────────────────── */
 
 const ALLOWED_ORIGINS = [
-  "https://venue-portal.pages.dev",
+  "https://venueportal.us",
   "https://thevenueportal.paxey333.workers.dev"
 ];
 const TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
@@ -183,6 +183,8 @@ export default {
         return jsonResponse({ ok: true, service: "venue-portal-api" }, 200, request);
       }
 
+
+
       // ── HEALTH ──────────────────────────────────────────────────
       if (path === "/health" && request.method === "GET") {
         try {
@@ -237,7 +239,7 @@ export default {
                       "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                      from: "Venue Portal <onboarding@resend.dev>",
+                      from: "Venue Portal <noreply@venueportal.us>",
                       to: [booking.client_email],
                       subject: "Booking confirmed! See you on " + booking.event_date,
                       html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto"><h2 style="color:#111">You're confirmed, ${booking.client_name}!</h2><p>Your booking for <strong>${booking.event_date}</strong> is fully confirmed. We look forward to seeing you!</p><p style="color:#888;font-size:13px">If you have questions, reply to this email.</p></div>`,
@@ -284,7 +286,7 @@ export default {
 
           // Check users table first
           const user = await env.DB.prepare(
-            "SELECT id, email, password, role, venue_id, name FROM users WHERE email = ?"
+            "SELECT id, email, password, role, venue_id, name, first_login FROM users WHERE email = ?"
           ).bind(email).first();
 
           if (user) {
@@ -298,7 +300,7 @@ export default {
               venue_id: user.venue_id ?? null,
               name: user.name
             }, env.TOKEN_SECRET);
-            return jsonResponse({ token, role: user.role, venue_id: user.venue_id ?? null, name: user.name }, 200, request);
+            return jsonResponse({ token, role: user.role, venue_id: user.venue_id ?? null, name: user.name, first_login: user.first_login === 1 }, 200, request);
           }
 
           // Fallback: env superadmin credentials (keeps existing login working)
@@ -315,6 +317,30 @@ export default {
           }
 
           return jsonResponse({ error: "Invalid credentials" }, 401, request);
+        } catch (err) {
+          return jsonResponse({ error: err.message }, 500, request);
+        }
+      }
+
+      // ── AUTH: CHANGE PASSWORD (self-service) ────────────────────
+      if (path === "/api/auth/change-password" && request.method === "PATCH") {
+        try {
+          const session = await getSession(request, env);
+          if (!isAnyRole(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
+          const body = await parseJson(request);
+          const newPassword = String(body.new_password || "");
+          if (!newPassword || newPassword.length < 8) {
+            return jsonResponse({ error: "Password must be at least 8 characters" }, 400, request);
+          }
+          const user = await env.DB.prepare(
+            "SELECT id FROM users WHERE email = ?"
+          ).bind(String(session.email).toLowerCase()).first();
+          if (!user) return jsonResponse({ error: "User not found" }, 404, request);
+          const newHash = await hashPassword(newPassword, env.TOKEN_SECRET);
+          await env.DB.prepare(
+            "UPDATE users SET password = ?, first_login = 0 WHERE id = ?"
+          ).bind(newHash, user.id).run();
+          return jsonResponse({ ok: true }, 200, request);
         } catch (err) {
           return jsonResponse({ error: err.message }, 500, request);
         }
@@ -389,10 +415,10 @@ export default {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                from: "Venue Portal <onboarding@resend.dev>",
+                from: "Venue Portal <noreply@venueportal.us>",
                 to: [email],
                 subject: "Your Venue Portal is ready",
-                html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto"><h2 style="color:#111">Welcome to Venue Portal, ${name}!</h2>${venueName ? `<p>Your venue <strong>${venueName}</strong> has been set up and is ready to go.</p>` : ""}<p>Log in to manage your bookings and venue profile.</p><p><strong>Email:</strong> ${email}<br><strong>Temporary password:</strong> ${plainPassword}</p><p style="color:#888;font-size:13px">Please change your password after your first login.</p><p style="text-align:center;margin:32px 0"><a href="https://venue-portal.pages.dev/dashboard.html" style="background:#f5a623;color:#111;font-weight:700;padding:14px 28px;border-radius:6px;text-decoration:none;display:inline-block">Go to Dashboard &#8594;</a></p></div>`,
+                html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto"><h2 style="color:#111">Welcome to Venue Portal, ${name}!</h2>${venueName ? `<p>Your venue <strong>${venueName}</strong> has been set up and is ready to go.</p>` : ""}<p>Log in to manage your bookings and venue profile.</p><p><strong>Email:</strong> ${email}<br><strong>Temporary password:</strong> ${plainPassword}</p><p style="color:#888;font-size:13px">Please change your password after your first login.</p><p style="text-align:center;margin:32px 0"><a href="https://venueportal.us/dashboard.html" style="background:#f5a623;color:#111;font-weight:700;padding:14px 28px;border-radius:6px;text-decoration:none;display:inline-block">Go to Dashboard &#8594;</a></p></div>`,
               }),
             });
           }
@@ -732,7 +758,7 @@ export default {
           if (status === "accepted") {
             const booking = await env.DB.prepare(
               `SELECT b.id, b.venue_id, b.client_name, b.client_email, b.event_date,
-                      v.name AS venue_name, v.stripe_account_id, v.stripe_connected
+                      v.name AS venue_name, v.price_per_day, v.stripe_account_id, v.stripe_connected
                FROM bookings b JOIN venues v ON v.id = b.venue_id WHERE b.id = ?`
             ).bind(id).first();
             console.log("[bookings/accept] booking lookup:", JSON.stringify(booking));
@@ -750,12 +776,13 @@ export default {
             stripeBody.append('payment_method_types[]', 'card');
             stripeBody.append('mode', 'payment');
             stripeBody.append('line_items[0][price_data][currency]', 'usd');
-            // TEST MODE — $1 booking. Restore to actual venue price_per_day before launch.
-            stripeBody.append('line_items[0][price_data][unit_amount]', '100');
             stripeBody.append('line_items[0][price_data][product_data][name]', `Venue Booking - ${venueName}`);
             stripeBody.append('line_items[0][quantity]', '1');
-            // Connect split re-enabled when venue owner has separate Stripe account
-            // application_fee_amount: 5000, transfer_data destination: stripeAccountId
+            const unitAmount = Math.round(booking.price_per_day * 100);
+            const appFee = Math.min(5000, Math.floor(unitAmount * 0.10));
+            stripeBody.append('line_items[0][price_data][unit_amount]', String(unitAmount));
+            stripeBody.append('payment_intent_data[application_fee_amount]', String(appFee));
+            stripeBody.append('payment_intent_data[transfer_data][destination]', stripeAccountId);
             stripeBody.append('success_url', env.FRONTEND_URL + '/booking-confirmed.html?session_id={CHECKOUT_SESSION_ID}');
             stripeBody.append('cancel_url', env.FRONTEND_URL + '/booking-cancelled.html?session_id={CHECKOUT_SESSION_ID}');
             stripeBody.append('metadata[booking_id]', String(bookingId));
@@ -790,10 +817,7 @@ export default {
 
             if (env.RESEND_API_KEY) {
               const emailPayload = {
-                from: "Venue Portal <onboarding@resend.dev>",
-                // Sends to real promoter email — requires verified Resend domain to
-                // deliver to any address. Until domain verified, only delivers to
-                // paxey333@gmail.com for testing.
+                from: "Venue Portal <noreply@venueportal.us>",
                 to: [booking.client_email],
                 subject: "Your booking request has been accepted — complete your deposit",
                 html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto"><h2 style="color:#111">Great news, ${booking.client_name}!</h2><p>Your booking request for <strong>${booking.event_date}</strong> has been accepted.</p><p>To confirm your spot, complete your deposit:</p><p style="text-align:center;margin:32px 0"><a href="${paymentLink}" style="background:#f5a623;color:#111;font-weight:700;padding:14px 28px;border-radius:6px;text-decoration:none;display:inline-block">Complete Deposit &#8594;</a></p><p style="color:#888;font-size:13px">If you have questions, reply to this email.</p></div>`,
@@ -1178,8 +1202,7 @@ export default {
               "Content-Type": "application/json"
             },
             body: JSON.stringify({
-              // TODO: switch to onboard@venueportal.us once domain verified in Resend
-              from: "Venue Portal <onboarding@resend.dev>",
+              from: "Venue Portal <noreply@venueportal.us>",
               to: [adminEmail],
               reply_to: contactEmail,
               subject: "New Venue Onboarding Submission — " + venueName,

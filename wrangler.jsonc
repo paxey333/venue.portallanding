@@ -3,9 +3,13 @@
   "account_id": "cd1d3c368a7c9ce0f24875b6c87feb69",
   "main": "api.js",
   "compatibility_date": "2024-01-01",
+  "workers_dev": true,
   "vars": {
-    "FRONTEND_URL": "https://venue-portal.pages.dev"
+    "FRONTEND_URL": "https://venueportal.us"
   },
+  "routes": [
+    { "pattern": "api.venueportal.us/*", "zone_name": "venueportal.us" }
+  ],
   "d1_databases": [
     {
       "binding": "DB",
