@@ -732,6 +732,56 @@ export default {
 
           console.log("[INQUIRY SUBMIT] venue_id:", body.venue_id, "client:", body.client_name, "inserted as id:", result.meta.last_row_id);
 
+          // Notify admin + venue owner of new inquiry
+          if (env.RESEND_API_KEY) {
+            const venueData = await env.DB.prepare(
+              `SELECT v.name AS venue_name, u.email AS owner_email
+               FROM venues v
+               LEFT JOIN users u ON u.venue_id = v.id AND u.role = 'venue_owner'
+               WHERE v.id = ?`
+            ).bind(venueId).first();
+
+            const inquiryDate = eventDate ? new Date(eventDate + 'T00:00:00').toLocaleDateString('en-US', {weekday:'long',month:'long',day:'numeric',year:'numeric'}) : eventDate;
+            const guestCount = body.guests ? String(body.guests) : '—';
+            const message = body.message ? String(body.message) : '—';
+
+            const notifyHtml = `<div style="font-family:sans-serif;max-width:520px;margin:0 auto;background:#fff;color:#111;padding:32px 28px;border-radius:8px">
+    <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#888;margin-bottom:20px">Venue.Portal</div>
+    <h1 style="font-size:22px;font-weight:800;margin:0 0 6px">New inquiry received.</h1>
+    <p style="color:#555;font-size:14px;margin:0 0 24px;line-height:1.6">Someone just submitted a booking inquiry for <strong>${venueData?.venue_name || 'your venue'}</strong>. Log in to accept or decline.</p>
+    <div style="background:#f7f7f7;border-radius:8px;padding:20px 22px;margin-bottom:24px">
+      <table style="width:100%;border-collapse:collapse">
+        <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:6px 0 2px">Promoter</td></tr>
+        <tr><td style="font-size:14px;font-weight:600;padding-bottom:12px;border-bottom:1px solid #eee">${clientName} · ${clientEmail}</td></tr>
+        <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:12px 0 2px">Event Date</td></tr>
+        <tr><td style="font-size:14px;font-weight:600;padding-bottom:12px;border-bottom:1px solid #eee">${inquiryDate}</td></tr>
+        <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:12px 0 2px">Guests</td></tr>
+        <tr><td style="font-size:14px;font-weight:600;padding-bottom:12px;border-bottom:1px solid #eee">${guestCount}</td></tr>
+        <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:12px 0 2px">Message</td></tr>
+        <tr><td style="font-size:13px;color:#555;line-height:1.6">${message}</td></tr>
+      </table>
+    </div>
+    <a href="https://venueportal.us" style="display:inline-block;background:#111;color:#fff;font-weight:700;font-size:13px;padding:12px 22px;border-radius:6px;text-decoration:none">Go to Dashboard →</a>
+    <div style="margin-top:24px;padding-top:16px;border-top:1px solid #eee;font-family:monospace;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#bbb">Venue.Portal · Flat fee. No cuts.</div>
+  </div>`;
+
+            const recipients = ['paxey333@gmail.com'];
+            if (venueData?.owner_email && venueData.owner_email !== 'paxey333@gmail.com') {
+              recipients.push(venueData.owner_email);
+            }
+
+            await fetch("https://api.resend.com/emails", {
+              method: "POST",
+              headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
+              body: JSON.stringify({
+                from: "Venue Portal <noreply@venueportal.us>",
+                to: recipients,
+                subject: "New inquiry — " + (venueData?.venue_name || 'your venue') + " · " + inquiryDate,
+                html: notifyHtml
+              })
+            });
+          }
+
           const created = await env.DB.prepare(
             `SELECT id, venue_id, client_name, client_email, event_date, guests, message, status, created_at
              FROM bookings WHERE id = ?`
