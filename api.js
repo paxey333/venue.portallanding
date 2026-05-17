@@ -253,13 +253,97 @@ export default {
           if (event.type === "checkout.session.completed") {
             const sess = event.data?.object ?? {};
             console.log("Webhook: checkout.session.completed for session", sess.id);
+
             const result = await env.DB.prepare(
               "UPDATE bookings SET status = 'confirmed' WHERE stripe_session_id = ?"
             ).bind(sess.id).run();
             console.log("Booking status update result:", JSON.stringify(result));
+
             if (result.meta && result.meta.changes === 0) {
               console.log("WARNING: No booking found with session_id", sess.id);
             }
+
+            // Send confirmation email to promoter
+            const booking = await env.DB.prepare(
+              `SELECT b.id, b.client_name, b.client_email, b.event_date, b.guests, b.total_amount,
+                      v.name AS venue_name, v.description AS venue_location
+               FROM bookings b LEFT JOIN venues v ON v.id = b.venue_id
+               WHERE b.stripe_session_id = ?`
+            ).bind(sess.id).first();
+
+            if (booking && env.RESEND_API_KEY) {
+              const amount = booking.total_amount ? '$' + (booking.total_amount / 100).toLocaleString('en-US', {minimumFractionDigits:2}) : '—';
+              const dateFormatted = booking.event_date ? new Date(booking.event_date + 'T00:00:00').toLocaleDateString('en-US', {weekday:'long',month:'long',day:'numeric',year:'numeric'}) : booking.event_date;
+
+              // Email to promoter
+              await fetch("https://api.resend.com/emails", {
+                method: "POST",
+                headers: {
+                  "Authorization": "Bearer " + env.RESEND_API_KEY,
+                  "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                  from: "Venue Portal <noreply@venueportal.us>",
+                  to: [booking.client_email],
+                  subject: "Booking confirmed — " + booking.venue_name,
+                  html: `<div style="font-family:sans-serif;max-width:520px;margin:0 auto;background:#fff;color:#111;padding:32px 28px;border-radius:8px">
+          <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#888;margin-bottom:20px">Venue.Portal</div>
+          <h1 style="font-size:24px;font-weight:800;margin:0 0 6px;letter-spacing:-.3px">You're confirmed.</h1>
+          <p style="color:#555;font-size:14px;margin:0 0 28px;line-height:1.6">Hi ${booking.client_name} — your deposit went through and your booking is locked in.</p>
+          <div style="background:#f7f7f7;border-radius:8px;padding:20px 22px;margin-bottom:28px">
+            <table style="width:100%;border-collapse:collapse">
+              <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:6px 0 2px">Venue</td></tr>
+              <tr><td style="font-size:15px;font-weight:600;padding-bottom:14px;border-bottom:1px solid #eee">${booking.venue_name}</td></tr>
+              <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:14px 0 2px">Event Date</td></tr>
+              <tr><td style="font-size:15px;font-weight:600;padding-bottom:14px;border-bottom:1px solid #eee">${dateFormatted}</td></tr>
+              <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:14px 0 2px">Amount Paid</td></tr>
+              <tr><td style="font-size:15px;font-weight:700;color:#111">${amount}</td></tr>
+            </table>
+          </div>
+          <p style="color:#888;font-size:12px;line-height:1.6;margin:0">Questions? Reply to this email or contact us at hello@venueportal.us</p>
+          <div style="margin-top:24px;padding-top:16px;border-top:1px solid #eee;font-family:monospace;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#bbb">Venue.Portal · Flat fee. No cuts.</div>
+        </div>`
+                })
+              });
+
+              // Email to venue owner
+              const owner = await env.DB.prepare(
+                "SELECT email FROM users WHERE venue_id = (SELECT venue_id FROM bookings WHERE stripe_session_id = ?) AND role = 'venue_owner' LIMIT 1"
+              ).bind(sess.id).first();
+
+              if (owner) {
+                await fetch("https://api.resend.com/emails", {
+                  method: "POST",
+                  headers: {
+                    "Authorization": "Bearer " + env.RESEND_API_KEY,
+                    "Content-Type": "application/json"
+                  },
+                  body: JSON.stringify({
+                    from: "Venue Portal <noreply@venueportal.us>",
+                    to: [owner.email],
+                    subject: "Deposit received — " + booking.client_name + " · " + dateFormatted,
+                    html: `<div style="font-family:sans-serif;max-width:520px;margin:0 auto;background:#fff;color:#111;padding:32px 28px;border-radius:8px">
+            <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#888;margin-bottom:20px">Venue.Portal</div>
+            <h1 style="font-size:22px;font-weight:800;margin:0 0 6px">Deposit received.</h1>
+            <p style="color:#555;font-size:14px;margin:0 0 24px;line-height:1.6">A booking deposit just came in for ${booking.venue_name}.</p>
+            <div style="background:#f7f7f7;border-radius:8px;padding:20px 22px;margin-bottom:24px">
+              <table style="width:100%;border-collapse:collapse">
+                <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:6px 0 2px">Promoter</td></tr>
+                <tr><td style="font-size:14px;font-weight:600;padding-bottom:12px;border-bottom:1px solid #eee">${booking.client_name} · ${booking.client_email}</td></tr>
+                <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:12px 0 2px">Event Date</td></tr>
+                <tr><td style="font-size:14px;font-weight:600;padding-bottom:12px;border-bottom:1px solid #eee">${dateFormatted}</td></tr>
+                <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:12px 0 2px">Deposit Amount</td></tr>
+                <tr><td style="font-size:14px;font-weight:700">${amount} <span style="font-weight:400;color:#999;font-size:12px">(your payout is on its way via Stripe)</span></td></tr>
+              </table>
+            </div>
+            <p style="color:#888;font-size:12px;line-height:1.6">Log in to your dashboard to view the full booking details.</p>
+            <div style="margin-top:24px;padding-top:16px;border-top:1px solid #eee;font-family:monospace;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#bbb">Venue.Portal · Flat fee. No cuts.</div>
+          </div>`
+                  })
+                });
+              }
+            }
+
             return jsonResponse({ ok: true }, 200, request);
           }
 
