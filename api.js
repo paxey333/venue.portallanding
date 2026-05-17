@@ -1293,7 +1293,7 @@ export default {
       if (path === "/api/test-email" && request.method === "POST") {
         try {
           const session = await getSession(request, env);
-          if (!isSuperAdmin(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
+          if (!isAdminOrAbove(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
           if (!env.RESEND_API_KEY) return jsonResponse({ error: "RESEND_API_KEY not set" }, 500, request);
 
           const body = await parseJson(request);
