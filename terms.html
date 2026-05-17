@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Terms of Service — Venue.Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#13161f;--surface:#1a1f2e;--surface2:#1e2535;
+  --border:#252b3b;--border2:#2e3548;
+  --text:#f0f0f0;--text2:#7a8499;--text3:#3d4560;
+  --accent:#ffffff;--accent-warm:#c8d0e0;
+  --accent-dim:rgba(255,255,255,0.07);
+  --radius:6px;--radius-lg:10px;
+  --mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;--display:'Syne',sans-serif;
+}
+html,body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.6;min-height:100%}
+body{position:relative;padding:0 0 80px}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background-image:radial-gradient(ellipse at 15% 60%,rgba(100,80,220,0.07) 0%,transparent 50%),radial-gradient(ellipse at 85% 10%,rgba(255,255,255,0.04) 0%,transparent 40%)}
+body::after{content:'';position:fixed;z-index:0;pointer-events:none;top:-180px;right:-180px;width:620px;height:620px;background:radial-gradient(circle at center,rgba(100,55,210,0.06) 0%,rgba(60,20,140,0.025) 45%,transparent 72%);border-radius:50%}
+
+nav{position:sticky;top:0;z-index:100;background:rgba(19,22,31,0.88);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,0.1);padding:0 24px}
+.nav-inner{max-width:800px;margin:0 auto;height:52px;display:flex;align-items:center;justify-content:space-between}
+.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-wordmark{font-family:var(--display);font-size:15px;font-weight:700;color:var(--text);letter-spacing:-.3px}
+.nav-dot{color:var(--accent)}
+.nav-back{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);text-decoration:none;border:1px solid var(--border);border-radius:var(--radius);padding:5px 10px;transition:color .15s,border-color .15s}
+.nav-back:hover{color:var(--text2);border-color:var(--border2)}
+
+.page{position:relative;z-index:1;max-width:800px;margin:0 auto;padding:56px 24px 0}
+
+.doc-header{margin-bottom:48px;padding-bottom:32px;border-bottom:1px solid var(--border)}
+.doc-tag{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:var(--text2);margin-bottom:14px}
+.doc-title{font-family:var(--display);font-size:38px;font-weight:800;letter-spacing:-.6px;line-height:1.1;color:var(--text);margin-bottom:16px}
+.doc-meta{font-family:var(--mono);font-size:11px;color:var(--text3);display:flex;gap:24px;flex-wrap:wrap}
+.doc-meta span{display:flex;align-items:center;gap:6px}
+.doc-meta span::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--border2)}
+.doc-meta span:first-child::before{display:none}
+.doc-intro{margin-top:20px;font-size:14px;color:var(--text2);line-height:1.7;max-width:640px}
+
+.toc{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px 28px;margin-bottom:48px}
+.toc-label{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--text2);margin-bottom:14px}
+.toc-list{list-style:none;display:flex;flex-direction:column;gap:6px}
+.toc-list a{font-size:13px;color:var(--text2);text-decoration:none;font-family:var(--mono);display:flex;align-items:baseline;gap:10px;transition:color .15s}
+.toc-list a:hover{color:var(--text)}
+.toc-num{font-size:10px;color:var(--text3);flex-shrink:0;width:16px}
+
+.doc-section{margin-bottom:48px;scroll-margin-top:72px}
+.section-head{display:flex;align-items:baseline;gap:14px;margin-bottom:20px}
+.section-num{font-family:var(--mono);font-size:10px;color:var(--text3)}
+.section-title{font-family:var(--display);font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.2px}
+.section-body{font-size:14px;color:var(--text2);line-height:1.8;display:flex;flex-direction:column;gap:14px}
+.section-body p{font-size:14px;color:var(--text2);line-height:1.8}
+.section-body strong{color:var(--text);font-weight:600}
+.section-body ul{list-style:none;display:flex;flex-direction:column;gap:8px;padding-left:0;margin-top:4px}
+.section-body ul li{font-size:14px;color:var(--text2);padding-left:16px;position:relative;line-height:1.7}
+.section-body ul li::before{content:'—';position:absolute;left:0;color:var(--text3);font-family:var(--mono);font-size:11px}
+
+.highlight-box{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:var(--radius);padding:16px 20px;font-size:13px;color:var(--text2);line-height:1.7}
+.highlight-box strong{color:var(--text);font-weight:600}
+.warn-box{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2);border-radius:var(--radius);padding:16px 20px;font-size:13px;color:var(--text2);line-height:1.7}
+.warn-box strong{color:#f87171;font-weight:600}
+
+footer{position:relative;z-index:1;max-width:800px;margin:0 auto;padding:32px 24px 0;border-top:1px solid var(--border)}
+.footer-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.footer-brand{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3)}
+.footer-links{display:flex;gap:16px}
+.footer-links a{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);text-decoration:none;transition:color .15s}
+.footer-links a:hover{color:var(--text)}
+.footer-links a.active{color:var(--text2)}
+
+@media(max-width:600px){
+  .doc-title{font-size:28px}
+  .doc-meta{gap:12px}
+  .toc{padding:18px 20px}
+  .page{padding:40px 16px 0}
+  nav{padding:0 16px}
+  footer{padding:28px 16px 0}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="https://venueportal.us" class="nav-brand">
+      <svg class="nav-mark" width="22" height="16" viewBox="0 0 24 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#ffffff"/>
+        <path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#ffffff" opacity="0.4"/>
+        <rect x="19.5" y="7" width="4" height="4" rx="1" fill="#ffffff" opacity="0.75"/>
+      </svg>
+      <span class="nav-wordmark">Venue<span class="nav-dot">.</span>Portal</span>
+    </a>
+    <a href="https://venueportal.us" class="nav-back">Back to site</a>
+  </div>
+</nav>
+
+<div class="page">
+
+  <div class="doc-header">
+    <div class="doc-tag">Legal</div>
+    <h1 class="doc-title">Terms of Service</h1>
+    <div class="doc-meta">
+      <span>Venue Portal</span>
+      <span>Effective: May 2026</span>
+      <span>Last updated: May 17, 2026</span>
+    </div>
+    <p class="doc-intro">These Terms of Service govern your use of the Venue Portal platform. By submitting a booking inquiry, creating a venue owner account, or using any part of this platform, you agree to these terms. Read them — they're written plainly.</p>
+  </div>
+
+  <div class="toc">
+    <div class="toc-label">Contents</div>
+    <ol class="toc-list">
+      <li><a href="#t1"><span class="toc-num">01</span>What Venue Portal Is</a></li>
+      <li><a href="#t2"><span class="toc-num">02</span>Accounts &amp; Access</a></li>
+      <li><a href="#t3"><span class="toc-num">03</span>Booking Process</a></li>
+      <li><a href="#t4"><span class="toc-num">04</span>Payments &amp; Platform Fee</a></li>
+      <li><a href="#t5"><span class="toc-num">05</span>Cancellations &amp; Refunds</a></li>
+      <li><a href="#t6"><span class="toc-num">06</span>Venue Owner Responsibilities</a></li>
+      <li><a href="#t7"><span class="toc-num">07</span>Promoter Responsibilities</a></li>
+      <li><a href="#t8"><span class="toc-num">08</span>Prohibited Conduct</a></li>
+      <li><a href="#t9"><span class="toc-num">09</span>Limitation of Liability</a></li>
+      <li><a href="#t10"><span class="toc-num">10</span>Termination</a></li>
+      <li><a href="#t11"><span class="toc-num">11</span>Governing Law</a></li>
+      <li><a href="#t12"><span class="toc-num">12</span>Contact</a></li>
+    </ol>
+  </div>
+
+  <div class="doc-section" id="t1">
+    <div class="section-head">
+      <span class="section-num">01</span>
+      <h2 class="section-title">What Venue Portal Is</h2>
+    </div>
+    <div class="section-body">
+      <p>Venue Portal is a booking infrastructure platform that connects independent venue owners with event promoters. We provide the tools — inquiry intake, booking management, payment processing via Stripe Connect — and charge a flat platform fee per confirmed booking.</p>
+      <p><strong>Venue Portal is a platform, not a party to venue agreements.</strong> Any contract for use of a physical space is between the venue owner and the promoter. We facilitate the transaction — we do not own, operate, or manage any venue listed on the platform.</p>
+    </div>
+  </div>
+
+  <div class="doc-section" id="t2">
+    <div class="section-head">
+      <span class="section-num">02</span>
+      <h2 class="section-title">Accounts &amp; Access</h2>
+    </div>
+    <div class="section-body">
+      <p>Venue owner accounts are created by Venue Portal administrators during onboarding. You are responsible for maintaining the confidentiality of your credentials. Do not share your login with others.</p>
+      <p>You represent that all information you provide — including venue details, contact info, and Stripe Connect data — is accurate and kept up to date. Inaccurate venue listings that mislead promoters may result in account suspension.</p>
+      <ul>
+        <li>You must be at least 18 years old to create an account</li>
+        <li>One account per venue owner — accounts are non-transferable</li>
+        <li>Notify us immediately if you suspect unauthorized access to your account</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="doc-section" id="t3">
+    <div class="section-head">
+      <span class="section-num">03</span>
+      <h2 class="section-title">Booking Process</h2>
+    </div>
+    <div class="section-body">
+      <p>The booking flow works as follows:</p>
+      <ul>
+        <li>A promoter submits an inquiry through the public venue listing page</li>
+        <li>The venue owner reviews the inquiry and chooses to Accept or Decline</li>
+        <li>On Accept, a Stripe Checkout payment link is automatically generated and emailed to the promoter</li>
+        <li>The booking is confirmed when the promoter completes payment</li>
+        <li>The venue owner receives their payout via their connected Stripe account after fees are deducted</li>
+      </ul>
+      <p><strong>Accepted inquiries are not confirmed bookings until payment is received.</strong> Venue owners should not consider a date reserved until the deposit clears and the booking status shows "Confirmed."</p>
+    </div>
+  </div>
+
+  <div class="doc-section" id="t4">
+    <div class="section-head">
+      <span class="section-num">04</span>
+      <h2 class="section-title">Payments &amp; Platform Fee</h2>
+    </div>
+    <div class="section-body">
+      <div class="highlight-box">
+        <strong>Platform fee: $50 flat per confirmed booking.</strong> This is deducted automatically from the booking payment before the remainder is routed to the venue owner's connected Stripe account. This fee is non-negotiable and non-refundable.
+      </div>
+      <p>All payments are processed by Stripe. Venue Portal does not handle credit card or banking information directly. By connecting your Stripe account, you agree to <strong>Stripe's Terms of Service</strong> (stripe.com/ssa) in addition to these terms.</p>
+      <p>Venue owners are responsible for any applicable taxes on income received through the platform. Venue Portal does not collect or remit taxes on behalf of venue owners.</p>
+    </div>
+  </div>
+
+  <div class="doc-section" id="t5">
+    <div class="section-head">
+      <span class="section-num">05</span>
+      <h2 class="section-title">Cancellations &amp; Refunds</h2>
+    </div>
+    <div class="section-body">
+      <p>Cancellation and refund policies are set between the venue owner and the promoter. Venue Portal does not issue refunds directly and is not liable for disputes between parties regarding use of a physical venue.</p>
+      <p>If a venue owner cancels a confirmed booking, they are responsible for coordinating any refund with the promoter through Stripe. The $50 platform fee is <strong>non-refundable</strong> in all cases, including cancellations initiated by the venue.</p>
+      <p>If a promoter fails to complete payment after an inquiry is accepted, the booking will remain in "Pending" status and the date will not be blocked on the venue's calendar. No money is owed in that scenario.</p>
+    </div>
+  </div>
+
+  <div class="doc-section" id="t6">
+    <div class="section-head">
+      <span class="section-num">06</span>
+      <h2 class="section-title">Venue Owner Responsibilities</h2>
+    </div>
+    <div class="section-body">
+      <p>As a venue owner on the platform, you agree to:</p>
+      <ul>
+        <li>Provide accurate, up-to-date information about your venue — capacity, pricing, rules, availability</li>
+        <li>Respond to booking inquiries in a timely manner</li>
+        <li>Honor confirmed bookings — a booking is confirmed once payment is received</li>
+        <li>Connect and maintain an active Stripe account to receive payouts</li>
+        <li>Comply with all applicable local laws regarding venue operation and event hosting</li>
+        <li>Not use the platform to facilitate illegal events or activity</li>
+      </ul>
+      <p>Venue Portal reserves the right to remove venues from the platform that generate repeated complaints, disputes, or that violate these terms.</p>
+    </div>
+  </div>
+
+  <div class="doc-section" id="t7">
+    <div class="section-head">
+      <span class="section-num">07</span>
+      <h2 class="section-title">Promoter Responsibilities</h2>
+    </div>
+    <div class="section-body">
+      <p>As a promoter submitting booking inquiries, you agree to:</p>
+      <ul>
+        <li>Provide accurate event details — date, guest count, and event description — when submitting an inquiry</li>
+        <li>Complete payment promptly after an inquiry is accepted</li>
+        <li>Comply with the venue's rules and any capacity or conduct requirements</li>
+        <li>Not misrepresent the nature of your event to obtain a booking</li>
+        <li>Accept that submitting an inquiry does not guarantee a booking — acceptance is at the venue owner's discretion</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="doc-section" id="t8">
+    <div class="section-head">
+      <span class="section-num">08</span>
+      <h2 class="section-title">Prohibited Conduct</h2>
+    </div>
+    <div class="section-body">
+      <p>The following are prohibited on the Venue Portal platform:</p>
+      <ul>
+        <li>Submitting fraudulent inquiries or providing false information</li>
+        <li>Attempting to bypass the platform to book directly and avoid the platform fee after initial contact through Venue Portal</li>
+        <li>Using the platform to facilitate illegal activity of any kind</li>
+        <li>Attempting to gain unauthorized access to other accounts, admin panels, or the backend system</li>
+        <li>Scraping, copying, or reproducing platform content without permission</li>
+        <li>Harassing or threatening venue owners, promoters, or platform operators</li>
+      </ul>
+      <div class="warn-box">
+        <strong>Circumvention:</strong> If a promoter contacts a venue through Venue Portal and subsequently attempts to book that venue directly to avoid the platform fee, the venue owner is obligated to notify Venue Portal. Continued circumvention may result in both parties being removed from the platform.
+      </div>
+    </div>
+  </div>
+
+  <div class="doc-section" id="t9">
+    <div class="section-head">
+      <span class="section-num">09</span>
+      <h2 class="section-title">Limitation of Liability</h2>
+    </div>
+    <div class="section-body">
+      <p>Venue Portal provides a software platform — we are not responsible for what happens at any physical venue, event, or gathering facilitated through the platform.</p>
+      <p>To the maximum extent permitted by law, Venue Portal's liability for any claim arising from use of the platform is limited to the platform fees paid in the 30 days preceding the claim. We are not liable for indirect, incidental, consequential, or punitive damages of any kind.</p>
+      <p>The platform is provided "as is." We make no guarantees of uptime, availability, or error-free operation, though we will make commercially reasonable efforts to maintain service.</p>
+    </div>
+  </div>
+
+  <div class="doc-section" id="t10">
+    <div class="section-head">
+      <span class="section-num">10</span>
+      <h2 class="section-title">Termination</h2>
+    </div>
+    <div class="section-body">
+      <p>Venue Portal may suspend or terminate any account at any time for violation of these terms, repeated complaints, fraudulent behavior, or at our discretion with reasonable notice.</p>
+      <p>Venue owners may request account termination by contacting hello@venueportal.us. Termination does not affect any confirmed bookings already in progress — those obligations remain between the venue owner and promoter.</p>
+    </div>
+  </div>
+
+  <div class="doc-section" id="t11">
+    <div class="section-head">
+      <span class="section-num">11</span>
+      <h2 class="section-title">Governing Law</h2>
+    </div>
+    <div class="section-body">
+      <p>These terms are governed by the laws of the United States. Any disputes arising from use of the platform will be resolved through good-faith negotiation first. If that fails, disputes will be settled through binding arbitration rather than class action litigation, to the extent permitted by law.</p>
+      <p>By using Venue Portal, you waive the right to participate in any class action lawsuit or class-wide arbitration related to the platform.</p>
+    </div>
+  </div>
+
+  <div class="doc-section" id="t12">
+    <div class="section-head">
+      <span class="section-num">12</span>
+      <h2 class="section-title">Contact</h2>
+    </div>
+    <div class="section-body">
+      <p>Questions about these terms? Disputes? Reach us directly:</p>
+      <div class="highlight-box">
+        <strong>Venue Portal</strong><br>
+        Email: hello@venueportal.us<br>
+        Site: venueportal.us
+      </div>
+      <p>We respond to all inquiries within 3 business days.</p>
+    </div>
+  </div>
+
+</div>
+
+<div style="max-width:800px;margin:48px auto 0;padding:0 24px">
+  <footer>
+    <div class="footer-row">
+      <span class="footer-brand">Venue.Portal &copy; 2026</span>
+      <nav class="footer-links">
+        <a href="https://venueportal.us">Home</a>
+        <a href="/privacy.html">Privacy</a>
+        <a href="/terms.html" class="active">Terms</a>
+        <a href="mailto:hello@venueportal.us">Contact</a>
+      </nav>
+    </div>
+  </footer>
+</div>
+
+</body>
+</html>

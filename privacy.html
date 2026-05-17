@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Privacy Policy — Venue.Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#13161f;--surface:#1a1f2e;--surface2:#1e2535;
+  --border:#252b3b;--border2:#2e3548;
+  --text:#f0f0f0;--text2:#7a8499;--text3:#3d4560;
+  --accent:#ffffff;--accent-warm:#c8d0e0;
+  --accent-dim:rgba(255,255,255,0.07);
+  --radius:6px;--radius-lg:10px;
+  --mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;--display:'Syne',sans-serif;
+}
+html,body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.6;min-height:100%}
+body{position:relative;padding:0 0 80px}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background-image:radial-gradient(ellipse at 15% 60%,rgba(100,80,220,0.07) 0%,transparent 50%),radial-gradient(ellipse at 85% 10%,rgba(255,255,255,0.04) 0%,transparent 40%)}
+body::after{content:'';position:fixed;z-index:0;pointer-events:none;top:-180px;right:-180px;width:620px;height:620px;background:radial-gradient(circle at center,rgba(100,55,210,0.06) 0%,rgba(60,20,140,0.025) 45%,transparent 72%);border-radius:50%}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:100;background:rgba(19,22,31,0.88);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,0.1);padding:0 24px}
+.nav-inner{max-width:800px;margin:0 auto;height:52px;display:flex;align-items:center;justify-content:space-between}
+.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none;cursor:pointer}
+.nav-mark path,.nav-mark rect{transition:opacity .15s}
+.nav-wordmark{font-family:var(--display);font-size:15px;font-weight:700;color:var(--text);letter-spacing:-.3px}
+.nav-dot{color:var(--accent)}
+.nav-back{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);text-decoration:none;border:1px solid var(--border);border-radius:var(--radius);padding:5px 10px;transition:color .15s,border-color .15s}
+.nav-back:hover{color:var(--text2);border-color:var(--border2)}
+
+/* LAYOUT */
+.page{position:relative;z-index:1;max-width:800px;margin:0 auto;padding:56px 24px 0}
+
+/* HERO */
+.doc-header{margin-bottom:48px;padding-bottom:32px;border-bottom:1px solid var(--border)}
+.doc-tag{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:var(--text2);margin-bottom:14px}
+.doc-title{font-family:var(--display);font-size:38px;font-weight:800;letter-spacing:-.6px;line-height:1.1;color:var(--text);margin-bottom:16px}
+.doc-meta{font-family:var(--mono);font-size:11px;color:var(--text3);display:flex;gap:24px;flex-wrap:wrap}
+.doc-meta span{display:flex;align-items:center;gap:6px}
+.doc-meta span::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--border2)}
+.doc-meta span:first-child::before{display:none}
+.doc-intro{margin-top:20px;font-size:14px;color:var(--text2);line-height:1.7;max-width:640px}
+
+/* TOC */
+.toc{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px 28px;margin-bottom:48px}
+.toc-label{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:var(--text2);margin-bottom:14px}
+.toc-list{list-style:none;display:flex;flex-direction:column;gap:6px}
+.toc-list a{font-size:13px;color:var(--text2);text-decoration:none;font-family:var(--mono);display:flex;align-items:baseline;gap:10px;transition:color .15s}
+.toc-list a:hover{color:var(--text)}
+.toc-num{font-size:10px;color:var(--text3);flex-shrink:0;width:16px}
+
+/* SECTIONS */
+.doc-section{margin-bottom:48px;scroll-margin-top:72px}
+.section-head{display:flex;align-items:baseline;gap:14px;margin-bottom:20px}
+.section-num{font-family:var(--mono);font-size:10px;color:var(--text3)}
+.section-title{font-family:var(--display);font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.2px}
+.section-body{font-size:14px;color:var(--text2);line-height:1.8;display:flex;flex-direction:column;gap:14px}
+.section-body p{font-size:14px;color:var(--text2);line-height:1.8}
+.section-body strong{color:var(--text);font-weight:600}
+.section-body ul{list-style:none;display:flex;flex-direction:column;gap:8px;padding-left:0;margin-top:4px}
+.section-body ul li{font-size:14px;color:var(--text2);padding-left:16px;position:relative;line-height:1.7}
+.section-body ul li::before{content:'—';position:absolute;left:0;color:var(--text3);font-family:var(--mono);font-size:11px}
+
+.divider{height:1px;background:var(--border);margin:48px 0}
+
+/* HIGHLIGHT BOX */
+.highlight-box{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:var(--radius);padding:16px 20px;font-size:13px;color:var(--text2);line-height:1.7}
+.highlight-box strong{color:var(--text);font-weight:600}
+
+/* FOOTER */
+footer{position:relative;z-index:1;max-width:800px;margin:0 auto;padding:32px 24px 0;border-top:1px solid var(--border)}
+.footer-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.footer-brand{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3)}
+.footer-links{display:flex;gap:16px}
+.footer-links a{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);text-decoration:none;transition:color .15s}
+.footer-links a:hover{color:var(--text)}
+.footer-links a.active{color:var(--text2)}
+
+@media(max-width:600px){
+  .doc-title{font-size:28px}
+  .doc-meta{gap:12px}
+  .toc{padding:18px 20px}
+  .page{padding:40px 16px 0}
+  nav{padding:0 16px}
+  footer{padding:28px 16px 0}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="https://venueportal.us" class="nav-brand">
+      <svg class="nav-mark" width="22" height="16" viewBox="0 0 24 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#ffffff"/>
+        <path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#ffffff" opacity="0.4"/>
+        <rect x="19.5" y="7" width="4" height="4" rx="1" fill="#ffffff" opacity="0.75"/>
+      </svg>
+      <span class="nav-wordmark">Venue<span class="nav-dot">.</span>Portal</span>
+    </a>
+    <a href="https://venueportal.us" class="nav-back">Back to site</a>
+  </div>
+</nav>
+
+<div class="page">
+
+  <div class="doc-header">
+    <div class="doc-tag">Legal</div>
+    <h1 class="doc-title">Privacy Policy</h1>
+    <div class="doc-meta">
+      <span>Venue Portal</span>
+      <span>Effective: May 2026</span>
+      <span>Last updated: May 17, 2026</span>
+    </div>
+    <p class="doc-intro">This Privacy Policy explains how Venue Portal collects, uses, and protects information when you use our platform — whether you're a venue owner, promoter, or visitor. We keep it simple because that's how we operate.</p>
+  </div>
+
+  <div class="toc">
+    <div class="toc-label">Contents</div>
+    <ol class="toc-list">
+      <li><a href="#s1"><span class="toc-num">01</span>Information We Collect</a></li>
+      <li><a href="#s2"><span class="toc-num">02</span>How We Use Your Information</a></li>
+      <li><a href="#s3"><span class="toc-num">03</span>Payments &amp; Stripe</a></li>
+      <li><a href="#s4"><span class="toc-num">04</span>Email Communications</a></li>
+      <li><a href="#s5"><span class="toc-num">05</span>Data Storage &amp; Security</a></li>
+      <li><a href="#s6"><span class="toc-num">06</span>Third-Party Services</a></li>
+      <li><a href="#s7"><span class="toc-num">07</span>Your Rights</a></li>
+      <li><a href="#s8"><span class="toc-num">08</span>Cookies</a></li>
+      <li><a href="#s9"><span class="toc-num">09</span>Changes to This Policy</a></li>
+      <li><a href="#s10"><span class="toc-num">10</span>Contact</a></li>
+    </ol>
+  </div>
+
+  <div class="doc-section" id="s1">
+    <div class="section-head">
+      <span class="section-num">01</span>
+      <h2 class="section-title">Information We Collect</h2>
+    </div>
+    <div class="section-body">
+      <p><strong>From promoters / booking inquiries:</strong></p>
+      <ul>
+        <li>Name and email address submitted with a booking inquiry</li>
+        <li>Event details — date, estimated guest count, event description</li>
+        <li>Payment confirmation data returned from Stripe after deposit payment</li>
+      </ul>
+      <p><strong>From venue owners:</strong></p>
+      <ul>
+        <li>Name, email address, and account credentials</li>
+        <li>Stripe Connect account details (handled directly by Stripe — we store only your connected account ID)</li>
+        <li>Venue details you provide during onboarding</li>
+      </ul>
+      <p><strong>Automatically collected:</strong></p>
+      <ul>
+        <li>Basic request logs (IP address, browser type, pages visited) for platform security and debugging — not used for advertising</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="doc-section" id="s2">
+    <div class="section-head">
+      <span class="section-num">02</span>
+      <h2 class="section-title">How We Use Your Information</h2>
+    </div>
+    <div class="section-body">
+      <p>We use the information we collect to operate the platform. That means:</p>
+      <ul>
+        <li>Routing booking inquiries to the correct venue owner</li>
+        <li>Sending payment links and booking confirmation emails to promoters</li>
+        <li>Sending welcome and account setup emails to venue owners</li>
+        <li>Processing payments through Stripe and recording transaction status</li>
+        <li>Maintaining booking records for both parties</li>
+      </ul>
+      <p>We do <strong>not</strong> sell your data, share it with advertisers, or use it for any purpose unrelated to operating the Venue Portal platform.</p>
+    </div>
+  </div>
+
+  <div class="doc-section" id="s3">
+    <div class="section-head">
+      <span class="section-num">03</span>
+      <h2 class="section-title">Payments &amp; Stripe</h2>
+    </div>
+    <div class="section-body">
+      <p>All payment processing is handled by <strong>Stripe</strong>. Venue Portal does not collect, store, or process credit card or banking information directly. When you pay a booking deposit, you are interacting with Stripe's secure checkout infrastructure.</p>
+      <p>Venue owners connect their Stripe accounts through Stripe Connect. We store your Stripe connected account ID to route payouts correctly. All financial data is governed by <strong>Stripe's Privacy Policy</strong> (stripe.com/privacy).</p>
+      <div class="highlight-box">
+        <strong>Platform fee:</strong> A $50 flat platform fee is applied to each confirmed booking. This is deducted automatically via Stripe's application fee system — transparent and disclosed at the time of payment.
+      </div>
+    </div>
+  </div>
+
+  <div class="doc-section" id="s4">
+    <div class="section-head">
+      <span class="section-num">04</span>
+      <h2 class="section-title">Email Communications</h2>
+    </div>
+    <div class="section-body">
+      <p>Venue Portal sends transactional emails through <strong>Resend</strong>. These include:</p>
+      <ul>
+        <li>Booking inquiry confirmations to promoters</li>
+        <li>Payment link emails when a venue accepts an inquiry</li>
+        <li>Booking confirmed / cancelled notifications</li>
+        <li>Account welcome emails for venue owners</li>
+      </ul>
+      <p>We do not send marketing emails without your explicit opt-in. All transactional emails are sent from <strong>noreply@venueportal.us</strong>.</p>
+    </div>
+  </div>
+
+  <div class="doc-section" id="s5">
+    <div class="section-head">
+      <span class="section-num">05</span>
+      <h2 class="section-title">Data Storage &amp; Security</h2>
+    </div>
+    <div class="section-body">
+      <p>Venue Portal's backend runs on <strong>Cloudflare Workers and D1</strong> — a serverless, edge-deployed infrastructure with enterprise-grade security. Your data is stored in a managed SQLite database and is not stored on any third-party servers we control outside of Cloudflare's infrastructure.</p>
+      <p>Passwords for venue owner accounts are <strong>hashed</strong> — we never store plain-text passwords. Auth sessions are managed via signed JWT tokens with expiry.</p>
+      <p>While we implement reasonable security measures, no system is 100% impenetrable. If you believe your account has been compromised, contact us immediately.</p>
+    </div>
+  </div>
+
+  <div class="doc-section" id="s6">
+    <div class="section-head">
+      <span class="section-num">06</span>
+      <h2 class="section-title">Third-Party Services</h2>
+    </div>
+    <div class="section-body">
+      <p>Venue Portal integrates with the following third-party services. Each has its own privacy policy governing their data use:</p>
+      <ul>
+        <li><strong>Stripe</strong> — payment processing and Stripe Connect (stripe.com/privacy)</li>
+        <li><strong>Resend</strong> — transactional email delivery (resend.com/privacy)</li>
+        <li><strong>Cloudflare</strong> — hosting, DNS, and edge infrastructure (cloudflare.com/privacypolicy)</li>
+        <li><strong>Google Fonts</strong> — font delivery (fonts.google.com)</li>
+      </ul>
+      <p>We do not integrate with any advertising networks or analytics platforms that track users across sites.</p>
+    </div>
+  </div>
+
+  <div class="doc-section" id="s7">
+    <div class="section-head">
+      <span class="section-num">07</span>
+      <h2 class="section-title">Your Rights</h2>
+    </div>
+    <div class="section-body">
+      <p>You have the right to:</p>
+      <ul>
+        <li>Request a copy of the personal data we hold about you</li>
+        <li>Request deletion of your data (subject to any legal or payment record obligations)</li>
+        <li>Correct inaccurate information associated with your account</li>
+        <li>Opt out of any non-transactional communications</li>
+      </ul>
+      <p>To exercise any of these rights, contact us at <strong>hello@venueportal.us</strong>. We will respond within 7 business days.</p>
+    </div>
+  </div>
+
+  <div class="doc-section" id="s8">
+    <div class="section-head">
+      <span class="section-num">08</span>
+      <h2 class="section-title">Cookies</h2>
+    </div>
+    <div class="section-body">
+      <p>Venue Portal does not use tracking cookies or advertising cookies. We use <strong>browser localStorage</strong> only to maintain your login session (storing your JWT token locally so you stay logged in). This data does not leave your device and is not accessible to third parties.</p>
+      <p>No cookie consent banners. No tracking pixels. No retargeting.</p>
+    </div>
+  </div>
+
+  <div class="doc-section" id="s9">
+    <div class="section-head">
+      <span class="section-num">09</span>
+      <h2 class="section-title">Changes to This Policy</h2>
+    </div>
+    <div class="section-body">
+      <p>If we make material changes to this policy, we will update the "Last updated" date at the top and, where appropriate, notify venue owners via email. Continued use of the platform after changes constitutes acceptance of the updated policy.</p>
+      <p>We will never change this policy in a way that compromises your data without giving you notice and, where required, your consent.</p>
+    </div>
+  </div>
+
+  <div class="doc-section" id="s10">
+    <div class="section-head">
+      <span class="section-num">10</span>
+      <h2 class="section-title">Contact</h2>
+    </div>
+    <div class="section-body">
+      <p>Questions about this policy or your data? Reach us at:</p>
+      <div class="highlight-box">
+        <strong>Venue Portal</strong><br>
+        Email: hello@venueportal.us<br>
+        Site: venueportal.us
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div style="max-width:800px;margin:48px auto 0;padding:0 24px">
+  <footer>
+    <div class="footer-row">
+      <span class="footer-brand">Venue.Portal &copy; 2026</span>
+      <nav class="footer-links">
+        <a href="https://venueportal.us">Home</a>
+        <a href="/privacy.html" class="active">Privacy</a>
+        <a href="/terms.html">Terms</a>
+        <a href="mailto:hello@venueportal.us">Contact</a>
+      </nav>
+    </div>
+  </footer>
+</div>
+
+</body>
+</html>
