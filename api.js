@@ -231,21 +231,6 @@ export default {
                 await env.DB.prepare(
                   "UPDATE bookings SET status='confirmed' WHERE id=?"
                 ).bind(booking.id).run();
-                if (env.RESEND_API_KEY) {
-                  await fetch("https://api.resend.com/emails", {
-                    method: "POST",
-                    headers: {
-                      "Authorization": "Bearer " + env.RESEND_API_KEY,
-                      "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                      from: "Venue Portal <noreply@venueportal.us>",
-                      to: [booking.client_email],
-                      subject: "Booking confirmed! See you on " + booking.event_date,
-                      html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto"><h2 style="color:#111">You're confirmed, ${booking.client_name}!</h2><p>Your booking for <strong>${booking.event_date}</strong> is fully confirmed. We look forward to seeing you!</p><p style="color:#888;font-size:13px">If you have questions, reply to this email.</p></div>`,
-                    }),
-                  });
-                }
               }
             }
           }
@@ -894,6 +879,10 @@ export default {
               "UPDATE bookings SET status='confirmed', payment_link=?, stripe_session_id=? WHERE id=?"
             ).bind(paymentLink, sessionId, id).run();
 
+            await env.DB.prepare(
+              "UPDATE bookings SET total_amount = ? WHERE id = ?"
+            ).bind(unitAmount, bookingId).run();
+
             if (env.RESEND_API_KEY) {
               const emailPayload = {
                 from: "Venue Portal <noreply@venueportal.us>",
@@ -1296,6 +1285,89 @@ export default {
           return jsonResponse({ ok: true, message: "Submission received" }, 200, request);
         } catch (err) {
           console.log("[onboard] error:", err.message);
+          return jsonResponse({ error: err.message }, 500, request);
+        }
+      }
+
+      // ── TEST EMAIL (superadmin only) ─────────────────────────────────
+      if (path === "/api/test-email" && request.method === "POST") {
+        try {
+          const session = await getSession(request, env);
+          if (!isSuperAdmin(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
+          if (!env.RESEND_API_KEY) return jsonResponse({ error: "RESEND_API_KEY not set" }, 500, request);
+
+          const body = await parseJson(request);
+          const to = String(body.to || "").trim();
+          if (!to) return jsonResponse({ error: "to email required" }, 400, request);
+
+          const mockBooking = {
+            client_name: "Test Promoter",
+            client_email: to,
+            event_date: "2026-07-15",
+            venue_name: "The Chill Room",
+            total_amount: 45000
+          };
+          const amount = '$' + (mockBooking.total_amount / 100).toLocaleString('en-US', {minimumFractionDigits:2});
+          const dateFormatted = new Date(mockBooking.event_date + 'T00:00:00').toLocaleDateString('en-US', {weekday:'long',month:'long',day:'numeric',year:'numeric'});
+
+          const promoterRes = await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
+            body: JSON.stringify({
+              from: "Venue Portal <noreply@venueportal.us>",
+              to: [to],
+              subject: "[TEST] Booking confirmed — The Chill Room",
+              html: `<div style="font-family:sans-serif;max-width:520px;margin:0 auto;background:#fff;color:#111;padding:32px 28px;border-radius:8px">
+          <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#888;margin-bottom:20px">Venue.Portal</div>
+          <h1 style="font-size:24px;font-weight:800;margin:0 0 6px;letter-spacing:-.3px">You're confirmed.</h1>
+          <p style="color:#555;font-size:14px;margin:0 0 28px;line-height:1.6">Hi ${mockBooking.client_name} — your deposit went through and your booking is locked in.</p>
+          <div style="background:#f7f7f7;border-radius:8px;padding:20px 22px;margin-bottom:28px">
+            <table style="width:100%;border-collapse:collapse">
+              <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:6px 0 2px">Venue</td></tr>
+              <tr><td style="font-size:15px;font-weight:600;padding-bottom:14px;border-bottom:1px solid #eee">${mockBooking.venue_name}</td></tr>
+              <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:14px 0 2px">Event Date</td></tr>
+              <tr><td style="font-size:15px;font-weight:600;padding-bottom:14px;border-bottom:1px solid #eee">${dateFormatted}</td></tr>
+              <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:14px 0 2px">Amount Paid</td></tr>
+              <tr><td style="font-size:15px;font-weight:700;color:#111">${amount}</td></tr>
+            </table>
+          </div>
+          <p style="color:#888;font-size:12px;line-height:1.6;margin:0">Questions? Reply to this email or contact us at hello@venueportal.us</p>
+          <div style="margin-top:24px;padding-top:16px;border-top:1px solid #eee;font-family:monospace;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#bbb">Venue.Portal · Flat fee. No cuts.</div>
+        </div>`
+            })
+          });
+
+          const ownerRes = await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
+            body: JSON.stringify({
+              from: "Venue Portal <noreply@venueportal.us>",
+              to: [to],
+              subject: "[TEST] Deposit received — Test Promoter · " + dateFormatted,
+              html: `<div style="font-family:sans-serif;max-width:520px;margin:0 auto;background:#fff;color:#111;padding:32px 28px;border-radius:8px">
+          <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#888;margin-bottom:20px">Venue.Portal</div>
+          <h1 style="font-size:22px;font-weight:800;margin:0 0 6px">Deposit received.</h1>
+          <p style="color:#555;font-size:14px;margin:0 0 24px;line-height:1.6">A booking deposit just came in for ${mockBooking.venue_name}.</p>
+          <div style="background:#f7f7f7;border-radius:8px;padding:20px 22px;margin-bottom:24px">
+            <table style="width:100%;border-collapse:collapse">
+              <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:6px 0 2px">Promoter</td></tr>
+              <tr><td style="font-size:14px;font-weight:600;padding-bottom:12px;border-bottom:1px solid #eee">${mockBooking.client_name} · ${mockBooking.client_email}</td></tr>
+              <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:12px 0 2px">Event Date</td></tr>
+              <tr><td style="font-size:14px;font-weight:600;padding-bottom:12px;border-bottom:1px solid #eee">${dateFormatted}</td></tr>
+              <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:12px 0 2px">Deposit Amount</td></tr>
+              <tr><td style="font-size:14px;font-weight:700">${amount} <span style="font-weight:400;color:#999;font-size:12px">(your payout is on its way via Stripe)</span></td></tr>
+            </table>
+          </div>
+          <p style="color:#888;font-size:12px;line-height:1.6">Log in to your dashboard to view the full booking details.</p>
+          <div style="margin-top:24px;padding-top:16px;border-top:1px solid #eee;font-family:monospace;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#bbb">Venue.Portal · Flat fee. No cuts.</div>
+        </div>`
+            })
+          });
+
+          const p = await promoterRes.json();
+          const o = await ownerRes.json();
+          return jsonResponse({ ok: true, promoter: p, owner: o }, 200, request);
+        } catch (err) {
           return jsonResponse({ error: err.message }, 500, request);
         }
       }
