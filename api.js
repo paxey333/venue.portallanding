@@ -810,11 +810,6 @@ export default {
               "UPDATE bookings SET status='confirmed', payment_link=?, stripe_session_id=? WHERE id=?"
             ).bind(paymentLink, sessionId, id).run();
 
-            // TEST — 100 cents = $1.00 booking total. Restore to venue.price_per_day * 100 before launch.
-            await env.DB.prepare(
-              "UPDATE bookings SET total_amount = ? WHERE id = ?"
-            ).bind(100, bookingId).run();
-
             if (env.RESEND_API_KEY) {
               const emailPayload = {
                 from: "Venue Portal <noreply@venueportal.us>",
