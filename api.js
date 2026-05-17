@@ -779,7 +779,7 @@ export default {
             stripeBody.append('line_items[0][price_data][product_data][name]', `Venue Booking - ${venueName}`);
             stripeBody.append('line_items[0][quantity]', '1');
             const unitAmount = Math.round(booking.price_per_day * 100);
-            const appFee = unitAmount >= 500000 ? 5000 : Math.min(50, Math.floor(unitAmount * 0.25));
+            const appFee = unitAmount >= 10000 ? 5000 : Math.min(500, Math.floor(unitAmount * 0.25));
             stripeBody.append('line_items[0][price_data][unit_amount]', String(unitAmount));
             stripeBody.append('payment_intent_data[application_fee_amount]', String(appFee));
             stripeBody.append('payment_intent_data[transfer_data][destination]', stripeAccountId);
