@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mark Demo Studio — Book a Session</title>
+  <meta property="og:title" content="Mark Demo Studio — Book a Session"/>
+  <meta property="og:description" content="3 professional rooms in LA. Instant confirmation, Stripe secured."/>
+  <meta property="og:image" content="https://venueportal.us/images/venue-hero.jpg"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --bg:#0f1118;
+      --surface:#13161f;
+      --border:rgba(255,255,255,0.08);
+      --text:#f0f0f0;
+      --text2:#7a8499;
+      --green:#4ade80;
+      --display:'Syne',sans-serif;
+      --mono:'DM Mono',monospace;
+      --sans:'DM Sans',sans-serif;
+    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased;line-height:1.5;min-height:100vh}
+    a{color:inherit}
+    .wrap{max-width:480px;margin:0 auto;padding:24px 20px 48px}
+
+    /* NAV */
+    .nav{display:flex;align-items:center;gap:9px;padding:4px 0 28px}
+    .nav svg{flex-shrink:0}
+    .nav-text{font-family:var(--display);font-weight:800;font-size:14px;letter-spacing:-.3px}
+    .nav-sub{font-family:var(--mono);font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:.14em;margin-left:auto}
+
+    /* HERO */
+    .badge{display:inline-flex;align-items:center;gap:7px;background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.22);border-radius:20px;padding:5px 12px;font-family:var(--mono);font-size:10px;color:var(--green);letter-spacing:.06em;margin-bottom:18px}
+    .dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 rgba(74,222,128,0.6);animation:pulse 2s infinite}
+    @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(74,222,128,0.5)}70%{box-shadow:0 0 0 7px rgba(74,222,128,0)}100%{box-shadow:0 0 0 0 rgba(74,222,128,0)}}
+    h1{font-family:var(--display);font-weight:800;font-size:36px;letter-spacing:-1px;line-height:1.05;margin-bottom:8px}
+    .hero-sub{color:var(--text2);font-size:15px;margin-bottom:18px}
+    .trust{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:34px}
+    .pill{display:inline-flex;align-items:center;gap:5px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:5px 11px;font-size:11px;color:var(--text2)}
+    .pill svg{color:var(--green)}
+
+    /* SECTION LABEL */
+    .sec-label{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:var(--text2);margin:0 0 14px}
+
+    /* ROOM CARDS */
+    .room{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:18px;margin-bottom:12px;cursor:pointer;transition:border-color .18s,background .18s,transform .12s}
+    .room:hover{border-color:rgba(255,255,255,0.2)}
+    .room:active{transform:scale(.995)}
+    .room.selected{border-color:var(--green);background:rgba(74,222,128,0.06)}
+    .room-top{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:8px}
+    .room-name{font-family:var(--display);font-weight:700;font-size:17px;letter-spacing:-.3px}
+    .room-price{font-family:var(--display);font-weight:800;font-size:16px;white-space:nowrap}
+    .room-price span{font-family:var(--mono);font-size:10px;color:var(--text2);font-weight:400}
+    .room-desc{color:var(--text2);font-size:13px;margin-bottom:12px}
+    .room-tags{display:flex;flex-wrap:wrap;gap:6px}
+    .tag{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:5px;padding:3px 7px}
+    .room.selected .tag{color:var(--green);border-color:rgba(74,222,128,0.25);background:rgba(74,222,128,0.08)}
+    .room-check{display:none;align-items:center;gap:6px;margin-top:12px;font-family:var(--mono);font-size:10px;color:var(--green);letter-spacing:.08em;text-transform:uppercase}
+    .room.selected .room-check{display:flex}
+
+    /* BOOKING FORM */
+    #form-wrap{max-height:0;overflow:hidden;opacity:0;transition:max-height .5s ease,opacity .4s ease;margin-top:0}
+    #form-wrap.open{max-height:1400px;opacity:1;margin-top:32px}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px}
+    .row{display:flex;gap:12px;margin-bottom:14px}
+    .row .field{flex:1;min-width:0}
+    .field{margin-bottom:14px}
+    .field label{display:block;font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--text2);margin-bottom:6px}
+    .field input,.field select,.field textarea{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:var(--sans);font-size:13px;padding:10px 12px;border-radius:8px;outline:none;transition:border-color .15s}
+    .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--green)}
+    .field textarea{resize:vertical;min-height:64px}
+    .field select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237a8499' stroke-width='2'><polyline points='6 9 12 15 18 9'/></svg>");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+
+    /* SUMMARY */
+    .summary{background:rgba(74,222,128,0.05);border:1px solid rgba(74,222,128,0.18);border-radius:8px;padding:14px 16px;margin:4px 0 18px}
+    .summary-row{display:flex;justify-content:space-between;font-size:12px;padding:4px 0;color:var(--text2)}
+    .summary-row span:last-child{color:var(--text);font-family:var(--mono)}
+    .summary-row.total{border-top:1px solid rgba(74,222,128,0.18);margin-top:6px;padding-top:10px}
+    .summary-row.total span{color:var(--green);font-family:var(--display);font-weight:800;font-size:16px}
+
+    .btn{width:100%;background:#fff;color:#111;font-family:var(--display);font-weight:800;font-size:14px;padding:14px;border:none;border-radius:8px;cursor:pointer;transition:opacity .15s;letter-spacing:-.2px}
+    .btn:hover{opacity:.9}
+    .btn:disabled{background:rgba(255,255,255,0.12);color:var(--text2);cursor:not-allowed}
+
+    /* SUCCESS */
+    #success{display:none;text-align:center;padding:24px 4px}
+    #success.show{display:block}
+    .check-circle{width:72px;height:72px;border-radius:50%;background:rgba(74,222,128,0.12);border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center;margin:0 auto 22px}
+    #success h2{font-family:var(--display);font-weight:800;font-size:26px;letter-spacing:-.5px;margin-bottom:12px}
+    #success p{color:var(--text2);font-size:14px;line-height:1.65;max-width:380px;margin:0 auto 28px}
+    #success p strong{color:var(--text);font-weight:500}
+
+    /* FOOTER */
+    .foot{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:40px;font-family:var(--mono);font-size:10px;color:var(--text2);letter-spacing:.08em;text-decoration:none}
+    .foot:hover{color:var(--text)}
+
+    @media(max-width:420px){
+      h1{font-size:30px}
+      .row{flex-direction:column;gap:0}
+      .wrap{padding:20px 16px 40px}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <!-- NAV -->
+    <div class="nav">
+      <svg width="22" height="16" viewBox="0 0 24 18" fill="none">
+        <path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#ffffff"/>
+        <path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#ffffff" opacity="0.4"/>
+      </svg>
+      <span class="nav-text">Venue.Portal</span>
+      <span class="nav-sub">Studio Portal</span>
+    </div>
+
+    <!-- HERO -->
+    <div class="badge"><span class="dot"></span> Accepting bookings · Los Angeles CA</div>
+    <h1>Mark Demo Studio</h1>
+    <p class="hero-sub">Book your session. Show up and create.</p>
+    <div class="trust">
+      <span class="pill"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Instant confirmation</span>
+      <span class="pill"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Stripe secured</span>
+      <span class="pill"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> No hidden fees</span>
+    </div>
+
+    <!-- ROOMS -->
+    <div id="rooms-section">
+      <p class="sec-label">Choose a room</p>
+
+      <div class="room" data-room="Studio A — Main Room" data-rate="150" onclick="selectRoom(this)">
+        <div class="room-top">
+          <div class="room-name">Studio A — Main Room</div>
+          <div class="room-price">$150<span> /hr</span></div>
+        </div>
+        <div class="room-desc">Full production suite. SSL console, Genelec monitors, live room with isolation booth.</div>
+        <div class="room-tags">
+          <span class="tag">SSL Console</span><span class="tag">Isolation booth</span><span class="tag">Up to 6</span>
+        </div>
+        <div class="room-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Selected</div>
+      </div>
+
+      <div class="room" data-room="Studio B — Mix Suite" data-rate="90" onclick="selectRoom(this)">
+        <div class="room-top">
+          <div class="room-name">Studio B — Mix Suite</div>
+          <div class="room-price">$90<span> /hr</span></div>
+        </div>
+        <div class="room-desc">Dedicated mixing and mastering. Yamaha NS10s, treated acoustics.</div>
+        <div class="room-tags">
+          <span class="tag">Mixing</span><span class="tag">Mastering</span><span class="tag">Up to 3</span>
+        </div>
+        <div class="room-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Selected</div>
+      </div>
+
+      <div class="room" data-room="Vocal / Podcast Booth" data-rate="50" onclick="selectRoom(this)">
+        <div class="room-top">
+          <div class="room-name">Vocal / Podcast Booth</div>
+          <div class="room-price">$50<span> /hr</span></div>
+        </div>
+        <div class="room-desc">Fully treated vocal booth. Neumann U87, headphone mix.</div>
+        <div class="room-tags">
+          <span class="tag">Neumann U87</span><span class="tag">Voice</span><span class="tag">Up to 2</span>
+        </div>
+        <div class="room-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Selected</div>
+      </div>
+    </div>
+
+    <!-- BOOKING FORM -->
+    <div id="form-wrap">
+      <div class="card">
+        <p class="sec-label">Your details</p>
+        <div class="row">
+          <div class="field"><label>Name</label><input type="text" id="f-name" placeholder="Your name" oninput="refresh()"/></div>
+          <div class="field"><label>Email</label><input type="email" id="f-email" placeholder="you@email.com" oninput="refresh()"/></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Date</label><input type="date" id="f-date" oninput="refresh()"/></div>
+          <div class="field"><label>Hours</label>
+            <select id="f-hours" onchange="refresh()">
+              <option value="">Select…</option>
+              <option value="1">1 hour</option>
+              <option value="2">2 hours</option>
+              <option value="3">3 hours</option>
+              <option value="4">4 hours</option>
+              <option value="5">Half day · 5 hrs</option>
+              <option value="10">Full day · 10 hrs</option>
+            </select>
+          </div>
+        </div>
+        <div class="field"><label>Notes (optional)</label><textarea id="f-notes" placeholder="Anything we should know about your session?"></textarea></div>
+
+        <div class="summary">
+          <div class="summary-row"><span>Room</span><span id="s-room">—</span></div>
+          <div class="summary-row"><span>Rate</span><span id="s-rate">—</span></div>
+          <div class="summary-row"><span>Duration</span><span id="s-dur">—</span></div>
+          <div class="summary-row total"><span>Total</span><span id="s-total">$0</span></div>
+        </div>
+
+        <button class="btn" id="submit-btn" disabled onclick="submitBooking()">Select room &amp; details</button>
+      </div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div id="success">
+      <div class="check-circle">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h2>You're booked in</h2>
+      <p id="success-msg"></p>
+    </div>
+
+    <!-- FOOTER -->
+    <a class="foot" href="https://venueportal.us" target="_blank" rel="noopener">
+      <svg width="13" height="10" viewBox="0 0 24 18" fill="none">
+        <path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#7a8499"/>
+        <path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#7a8499" opacity="0.5"/>
+      </svg>
+      Powered by Venue.Portal
+    </a>
+
+  </div>
+
+  <script>
+    let selectedRoom = null;
+    let selectedRate = 0;
+
+    function selectRoom(el) {
+      document.querySelectorAll('.room').forEach(r => r.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedRoom = el.dataset.room;
+      selectedRate = parseInt(el.dataset.rate, 10);
+
+      // Rebuild hours options with calculated cost
+      const sel = document.getElementById('f-hours');
+      const labels = [
+        ['1','1 hour'],['2','2 hours'],['3','3 hours'],['4','4 hours'],
+        ['5','Half day · 5 hrs'],['10','Full day · 10 hrs']
+      ];
+      sel.innerHTML = '<option value="">Select…</option>' + labels.map(([h,t]) =>
+        `<option value="${h}">${t} ($${(selectedRate*parseInt(h,10)).toLocaleString()})</option>`
+      ).join('');
+
+      document.getElementById('form-wrap').classList.add('open');
+      refresh();
+      document.getElementById('form-wrap').scrollIntoView({behavior:'smooth',block:'start'});
+    }
+
+    function refresh() {
+      const name  = document.getElementById('f-name').value.trim();
+      const email = document.getElementById('f-email').value.trim();
+      const date  = document.getElementById('f-date').value;
+      const hours = parseInt(document.getElementById('f-hours').value, 10) || 0;
+      const total = selectedRate * hours;
+
+      document.getElementById('s-room').textContent  = selectedRoom || '—';
+      document.getElementById('s-rate').textContent  = selectedRate ? '$' + selectedRate + '/hr' : '—';
+      document.getElementById('s-dur').textContent   = hours ? hours + (hours === 1 ? ' hour' : ' hours') : '—';
+      document.getElementById('s-total').textContent = '$' + total.toLocaleString();
+
+      const btn = document.getElementById('submit-btn');
+      const ready = selectedRoom && name && /^\S+@\S+\.\S+$/.test(email) && date && hours;
+      btn.disabled = !ready;
+      btn.textContent = ready
+        ? `Request ${selectedRoom} — $${total.toLocaleString()}`
+        : 'Select room & details';
+    }
+
+    function submitBooking() {
+      const name  = document.getElementById('f-name').value.trim();
+      const email = document.getElementById('f-email').value.trim();
+      const hours = parseInt(document.getElementById('f-hours').value, 10) || 0;
+      const total = (selectedRate * hours).toLocaleString();
+
+      document.getElementById('rooms-section').style.display = 'none';
+      document.getElementById('form-wrap').style.display = 'none';
+      document.querySelector('.badge').style.display = 'none';
+      document.querySelector('h1').style.display = 'none';
+      document.querySelector('.hero-sub').style.display = 'none';
+      document.querySelector('.trust').style.display = 'none';
+
+      document.getElementById('success-msg').innerHTML =
+        `Thanks <strong>${escapeHtml(name)}</strong>. Your <strong>${escapeHtml(selectedRoom)}</strong> session for <strong>$${total}</strong> has been received. ` +
+        `We'll send a Stripe payment link to <strong>${escapeHtml(email)}</strong> within 24 hours. See you in the studio.`;
+      document.getElementById('success').classList.add('show');
+      document.getElementById('success').scrollIntoView({behavior:'smooth',block:'center'});
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => (
+        {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]
+      ));
+    }
+  </script>
+</body>
+</html>
