@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#13161f"/>
+<meta name="color-scheme" content="dark"/>
 <title>Terms of Service — Venue.Portal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -65,7 +67,7 @@ nav{position:sticky;top:0;z-index:100;background:rgba(19,22,31,0.88);backdrop-fi
 .warn-box{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2);border-radius:var(--radius);padding:16px 20px;font-size:13px;color:var(--text2);line-height:1.7}
 .warn-box strong{color:#f87171;font-weight:600}
 
-footer{position:relative;z-index:1;max-width:800px;margin:0 auto;padding:32px 24px 0;border-top:1px solid var(--border)}
+footer{position:relative;z-index:1;max-width:800px;margin:0 auto;padding:32px 24px calc(env(safe-area-inset-bottom, 0px));border-top:1px solid var(--border);background:var(--bg)}
 .footer-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
 .footer-brand{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3)}
 .footer-links{display:flex;gap:16px}
