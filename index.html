@@ -3,7 +3,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="theme-color" content="#13161f"/>
+<meta name="color-scheme" content="dark"/>
 <title>Venue.Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
@@ -1362,7 +1364,7 @@ tbody tr:hover td{color:var(--text)}
         <div style="font-size:13px;color:var(--text2);line-height:1.7">
           Send us your venue name, location, and a few photos. We'll build your portal, set up your calendar, and have everything live. No technical setup needed on your end.
         </div>
-        <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.15);font-family:var(--mono);font-size:10px;color:var(--accent)">Contact → paxey333@gmail.com</div>
+        <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.15);font-family:var(--mono);font-size:10px;color:var(--accent)">Contact → venueportalus@gmail.com</div>
       </div>
 
       <div class="venue-brand-stamp" style="border:none;padding:0;margin-top:8px;justify-content:center">
@@ -2514,7 +2516,7 @@ if (initialActive?.id === 'maintab-admin') {
 refreshUsersTabVisibility();
 </script>
 
-  <div id="site-footer" style="text-align:center;padding:32px 24px 24px;border-top:1px solid var(--border2);margin-top:40px">
+  <div id="site-footer" style="text-align:center;padding:32px 24px calc(24px + env(safe-area-inset-bottom, 0px));border-top:1px solid var(--border2);margin-top:40px;background:var(--bg)">
     <div style="display:flex;align-items:center;justify-content:center;gap:16px;font-family:var(--mono);font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.1em">
       <span>Venue.Portal &copy; 2026</span>
       <span style="color:var(--border2)">·</span>
