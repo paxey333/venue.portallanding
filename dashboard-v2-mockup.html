@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="theme-color" content="#000000"/>
+<meta name="color-scheme" content="dark"/>
+<title>Dashboard v2 Mockup — Venue.Portal</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 18'%3E%3Cpath d='M0 0L6 9L0 18H4L10 9L4 0H0Z' fill='%23ffffff'/%3E%3Cpath d='M9 0L15 9L9 18H13L19 9L13 0H9Z' fill='%23555555'/%3E%3Crect x='19.5' y='7' width='4' height='4' rx='1' fill='%23ffffff'/%3E%3C/svg%3E"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#000000;
+  --surface:#0a0a0a;
+  --surface2:#141414;
+  --border:#1f1f1f;
+  --border2:#2a2a2a;
+  --text:#ffffff;
+  --text2:#a8a8a8;
+  --text3:#666666;
+  --accent:#ff6b1a;
+  --accent-soft:rgba(255,107,26,0.12);
+  --green:#3ddc84;
+  --green-soft:rgba(61,220,132,0.12);
+  --alert:#ff4444;
+  --alert-soft:rgba(255,68,68,0.12);
+  --mono:'Inter',sans-serif;
+  --sans:'Inter',sans-serif;
+  --display:'Inter',sans-serif;
+  --radius:6px;
+  --radius-lg:12px;
+}
+html,body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.5;min-height:100%;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit}
+
+/* ── NAV / HEADER ─────────────────────────────── */
+.nav{position:sticky;top:0;z-index:50;background:rgba(0,0,0,0.85);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:1280px;margin:0 auto;height:60px;padding:0 24px;display:flex;align-items:center;gap:24px}
+.nav-brand{display:flex;align-items:center;gap:9px;font-weight:800;font-size:15px;letter-spacing:-.3px}
+.nav-brand .dot{color:var(--accent)}
+.nav-greeting{flex:1;min-width:0;font-size:13px;color:var(--text2);font-weight:500}
+.nav-greeting strong{color:var(--text);font-weight:700;display:inline-flex;align-items:center;gap:6px}
+.verified-check{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:var(--accent);flex-shrink:0}
+.nav-actions{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border2);background:transparent;color:var(--text2);font-size:12px;font-weight:600;padding:7px 14px;border-radius:8px;transition:all .15s;letter-spacing:.01em}
+.btn:hover{color:var(--text);border-color:var(--text3)}
+.btn-primary{background:var(--accent);color:#000;border-color:var(--accent);font-weight:700}
+.btn-primary:hover{background:#ff7a30;color:#000;border-color:#ff7a30}
+.admin-badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);background:var(--accent-soft);border:1px solid rgba(255,107,26,0.3);padding:4px 10px;border-radius:6px}
+
+main{max-width:1280px;margin:0 auto;padding:24px;display:flex;flex-direction:column;gap:32px}
+
+/* ── HERO STRIP ──────────────────────────────── */
+.dashboard-hero{position:relative;overflow:hidden;border-radius:16px;background:linear-gradient(135deg,#1a0a00 0%,#2a1505 35%,#0a0a0a 100%);border:1px solid var(--border2);padding:36px 40px;display:grid;grid-template-columns:1fr auto;align-items:center;gap:32px;min-height:200px}
+.dashboard-hero::before{content:'';position:absolute;top:-100px;right:-100px;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle at center,rgba(255,107,26,0.2) 0%,transparent 60%);pointer-events:none}
+.dashboard-hero::after{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(-35deg,transparent 0,transparent 90px,rgba(255,255,255,0.015) 90px,rgba(255,255,255,0.015) 91px);pointer-events:none}
+.hero-left{position:relative;z-index:1;display:flex;flex-direction:column;gap:14px}
+.hero-pill{display:inline-flex;align-items:center;gap:6px;background:var(--accent-soft);border:1px solid rgba(255,107,26,0.3);color:var(--accent);font-weight:600;font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:5px 11px;border-radius:20px;width:fit-content}
+.hero-pill .pulse{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 0 rgba(255,107,26,0.6);animation:pulse 2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,107,26,0.6)}70%{box-shadow:0 0 0 8px rgba(255,107,26,0)}100%{box-shadow:0 0 0 0 rgba(255,107,26,0)}}
+.hero-title{font-size:32px;font-weight:800;letter-spacing:-.8px;line-height:1.1}
+.hero-meta{font-size:14px;color:var(--text2);font-weight:500}
+.hero-countdown{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--text);font-weight:600;margin-top:4px}
+.hero-countdown .dot{width:5px;height:5px;border-radius:50%;background:var(--green)}
+.hero-right{position:relative;z-index:1;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.hero-cta{display:inline-flex;align-items:center;gap:8px;background:var(--text);color:#000;font-weight:700;font-size:14px;padding:13px 24px;border-radius:10px;transition:opacity .15s;border:none;cursor:pointer}
+.hero-cta:hover{opacity:.88}
+.hero-flyer-art{width:120px;height:160px;border-radius:10px;background:linear-gradient(160deg,#ff6b1a 0%,#cc3300 100%);box-shadow:0 8px 32px rgba(255,107,26,0.25);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:38px;letter-spacing:-1px;color:#000;transform:rotate(-3deg)}
+
+/* ── QUICK PILLS ─────────────────────────────── */
+.quick-pills{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}
+.quick-pills::-webkit-scrollbar{display:none}
+.pill{display:inline-flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--border);color:var(--text2);font-size:13px;font-weight:600;padding:8px 14px;border-radius:24px;white-space:nowrap;cursor:pointer;transition:all .15s}
+.pill:hover{background:var(--surface2);color:var(--text);border-color:var(--border2)}
+.pill.active{background:var(--text);color:#000;border-color:var(--text)}
+.pill-count{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 6px;border-radius:9px;font-size:10px;font-weight:700;letter-spacing:.02em}
+.pill-count.orange{background:var(--accent);color:#000}
+.pill-count.green{background:var(--green);color:#000}
+.pill-count.red{background:var(--alert);color:#fff}
+.pill.active .pill-count{background:#000;color:var(--text)}
+
+/* ── STATS ───────────────────────────────────── */
+.stats-overview{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.stat-card{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px 14px;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.stat-card.accent-orange::before{background:var(--accent)}
+.stat-card.accent-green::before{background:var(--green)}
+.stat-label-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.stat-label{font-size:11px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.08em}
+.stat-trend{font-size:11px;font-weight:600;display:inline-flex;align-items:center;gap:3px}
+.stat-trend.up{color:var(--green)}
+.stat-trend.down{color:var(--alert)}
+.stat-val{font-size:30px;font-weight:800;letter-spacing:-.6px;line-height:1.05;color:var(--text);margin-bottom:2px}
+.stat-sub{font-size:12px;color:var(--text2);font-weight:500;margin-bottom:8px}
+.stat-spark{width:100%;height:24px;display:block}
+
+/* ── ACHIEVEMENTS ────────────────────────────── */
+.achievements{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.achv-card{position:relative;border-radius:var(--radius-lg);padding:18px 20px;overflow:hidden;border:1px solid var(--border)}
+.achv-card.gold{background:linear-gradient(135deg,#3a2a05 0%,#1a1305 100%);border-color:rgba(212,175,55,0.25)}
+.achv-card.silver{background:linear-gradient(135deg,#1a1a1a 0%,#0a0a0a 100%);border-color:rgba(192,192,192,0.18)}
+.achv-card.emerald{background:linear-gradient(135deg,#053a1a 0%,#051a0c 100%);border-color:rgba(61,220,132,0.25)}
+.achv-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;font-size:18px}
+.achv-card.gold .achv-icon{background:rgba(212,175,55,0.15);color:#d4af37}
+.achv-card.silver .achv-icon{background:rgba(192,192,192,0.12);color:#c0c0c0}
+.achv-card.emerald .achv-icon{background:rgba(61,220,132,0.15);color:var(--green)}
+.achv-label{font-size:11px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.achv-val{font-size:24px;font-weight:800;letter-spacing:-.4px}
+
+/* ── SECTION ─────────────────────────────────── */
+section{display:flex;flex-direction:column;gap:14px}
+.section-hd{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.section-title{font-size:18px;font-weight:700;letter-spacing:-.3px}
+.section-sub{font-size:13px;color:var(--text2);font-weight:500}
+.section-count{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 7px;border-radius:10px;background:var(--surface2);font-size:11px;font-weight:700;color:var(--text2);margin-left:8px}
+
+/* ── INQUIRY CARDS ───────────────────────────── */
+.inquiry-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;display:flex;gap:16px;align-items:flex-start;transition:border-color .15s}
+.inquiry-card:hover{border-color:var(--border2)}
+.inq-avatar{width:48px;height:48px;border-radius:10px;background:var(--accent-soft);border:1px solid rgba(255,107,26,0.3);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:var(--accent);flex-shrink:0;letter-spacing:.5px}
+.inq-body{flex:1;min-width:0}
+.inq-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:4px}
+.inq-name{font-size:15px;font-weight:700;color:var(--text)}
+.inq-amount{font-size:15px;font-weight:800;color:var(--text);white-space:nowrap}
+.inq-meta{font-size:12px;color:var(--text2);font-weight:500;margin-bottom:10px;display:flex;flex-wrap:wrap;gap:10px}
+.inq-meta .sep{color:var(--text3)}
+.inq-msg{font-size:13px;color:var(--text2);line-height:1.55;margin-bottom:14px;background:var(--surface2);border-radius:8px;padding:11px 13px;border-left:2px solid var(--border2)}
+.inq-actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn-accept{background:var(--green);color:#000;border:none;font-weight:700;font-size:12px;padding:8px 16px;border-radius:8px;cursor:pointer}
+.btn-decline{background:var(--surface2);border:1px solid var(--border2);color:var(--text2);font-weight:600;font-size:12px;padding:8px 16px;border-radius:8px;cursor:pointer}
+.btn-decline:hover{color:var(--alert);border-color:rgba(255,68,68,0.3)}
+.btn-draft{background:transparent;border:1px solid var(--border2);color:var(--text2);font-weight:600;font-size:12px;padding:8px 16px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.btn-draft:hover{color:var(--accent);border-color:rgba(255,107,26,0.3)}
+.inq-status-declined{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;font-weight:600}
+
+/* ── ARTIST WORKFLOW PREVIEW ─────────────────── */
+.feature-preview{background:linear-gradient(135deg,#0d0d0d 0%,#1a1410 100%);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:24px 26px;position:relative;overflow:hidden}
+.feature-preview::before{content:'';position:absolute;top:-60px;right:-60px;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(255,107,26,0.06) 0%,transparent 70%)}
+.fp-tag{display:inline-block;font-size:10px;font-weight:700;color:var(--accent);background:var(--accent-soft);border:1px solid rgba(255,107,26,0.3);padding:4px 9px;border-radius:5px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;position:relative;z-index:1}
+.fp-title{font-size:20px;font-weight:800;letter-spacing:-.4px;margin-bottom:8px;position:relative;z-index:1}
+.fp-sub{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:16px;max-width:580px;position:relative;z-index:1}
+.fp-checklist{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 24px;position:relative;z-index:1}
+.fp-item{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--text2);font-weight:500}
+.fp-item svg{color:var(--accent);flex-shrink:0}
+
+/* ── CALENDAR + STRIPE ───────────────────────── */
+.cal-stripe-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.cal-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px}
+.cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.cal-month{font-size:14px;font-weight:700;letter-spacing:-.1px}
+.cal-nav-btns{display:flex;gap:6px}
+.cal-nav-btn{width:28px;height:28px;border-radius:6px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);font-size:14px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-dow{font-size:9px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;text-align:center;padding:4px 0}
+.cal-day{aspect-ratio:1;border-radius:6px;background:var(--surface2);font-size:11px;color:var(--text2);display:flex;align-items:center;justify-content:center;font-weight:500;cursor:pointer;position:relative}
+.cal-day.empty{background:transparent;cursor:default}
+.cal-day.booked{background:var(--accent);color:#000;font-weight:700}
+.cal-day.today{border:1.5px solid var(--text)}
+.stripe-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;display:flex;flex-direction:column;gap:14px}
+.stripe-card.connected{background:linear-gradient(135deg,#021a0a 0%,#0a0a0a 100%);border-color:rgba(61,220,132,0.2)}
+.stripe-eyebrow{font-size:10px;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:.1em}
+.stripe-title{font-size:16px;font-weight:700;display:flex;align-items:center;gap:10px}
+.stripe-badge-live{display:inline-flex;align-items:center;gap:4px;background:var(--green-soft);border:1px solid rgba(61,220,132,0.25);color:var(--green);font-size:9px;font-weight:700;padding:3px 8px;border-radius:12px;letter-spacing:.08em;text-transform:uppercase}
+.stripe-badge-live .dot{width:5px;height:5px;border-radius:50%;background:var(--green)}
+.stripe-sub{font-size:12px;color:var(--text2)}
+.btn-stripe{background:var(--green-soft);border:1px solid rgba(61,220,132,0.3);color:var(--green);font-weight:700;font-size:12px;padding:8px 14px;border-radius:8px;cursor:pointer;width:fit-content}
+
+/* ── BOOKINGS LIST (flyer-art card) ──────────── */
+.booking-card{display:grid;grid-template-columns:80px 1fr auto;gap:18px;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.booking-flyer{align-self:stretch;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 8px;color:#000;font-weight:800}
+.booking-flyer.grad-1{background:linear-gradient(160deg,#ff6b1a 0%,#cc3300 100%)}
+.booking-flyer.grad-2{background:linear-gradient(160deg,#3ddc84 0%,#0a8845 100%)}
+.booking-flyer.grad-3{background:linear-gradient(160deg,#6c5ce7 0%,#3d2db3 100%)}
+.booking-flyer.grad-4{background:linear-gradient(160deg,#fdcb6e 0%,#c97d2e 100%)}
+.booking-flyer .mo{font-size:10px;letter-spacing:.1em;text-transform:uppercase;opacity:.85;margin-bottom:2px}
+.booking-flyer .day{font-size:26px;letter-spacing:-1px;line-height:1}
+.booking-body{padding:14px 0;display:flex;flex-direction:column;gap:4px}
+.booking-name{font-size:15px;font-weight:700}
+.booking-meta{font-size:12px;color:var(--text2);font-weight:500;display:flex;gap:10px;flex-wrap:wrap}
+.booking-meta .sep{color:var(--text3)}
+.booking-amount{padding-right:20px;text-align:right}
+.booking-amount-val{font-size:18px;font-weight:800;letter-spacing:-.3px}
+.booking-status{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--green);margin-top:2px}
+
+/* ── REVENUE CHART ───────────────────────────── */
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 22px}
+.chart-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px}
+.chart-total{font-size:22px;font-weight:800;letter-spacing:-.4px}
+.chart-canvas-wrap{height:200px;background:var(--surface2);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:600}
+
+/* ── PROFILE ─────────────────────────────────── */
+.entity-profile{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px 26px}
+.profile-row{display:flex;align-items:center;gap:18px;margin-bottom:20px}
+.profile-avatar{width:72px;height:72px;border-radius:14px;background:linear-gradient(135deg,#ff6b1a 0%,#cc3300 100%);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:#000;flex-shrink:0;letter-spacing:-1px;position:relative}
+.profile-avatar .check-overlay{position:absolute;bottom:-4px;right:-4px;width:22px;height:22px;border-radius:50%;background:var(--accent);border:2px solid var(--bg);display:flex;align-items:center;justify-content:center}
+.profile-meta{flex:1;min-width:0}
+.profile-name-row{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.profile-name{font-size:22px;font-weight:800;letter-spacing:-.4px}
+.tier-badge{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);background:var(--accent-soft);border:1px solid rgba(255,107,26,0.3);padding:4px 8px;border-radius:5px}
+.profile-loc{font-size:13px;color:var(--text2);font-weight:500}
+.profile-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.profile-stat{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px}
+.profile-stat-label{font-size:10px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.profile-stat-val{font-size:14px;font-weight:700}
+.profile-description{margin-top:14px;font-size:13px;color:var(--text2);line-height:1.65;padding-top:14px;border-top:1px solid var(--border)}
+
+/* ── MOBILE NAV ──────────────────────────────── */
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,0.94);backdrop-filter:blur(14px);border-top:1px solid var(--border);z-index:40;padding-bottom:env(safe-area-inset-bottom,0)}
+.mobile-nav-inner{display:flex;align-items:stretch;height:56px}
+.mobile-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:transparent;border:none;color:var(--text2);font-size:10px;font-weight:600;cursor:pointer;transition:color .15s}
+.mobile-nav-item:hover,.mobile-nav-item.active{color:var(--accent)}
+.mobile-nav-item svg{width:18px;height:18px}
+
+/* ── FOOTER ──────────────────────────────────── */
+.site-footer{text-align:center;padding:32px 24px calc(24px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--border);margin-top:40px;background:var(--bg)}
+.site-footer-inner{display:flex;align-items:center;justify-content:center;gap:16px;font-size:11px;color:var(--text2);font-weight:500}
+.site-footer-inner .sep{color:var(--text3)}
+.site-footer a{color:var(--text2)}
+.site-footer a:hover{color:var(--text)}
+
+/* ── MOBILE ──────────────────────────────────── */
+@media (max-width:900px){
+  .stats-overview{grid-template-columns:repeat(2,1fr)}
+  .achievements{grid-template-columns:1fr}
+  .cal-stripe-row{grid-template-columns:1fr}
+  .profile-grid{grid-template-columns:repeat(2,1fr)}
+  .fp-checklist{grid-template-columns:1fr}
+  .dashboard-hero{grid-template-columns:1fr;padding:28px}
+  .hero-right{align-items:flex-start}
+  .hero-flyer-art{display:none}
+  .hero-title{font-size:24px}
+  main{padding:16px 16px 96px}
+  .mobile-nav{display:block}
+  .nav-greeting{display:none}
+  .booking-card{grid-template-columns:64px 1fr;grid-template-rows:auto auto}
+  .booking-amount{grid-column:2;text-align:left;padding-left:0;padding-bottom:12px}
+}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <a href="#" class="nav-brand">
+      <svg width="22" height="16" viewBox="0 0 24 18" fill="none">
+        <path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#ffffff"/>
+        <path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#555555"/>
+        <rect x="19.5" y="7" width="4" height="4" rx="1" fill="#ffffff"/>
+      </svg>
+      <span>Venue<span class="dot">.</span>Portal</span>
+    </a>
+    <div class="nav-greeting" id="hdr-greeting">
+      Welcome back, <strong id="hdr-venue-name">The Chill Room<span class="verified-check" id="verified-check" title="Verified venue"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></strong>
+    </div>
+    <div class="nav-actions">
+      <span class="admin-badge" id="admin-preview-badge" style="display:none">Preview as venue owner</span>
+      <button class="btn" id="btn-back-to-admin" style="display:none">← Admin</button>
+      <button class="btn">Log Out</button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- HERO STRIP -->
+  <section id="hero-strip" class="dashboard-hero">
+    <div class="hero-left">
+      <div class="hero-pill" id="hero-pill"><span class="pulse"></span>Tonight · Live</div>
+      <h1 class="hero-title" id="hero-title">Bradygoo · Live Show</h1>
+      <div class="hero-meta" id="hero-meta">The Chill Room · Tempe, AZ · Fri, June 5</div>
+      <div class="hero-countdown" id="hero-countdown"><span class="dot"></span>Doors in 4h 12m</div>
+    </div>
+    <div class="hero-right">
+      <div class="hero-flyer-art">BG</div>
+      <button class="hero-cta" id="hero-cta">View booking →</button>
+    </div>
+  </section>
+
+  <!-- QUICK PILLS -->
+  <div class="quick-pills" id="quick-pills">
+    <button class="pill active">Overview</button>
+    <button class="pill">Inquiries <span class="pill-count orange" id="qp-inquiries">3</span></button>
+    <button class="pill">Upcoming <span class="pill-count green" id="qp-upcoming">5</span></button>
+    <button class="pill">Action needed <span class="pill-count red" id="qp-action">2</span></button>
+    <button class="pill">This month <span class="pill-count orange" id="qp-month">8</span></button>
+  </div>
+
+  <!-- STATS -->
+  <section>
+    <div id="stats-overview" class="stats-overview">
+
+      <div class="stat-card accent-orange">
+        <div class="stat-label-row">
+          <span class="stat-label">Revenue</span>
+          <span class="stat-trend up" id="st-revenue-trend">↑ 12%</span>
+        </div>
+        <div class="stat-val" id="st-revenue">$3,250</div>
+        <div class="stat-sub" id="st-revenue-sub">this month</div>
+        <svg class="stat-spark" id="st-revenue-spark" viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,18 L15,15 L30,17 L45,12 L60,10 L75,6 L100,8" stroke="#ff6b1a" stroke-width="1.5" fill="none"/></svg>
+      </div>
+
+      <div class="stat-card accent-green">
+        <div class="stat-label-row">
+          <span class="stat-label">Bookings</span>
+          <span class="stat-trend up" id="st-bookings-trend">↑ 2</span>
+        </div>
+        <div class="stat-val" id="st-bookings">8</div>
+        <div class="stat-sub" id="st-bookings-sub">confirmed</div>
+        <svg class="stat-spark" id="st-bookings-spark" viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,20 L20,17 L40,15 L60,12 L80,10 L100,7" stroke="#3ddc84" stroke-width="1.5" fill="none"/></svg>
+      </div>
+
+      <div class="stat-card accent-orange">
+        <div class="stat-label-row">
+          <span class="stat-label">Inquiries</span>
+          <span class="stat-trend up" id="st-inquiries-trend">↑ 3</span>
+        </div>
+        <div class="stat-val" id="st-inquiries">5</div>
+        <div class="stat-sub" id="st-inquiries-sub">pending review</div>
+        <svg class="stat-spark" id="st-inquiries-spark" viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,14 L20,10 L40,16 L60,8 L80,11 L100,5" stroke="#ff6b1a" stroke-width="1.5" fill="none"/></svg>
+      </div>
+
+      <div class="stat-card accent-orange">
+        <div class="stat-label-row">
+          <span class="stat-label">Profile Views</span>
+          <span class="stat-trend up" id="st-views-trend">↑ 18%</span>
+        </div>
+        <div class="stat-val" id="st-views">1,247</div>
+        <div class="stat-sub" id="st-views-sub">last 30 days</div>
+        <svg class="stat-spark" id="st-views-spark" viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,22 L18,18 L36,14 L54,12 L72,6 L100,4" stroke="#ff6b1a" stroke-width="1.5" fill="none"/></svg>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ACHIEVEMENTS -->
+  <div class="achievements">
+    <div class="achv-card gold">
+      <div class="achv-icon">★</div>
+      <div class="achv-label">Bookings confirmed</div>
+      <div class="achv-val" id="achv-bookings">14</div>
+    </div>
+    <div class="achv-card silver">
+      <div class="achv-icon">⏱</div>
+      <div class="achv-label">Months active</div>
+      <div class="achv-val" id="achv-months">4</div>
+    </div>
+    <div class="achv-card emerald">
+      <div class="achv-icon">$</div>
+      <div class="achv-label">Lifetime revenue</div>
+      <div class="achv-val" id="achv-revenue">$8,200</div>
+    </div>
+  </div>
+
+  <!-- INQUIRIES -->
+  <section id="inquiry-section">
+    <div class="section-hd">
+      <div>
+        <span class="section-title">Inquiries</span>
+        <span class="section-count">3</span>
+      </div>
+      <span class="section-sub">Awaiting your review</span>
+    </div>
+    <div id="inquiry-list" style="display:flex;flex-direction:column;gap:12px">
+
+      <div class="inquiry-card" id="inq-101">
+        <div class="inq-avatar">EM</div>
+        <div class="inq-body">
+          <div class="inq-head">
+            <div class="inq-name">EDC Monks</div>
+            <div class="inq-amount">$450</div>
+          </div>
+          <div class="inq-meta">
+            <span>events@edcmonks.com</span><span class="sep">·</span>
+            <span>Fri, May 30</span><span class="sep">·</span>
+            <span>120 guests</span>
+          </div>
+          <div class="inq-msg">Looking to host a launch party for our new EP — DJ set, light bar service, capacity around 120. Open to your standard terms.</div>
+          <div class="inq-actions">
+            <button class="btn-accept" id="inq-act-101">Accept &amp; send payment link</button>
+            <button class="btn-decline">Decline</button>
+            <button class="btn-draft" id="inq-draft-101">✦ Draft reply</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="inquiry-card" id="inq-102">
+        <div class="inq-avatar">EP</div>
+        <div class="inq-body">
+          <div class="inq-head">
+            <div class="inq-name">EP Records</div>
+            <div class="inq-amount">$450</div>
+          </div>
+          <div class="inq-meta">
+            <span>booking@eprecords.io</span><span class="sep">·</span>
+            <span>Sat, June 14</span><span class="sep">·</span>
+            <span>200 guests</span>
+          </div>
+          <div class="inq-msg">Hosting a showcase night for three of our artists. Need full PA + lights. Any chance you can do the door?</div>
+          <div class="inq-actions">
+            <button class="btn-accept" id="inq-act-102">Accept &amp; send payment link</button>
+            <button class="btn-decline">Decline</button>
+            <button class="btn-draft" id="inq-draft-102">✦ Draft reply</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="inquiry-card" id="inq-103">
+        <div class="inq-avatar">LW</div>
+        <div class="inq-body">
+          <div class="inq-head">
+            <div class="inq-name">LETRECE WILBOURN</div>
+            <div class="inq-amount">$450</div>
+          </div>
+          <div class="inq-meta">
+            <span>letrece@gmail.com</span><span class="sep">·</span>
+            <span>Sun, June 22</span><span class="sep">·</span>
+            <span class="inq-status-declined">Declined</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ARTIST WORKFLOW PREVIEW -->
+  <div id="artist-workflow-preview" class="feature-preview">
+    <span class="fp-tag">Coming soon</span>
+    <h2 class="fp-title">Artist Booking Agreements + Arrival Packets</h2>
+    <p class="fp-sub">Every confirmed booking will auto-generate a signed agreement and an artist arrival packet — load-in time, parking, stage plot, contacts — so promoters and artists walk in already aligned.</p>
+    <div class="fp-checklist">
+      <div class="fp-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Auto-generated booking agreement (e-signable)</div>
+      <div class="fp-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Day-of arrival packet emailed 48h before</div>
+      <div class="fp-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Venue load-in time, parking, stage plot</div>
+      <div class="fp-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Direct artist + venue contact handoff</div>
+    </div>
+  </div>
+
+  <!-- CALENDAR + STRIPE -->
+  <section id="cal-card-section">
+    <div class="section-hd"><span class="section-title">Availability &amp; payouts</span></div>
+    <div class="cal-stripe-row">
+      <div class="cal-card">
+        <div class="cal-head">
+          <span class="cal-month" id="cal-month-label">June 2026</span>
+          <div class="cal-nav-btns">
+            <button class="cal-nav-btn">‹</button>
+            <button class="cal-nav-btn">›</button>
+          </div>
+        </div>
+        <div class="cal-grid" id="bk-cal-grid">
+          <div class="cal-dow">S</div><div class="cal-dow">M</div><div class="cal-dow">T</div><div class="cal-dow">W</div><div class="cal-dow">T</div><div class="cal-dow">F</div><div class="cal-dow">S</div>
+          <div class="cal-day empty"></div><div class="cal-day">1</div><div class="cal-day">2</div><div class="cal-day">3</div><div class="cal-day">4</div><div class="cal-day booked">5</div><div class="cal-day today">6</div>
+          <div class="cal-day">7</div><div class="cal-day">8</div><div class="cal-day">9</div><div class="cal-day">10</div><div class="cal-day">11</div><div class="cal-day">12</div><div class="cal-day">13</div>
+          <div class="cal-day booked">14</div><div class="cal-day">15</div><div class="cal-day">16</div><div class="cal-day">17</div><div class="cal-day">18</div><div class="cal-day">19</div><div class="cal-day">20</div>
+          <div class="cal-day">21</div><div class="cal-day">22</div><div class="cal-day booked">23</div><div class="cal-day">24</div><div class="cal-day">25</div><div class="cal-day">26</div><div class="cal-day">27</div>
+          <div class="cal-day">28</div><div class="cal-day">29</div><div class="cal-day booked">30</div>
+        </div>
+      </div>
+
+      <div id="stripe-block" class="stripe-card connected">
+        <div class="stripe-eyebrow">Payouts · Active</div>
+        <div class="stripe-title">Stripe Connected <span class="stripe-badge-live"><span class="dot"></span>Live</span></div>
+        <div class="stripe-sub">acct_••••7uFT · Deposits go directly to your bank</div>
+        <button class="btn-stripe" id="btn-stripe-connect">View payouts →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOOKINGS -->
+  <section id="booking-section">
+    <div class="section-hd">
+      <div><span class="section-title">Confirmed bookings</span><span class="section-count">4</span></div>
+      <span class="section-sub">Locked in &amp; paid</span>
+    </div>
+    <div id="booking-list" style="display:flex;flex-direction:column;gap:10px">
+
+      <div class="booking-card">
+        <div class="booking-flyer grad-1"><span class="mo">Jun</span><span class="day">05</span></div>
+        <div class="booking-body">
+          <div class="booking-name">Bradygoo · Live Show</div>
+          <div class="booking-meta"><span>logosmindsco@gmail.com</span><span class="sep">·</span><span>Fri 8pm</span></div>
+        </div>
+        <div class="booking-amount">
+          <div class="booking-amount-val">$450</div>
+          <div class="booking-status">Confirmed</div>
+        </div>
+      </div>
+
+      <div class="booking-card">
+        <div class="booking-flyer grad-2"><span class="mo">May</span><span class="day">29</span></div>
+        <div class="booking-body">
+          <div class="booking-name">MARK RAINES</div>
+          <div class="booking-meta"><span>mossjr1126@gmail.com</span><span class="sep">·</span><span>Thu 9pm</span></div>
+        </div>
+        <div class="booking-amount">
+          <div class="booking-amount-val">$450</div>
+          <div class="booking-status">Confirmed</div>
+        </div>
+      </div>
+
+      <div class="booking-card">
+        <div class="booking-flyer grad-3"><span class="mo">May</span><span class="day">23</span></div>
+        <div class="booking-body">
+          <div class="booking-name">EP Records · Showcase</div>
+          <div class="booking-meta"><span>booking@eprecords.io</span><span class="sep">·</span><span>Sat 7pm</span></div>
+        </div>
+        <div class="booking-amount">
+          <div class="booking-amount-val">$450</div>
+          <div class="booking-status">Confirmed</div>
+        </div>
+      </div>
+
+      <div class="booking-card">
+        <div class="booking-flyer grad-4"><span class="mo">May</span><span class="day">30</span></div>
+        <div class="booking-body">
+          <div class="booking-name">EDC Monks · Launch</div>
+          <div class="booking-meta"><span>events@edcmonks.com</span><span class="sep">·</span><span>Fri 8pm</span></div>
+        </div>
+        <div class="booking-amount">
+          <div class="booking-amount-val">$450</div>
+          <div class="booking-status">Confirmed</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- REVENUE CHART -->
+  <section>
+    <div class="section-hd">
+      <span class="section-title">Revenue this quarter</span>
+      <span class="chart-total" id="chart-total">$3,250</span>
+    </div>
+    <div class="chart-card">
+      <div class="chart-canvas-wrap"><canvas id="revenue-chart" width="100" height="200"></canvas><span style="margin-left:14px">Chart.js renders here in production</span></div>
+    </div>
+  </section>
+
+  <!-- PROFILE -->
+  <section id="profile-section">
+    <div class="section-hd">
+      <span class="section-title">Venue profile</span>
+      <button class="btn" id="edit-btn">Edit profile</button>
+    </div>
+    <div class="entity-profile">
+      <div id="profile-display">
+        <div class="profile-row">
+          <div class="profile-avatar">CR<span class="check-overlay"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+          <div class="profile-meta">
+            <div class="profile-name-row">
+              <div class="profile-name" id="pf-name">The Chill Room</div>
+              <span class="tier-badge" id="tier-badge">Verified · Pro</span>
+            </div>
+            <div class="profile-loc" id="pf-location">Tempe, AZ</div>
+          </div>
+        </div>
+        <div class="profile-grid">
+          <div class="profile-stat"><div class="profile-stat-label">Capacity</div><div class="profile-stat-val" id="pf-capacity">200</div></div>
+          <div class="profile-stat"><div class="profile-stat-label">Price / day</div><div class="profile-stat-val" id="pf-price">$450</div></div>
+          <div class="profile-stat"><div class="profile-stat-label">Hours</div><div class="profile-stat-val" id="pf-hours">7pm–2am</div></div>
+          <div class="profile-stat"><div class="profile-stat-label">Amenities</div><div class="profile-stat-val" id="pf-amenities">12</div></div>
+        </div>
+        <div class="profile-description" id="pf-description-display">Independent event space in Tempe, AZ. Capacity 200. Available for private events, shows, and activations. Full PA, lighting rig, projector, in-house bar service.</div>
+        <div id="pf-hours-display" style="display:none"></div>
+      </div>
+
+      <form id="profile-edit-form" style="display:none">
+        <input id="edit-name" type="text"/>
+        <input id="edit-location" type="text"/>
+        <input id="edit-capacity" type="number"/>
+        <input id="edit-price" type="number"/>
+        <input id="edit-hours" type="text"/>
+        <textarea id="edit-description"></textarea>
+        <input id="edit-video" type="url"/>
+        <input id="edit-gallery" type="text"/>
+        <div id="amenity-toggle-grid"></div>
+        <div id="edit-save-err"></div>
+      </form>
+    </div>
+  </section>
+
+  <!-- MEDIA -->
+  <section id="media-section">
+    <div class="section-hd"><span class="section-title">Photos &amp; video</span></div>
+    <div class="entity-profile">
+      <div id="media-gallery-grid"></div>
+      <div id="media-video-wrap"></div>
+      <div id="media-empty" style="text-align:center;padding:32px 0;color:var(--text2);font-size:13px">Add up to 8 photos and 1 video to make your listing pop.</div>
+    </div>
+  </section>
+
+</main>
+
+<!-- PASSWORD MODAL (hidden by default) -->
+<div id="pw-modal" style="display:none">
+  <div id="pw-modal-body">
+    <input id="pw-new" type="password"/>
+    <input id="pw-confirm" type="password"/>
+    <div id="pw-err"></div>
+  </div>
+  <div id="pw-success"></div>
+</div>
+
+<!-- MOBILE NAV -->
+<nav class="mobile-nav" id="mobile-nav">
+  <div class="mobile-nav-inner">
+    <button class="mobile-nav-item active" id="mnav-inquiries">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h12a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V5a1 1 0 011-1z"/><polyline points="15 5 8 10 1 5"/></svg>
+      <span>Inquiries</span>
+    </button>
+    <button class="mobile-nav-item" id="mnav-calendar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Calendar</span>
+    </button>
+    <button class="mobile-nav-item" id="mnav-bookings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+      <span>Bookings</span>
+    </button>
+    <button class="mobile-nav-item" id="mnav-profile">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Profile</span>
+    </button>
+  </div>
+</nav>
+
+<!-- FOOTER -->
+<div id="site-footer" class="site-footer">
+  <div class="site-footer-inner">
+    <span>Venue.Portal © 2026</span>
+    <span class="sep">·</span>
+    <a href="/privacy.html">Privacy</a>
+    <span class="sep">·</span>
+    <a href="/terms.html">Terms</a>
+  </div>
+</div>
+
+</body>
+</html>
