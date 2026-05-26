@@ -279,8 +279,8 @@ section{display:flex;flex-direction:column;gap:14px}
     </div>
     <div class="nav-actions">
       <span class="admin-badge" id="admin-preview-badge" style="display:none"></span>
-      <button class="btn" id="btn-back-to-admin" style="display:none">← Admin</button>
-      <button class="btn">Log Out</button>
+      <button class="btn" id="btn-back-to-admin" style="display:none" onclick="window.location.href='index.html'">← Admin</button>
+      <button class="btn" onclick="handleLogout()">Log Out</button>
     </div>
   </div>
 </header>
@@ -365,7 +365,7 @@ section{display:flex;flex-direction:column;gap:14px}
 
       <div class="stat-card accent-orange">
         <div class="stat-label-row">
-          <span class="stat-label">Profile Views</span>
+          <span class="stat-label">Acceptance Rate</span>
           <span class="stat-trend up" id="st-views-trend">↑ 18%</span>
         </div>
         <div class="stat-val" id="st-views">1,247</div>
@@ -968,7 +968,7 @@ async function renderInquiries() {
       <div class="inquiry-item" id="inq-${q.id}">
         <div class="inquiry-name" style="display:flex;align-items:center;gap:0">${esc(q.client_name)}${timerBadge(q.created_at)}</div>
         <div class="inquiry-meta">${esc(q.client_email)} &middot; ${esc(fmtDate(q.event_date))} &middot; ${q.guests || 0} guests</div>
-        <div class="inquiry-note">"${esc(q.message || '')}"</div>
+        <div class="inquiry-note">${q.message ? '"' + esc(q.message) + '"' : ''}</div>
         <div class="inquiry-actions" id="inq-act-${q.id}">
           ${q.status === 'pending' ? `
             <button class="btn-draft"   onclick="draftReply(${q.id})">Draft Reply</button>

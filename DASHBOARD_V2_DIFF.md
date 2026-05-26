@@ -1,21 +1,39 @@
-# Dashboard v2 — Visual Swap Diff (HTML + CSS only)
+# Dashboard v2 — Visual Swap Diff (HTML + CSS, plus one explicit script-line deviation)
 
-**Commit scope:** purely visual. Zero JavaScript changes. Zero API changes. Zero data model changes.
+**Commit scope (initial swap):** purely visual. Zero JavaScript changes. Zero API changes. Zero data model changes.
 
 **Backup file:** `dashboard.html.backup-v1` (kept in repo for one-step rollback).
 
 ---
 
-## Verification gates that passed before this commit
+## Script byte-preservation history
+
+| Commit | Script SHA256 | Length | Reason for change |
+|--------|---------------|--------|-------------------|
+| `dashboard.html.backup-v1` (v1) | `7865c5e6475990fbd3758c4192a2a4f6cab544fd10e08e6f1f178e9e103cbd84` | 42,933 | baseline |
+| `76a9956` v2 swap | `7865c5e6...103cbd84` | 42,933 | **byte-for-byte identical** ✅ |
+| `eec86d8` v2 fix-up #1 (calendar/hero/admin/chart) | `7865c5e6...103cbd84` | 42,933 | **byte-for-byte identical** ✅ |
+| `<this commit>` v2 fix-up #2 | `d4505e9a49d10481537b079fade7159481418427c66199f43d36207f19f70417` | 42,954 | **deliberate +21 chars** — inquiry-note conditional (see below) |
+
+### The one deliberate script-line change in this commit
+
+Inside `renderInquiries()`, the inquiry-note template was unconditionally wrapping `q.message` in quotes, which produced literal `""` (empty quotes) when a promoter submitted an inquiry with no note. User-approved single-line fix:
+
+```diff
+- <div class="inquiry-note">"${esc(q.message || '')}"</div>
++ <div class="inquiry-note">${q.message ? '"' + esc(q.message) + '"' : ''}</div>
+```
+
+Net script delta: +21 chars across one line. No new functions, no new API calls, no data-flow changes — just a conditional around presentation. All other 913 script lines unchanged.
+
+---
+
+## Verification gates that passed for the v2 visual swap
 
 1. **All 87 wiring-map IDs present** in new `dashboard.html`, each appearing exactly once in the rendered DOM.
    - `btn-stripe-connect` literally appears twice in the file but only once in the body markup; the second occurrence is inside a JS template string at line 1279 (preserved from backup) that overwrites `#stripe-block.innerHTML` based on Stripe connection state. Only one of these is in the live DOM at any moment.
 
-2. **`<script>` block byte-for-byte identical** between `dashboard.html.backup-v1` and new `dashboard.html`:
-   - Length: 42,933 chars (both)
-   - SHA256: `7865c5e6475990fbd3758c4192a2a4f6cab544fd10e08e6f1f178e9e103cbd84` (both)
-
-3. **External dependency unchanged** in execution chain:
+2. **External dependency unchanged** in execution chain:
    - Chart.js v4 UMD bundle still loaded from `cdn.jsdelivr.net` (same line as before)
 
 ---
