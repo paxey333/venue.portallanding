@@ -163,6 +163,20 @@ section{display:flex;flex-direction:column;gap:14px}
 .cal-day.empty{background:transparent;cursor:default}
 .cal-day.booked{background:var(--accent);color:#000;font-weight:700}
 .cal-day.today{border:1.5px solid var(--text)}
+/* JS-rendered calendar (renderCalendar writes .bk-cal-* into #bk-cal-grid) */
+.bk-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.bk-cal-dow{font-size:9px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;text-align:center;padding:6px 0 4px}
+.bk-cal-day{background:var(--surface2);border:1px solid var(--border);border-radius:6px;min-height:54px;padding:6px 6px 4px;position:relative;overflow:hidden;cursor:pointer;transition:border-color .15s}
+.bk-cal-day:hover{border-color:var(--border2)}
+.bk-cal-day.today{border-color:var(--accent)}
+.bk-cal-day.today .bk-day-num{color:var(--accent);font-weight:700}
+.bk-cal-day.past{opacity:0.42}
+.bk-cal-day.out{background:transparent;border-color:transparent;opacity:0.28;cursor:default}
+.bk-day-num{font-size:11px;font-weight:500;color:var(--text2);display:block;line-height:1}
+.bk-cal-pill{display:block;margin-top:6px;background:var(--green-soft);border:1px solid rgba(61,220,132,0.25);border-radius:3px;padding:2px 5px;font-size:9px;font-weight:600;color:var(--green);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.bk-cal-pill.pending{background:var(--accent-soft);border-color:rgba(255,107,26,0.3);color:var(--accent)}
+.bk-dow-full{display:inline}
+.bk-dow-short{display:none}
 .stripe-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;display:flex;flex-direction:column;gap:14px}
 .stripe-card.connected{background:linear-gradient(135deg,#021a0a 0%,#0a0a0a 100%);border-color:rgba(61,220,132,0.2)}
 .stripe-eyebrow{font-size:10px;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:.1em}
@@ -193,7 +207,8 @@ section{display:flex;flex-direction:column;gap:14px}
 .chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 22px}
 .chart-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px}
 .chart-total{font-size:22px;font-weight:800;letter-spacing:-.4px}
-.chart-canvas-wrap{height:200px;background:var(--surface2);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:600}
+.chart-canvas-wrap{position:relative;height:200px;background:var(--surface2);border-radius:8px;padding:8px}
+.chart-canvas-wrap canvas{width:100%!important;height:100%!important;display:block}
 
 /* ── PROFILE ─────────────────────────────────── */
 .entity-profile{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px 26px}
@@ -241,6 +256,9 @@ section{display:flex;flex-direction:column;gap:14px}
   .nav-greeting{display:none}
   .booking-card{grid-template-columns:64px 1fr;grid-template-rows:auto auto}
   .booking-amount{grid-column:2;text-align:left;padding-left:0;padding-bottom:12px}
+  .bk-cal-day{min-height:44px;padding:4px 4px 3px}
+  .bk-dow-full{display:none}
+  .bk-dow-short{display:inline}
 }
 </style>
 </head>
@@ -260,7 +278,7 @@ section{display:flex;flex-direction:column;gap:14px}
       Welcome back, <strong id="hdr-venue-name">The Chill Room<span class="verified-check" id="verified-check" title="Verified venue"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></strong>
     </div>
     <div class="nav-actions">
-      <span class="admin-badge" id="admin-preview-badge" style="display:none">Preview as venue owner</span>
+      <span class="admin-badge" id="admin-preview-badge" style="display:none"></span>
       <button class="btn" id="btn-back-to-admin" style="display:none">← Admin</button>
       <button class="btn">Log Out</button>
     </div>
@@ -273,7 +291,7 @@ section{display:flex;flex-direction:column;gap:14px}
   <section id="hero-strip">
 
     <!-- STATE A · ACTIVE: an upcoming booking within 72h exists -->
-    <div class="dashboard-hero hero-state-active" data-state="active">
+    <div class="dashboard-hero hero-state-active" data-state="active" style="display:none">
       <div class="hero-left">
         <div class="hero-pill" id="hero-pill"><span class="pulse"></span>Tonight · Live</div>
         <h1 class="hero-title" id="hero-title">Bradygoo · Live Show</h1>
@@ -571,7 +589,7 @@ section{display:flex;flex-direction:column;gap:14px}
       <span class="chart-total" id="chart-total">$3,250</span>
     </div>
     <div class="chart-card">
-      <div class="chart-canvas-wrap"><canvas id="revenue-chart" width="100" height="200"></canvas><span style="margin-left:14px">Chart.js renders here in production</span></div>
+      <div class="chart-canvas-wrap"><canvas id="revenue-chart"></canvas></div>
     </div>
   </section>
 
