@@ -267,18 +267,37 @@ section{display:flex;flex-direction:column;gap:14px}
 
 <main>
 
-  <!-- HERO STRIP -->
-  <section id="hero-strip" class="dashboard-hero">
-    <div class="hero-left">
-      <div class="hero-pill" id="hero-pill"><span class="pulse"></span>Tonight · Live</div>
-      <h1 class="hero-title" id="hero-title">Bradygoo · Live Show</h1>
-      <div class="hero-meta" id="hero-meta">The Chill Room · Tempe, AZ · Fri, June 5</div>
-      <div class="hero-countdown" id="hero-countdown"><span class="dot"></span>Doors in 4h 12m</div>
+  <!-- HERO STRIP (renders ONE of two states in production; both shown here for review) -->
+  <section id="hero-strip">
+
+    <!-- STATE A · ACTIVE: an upcoming booking within 72h exists -->
+    <div class="dashboard-hero hero-state-active" data-state="active">
+      <div class="hero-left">
+        <div class="hero-pill" id="hero-pill"><span class="pulse"></span>Tonight · Live</div>
+        <h1 class="hero-title" id="hero-title">Bradygoo · Live Show</h1>
+        <div class="hero-meta" id="hero-meta">The Chill Room · Tempe, AZ · Fri, June 5</div>
+        <div class="hero-countdown" id="hero-countdown"><span class="dot"></span>Doors in 4h 12m</div>
+      </div>
+      <div class="hero-right">
+        <div class="hero-flyer-art">BG</div>
+        <button class="hero-cta" id="hero-cta">View booking →</button>
+      </div>
     </div>
-    <div class="hero-right">
-      <div class="hero-flyer-art">BG</div>
-      <button class="hero-cta" id="hero-cta">View booking →</button>
+
+    <!-- STATE B · QUIET: no upcoming events in next 72h -->
+    <div class="dashboard-hero hero-state-quiet" data-state="quiet" style="background:linear-gradient(135deg,#0a0a0a 0%,#141414 60%,#0a0a0a 100%);margin-top:14px">
+      <div class="hero-left">
+        <div class="hero-pill" style="background:rgba(168,168,168,0.08);border-color:var(--border2);color:var(--text2)"><span class="pulse" style="background:var(--text2);animation:none;box-shadow:none"></span>No events in next 72 hours</div>
+        <h1 class="hero-title">Your calendar is open.</h1>
+        <div class="hero-meta">Add availability to surface The Chill Room to more promoters.</div>
+        <div class="hero-countdown" style="color:var(--text2)"><span class="dot" style="background:var(--text2)"></span>Last booking · 4 days ago</div>
+      </div>
+      <div class="hero-right">
+        <div class="hero-flyer-art" style="background:linear-gradient(160deg,#2a2a2a 0%,#0a0a0a 100%);color:var(--text2);font-size:22px">+</div>
+        <button class="hero-cta" style="background:var(--accent);color:#000">Add availability →</button>
+      </div>
     </div>
+
   </section>
 
   <!-- QUICK PILLS -->
@@ -389,7 +408,7 @@ section{display:flex;flex-direction:column;gap:14px}
       </div>
 
       <div class="inquiry-card" id="inq-102">
-        <div class="inq-avatar">EP</div>
+        <div class="inq-avatar">ER</div>
         <div class="inq-body">
           <div class="inq-head">
             <div class="inq-name">EP Records</div>
@@ -462,11 +481,24 @@ section{display:flex;flex-direction:column;gap:14px}
         </div>
       </div>
 
-      <div id="stripe-block" class="stripe-card connected">
-        <div class="stripe-eyebrow">Payouts · Active</div>
-        <div class="stripe-title">Stripe Connected <span class="stripe-badge-live"><span class="dot"></span>Live</span></div>
-        <div class="stripe-sub">acct_••••7uFT · Deposits go directly to your bank</div>
-        <button class="btn-stripe" id="btn-stripe-connect">View payouts →</button>
+      <div id="stripe-block">
+
+        <!-- STATE A · CONNECTED -->
+        <div class="stripe-card connected" data-state="connected">
+          <div class="stripe-eyebrow">Payouts · Active</div>
+          <div class="stripe-title">Stripe Connected <span class="stripe-badge-live"><span class="dot"></span>Live</span></div>
+          <div class="stripe-sub">acct_••••7uFT · Deposits go directly to your bank</div>
+          <button class="btn-stripe">View payouts →</button>
+        </div>
+
+        <!-- STATE B · DISCONNECTED (production renders one or the other; both shown for review) -->
+        <div class="stripe-card" data-state="disconnected" style="background:linear-gradient(135deg,#1a0a00 0%,#0a0a0a 100%);border-color:rgba(255,107,26,0.25);margin-top:14px">
+          <div class="stripe-eyebrow" style="color:var(--accent)">Payouts · Action needed</div>
+          <div class="stripe-title">Connect Stripe to receive bookings <span style="display:inline-flex;align-items:center;gap:4px;background:var(--accent-soft);border:1px solid rgba(255,107,26,0.3);color:var(--accent);font-size:9px;font-weight:700;padding:3px 8px;border-radius:12px;letter-spacing:.08em;text-transform:uppercase"><span style="width:5px;height:5px;border-radius:50%;background:var(--accent)"></span>Required</span></div>
+          <div class="stripe-sub">Promoters can't pay deposits until your payout account is connected. Takes ~3 minutes.</div>
+          <button class="btn-stripe" id="btn-stripe-connect" style="background:var(--accent);border-color:var(--accent);color:#000">Connect Stripe →</button>
+        </div>
+
       </div>
     </div>
   </section>
