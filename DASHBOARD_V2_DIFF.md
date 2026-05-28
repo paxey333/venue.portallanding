@@ -13,7 +13,49 @@
 | `dashboard.html.backup-v1` (v1) | `7865c5e6475990fbd3758c4192a2a4f6cab544fd10e08e6f1f178e9e103cbd84` | 42,933 | baseline |
 | `76a9956` v2 swap | `7865c5e6...103cbd84` | 42,933 | **byte-for-byte identical** ✅ |
 | `eec86d8` v2 fix-up #1 (calendar/hero/admin/chart) | `7865c5e6...103cbd84` | 42,933 | **byte-for-byte identical** ✅ |
-| `<this commit>` v2 fix-up #2 | `d4505e9a49d10481537b079fade7159481418427c66199f43d36207f19f70417` | 42,954 | **deliberate +21 chars** — inquiry-note conditional (see below) |
+| `141eb36` v2 fix-up #2 (logout/label/quotes) | `d4505e9a49d10481537b079fade7159481418427c66199f43d36207f19f70417` | 42,954 | **deliberate +21 chars** — inquiry-note conditional |
+| `<this commit>` v2 fix-up #3 (onclick audit) | `d4505e9a...19f70417` | 42,954 | **byte-for-byte identical to fix#2** ✅ HTML/CSS only |
+
+## Fix-up #3 — Complete onclick audit (HTML/CSS only)
+
+Programmatic comparison of every `onclick="..."` attribute between `dashboard.html.backup-v1` and the post-v2-swap `dashboard.html`. The v2 body rewrite dropped **10 onclick attributes** (the Log Out + Admin-back ones from fix-up #2 were the first 2 of this larger gap — the audit found the remaining 10 plus required class/CSS scaffolding for several JS-toggle patterns).
+
+### Onclick attributes restored in fix-up #3
+
+| Element | Restored onclick |
+|---------|------------------|
+| Calendar `‹` chevron | `shiftCalMonth(-1)` |
+| Calendar `›` chevron | `shiftCalMonth(1)` |
+| `#edit-btn` Edit profile button | `startProfileEdit()` |
+| Save changes button (inside `#profile-edit-form`) | `saveProfileEdit()` |
+| Cancel button (inside `#profile-edit-form`) | `cancelProfileEdit()` |
+| Update password button (inside `#pw-modal-body`) | `submitPassword()` |
+| `#mnav-inquiries` | `scrollToSection('inquiry-section')` |
+| `#mnav-calendar` | `scrollToSection('cal-card-section')` |
+| `#mnav-bookings` | `scrollToSection('booking-section')` |
+| `#mnav-profile` | `scrollToSection('profile-section')` |
+
+After this commit: **12 onclicks in HTML body, matching v1 exactly. Zero missing, zero extra.**
+
+`toggleAmenity(this, '...')` was intentionally NOT a static-HTML restoration — it's attached by the preserved JS inside `renderAmenityToggles()` (line 1123) as part of the dynamically generated `.amenity-toggle` button HTML. Confirmed wired through CSS additions below.
+
+### CSS additions needed to make the restored onclicks functional
+
+The JS uses class-based show/hide patterns (`classList.add('hidden')`, `add('open')`, etc.) that v1's CSS supports but the v2 swap dropped. Restored:
+
+- `.profile-display.hidden{display:none}`
+- `.profile-edit-form{display:none}` + `.profile-edit-form.active{display:block}`
+- `.profile-edit-form input/textarea` field styling
+- `.modal-overlay{display:none; ...positioning...}` + `.modal-overlay.open{display:flex}`
+- `.modal-success{display:none}` + `.modal-success.visible{display:block}`
+- `.amenity-toggle` base + `.amenity-toggle.active` (orange tint)
+- Password modal frame (`.pw-card`, `.pw-header`, `.pw-field`, `.pw-success-label`)
+
+### HTML structure additions
+
+- `#pw-modal` got `class="modal-overlay"` and a proper `.pw-card` frame with labeled inputs, error placeholder, and the Update Password button — replaces the bare-input placeholder from the v2 swap.
+- `#profile-edit-form` lost the inline `style="display:none"` (now CSS-controlled via `.active`), got per-field labels and the Save / Cancel action row.
+- `#pw-success` got `class="modal-success"` and inner success copy.
 
 ### The one deliberate script-line change in this commit
 
