@@ -18,7 +18,66 @@
 | `fc1b941` v2 fix-up #4 (edit-profile classes) | `d4505e9a...19f70417` | 42,954 | **byte-for-byte identical to fix#2** ✅ HTML/CSS only |
 | `f77a30d` v2 fix-up #5 (edit profile binding + refresh) | `b50c33c36e5b743345013b402f7fa6b0a1b5554892a3c7f2535a8d638aab0b0a` | 43,939 | **deliberate +985 chars** — cache-buster + direct DOM update block |
 | `6171de1` v2 fix-up #6 (CORS-blocking header removed) | `d2dbb735c2c11993855f055c098c6b693610631e8603e045e5b188b85997e3c3` | 43,910 | **-29 chars** — removed `'Cache-Control': 'no-cache'` from loadVenueProfile fetch headers (broke CORS preflight) |
-| `<this commit>` v2 fix-up #7 (UX cleanups) | `d2dbb735c2c11993855f055c098c6b693610631e8603e045e5b188b85997e3c3` | 43,910 | **byte-for-byte identical to fix#6** ✅ HTML attributes only |
+| `1abf404` v2 fix-up #7 (UX cleanups) | `d2dbb735c2c11993855f055c098c6b693610631e8603e045e5b188b85997e3c3` | 43,910 | **byte-for-byte identical to fix#6** ✅ HTML attributes only |
+| `<this commit>` v2 fix-up #8 (camouflage cleanup) | `d2dbb735c2c11993855f055c098c6b693610631e8603e045e5b188b85997e3c3` | 43,910 | **byte-for-byte identical to fix#7** ✅ static-text only |
+
+## Fix-up #8 — Remove hardcoded mockup placeholders from profile card (camouflage cleanup)
+
+### The bug this surfaces (not introduces)
+
+For 7 fix-ups, the venue profile card has held hardcoded mockup placeholders that looked like real data:
+- `#pf-name`: "The Chill Room"
+- `.profile-avatar`: "CR"
+- `#tier-badge`: "Verified · Pro"
+- `#pf-capacity`: "200"
+- `#pf-price`: "$450"
+- `#pf-hours`: "7pm–2am"
+- `#pf-amenities`: "12"
+- `#pf-description-display`: full paragraph of fake venue description
+
+These get overwritten by `loadVenueProfile()` on every page load — **IF** that function runs to completion. If it silently fails (e.g. admin viewing `/dashboard.html` without `?venue_id=` → `EFFECTIVE_VENUE_ID === null` → early return at line 1194), the placeholders persist and look indistinguishable from real data. A user editing capacity from 250 → 251 and then hard-refreshing was actually seeing **the placeholder `200`**, not the saved value (which was 275 in D1) — the silent failure was perfectly camouflaged.
+
+### The fix
+
+Replaced every static mockup value in `#profile-display` with neutral `—` (or empty string for free-form fields):
+
+```diff
+- <div class="profile-avatar">CR<span class="check-overlay">...</span></div>
++ <div class="profile-avatar">—<span class="check-overlay">...</span></div>
+
+- <div class="profile-name" id="pf-name">The Chill Room</div>
++ <div class="profile-name" id="pf-name">—</div>
+
+- <span class="tier-badge" id="tier-badge">Verified · Pro</span>
++ <span class="tier-badge" id="tier-badge"></span>
+
+- <div class="profile-stat-val" id="pf-capacity">200</div>
++ <div class="profile-stat-val" id="pf-capacity">—</div>
+
+- <div class="profile-stat-val" id="pf-price">$450</div>
++ <div class="profile-stat-val" id="pf-price">—</div>
+
+- <div class="profile-stat-val" id="pf-hours">7pm–2am</div>
++ <div class="profile-stat-val" id="pf-hours">—</div>
+
+- <div class="profile-stat-val" id="pf-amenities">12</div>
++ <div class="profile-stat-val" id="pf-amenities">—</div>
+
+- <div class="profile-description" id="pf-description-display">Independent event space in Tempe, AZ. Capacity 200. Available...</div>
++ <div class="profile-description" id="pf-description-display"></div>
+```
+
+Added a top-of-block HTML comment explaining the intent and warning future readers not to revert.
+
+### Behavioral consequence (intentional)
+
+If `loadVenueProfile()` silently fails for any reason — null `EFFECTIVE_VENUE_ID`, 403/500 API response with `{error}` body, or any caught exception — the user **will now see `—` placeholders** rather than fake-looking real data. Silent failures become visible failures. This is the goal of the camouflage cleanup.
+
+### Verification
+- Script SHA256 **unchanged** from fix-up #7: `d2dbb735c2c11993855f055c098c6b693610631e8603e045e5b188b85997e3c3` (43,910 chars)
+- All 87 wiring-map IDs present exactly once (including `#tier-badge`, `#pf-name`, etc. — only their text content cleared, IDs intact)
+- HTML onclick parity vs v1: 12 = 12
+- Static text in profile card replaced with neutral placeholders or empty
 
 ## Fix-up #7 — Three UX cleanups (HTML attributes only)
 

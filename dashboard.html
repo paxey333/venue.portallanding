@@ -629,24 +629,28 @@ section{display:flex;flex-direction:column;gap:14px}
     </div>
     <div class="entity-profile">
       <div class="profile-display" id="profile-display">
+        <!-- All static text in this block is intentionally neutral ("—" or empty).
+             loadVenueProfile() populates the real values from /api/venues/:id on page load.
+             If you see "—" persisting, loadVenueProfile silently failed — do NOT replace
+             these with fake placeholders again (fix-up #8 audit). -->
         <div class="profile-row">
-          <div class="profile-avatar">CR<span class="check-overlay"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+          <div class="profile-avatar">—<span class="check-overlay"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></div>
           <div class="profile-meta">
             <div class="profile-name-row">
-              <div class="profile-name" id="pf-name">The Chill Room</div>
-              <span class="tier-badge" id="tier-badge">Verified · Pro</span>
+              <div class="profile-name" id="pf-name">—</div>
+              <span class="tier-badge" id="tier-badge"></span>
             </div>
             <!-- #pf-location: wired (loadVenueProfile writes v.description here per v1 quirk) but visually hidden to dedupe the description text shown at #pf-description-display below. Restore visibility (or display a real location) when a dedicated `location` column ships in the venues schema. -->
             <div class="profile-loc" id="pf-location" style="display:none"></div>
           </div>
         </div>
         <div class="profile-grid">
-          <div class="profile-stat"><div class="profile-stat-label">Capacity</div><div class="profile-stat-val" id="pf-capacity">200</div></div>
-          <div class="profile-stat"><div class="profile-stat-label">Price / day</div><div class="profile-stat-val" id="pf-price">$450</div></div>
-          <div class="profile-stat"><div class="profile-stat-label">Hours</div><div class="profile-stat-val" id="pf-hours">7pm–2am</div></div>
-          <div class="profile-stat"><div class="profile-stat-label">Amenities</div><div class="profile-stat-val" id="pf-amenities">12</div></div>
+          <div class="profile-stat"><div class="profile-stat-label">Capacity</div><div class="profile-stat-val" id="pf-capacity">—</div></div>
+          <div class="profile-stat"><div class="profile-stat-label">Price / day</div><div class="profile-stat-val" id="pf-price">—</div></div>
+          <div class="profile-stat"><div class="profile-stat-label">Hours</div><div class="profile-stat-val" id="pf-hours">—</div></div>
+          <div class="profile-stat"><div class="profile-stat-label">Amenities</div><div class="profile-stat-val" id="pf-amenities">—</div></div>
         </div>
-        <div class="profile-description" id="pf-description-display">Independent event space in Tempe, AZ. Capacity 200. Available for private events, shows, and activations. Full PA, lighting rig, projector, in-house bar service.</div>
+        <div class="profile-description" id="pf-description-display"></div>
         <div id="pf-hours-display" style="display:none"></div>
       </div>
 
