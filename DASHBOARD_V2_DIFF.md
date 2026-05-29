@@ -15,7 +15,72 @@
 | `eec86d8` v2 fix-up #1 (calendar/hero/admin/chart) | `7865c5e6...103cbd84` | 42,933 | **byte-for-byte identical** ✅ |
 | `141eb36` v2 fix-up #2 (logout/label/quotes) | `d4505e9a49d10481537b079fade7159481418427c66199f43d36207f19f70417` | 42,954 | **deliberate +21 chars** — inquiry-note conditional |
 | `d34fd01` v2 fix-up #3 (onclick audit) | `d4505e9a...19f70417` | 42,954 | **byte-for-byte identical to fix#2** ✅ HTML/CSS only |
-| `<this commit>` v2 fix-up #4 (edit-profile classes) | `d4505e9a...19f70417` | 42,954 | **byte-for-byte identical to fix#2** ✅ HTML/CSS only |
+| `fc1b941` v2 fix-up #4 (edit-profile classes) | `d4505e9a...19f70417` | 42,954 | **byte-for-byte identical to fix#2** ✅ HTML/CSS only |
+| `<this commit>` v2 fix-up #5 (edit profile binding + refresh) | `b50c33c36e5b743345013b402f7fa6b0a1b5554892a3c7f2535a8d638aab0b0a` | 43,939 | **deliberate +985 chars** — cache-buster + direct DOM update block (see below) |
+
+## Fix-up #5 — Edit profile field-name binding + display refresh after save
+
+### Audit findings (read-only — fed the fix)
+
+**Bug 1 — field-name mismatch:** Confirmed NONE in v1 script.
+- `loadVenueProfile()` reads: `v.name`, `v.description`, `v.capacity`, `v.price_per_day`, `v.hours`
+- `startProfileEdit()` reads: `currentVenue.name`, `currentVenue.description` (×2 — for both edit-location AND edit-description), `currentVenue.capacity`, `currentVenue.price_per_day`, `currentVenue.hours`, `currentVenue.video_url`
+- Same field names on both sides. The "missing" fields in the form were genuinely NULL in the D1 row.
+
+**Live API audit (logged in as admin):**
+```json
+{"id":1,"name":"The Chill Room","description":null,"capacity":250,
+ "price_per_day":null,"hours":null,"video_url":null,"image_url":null,
+ "amenities":[],"gallery":[],"image_url":null,"created_at":"..."}
+```
+The user's earlier save → DB → `capacity = 250` confirmed the PATCH worked. But the same save also wrote `description`, `price_per_day`, `hours`, `video_url` as NULL because the form pre-filled empty for those fields (the bug from fix-up #4 left them empty pre-save). The data is now genuinely empty; the script is binding correctly.
+
+### Changes to script (the FIRST script edit since fix-up #2)
+
+**A. Cache-buster on the `loadVenueProfile()` GET request:**
+```diff
+- const res = await fetch(API_BASE + '/api/venues/' + EFFECTIVE_VENUE_ID, {
+-   headers: { 'Authorization': 'Bearer ' + TOKEN }
+- });
++ const res = await fetch(API_BASE + '/api/venues/' + EFFECTIVE_VENUE_ID + '?t=' + Date.now(), {
++   headers: { 'Authorization': 'Bearer ' + TOKEN, 'Cache-Control': 'no-cache' }
++ });
+```
+Forces a unique URL per call (defeats any CDN / browser cache on this endpoint) and signals no-cache intent in the request header.
+
+**B. Direct DOM update in `saveProfileEdit()` after successful PATCH** (belt-and-suspenders alongside the existing `loadVenueProfile()` refetch):
+```js
+const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+if ('name' in body)          { setText('pf-name', body.name || ''); setText('hdr-venue-name', body.name || ''); }
+if ('description' in body)   { setText('pf-location', body.description || '—'); setText('pf-description-display', body.description || '—'); }
+if ('capacity' in body)      { setText('pf-capacity', body.capacity ? body.capacity.toLocaleString() + ' capacity' : '—'); }
+if ('price_per_day' in body) { setText('pf-price', body.price_per_day ? '$' + body.price_per_day + ' / night' : '—'); }
+if ('hours' in body)         { setText('pf-hours', body.hours || '—'); setText('pf-hours-display', body.hours || '—'); }
+```
+Even if the subsequent `loadVenueProfile()` GET returns a stale-cached payload, the user sees their just-saved values reflected in the display immediately. Mirrors the same formatting rules `loadVenueProfile()` uses (e.g. " capacity" suffix, "$X / night" pattern).
+
+Total script delta: +985 chars across two distinct blocks. No other script lines touched.
+
+### Script SHA history through fix-up #5
+
+| Commit | Script SHA256 | Length | Reason |
+|--------|---------------|--------|--------|
+| v1 / v2-swap / fix#1 | `7865c5e6...103cbd84` | 42,933 | baseline / identical |
+| fix#2 (inquiry quote) | `d4505e9a...19f70417` | 42,954 | +21 |
+| fix#3 / fix#4 | `d4505e9a...19f70417` | 42,954 | identical to fix#2 |
+| **fix#5 (this)** | `b50c33c36e5b743345013b402f7fa6b0a1b5554892a3c7f2535a8d638aab0b0a` | 43,939 | +985 (cache-buster + DOM update block) |
+
+### Data note (not a code issue)
+
+The DB row for venue 1 now has `description`, `price_per_day`, `hours`, `video_url` = NULL. These were wiped by the user's earlier save through the broken (fix-up #4) form. To restore the original venue data, a manual D1 UPDATE is needed:
+```sql
+UPDATE venues SET
+  description='Independent event space in Tempe, AZ. Capacity 250. Available for private events, shows, and activations. Full PA, lighting rig, projector, in-house bar service.',
+  price_per_day=450,
+  hours='7pm–2am'
+WHERE id=1;
+```
+(Or the user can refill them via the now-working Edit Profile form.)
 
 ## Fix-up #4 — Edit profile field IDs / class binding (HTML only)
 

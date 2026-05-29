@@ -1192,8 +1192,8 @@ function getSelectedAmenities() {
 async function loadVenueProfile() {
   if (!EFFECTIVE_VENUE_ID) return;
   try {
-    const res = await fetch(API_BASE + '/api/venues/' + EFFECTIVE_VENUE_ID, {
-      headers: { 'Authorization': 'Bearer ' + TOKEN }
+    const res = await fetch(API_BASE + '/api/venues/' + EFFECTIVE_VENUE_ID + '?t=' + Date.now(), {
+      headers: { 'Authorization': 'Bearer ' + TOKEN, 'Cache-Control': 'no-cache' }
     });
     if (handleAuth(res)) return;
     const v = await res.json();
@@ -1282,6 +1282,15 @@ async function saveProfileEdit() {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Save failed');
     currentVenue = { ...currentVenue, ...body };
+    // Belt-and-suspenders: directly update display DOM from the freshly-saved body
+    // so the user sees their change immediately, independent of any caching on the
+    // loadVenueProfile() refetch below.
+    const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    if ('name' in body) { setText('pf-name', body.name || ''); setText('hdr-venue-name', body.name || ''); }
+    if ('description' in body) { setText('pf-location', body.description || '—'); setText('pf-description-display', body.description || '—'); }
+    if ('capacity' in body) { setText('pf-capacity', body.capacity ? body.capacity.toLocaleString() + ' capacity' : '—'); }
+    if ('price_per_day' in body) { setText('pf-price', body.price_per_day ? '$' + body.price_per_day + ' / night' : '—'); }
+    if ('hours' in body) { setText('pf-hours', body.hours || '—'); setText('pf-hours-display', body.hours || '—'); }
     cancelProfileEdit();
     loadVenueProfile();
   } catch(e) {
