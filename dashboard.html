@@ -1193,7 +1193,7 @@ async function loadVenueProfile() {
   if (!EFFECTIVE_VENUE_ID) return;
   try {
     const res = await fetch(API_BASE + '/api/venues/' + EFFECTIVE_VENUE_ID + '?t=' + Date.now(), {
-      headers: { 'Authorization': 'Bearer ' + TOKEN, 'Cache-Control': 'no-cache' }
+      headers: { 'Authorization': 'Bearer ' + TOKEN }
     });
     if (handleAuth(res)) return;
     const v = await res.json();

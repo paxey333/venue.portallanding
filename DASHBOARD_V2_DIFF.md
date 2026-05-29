@@ -16,7 +16,33 @@
 | `141eb36` v2 fix-up #2 (logout/label/quotes) | `d4505e9a49d10481537b079fade7159481418427c66199f43d36207f19f70417` | 42,954 | **deliberate +21 chars** — inquiry-note conditional |
 | `d34fd01` v2 fix-up #3 (onclick audit) | `d4505e9a...19f70417` | 42,954 | **byte-for-byte identical to fix#2** ✅ HTML/CSS only |
 | `fc1b941` v2 fix-up #4 (edit-profile classes) | `d4505e9a...19f70417` | 42,954 | **byte-for-byte identical to fix#2** ✅ HTML/CSS only |
-| `<this commit>` v2 fix-up #5 (edit profile binding + refresh) | `b50c33c36e5b743345013b402f7fa6b0a1b5554892a3c7f2535a8d638aab0b0a` | 43,939 | **deliberate +985 chars** — cache-buster + direct DOM update block (see below) |
+| `f77a30d` v2 fix-up #5 (edit profile binding + refresh) | `b50c33c36e5b743345013b402f7fa6b0a1b5554892a3c7f2535a8d638aab0b0a` | 43,939 | **deliberate +985 chars** — cache-buster + direct DOM update block |
+| `<this commit>` v2 fix-up #6 (CORS-blocking header removed) | `d2dbb735c2c11993855f055c098c6b693610631e8603e045e5b188b85997e3c3` | 43,910 | **-29 chars** — removed `'Cache-Control': 'no-cache'` from loadVenueProfile fetch headers (broke CORS preflight) |
+
+## Fix-up #6 — Remove CORS-blocking Cache-Control header
+
+**Reported via browser console:**
+```
+Access to fetch at '.../api/venues/1?t=...' from origin 'https://venueportal.us'
+has been blocked by CORS policy: Request header field cache-control is not
+allowed by Access-Control-Allow-Headers in preflight response.
+```
+
+**Root cause:** fix-up #5 added `'Cache-Control': 'no-cache'` to the loadVenueProfile() fetch headers. This is a **non-simple header** which triggers a CORS preflight (OPTIONS) request. The api.js worker's `corsHeaders()` returns `Access-Control-Allow-Headers: Content-Type, Authorization` — it does NOT list `Cache-Control`. So the browser blocks the actual GET from firing. Net effect: loadVenueProfile() silently failed → display kept showing the mockup placeholders.
+
+**Fix:** Drop the `Cache-Control` header. The `?t=${Date.now()}` query parameter is itself sufficient to defeat all caches (each call has a unique URL) and is a URL parameter, not a request header, so it doesn't trigger preflight.
+
+```diff
+- headers: { 'Authorization': 'Bearer ' + TOKEN, 'Cache-Control': 'no-cache' }
++ headers: { 'Authorization': 'Bearer ' + TOKEN }
+```
+
+The fetch URL keeps its cache-buster intact:
+```js
+fetch(API_BASE + '/api/venues/' + EFFECTIVE_VENUE_ID + '?t=' + Date.now(), ...)
+```
+
+Net script delta vs fix-up #5: -29 chars (just the `, 'Cache-Control': 'no-cache'` snippet). The direct DOM update block in saveProfileEdit() from fix-up #5 is unchanged.
 
 ## Fix-up #5 — Edit profile field-name binding + display refresh after save
 
