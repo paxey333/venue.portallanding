@@ -636,7 +636,8 @@ section{display:flex;flex-direction:column;gap:14px}
               <div class="profile-name" id="pf-name">The Chill Room</div>
               <span class="tier-badge" id="tier-badge">Verified · Pro</span>
             </div>
-            <div class="profile-loc" id="pf-location">Tempe, AZ</div>
+            <!-- #pf-location: wired (loadVenueProfile writes v.description here per v1 quirk) but visually hidden to dedupe the description text shown at #pf-description-display below. Restore visibility (or display a real location) when a dedicated `location` column ships in the venues schema. -->
+            <div class="profile-loc" id="pf-location" style="display:none"></div>
           </div>
         </div>
         <div class="profile-grid">
@@ -655,9 +656,9 @@ section{display:flex;flex-direction:column;gap:14px}
         <label style="display:block;font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Location</label>
         <input id="edit-location" type="text"/>
         <label style="display:block;font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Capacity</label>
-        <input id="edit-capacity" type="number"/>
+        <input id="edit-capacity" type="number" onwheel="this.blur()"/>
         <label style="display:block;font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Price per day ($)</label>
-        <input id="edit-price" type="number"/>
+        <input id="edit-price" type="number" onwheel="this.blur()"/>
         <label style="display:block;font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Hours</label>
         <input id="edit-hours" type="text"/>
         <label style="display:block;font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Description</label>

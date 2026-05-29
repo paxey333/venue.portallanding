@@ -17,7 +17,39 @@
 | `d34fd01` v2 fix-up #3 (onclick audit) | `d4505e9a...19f70417` | 42,954 | **byte-for-byte identical to fix#2** ✅ HTML/CSS only |
 | `fc1b941` v2 fix-up #4 (edit-profile classes) | `d4505e9a...19f70417` | 42,954 | **byte-for-byte identical to fix#2** ✅ HTML/CSS only |
 | `f77a30d` v2 fix-up #5 (edit profile binding + refresh) | `b50c33c36e5b743345013b402f7fa6b0a1b5554892a3c7f2535a8d638aab0b0a` | 43,939 | **deliberate +985 chars** — cache-buster + direct DOM update block |
-| `<this commit>` v2 fix-up #6 (CORS-blocking header removed) | `d2dbb735c2c11993855f055c098c6b693610631e8603e045e5b188b85997e3c3` | 43,910 | **-29 chars** — removed `'Cache-Control': 'no-cache'` from loadVenueProfile fetch headers (broke CORS preflight) |
+| `6171de1` v2 fix-up #6 (CORS-blocking header removed) | `d2dbb735c2c11993855f055c098c6b693610631e8603e045e5b188b85997e3c3` | 43,910 | **-29 chars** — removed `'Cache-Control': 'no-cache'` from loadVenueProfile fetch headers (broke CORS preflight) |
+| `<this commit>` v2 fix-up #7 (UX cleanups) | `d2dbb735c2c11993855f055c098c6b693610631e8603e045e5b188b85997e3c3` | 43,910 | **byte-for-byte identical to fix#6** ✅ HTML attributes only |
+
+## Fix-up #7 — Three UX cleanups (HTML attributes only)
+
+### 1. Number-input scroll lock (silent data corruption)
+**Symptom:** While scrolling inside the Edit Profile form to reach the Save button, the scroll wheel can land on a number input (capacity, price) and silently change its value. User thinks they saved 250; DB gets 248.
+
+**Fix:** Added `onwheel="this.blur()"` to both `<input type="number">` fields in the edit form:
+- `#edit-capacity`
+- `#edit-price`
+
+When the input receives a wheel event, it immediately blurs itself — the scroll passes through to the parent without altering the value.
+
+### 2. Description appearing twice on display view
+**Audit:** The "description shown at the top next to the avatar" is actually `#pf-location` — a v1 quirk where `loadVenueProfile()` writes `v.description` into the Location slot. Once venue 1's description was restored (fix-up #6 / D1 UPDATE), the long description text rendered in both `#pf-location` (top) AND `#pf-description-display` (bottom).
+
+**Fix:** Hide `#pf-location` with `style="display:none"`. The element remains in the DOM so the script's `getElementById('pf-location').textContent = v.description || '—'` doesn't throw. The user no longer sees the duplicate description block. The legit description placement at `#pf-description-display` (bottom) is untouched.
+
+### 3. Location field audit (ties to #2)
+**Audit conclusion:** The Location row was rendered (as `#pf-location`) but populated incorrectly by JS — the v1 wiring connects it to `v.description`, not to a real location column. The `venues` D1 schema has no dedicated `location` column.
+
+**Decision (since the prompt forbids DB schema changes here):** Keep `#pf-location` in the DOM (preserves wiring map + script reference) but visually hidden. The element is dormant scaffolding until a real `location` column ships. At that point:
+- Add `location TEXT` column to `venues` schema migration
+- Change `loadVenueProfile()` line 1216 to write `v.location || '—'` (one-line script change at that point)
+- Remove the `style="display:none"` here
+
+Added an inline HTML comment above `#pf-location` documenting this so future readers know the element is intentionally hidden.
+
+### Verification
+- Script SHA256 **unchanged** from fix-up #6 (`d2dbb735c2c11993855f055c098c6b693610631e8603e045e5b188b85997e3c3`, 43,910 chars) — purely HTML attribute additions and one element style change
+- All 87 wiring-map IDs present exactly once (including `#pf-location`)
+- HTML onclick parity with v1: 12 = 12
 
 ## Fix-up #6 — Remove CORS-blocking Cache-Control header
 
