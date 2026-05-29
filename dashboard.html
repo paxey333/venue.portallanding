@@ -628,7 +628,7 @@ section{display:flex;flex-direction:column;gap:14px}
       <button class="btn" id="edit-btn" onclick="startProfileEdit()">Edit profile</button>
     </div>
     <div class="entity-profile">
-      <div id="profile-display">
+      <div class="profile-display" id="profile-display">
         <div class="profile-row">
           <div class="profile-avatar">CR<span class="check-overlay"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></div>
           <div class="profile-meta">
@@ -649,7 +649,7 @@ section{display:flex;flex-direction:column;gap:14px}
         <div id="pf-hours-display" style="display:none"></div>
       </div>
 
-      <form id="profile-edit-form">
+      <div class="profile-edit-form" id="profile-edit-form">
         <label style="display:block;font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Venue name</label>
         <input id="edit-name" type="text"/>
         <label style="display:block;font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Location</label>
@@ -663,7 +663,7 @@ section{display:flex;flex-direction:column;gap:14px}
         <label style="display:block;font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Description</label>
         <textarea id="edit-description"></textarea>
         <label style="display:block;font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Video URL (optional)</label>
-        <input id="edit-video" type="url"/>
+        <input id="edit-video" type="text"/>
         <label style="display:block;font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Gallery image URLs (one per line)</label>
         <textarea id="edit-gallery"></textarea>
         <label style="display:block;font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Amenities</label>
@@ -673,7 +673,7 @@ section{display:flex;flex-direction:column;gap:14px}
           <button type="button" class="btn btn-primary" onclick="saveProfileEdit()">Save changes</button>
           <button type="button" class="btn" onclick="cancelProfileEdit()">Cancel</button>
         </div>
-      </form>
+      </div>
     </div>
   </section>
 

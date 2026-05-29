@@ -14,7 +14,39 @@
 | `76a9956` v2 swap | `7865c5e6...103cbd84` | 42,933 | **byte-for-byte identical** ✅ |
 | `eec86d8` v2 fix-up #1 (calendar/hero/admin/chart) | `7865c5e6...103cbd84` | 42,933 | **byte-for-byte identical** ✅ |
 | `141eb36` v2 fix-up #2 (logout/label/quotes) | `d4505e9a49d10481537b079fade7159481418427c66199f43d36207f19f70417` | 42,954 | **deliberate +21 chars** — inquiry-note conditional |
-| `<this commit>` v2 fix-up #3 (onclick audit) | `d4505e9a...19f70417` | 42,954 | **byte-for-byte identical to fix#2** ✅ HTML/CSS only |
+| `d34fd01` v2 fix-up #3 (onclick audit) | `d4505e9a...19f70417` | 42,954 | **byte-for-byte identical to fix#2** ✅ HTML/CSS only |
+| `<this commit>` v2 fix-up #4 (edit-profile classes) | `d4505e9a...19f70417` | 42,954 | **byte-for-byte identical to fix#2** ✅ HTML/CSS only |
+
+## Fix-up #4 — Edit profile field IDs / class binding (HTML only)
+
+**Reported symptoms:** Edit Profile opens form with empty fields. Save Changes shows "Venue name is required" and never persists.
+
+**Root cause (not the field IDs — every input ID matched v1 exactly):** Fix-up #3 added CSS rules that use *class* selectors:
+```css
+.profile-display.hidden{display:none}
+.profile-edit-form{display:none}
+.profile-edit-form.active{display:block}
+```
+but the corresponding elements only had `id="..."` and **no class attribute**. So:
+- `<div id="profile-display">` was never targeted by `.profile-display.hidden` — display state could not toggle
+- `<form id="profile-edit-form">` was never targeted by `.profile-edit-form` — form was always visible at default-block display, never animated/hidden by JS class toggling
+
+When the user clicked "Edit profile":
+- The form was already on-screen (CSS didn't hide it)
+- `startProfileEdit()` ran, wrote `currentVenue.*` into the input `.value` slots correctly
+- But the user perceived the click as "opening" a form that was actually always there
+- If `currentVenue` hadn't fully loaded yet (race vs `loadVenueProfile()`), fields read as empty
+- Save was wired correctly but body.name was empty → guard at line 1274 returned with "Venue name is required"
+
+**Fix (HTML/CSS only, zero script touch):**
+- Added `class="profile-display"` to `<div id="profile-display">`
+- Added `class="profile-edit-form"` to the edit form element
+- Changed `<form id="profile-edit-form">` → `<div class="profile-edit-form" id="profile-edit-form">` to match v1's structure exactly (also avoids the form-element implicit-submit-on-Enter UX bug)
+- Changed `<input id="edit-video" type="url">` back to `type="text"` (matches v1 — `type="url"` triggers browser URL validation that can interfere with arbitrary input values)
+
+**Every form input ID was already correct** — the field IDs matched v1 1:1 (edit-name, edit-location, edit-capacity, edit-price, edit-hours, edit-description, edit-video, edit-gallery, amenity-toggle-grid, edit-save-err). The bug was purely the missing class attribute that gates the CSS-driven show/hide.
+
+**Verification:** all 4 JS-toggled class targets (`profile-display`, `profile-edit-form`, `modal-overlay`, `modal-success`) confirmed present as class attrs in HTML. Script SHA256 unchanged.
 
 ## Fix-up #3 — Complete onclick audit (HTML/CSS only)
 
