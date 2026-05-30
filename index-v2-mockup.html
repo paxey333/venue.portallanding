@@ -44,6 +44,8 @@ img,svg{display:block;max-width:100%}
 .nav-links{flex:1;display:flex;align-items:center;gap:24px;font-size:13px;font-weight:500;color:var(--text2);margin-left:8px}
 .nav-links a{transition:color .15s}
 .nav-links a:hover{color:var(--text)}
+.nav-links .nav-onboard{color:var(--accent);font-weight:600;border-left:1px solid var(--border2);padding-left:24px;margin-left:0}
+.nav-links .nav-onboard:hover{color:var(--text)}
 .nav-actions{display:flex;align-items:center;gap:10px}
 .btn-text{font-size:13px;font-weight:600;color:var(--text2);padding:7px 12px;transition:color .15s}
 .btn-text:hover{color:var(--text)}
@@ -182,6 +184,7 @@ footer{padding:64px 0 calc(96px + env(safe-area-inset-bottom,0px)) 0;border-top:
       <a href="#">Find Venues</a>
       <a href="#">For Owners</a>
       <a href="#">How it works</a>
+      <a href="#owner-cta" class="nav-onboard">Get Onboarded</a>
     </div>
     <div class="nav-actions">
       <button class="btn-text">Sign In</button>
@@ -279,6 +282,18 @@ footer{padding:64px 0 calc(96px + env(safe-area-inset-bottom,0px)) 0;border-top:
     </div>
   </section>
 
+  <!-- OWNER CTA STRIP — moved up: lands right after hero so promoters and prospective venue owners see it before scrolling deep -->
+  <section class="owner-cta" id="owner-cta">
+    <div class="owner-cta-inner">
+      <div>
+        <div class="owner-cta-eyebrow">For venue owners</div>
+        <h2 class="owner-cta-title">Run a venue? Get your portal in 48 hours.</h2>
+        <p class="owner-cta-sub">Live calendar, Stripe Connect payouts, automated booking confirmations. No app to install, no commission.</p>
+      </div>
+      <button class="btn-primary" style="font-size:14px;padding:12px 22px">Get Onboarded →</button>
+    </div>
+  </section>
+
   <!-- VALUE PROPS -->
   <section class="value-props">
     <div class="prop-card">
@@ -351,18 +366,6 @@ footer{padding:64px 0 calc(96px + env(safe-area-inset-bottom,0px)) 0;border-top:
   </section>
 
 </main>
-
-<!-- OWNER CTA STRIP -->
-<section class="owner-cta">
-  <div class="owner-cta-inner">
-    <div>
-      <div class="owner-cta-eyebrow">For venue owners</div>
-      <h2 class="owner-cta-title">Run a venue? Get your portal in 48 hours.</h2>
-      <p class="owner-cta-sub">Live calendar, Stripe Connect payouts, automated booking confirmations. No app to install, no commission.</p>
-    </div>
-    <button class="btn-primary" style="font-size:14px;padding:12px 22px">Get Onboarded →</button>
-  </div>
-</section>
 
 <!-- FOOTER -->
 <footer>

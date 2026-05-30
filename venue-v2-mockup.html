@@ -17,6 +17,7 @@
   --border:#1f1f1f;--border2:#2a2a2a;
   --text:#ffffff;--text2:#a8a8a8;--text3:#666666;
   --accent:#ff6b1a;--accent-soft:rgba(255,107,26,0.12);
+  --accent-warm:rgba(255,107,26,0.05);
   --green:#3ddc84;--green-soft:rgba(61,220,132,0.12);
   --font:'Inter',sans-serif;
 }
@@ -33,26 +34,21 @@ button{font-family:inherit;cursor:pointer;border:none;background:transparent;col
 .ph-gold{background:linear-gradient(135deg,#2a2005 0%,#1a1500 60%,#0a0a0a 100%)}
 .ph-emerald{background:linear-gradient(135deg,#052a1a 0%,#001a0a 60%,#0a0a0a 100%)}
 
-/* ── MOCKUP DIVIDERS ───────────────────────────────── */
-.mockup-label{background:var(--accent);color:#000;font-weight:800;letter-spacing:.04em;padding:14px 24px;text-align:center;font-size:13px;text-transform:uppercase;position:sticky;top:0;z-index:99}
-.mockup-sub{background:#0a0a0a;border-bottom:1px solid var(--border2);padding:10px 24px;text-align:center;font-size:12px;color:var(--text2);font-family:var(--font);letter-spacing:.02em}
-.mockup-frame{border-bottom:8px solid var(--accent);position:relative}
-.mockup-frame:last-child{border-bottom:none}
-
-/* ── TOP NAV (shared) ──────────────────────────────── */
-.topnav{position:sticky;top:48px;z-index:50;background:rgba(0,0,0,0.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+/* ── TOP NAV ───────────────────────────────────────── */
+.topnav{position:sticky;top:0;z-index:50;background:rgba(0,0,0,0.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
 .topnav-inner{max-width:1280px;margin:0 auto;padding:0 24px;height:60px;display:flex;align-items:center;gap:24px}
 .brand{display:flex;align-items:center;gap:9px;font-weight:800;font-size:15px;letter-spacing:-.3px}
 .brand .dot{color:var(--accent)}
 .nav-links{flex:1;display:flex;align-items:center;gap:24px;font-size:13px;font-weight:500;color:var(--text2);margin-left:8px}
 .nav-links a{transition:color .15s}
 .nav-links a:hover{color:var(--text)}
+.nav-links .nav-onboard{color:var(--accent);font-weight:600;border-left:1px solid var(--border2);padding-left:24px}
+.nav-links .nav-onboard:hover{color:var(--text)}
 .nav-actions{display:flex;align-items:center;gap:10px}
 .btn-text{font-size:13px;font-weight:600;color:var(--text2);padding:7px 12px}
 .btn-text:hover{color:var(--text)}
 .btn-primary{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:#000;font-weight:700;font-size:13px;padding:9px 16px;border-radius:8px;transition:opacity .15s;letter-spacing:-.1px}
 .btn-primary:hover{opacity:.88}
-.btn-secondary{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border2);color:var(--text);font-weight:600;font-size:13px;padding:9px 16px;border-radius:8px}
 @media(max-width:760px){.nav-links{display:none}.nav-actions .btn-text{display:none}}
 
 /* ── BACK BUTTON ───────────────────────────────────── */
@@ -89,7 +85,6 @@ button{font-family:inherit;cursor:pointer;border:none;background:transparent;col
 .v-stat .val small{font-size:12px;color:var(--text2);font-weight:500;letter-spacing:0}
 
 /* ── CONTENT SECTIONS ──────────────────────────────── */
-.v-section{max-width:1280px;margin:36px auto 0;padding:0 24px}
 .v-section-label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px}
 .v-section-title{font-size:24px;font-weight:800;letter-spacing:-.5px;line-height:1.15;margin-bottom:18px}
 .v-section-body{font-size:14.5px;color:var(--text2);line-height:1.7;max-width:680px}
@@ -124,59 +119,140 @@ button{font-family:inherit;cursor:pointer;border:none;background:transparent;col
 @media(min-width:900px){.gallery{grid-template-columns:repeat(4,1fr)}}
 .gal-item{aspect-ratio:1;border-radius:10px;border:1px solid var(--border)}
 
-/* ── BOOKING CARD (sidebar style) ─────────────────── */
-.book-card{background:linear-gradient(160deg,#141929 0%,#0a0a0a 100%);border:1px solid var(--border);border-left:2px solid var(--accent);border-top:2px solid rgba(255,255,255,0.4);border-radius:14px;overflow:hidden}
-.book-head{padding:22px 22px 12px}
-.book-title{font-size:14px;color:var(--text2);font-weight:500;margin-bottom:6px}
-.book-price{display:flex;align-items:baseline;gap:8px;margin-bottom:14px}
+/* ── BOOKING CARD (warm orange-accented surface) ──── */
+.book-card{
+  background:linear-gradient(160deg,#1a0d05 0%,#0d0805 45%,#050505 100%);
+  border:1px solid var(--border2);
+  border-left:2px solid var(--accent);
+  border-top:1px solid rgba(255,107,26,0.18);
+  border-radius:14px;
+  overflow:hidden;
+  box-shadow:0 8px 32px rgba(255,107,26,0.04), inset 0 1px 0 rgba(255,255,255,0.03);
+}
+.book-head{padding:22px 22px 16px}
+.book-title{font-size:11px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px}
+.book-price{display:flex;align-items:baseline;gap:8px;margin-bottom:16px}
 .book-price .amt{font-size:32px;font-weight:900;letter-spacing:-1px;line-height:1}
 .book-price .unit{font-size:12px;color:var(--text2);font-weight:500}
-.book-perks{display:flex;flex-direction:column;gap:6px}
+.book-perks{display:flex;flex-direction:column;gap:7px}
 .book-perk{font-size:12px;color:var(--text2);display:flex;align-items:center;gap:7px}
 .book-perk svg{color:var(--green);flex-shrink:0;width:11px;height:11px}
-.book-cal-section{padding:18px 22px;border-top:1px solid var(--border)}
+
+.book-cal-section{
+  padding:18px 22px;
+  border-top:1px solid rgba(255,107,26,0.12);
+  background:linear-gradient(180deg,rgba(255,107,26,0.025) 0%,transparent 100%);
+}
 .book-cal-prompt{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px}
-.book-cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.book-cal-month{font-size:13px;font-weight:700}
-.book-cal-btn{width:24px;height:24px;border-radius:6px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);font-size:13px;display:flex;align-items:center;justify-content:center;cursor:pointer}
-.book-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
-.book-dow{font-size:9px;font-weight:600;color:var(--text3);text-align:center;padding:4px 0;text-transform:uppercase;letter-spacing:.1em}
-.book-day{aspect-ratio:1;border-radius:5px;background:var(--surface2);font-size:11px;color:var(--text2);display:flex;align-items:center;justify-content:center;font-weight:500;cursor:pointer;min-width:0}
-.book-day.empty{background:transparent;cursor:default}
-.book-day.booked{background:var(--accent);color:#000;font-weight:700}
-.book-day.today{border:1.5px solid var(--text);color:var(--text)}
-.book-day.past{opacity:.35;cursor:default}
-.book-cta-wrap{padding:14px 22px 22px;border-top:1px solid var(--border)}
-.btn-book{width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);font-weight:600;font-size:13px;padding:12px;border-radius:8px;text-align:center;display:flex;align-items:center;justify-content:center;gap:6px;cursor:not-allowed;transition:all .15s}
-.btn-book.ready{background:var(--text);color:#000;border-color:var(--text);cursor:pointer;font-weight:700}
-.book-footnote{margin-top:8px;font-size:10px;color:var(--text3);text-align:center;letter-spacing:.06em}
+.book-cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.book-cal-month{font-size:13px;font-weight:700;letter-spacing:-.1px}
+.book-cal-btn{
+  width:26px;height:26px;border-radius:6px;
+  background:rgba(255,107,26,0.06);
+  border:1px solid rgba(255,107,26,0.2);
+  color:var(--text2);font-size:13px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .15s
+}
+.book-cal-btn:hover{background:rgba(255,107,26,0.12);border-color:rgba(255,107,26,0.4);color:var(--text)}
+.book-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.book-dow{font-size:9px;font-weight:700;color:var(--text3);text-align:center;padding:4px 0 2px;text-transform:uppercase;letter-spacing:.12em}
 
-/* ── ACCORDIONS (option A mobile sections) ────────── */
-.accordion{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:10px}
-.acc-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;cursor:pointer}
-.acc-title{font-size:15px;font-weight:700;letter-spacing:-.2px}
-.acc-icon{width:22px;height:22px;border-radius:50%;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
-.acc-body{padding:0 20px 20px}
+/* Default available day — subtle warmth */
+.book-day{
+  aspect-ratio:1;border-radius:6px;
+  background:var(--accent-warm);
+  border:1px solid rgba(255,107,26,0.08);
+  font-size:11.5px;color:var(--text);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:600;cursor:pointer;min-width:0;
+  transition:all .15s
+}
+.book-day:hover{
+  background:rgba(255,107,26,0.18);
+  border-color:rgba(255,107,26,0.35);
+  transform:scale(1.04)
+}
+.book-day.empty{background:transparent;border-color:transparent;cursor:default}
+.book-day.empty:hover{background:transparent;border-color:transparent;transform:none}
+.book-day.past{
+  background:transparent;border-color:transparent;
+  color:var(--text3);opacity:.45;cursor:default;font-weight:500
+}
+.book-day.past:hover{background:transparent;border-color:transparent;transform:none}
+/* Booked / unavailable — muted */
+.book-day.booked{
+  background:rgba(255,255,255,0.025);
+  border-color:var(--border);
+  color:var(--text3);
+  cursor:not-allowed;
+  text-decoration:line-through;
+  text-decoration-thickness:1px;
+  text-decoration-color:rgba(168,168,168,0.4);
+  font-weight:500
+}
+.book-day.booked:hover{background:rgba(255,255,255,0.025);border-color:var(--border);transform:none}
+/* Today — orange ring */
+.book-day.today{
+  background:rgba(255,107,26,0.1);
+  border:1.5px solid var(--accent);
+  color:var(--accent);
+  font-weight:700
+}
+/* Selected — solid orange (user's pick) */
+.book-day.selected{
+  background:var(--accent);
+  border-color:var(--accent);
+  color:#000;
+  font-weight:800;
+  box-shadow:0 2px 12px rgba(255,107,26,0.4)
+}
+.book-day.selected:hover{background:var(--accent);transform:scale(1.04)}
 
-/* ── STICKY BOOKING BAR (Option A — mobile) ───────── */
-.sticky-book{position:sticky;bottom:env(safe-area-inset-bottom,0);z-index:30;background:rgba(0,0,0,0.95);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--border2);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.book-cta-wrap{padding:14px 22px 22px;border-top:1px solid rgba(255,107,26,0.12)}
+.btn-book{
+  width:100%;
+  background:var(--accent);color:#000;
+  border:none;font-weight:800;font-size:13px;
+  padding:13px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  cursor:pointer;transition:opacity .15s;
+  letter-spacing:-.1px
+}
+.btn-book:hover{opacity:.88}
+.btn-book.disabled{
+  background:var(--surface2);color:var(--text3);
+  border:1px solid var(--border2);
+  cursor:not-allowed;font-weight:600
+}
+.btn-book.disabled:hover{opacity:1}
+.book-footnote{margin-top:10px;font-size:10px;color:var(--text3);text-align:center;letter-spacing:.06em;display:flex;align-items:center;justify-content:center;gap:5px}
+
+/* ── STICKY BOTTOM BAR (mobile only) ──────────────── */
+.sticky-book{
+  position:fixed;bottom:0;left:0;right:0;z-index:30;
+  background:rgba(0,0,0,0.95);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-top:1px solid var(--border2);
+  padding:14px 16px calc(14px + env(safe-area-inset-bottom,0px));
+  display:flex;align-items:center;justify-content:space-between;gap:12px
+}
 .sticky-book-price{display:flex;flex-direction:column}
 .sticky-book-price .amt{font-size:18px;font-weight:800;letter-spacing:-.4px;line-height:1}
 .sticky-book-price .unit{font-size:11px;color:var(--text2);font-weight:500;margin-top:2px}
 .sticky-book .btn-primary{font-size:13px;padding:10px 18px}
+@media(min-width:900px){.sticky-book{display:none}}
 
-/* ── OPTION B TWO-COLUMN ──────────────────────────── */
-.layout-b{max-width:1280px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:1fr;gap:24px}
-@media(min-width:900px){.layout-b{grid-template-columns:1fr 360px;gap:32px;align-items:start}}
-.layout-b-content{display:flex;flex-direction:column;gap:32px;min-width:0}
-.layout-b-sidebar{display:none}
+/* ── TWO-COL LAYOUT (Option B canonical) ──────────── */
+.layout{max-width:1280px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:1fr;gap:24px;padding-bottom:96px}
+@media(min-width:900px){.layout{grid-template-columns:1fr 360px;gap:32px;align-items:start;padding-bottom:48px}}
+.layout-content{display:flex;flex-direction:column;gap:36px;min-width:0}
+.layout-sidebar{display:none}
 @media(min-width:900px){
-  .layout-b-sidebar{display:block;position:sticky;top:140px;align-self:start}
+  .layout-sidebar{display:block;position:sticky;top:80px;align-self:start}
 }
 
-/* ── FOOTER + BOTTOM TABS (reused) ────────────────── */
-footer{padding:48px 0 calc(96px + env(safe-area-inset-bottom,0px)) 0;border-top:1px solid var(--border);margin-top:48px}
-@media(min-width:760px){footer{padding:48px 0 36px 0}}
+/* ── FOOTER ───────────────────────────────────────── */
+footer{padding:48px 0 36px 0;border-top:1px solid var(--border);margin-top:48px}
 .footer-inner{max-width:1280px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:1fr;gap:32px}
 @media(min-width:760px){.footer-inner{grid-template-columns:2fr 1fr 1fr;gap:48px}}
 .footer-tagline{font-size:13px;color:var(--text2);max-width:280px;line-height:1.55;margin-top:10px}
@@ -184,173 +260,152 @@ footer{padding:48px 0 calc(96px + env(safe-area-inset-bottom,0px)) 0;border-top:
 .footer-links{display:flex;flex-direction:column;gap:9px;font-size:13px;color:var(--text2)}
 .footer-links a:hover{color:var(--text)}
 .footer-bottom{max-width:1280px;margin:36px auto 0;padding:24px 24px 0;border-top:1px solid var(--border);font-size:11px;color:var(--text3);display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px}
-
-.bottom-tabs{position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,0.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--border);z-index:40;padding-bottom:env(safe-area-inset-bottom,0)}
-.bottom-tabs-inner{display:flex;align-items:stretch;height:56px;max-width:480px;margin:0 auto}
-.bt-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--text2);font-size:10px;font-weight:600;transition:color .15s;min-height:44px}
-.bt-item.active{color:var(--accent)}
-.bt-item svg{width:20px;height:20px}
-@media(min-width:760px){.bottom-tabs{display:none}}
-
-/* ── OPTION A MOBILE STICKY VISIBILITY ────────────── */
-@media(min-width:760px){.opt-a-sticky{display:none}}
-.opt-a-sticky{display:block}
+@media(max-width:899px){footer{padding-bottom:calc(36px + 70px + env(safe-area-inset-bottom,0px))}}
 </style>
 </head>
 <body>
 
-<!-- ════════════════════════════════════════════════════════════════ -->
-<!-- OPTION A — Single column scroll (MyPlots-style)                  -->
-<!-- ════════════════════════════════════════════════════════════════ -->
-
-<div class="mockup-frame">
-
-  <div class="mockup-label">OPTION A · Single Column Scroll</div>
-  <div class="mockup-sub">Mobile-first vertical flow · Sticky booking bar pinned to bottom on scroll · Best for content discovery</div>
-
-  <!-- NAV -->
-  <header class="topnav">
-    <div class="topnav-inner">
-      <a href="#" class="brand">
-        <svg width="22" height="16" viewBox="0 0 24 18" fill="none"><path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#ffffff"/><path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#ffffff" opacity="0.4"/></svg>
-        <span>Venue<span class="dot">.</span>Portal</span>
-      </a>
-      <div class="nav-links"><a href="#">Find Venues</a><a href="#">For Owners</a><a href="#">How it works</a></div>
-      <div class="nav-actions"><button class="btn-text">Sign In</button><button class="btn-primary">Get Started →</button></div>
+<!-- TOP NAV -->
+<header class="topnav">
+  <div class="topnav-inner">
+    <a href="#" class="brand">
+      <svg width="22" height="16" viewBox="0 0 24 18" fill="none"><path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#ffffff"/><path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#ffffff" opacity="0.4"/></svg>
+      <span>Venue<span class="dot">.</span>Portal</span>
+    </a>
+    <div class="nav-links">
+      <a href="#">Find Venues</a>
+      <a href="#">For Owners</a>
+      <a href="#">How it works</a>
+      <a href="#" class="nav-onboard">Get Onboarded</a>
     </div>
-  </header>
+    <div class="nav-actions">
+      <button class="btn-text">Sign In</button>
+      <button class="btn-primary">Get Started →</button>
+    </div>
+  </div>
+</header>
 
-  <div class="back-row">
-    <a href="#" class="back">← All venues</a>
+<!-- BACK BUTTON -->
+<div class="back-row">
+  <a href="/" class="back">← All venues</a>
+</div>
+
+<!-- HERO -->
+<section class="v-hero">
+  <div class="v-hero-bg ph ph-warm"></div>
+  <div class="v-hero-inner">
+    <div class="v-hero-badges">
+      <span class="v-badge live"><span class="d"></span>Live now · Booking 2026</span>
+      <span class="v-badge verified"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Verified venue</span>
+    </div>
+    <h1 class="v-hero-name">The Chill Room</h1>
+    <p class="v-hero-loc">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      Rural &amp; McClintock · Tempe, AZ &nbsp;·&nbsp; <a href="#" style="color:var(--accent);text-decoration:underline;text-underline-offset:3px">View on map</a>
+    </p>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="v-stats">
+  <div class="v-stats-grid">
+    <div class="v-stat"><div class="lbl">Capacity</div><div class="val">200 <small>guests</small></div></div>
+    <div class="v-stat"><div class="lbl">From</div><div class="val">$450 <small>/ night</small></div></div>
+    <div class="v-stat"><div class="lbl">Hours</div><div class="val">2pm – 2am</div></div>
+    <div class="v-stat"><div class="lbl">Vibe</div><div class="val">Lounge bar</div></div>
+  </div>
+</section>
+
+<!-- TWO-COL LAYOUT (canonical) -->
+<div class="layout">
+
+  <!-- LEFT: Content stack -->
+  <div class="layout-content">
+
+    <section>
+      <div class="v-section-label">About this venue</div>
+      <h2 class="v-section-title">Independent lounge bar in Tempe.</h2>
+      <div class="v-section-body">
+        <p>Lounge bar in Tempe at Rural &amp; McClintock. <strong>Two bookable spaces</strong> — a front lounge section and a 300 sq ft private area — for birthday parties, business meetings, classes, and social gatherings.</p>
+        <p>Owner-operated. Real calendar. Direct contact with the venue.</p>
+      </div>
+    </section>
+
+    <section>
+      <div class="v-section-label">What's included</div>
+      <h2 class="v-section-title">Everything you need to host.</h2>
+      <div class="included">
+        <div class="inc-item">
+          <div class="inc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div><div class="inc-title">Sound system + DJ booth</div><div class="inc-desc">Full PA, monitors, plug-and-play DJ inputs</div></div>
+        </div>
+        <div class="inc-item">
+          <div class="inc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div><div class="inc-title">Stage lighting rig</div><div class="inc-desc">Programmable LEDs, color washes, fog if needed</div></div>
+        </div>
+        <div class="inc-item">
+          <div class="inc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div><div class="inc-title">In-house bar service</div><div class="inc-desc">Bartenders on staff, full liquor license</div></div>
+        </div>
+        <div class="inc-item">
+          <div class="inc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div><div class="inc-title">Front lounge section</div><div class="inc-desc">Up to 12 guests · Intimate and comfortable</div></div>
+        </div>
+        <div class="inc-item">
+          <div class="inc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div><div class="inc-title">Private area · 300 sq ft</div><div class="inc-desc">Configurable layout for events &amp; meetings</div></div>
+        </div>
+        <div class="inc-item">
+          <div class="inc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div><div class="inc-title">Free street parking</div><div class="inc-desc">Plus public lot one block north</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="v-section-label">The deal</div>
+      <h2 class="v-section-title">Transparent pricing.</h2>
+      <div class="deal-card">
+        <div class="deal-item"><div class="lbl">Booking fee</div><div class="val accent">$450</div><div class="sub">Flat per night · No commission</div></div>
+        <div class="deal-item"><div class="lbl">Deposit</div><div class="val">$150</div><div class="sub">Held via Stripe to confirm date</div></div>
+        <div class="deal-item"><div class="lbl">Door</div><div class="val">100%</div><div class="sub">Keep everything from ticket sales</div></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="v-section-label">House rules</div>
+      <h2 class="v-section-title">Things to know.</h2>
+      <ul class="rules-list">
+        <li class="rule">21+ for late-night events, all-ages welcome before 9pm</li>
+        <li class="rule">Sound curfew at 1:45am to comply with city ordinances</li>
+        <li class="rule">Cleanup &amp; teardown completed by 2:30am</li>
+        <li class="rule">Promoter responsible for any damages beyond normal wear</li>
+        <li class="rule">No outside alcohol — full bar service available</li>
+      </ul>
+    </section>
+
+    <section>
+      <div class="v-section-label">Photo gallery</div>
+      <h2 class="v-section-title">See the space.</h2>
+      <div class="gallery">
+        <div class="gal-item ph ph-warm"></div>
+        <div class="gal-item ph ph-cool"></div>
+        <div class="gal-item ph ph-purple"></div>
+        <div class="gal-item ph ph-gold"></div>
+        <div class="gal-item ph ph-emerald"></div>
+        <div class="gal-item ph ph-warm"></div>
+        <div class="gal-item ph ph-cool"></div>
+        <div class="gal-item ph ph-purple"></div>
+      </div>
+    </section>
+
   </div>
 
-  <!-- HERO -->
-  <section class="v-hero">
-    <div class="v-hero-bg ph ph-warm"></div>
-    <div class="v-hero-inner">
-      <div class="v-hero-badges">
-        <span class="v-badge live"><span class="d"></span>Live now · Booking 2026</span>
-        <span class="v-badge verified"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Verified venue</span>
-      </div>
-      <h1 class="v-hero-name">The Chill Room</h1>
-      <p class="v-hero-loc">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        Rural &amp; McClintock · Tempe, AZ &nbsp;·&nbsp; <a href="#" style="color:var(--accent);text-decoration:underline;text-underline-offset:3px">View on map</a>
-      </p>
-    </div>
-  </section>
-
-  <!-- STATS -->
-  <section class="v-stats">
-    <div class="v-stats-grid">
-      <div class="v-stat"><div class="lbl">Capacity</div><div class="val">200 <small>guests</small></div></div>
-      <div class="v-stat"><div class="lbl">From</div><div class="val">$450 <small>/ night</small></div></div>
-      <div class="v-stat"><div class="lbl">Hours</div><div class="val">2pm – 2am</div></div>
-      <div class="v-stat"><div class="lbl">Vibe</div><div class="val">Lounge bar</div></div>
-    </div>
-  </section>
-
-  <!-- ABOUT -->
-  <section class="v-section">
-    <div class="v-section-label">About this venue</div>
-    <h2 class="v-section-title">Independent lounge bar in Tempe.</h2>
-    <div class="v-section-body">
-      <p>Lounge bar in Tempe at Rural &amp; McClintock. <strong>Two bookable spaces</strong> — a front lounge section and a 300 sq ft private area — for birthday parties, business meetings, classes, and social gatherings.</p>
-      <p>Owner-operated. Real calendar. Direct contact with the venue.</p>
-    </div>
-  </section>
-
-  <!-- INCLUDED -->
-  <section class="v-section">
-    <div class="v-section-label">What's included</div>
-    <h2 class="v-section-title">Everything you need to host.</h2>
-    <div class="included">
-      <div class="inc-item">
-        <div class="inc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-        <div><div class="inc-title">Sound system + DJ booth</div><div class="inc-desc">Full PA, monitors, plug-and-play DJ inputs</div></div>
-      </div>
-      <div class="inc-item">
-        <div class="inc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-        <div><div class="inc-title">Stage lighting rig</div><div class="inc-desc">Programmable LEDs, color washes, fog if needed</div></div>
-      </div>
-      <div class="inc-item">
-        <div class="inc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-        <div><div class="inc-title">In-house bar service</div><div class="inc-desc">Bartenders on staff, full liquor license</div></div>
-      </div>
-      <div class="inc-item">
-        <div class="inc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-        <div><div class="inc-title">Front lounge section</div><div class="inc-desc">Up to 12 guests · Intimate and comfortable</div></div>
-      </div>
-      <div class="inc-item">
-        <div class="inc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-        <div><div class="inc-title">Private area · 300 sq ft</div><div class="inc-desc">Configurable layout for events &amp; meetings</div></div>
-      </div>
-      <div class="inc-item">
-        <div class="inc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-        <div><div class="inc-title">Free street parking</div><div class="inc-desc">Plus public lot one block north</div></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- DEAL -->
-  <section class="v-section">
-    <div class="v-section-label">The deal</div>
-    <h2 class="v-section-title">Transparent pricing.</h2>
-    <div class="deal-card">
-      <div class="deal-item">
-        <div class="lbl">Booking fee</div>
-        <div class="val accent">$450</div>
-        <div class="sub">Flat per night · No commission</div>
-      </div>
-      <div class="deal-item">
-        <div class="lbl">Deposit</div>
-        <div class="val">$150</div>
-        <div class="sub">Held via Stripe to confirm date</div>
-      </div>
-      <div class="deal-item">
-        <div class="lbl">Door</div>
-        <div class="val">100%</div>
-        <div class="sub">Keep everything from ticket sales</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- RULES -->
-  <section class="v-section">
-    <div class="v-section-label">House rules</div>
-    <h2 class="v-section-title">Things to know.</h2>
-    <ul class="rules-list">
-      <li class="rule">21+ for late-night events, all-ages welcome before 9pm</li>
-      <li class="rule">Sound curfew at 1:45am to comply with city ordinances</li>
-      <li class="rule">Cleanup &amp; teardown completed by 2:30am</li>
-      <li class="rule">Promoter responsible for any damages beyond normal wear</li>
-      <li class="rule">No outside alcohol — full bar service available</li>
-    </ul>
-  </section>
-
-  <!-- GALLERY -->
-  <section class="v-section">
-    <div class="v-section-label">Photo gallery</div>
-    <h2 class="v-section-title">See the space.</h2>
-    <div class="gallery">
-      <div class="gal-item ph ph-warm"></div>
-      <div class="gal-item ph ph-cool"></div>
-      <div class="gal-item ph ph-purple"></div>
-      <div class="gal-item ph ph-gold"></div>
-      <div class="gal-item ph ph-emerald"></div>
-      <div class="gal-item ph ph-warm"></div>
-      <div class="gal-item ph ph-cool"></div>
-      <div class="gal-item ph ph-purple"></div>
-    </div>
-  </section>
-
-  <!-- BOOKING (inline at bottom) -->
-  <section class="v-section">
-    <div class="v-section-label">Book this venue</div>
-    <h2 class="v-section-title">Pick a date to start.</h2>
-    <div class="book-card" style="max-width:520px">
+  <!-- RIGHT: Sticky booking sidebar (desktop only) -->
+  <aside class="layout-sidebar">
+    <div class="book-card">
       <div class="book-head">
-        <div class="book-title">The Chill Room</div>
+        <div class="book-title">Book this venue</div>
         <div class="book-price"><span class="amt">$450</span><span class="unit">flat fee · per night</span></div>
         <div class="book-perks">
           <span class="book-perk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Keep 100% of door</span>
@@ -369,258 +424,44 @@ footer{padding:48px 0 calc(96px + env(safe-area-inset-bottom,0px)) 0;border-top:
           <div class="book-dow">M</div><div class="book-dow">T</div><div class="book-dow">W</div><div class="book-dow">T</div><div class="book-dow">F</div><div class="book-dow">S</div><div class="book-dow">S</div>
           <div class="book-day empty"></div><div class="book-day empty"></div><div class="book-day empty"></div><div class="book-day empty"></div><div class="book-day past">1</div><div class="book-day past">2</div><div class="book-day past">3</div>
           <div class="book-day">4</div><div class="book-day">5</div><div class="book-day">6</div><div class="book-day today">7</div><div class="book-day">8</div><div class="book-day">9</div><div class="book-day">10</div>
-          <div class="book-day">11</div><div class="book-day">12</div><div class="book-day booked">13</div><div class="book-day">14</div><div class="book-day">15</div><div class="book-day">16</div><div class="book-day">17</div>
+          <div class="book-day">11</div><div class="book-day">12</div><div class="book-day booked">13</div><div class="book-day selected">14</div><div class="book-day">15</div><div class="book-day">16</div><div class="book-day">17</div>
           <div class="book-day">18</div><div class="book-day">19</div><div class="book-day">20</div><div class="book-day booked">21</div><div class="book-day">22</div><div class="book-day">23</div><div class="book-day">24</div>
           <div class="book-day">25</div><div class="book-day">26</div><div class="book-day">27</div><div class="book-day">28</div><div class="book-day">29</div><div class="book-day booked">30</div>
         </div>
       </div>
       <div class="book-cta-wrap">
-        <button class="btn-book">Select a date above</button>
-        <div class="book-footnote">Secured by Venue.Portal · Stripe</div>
+        <button class="btn-book">Send inquiry · Sat, June 14 →</button>
+        <div class="book-footnote">
+          <svg width="9" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          Secured by Stripe
+        </div>
       </div>
     </div>
-  </section>
-
-  <!-- STICKY BOTTOM BAR (mobile only — Option A signature) -->
-  <div class="sticky-book opt-a-sticky">
-    <div class="sticky-book-price">
-      <span class="amt">$450</span>
-      <span class="unit">flat fee · per night</span>
-    </div>
-    <button class="btn-primary">Select date →</button>
-  </div>
-
-  <footer>
-    <div class="footer-inner">
-      <div>
-        <a href="#" class="brand"><svg width="22" height="16" viewBox="0 0 24 18" fill="none"><path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#ffffff"/><path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#ffffff" opacity="0.4"/></svg><span>Venue<span class="dot">.</span>Portal</span></a>
-        <p class="footer-tagline">Booking infrastructure for independent venues.</p>
-      </div>
-      <div><div class="footer-col-label">Browse</div><div class="footer-links"><a href="#">All venues</a><a href="#">By city</a></div></div>
-      <div><div class="footer-col-label">Company</div><div class="footer-links"><a href="#">For owners</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="mailto:hello@venueportal.us">Contact</a></div></div>
-    </div>
-    <div class="footer-bottom"><span>Venue.Portal © 2026</span><span>Made for independent venues</span></div>
-  </footer>
+  </aside>
 
 </div>
 
-<!-- ════════════════════════════════════════════════════════════════ -->
-<!-- OPTION B — Two-column with sticky booking sidebar                 -->
-<!-- ════════════════════════════════════════════════════════════════ -->
-
-<div class="mockup-frame">
-
-  <div class="mockup-label">OPTION B · Two-Column with Sticky Booking Sidebar</div>
-  <div class="mockup-sub">Desktop 60/40 split · Booking card stays in view while content scrolls · Mobile collapses to same sticky bar as Option A</div>
-
-  <!-- NAV -->
-  <header class="topnav">
-    <div class="topnav-inner">
-      <a href="#" class="brand">
-        <svg width="22" height="16" viewBox="0 0 24 18" fill="none"><path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#ffffff"/><path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#ffffff" opacity="0.4"/></svg>
-        <span>Venue<span class="dot">.</span>Portal</span>
-      </a>
-      <div class="nav-links"><a href="#">Find Venues</a><a href="#">For Owners</a><a href="#">How it works</a></div>
-      <div class="nav-actions"><button class="btn-text">Sign In</button><button class="btn-primary">Get Started →</button></div>
-    </div>
-  </header>
-
-  <div class="back-row">
-    <a href="#" class="back">← All venues</a>
+<!-- STICKY BOTTOM BAR (mobile only) -->
+<div class="sticky-book">
+  <div class="sticky-book-price">
+    <span class="amt">$450</span>
+    <span class="unit">flat fee · per night</span>
   </div>
-
-  <!-- HERO -->
-  <section class="v-hero">
-    <div class="v-hero-bg ph ph-warm"></div>
-    <div class="v-hero-inner">
-      <div class="v-hero-badges">
-        <span class="v-badge live"><span class="d"></span>Live now · Booking 2026</span>
-        <span class="v-badge verified"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Verified venue</span>
-      </div>
-      <h1 class="v-hero-name">The Chill Room</h1>
-      <p class="v-hero-loc">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        Rural &amp; McClintock · Tempe, AZ &nbsp;·&nbsp; <a href="#" style="color:var(--accent);text-decoration:underline;text-underline-offset:3px">View on map</a>
-      </p>
-    </div>
-  </section>
-
-  <!-- STATS (full width still) -->
-  <section class="v-stats">
-    <div class="v-stats-grid">
-      <div class="v-stat"><div class="lbl">Capacity</div><div class="val">200 <small>guests</small></div></div>
-      <div class="v-stat"><div class="lbl">From</div><div class="val">$450 <small>/ night</small></div></div>
-      <div class="v-stat"><div class="lbl">Hours</div><div class="val">2pm – 2am</div></div>
-      <div class="v-stat"><div class="lbl">Vibe</div><div class="val">Lounge bar</div></div>
-    </div>
-  </section>
-
-  <!-- TWO-COL LAYOUT -->
-  <div class="layout-b">
-
-    <!-- LEFT: Content stack -->
-    <div class="layout-b-content">
-
-      <section>
-        <div class="v-section-label">About this venue</div>
-        <h2 class="v-section-title">Independent lounge bar in Tempe.</h2>
-        <div class="v-section-body">
-          <p>Lounge bar in Tempe at Rural &amp; McClintock. <strong>Two bookable spaces</strong> — a front lounge section and a 300 sq ft private area — for birthday parties, business meetings, classes, and social gatherings.</p>
-          <p>Owner-operated. Real calendar. Direct contact with the venue.</p>
-        </div>
-      </section>
-
-      <section>
-        <div class="v-section-label">What's included</div>
-        <h2 class="v-section-title">Everything you need to host.</h2>
-        <div class="included">
-          <div class="inc-item">
-            <div class="inc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-            <div><div class="inc-title">Sound system + DJ booth</div><div class="inc-desc">Full PA, monitors, plug-and-play DJ inputs</div></div>
-          </div>
-          <div class="inc-item">
-            <div class="inc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-            <div><div class="inc-title">Stage lighting rig</div><div class="inc-desc">Programmable LEDs, color washes, fog if needed</div></div>
-          </div>
-          <div class="inc-item">
-            <div class="inc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-            <div><div class="inc-title">In-house bar service</div><div class="inc-desc">Bartenders on staff, full liquor license</div></div>
-          </div>
-          <div class="inc-item">
-            <div class="inc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-            <div><div class="inc-title">Front lounge section</div><div class="inc-desc">Up to 12 guests · Intimate and comfortable</div></div>
-          </div>
-          <div class="inc-item">
-            <div class="inc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-            <div><div class="inc-title">Private area · 300 sq ft</div><div class="inc-desc">Configurable layout for events &amp; meetings</div></div>
-          </div>
-          <div class="inc-item">
-            <div class="inc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-            <div><div class="inc-title">Free street parking</div><div class="inc-desc">Plus public lot one block north</div></div>
-          </div>
-        </div>
-      </section>
-
-      <section>
-        <div class="v-section-label">The deal</div>
-        <h2 class="v-section-title">Transparent pricing.</h2>
-        <div class="deal-card">
-          <div class="deal-item"><div class="lbl">Booking fee</div><div class="val accent">$450</div><div class="sub">Flat per night · No commission</div></div>
-          <div class="deal-item"><div class="lbl">Deposit</div><div class="val">$150</div><div class="sub">Held via Stripe to confirm date</div></div>
-          <div class="deal-item"><div class="lbl">Door</div><div class="val">100%</div><div class="sub">Keep everything from ticket sales</div></div>
-        </div>
-      </section>
-
-      <section>
-        <div class="v-section-label">House rules</div>
-        <h2 class="v-section-title">Things to know.</h2>
-        <ul class="rules-list">
-          <li class="rule">21+ for late-night events, all-ages welcome before 9pm</li>
-          <li class="rule">Sound curfew at 1:45am to comply with city ordinances</li>
-          <li class="rule">Cleanup &amp; teardown completed by 2:30am</li>
-          <li class="rule">Promoter responsible for any damages beyond normal wear</li>
-          <li class="rule">No outside alcohol — full bar service available</li>
-        </ul>
-      </section>
-
-      <section>
-        <div class="v-section-label">Photo gallery</div>
-        <h2 class="v-section-title">See the space.</h2>
-        <div class="gallery">
-          <div class="gal-item ph ph-warm"></div>
-          <div class="gal-item ph ph-cool"></div>
-          <div class="gal-item ph ph-purple"></div>
-          <div class="gal-item ph ph-gold"></div>
-          <div class="gal-item ph ph-emerald"></div>
-          <div class="gal-item ph ph-warm"></div>
-          <div class="gal-item ph ph-cool"></div>
-          <div class="gal-item ph ph-purple"></div>
-        </div>
-      </section>
-
-    </div>
-
-    <!-- RIGHT: Sticky booking sidebar (desktop only) -->
-    <aside class="layout-b-sidebar">
-      <div class="book-card">
-        <div class="book-head">
-          <div class="book-title">The Chill Room</div>
-          <div class="book-price"><span class="amt">$450</span><span class="unit">flat fee · per night</span></div>
-          <div class="book-perks">
-            <span class="book-perk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Keep 100% of door</span>
-            <span class="book-perk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Confirmed within 24hrs</span>
-            <span class="book-perk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Stripe-secured deposit</span>
-          </div>
-        </div>
-        <div class="book-cal-section">
-          <div class="book-cal-prompt">Select a date</div>
-          <div class="book-cal-nav">
-            <button class="book-cal-btn">‹</button>
-            <span class="book-cal-month">June 2026</span>
-            <button class="book-cal-btn">›</button>
-          </div>
-          <div class="book-cal-grid">
-            <div class="book-dow">M</div><div class="book-dow">T</div><div class="book-dow">W</div><div class="book-dow">T</div><div class="book-dow">F</div><div class="book-dow">S</div><div class="book-dow">S</div>
-            <div class="book-day empty"></div><div class="book-day empty"></div><div class="book-day empty"></div><div class="book-day empty"></div><div class="book-day past">1</div><div class="book-day past">2</div><div class="book-day past">3</div>
-            <div class="book-day">4</div><div class="book-day">5</div><div class="book-day">6</div><div class="book-day today">7</div><div class="book-day">8</div><div class="book-day">9</div><div class="book-day">10</div>
-            <div class="book-day">11</div><div class="book-day">12</div><div class="book-day booked">13</div><div class="book-day">14</div><div class="book-day">15</div><div class="book-day">16</div><div class="book-day">17</div>
-            <div class="book-day">18</div><div class="book-day">19</div><div class="book-day">20</div><div class="book-day booked">21</div><div class="book-day">22</div><div class="book-day">23</div><div class="book-day">24</div>
-            <div class="book-day">25</div><div class="book-day">26</div><div class="book-day">27</div><div class="book-day">28</div><div class="book-day">29</div><div class="book-day booked">30</div>
-          </div>
-        </div>
-        <div class="book-cta-wrap">
-          <button class="btn-book">Select a date above</button>
-          <div class="book-footnote">Secured by Venue.Portal · Stripe</div>
-        </div>
-      </div>
-    </aside>
-
-  </div>
-
-  <!-- STICKY BOTTOM BAR (mobile only — Option B reuses the same pattern) -->
-  <div class="sticky-book opt-a-sticky">
-    <div class="sticky-book-price">
-      <span class="amt">$450</span>
-      <span class="unit">flat fee · per night</span>
-    </div>
-    <button class="btn-primary">Select date →</button>
-  </div>
-
-  <footer>
-    <div class="footer-inner">
-      <div>
-        <a href="#" class="brand"><svg width="22" height="16" viewBox="0 0 24 18" fill="none"><path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#ffffff"/><path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#ffffff" opacity="0.4"/></svg><span>Venue<span class="dot">.</span>Portal</span></a>
-        <p class="footer-tagline">Booking infrastructure for independent venues.</p>
-      </div>
-      <div><div class="footer-col-label">Browse</div><div class="footer-links"><a href="#">All venues</a><a href="#">By city</a></div></div>
-      <div><div class="footer-col-label">Company</div><div class="footer-links"><a href="#">For owners</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="mailto:hello@venueportal.us">Contact</a></div></div>
-    </div>
-    <div class="footer-bottom"><span>Venue.Portal © 2026</span><span>Made for independent venues</span></div>
-  </footer>
-
+  <button class="btn-primary">Select date →</button>
 </div>
 
-<!-- BOTTOM TAB NAV (shared by both options, mobile only) -->
-<nav class="bottom-tabs">
-  <div class="bottom-tabs-inner">
-    <a href="#" class="bt-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
-      <span>Browse</span>
-    </a>
-    <a href="#" class="bt-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6v15l7-3 8 3 7-3V3l-7 3-8-3-7 3z"/><line x1="8" y1="3" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="21"/></svg>
-      <span>Map</span>
-    </a>
-    <a href="#" class="bt-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
-      <span>Inquiries</span>
-    </a>
-    <a href="#" class="bt-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      <span>Profile</span>
-    </a>
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <a href="#" class="brand"><svg width="22" height="16" viewBox="0 0 24 18" fill="none"><path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#ffffff"/><path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#ffffff" opacity="0.4"/></svg><span>Venue<span class="dot">.</span>Portal</span></a>
+      <p class="footer-tagline">Booking infrastructure for independent venues.</p>
+    </div>
+    <div><div class="footer-col-label">Browse</div><div class="footer-links"><a href="#">All venues</a><a href="#">By city</a></div></div>
+    <div><div class="footer-col-label">Company</div><div class="footer-links"><a href="#">For owners</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="mailto:hello@venueportal.us">Contact</a></div></div>
   </div>
-</nav>
+  <div class="footer-bottom"><span>Venue.Portal © 2026</span><span>Made for independent venues</span></div>
+</footer>
 
 </body>
 </html>
