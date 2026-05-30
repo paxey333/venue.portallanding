@@ -6,7 +6,7 @@ The public surfaces (`index.html` landing + the hardcoded `#detail-ws` / `#detai
 |--------|--------|-------|
 | **A — White Swan D1 seed** | ✅ Done | Reconcile White Swan into D1; wire `VENUES.ws.id` in index.html |
 | **B — Photo upload backend (R2)** | ✅ Done | R2 bucket + custom domain + upload/delete endpoints |
-| C — `venue.html?id=X` | pending | New dynamic public venue page using the dashboard v2 visual system |
+| **C — `venue.html?id=X` dynamic page** | ✅ Done | New public venue page + 2 api.js changes + photo seeding |
 | D — Remove `#detail-cr` / `#detail-ws` hardcoded blocks | pending | Once `venue.html` is live, replace inline blocks with redirects |
 | E — Index landing v2 swap + upload UI in dashboard Edit Profile | pending | Swap `index.html` to the v2 mockup layout; wire the photo upload UI to the Commit B backend |
 
@@ -185,3 +185,147 @@ All tests against deployed worker `8f12508c-66c8-4f00-b555-18c4d29afb8a` with `m
 ### Follow-up for Commit E
 
 The upload UI in dashboard's Edit Profile form (currently a textarea for pasting URLs in `#edit-gallery`) needs to be replaced with a file-picker + drag-and-drop UI that POSTs to this backend. That's bundled into Commit E along with the index.html v2 swap.
+
+---
+
+## Commit C — `venue.html?id=X` dynamic public venue page
+
+### New file
+
+**`venue.html`** — standalone public venue detail page at project root. Pure HTML + CSS + vanilla JS (no frameworks). Inter from Google Fonts is the only external dependency. ~600 lines including all CSS and JS inline. Matches the locked Option B mockup (`venue-v2-mockup.html`) visual direction byte-for-byte except for dynamic-data binding and functional booking flow.
+
+### Two api.js changes (operator-approved, in-spec)
+
+Per the updated workstream rule ("Limited, intentional api.js changes are now approved when they enable scope that's already in spec"), Commit C required two surgical backend changes — both documented here, both atomic with this commit.
+
+#### Change 1 — `GET /api/venues/:id` made public
+
+Previously auth-gated to admin/venue_owner. Now anonymous.
+
+```diff
+- const session = await getSession(request, env);
+- if (!isAnyRole(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
+- console.log("[GET /api/venues/:id] user:", session.user_id, ...);
+- if (session.role === "venue_owner" && session.venue_id !== id) {
+-   return jsonResponse({ error: "Forbidden" }, 403, request);
+- }
++ const session = await getSession(request, env).catch(() => null);
++ console.log("[GET /api/venues/:id]", id, "session:", session ? session.role : "public");
+```
+
+**Risk analysis (operator-validated):**
+- SELECT pulls `id, name, description, capacity, price_per_day, image_url, hours, amenities, gallery, video_url, created_at` — **no Stripe fields, no emails, no PII**.
+- Dashboard's `loadVenueProfile()` keeps working — it sends `Authorization: Bearer ...`; the endpoint now ignores the header instead of validating it. Backwards-compatible.
+- Venue data is marketing/booking content meant to be public anyway. The auth gate was historical over-restriction.
+
+**Regression check passed:**
+- Anonymous `GET /api/venues/1` → 200, returns full 11-field shape, no Stripe leakage
+- Admin-authed `GET /api/venues/1` → 200, identical shape
+- Dashboard's `loadVenueProfile()` still receives the same payload it always has
+
+#### Change 2 — new public endpoint `GET /api/venues/:id/booked-dates`
+
+Returns only confirmed `event_date` values for the venue. No PII (no client name/email/message). Used by `venue.html`'s booking calendar to render booked dates as muted/strikethrough/non-clickable.
+
+```js
+const venueBookedDatesMatch = path.match(/^\/api\/venues\/(\d+)\/booked-dates$/);
+if (venueBookedDatesMatch && request.method === "GET") {
+  // SELECT event_date FROM bookings WHERE venue_id = ? AND status = 'confirmed'
+  // Returns { dates: [...] }
+}
+```
+
+Sample response: `{ "dates": ["2026-05-29", "2026-06-05", "2026-05-23", "2026-05-30", "2026-07-03"] }` (real confirmed bookings for Chill Room as of commit time).
+
+Why a dedicated endpoint instead of extending `/api/bookings`: keeps scope minimal, no PII exposure, makes the public-surface API contract intentional and discoverable.
+
+### Photo seeding
+
+8 placeholder JPEGs uploaded via the Commit B `POST /api/venues/:id/photos` endpoint with admin auth:
+
+- **Chill Room (id=1)** — 4 photos, warm orange/red gradients (varied 2-color blends + faint chevron watermark, ~14-18 KB each)
+- **White Swan (id=3)** — 4 photos, deep red/ember tones (same generation script, different palette)
+
+These gradients are intentional placeholder content that venue owners can later replace via the upload UI in Commit E. Not test data; not slated for cleanup.
+
+R2 storage cost: 8 x ~15 KB = 120 KB total. Well inside the 10 GB free tier.
+
+### Functional behavior
+
+**URL handling**
+- `?id=X` parsed from query string. Missing or non-numeric → `window.location.replace('/')` (silent redirect home).
+- Non-existent id (API returns 404) → renders error state with "Back to all venues" CTA + retry button. Does NOT render an empty/broken page.
+
+**Loading state**
+- Skeleton hero + 4 stat cards + section blocks animated with a CSS shimmer. No fake placeholder text — clearly visually distinct from real content (lesson learned from dashboard fix-up #8 camouflage cleanup).
+
+**Empty-field handling (graceful, intentional)**
+- Per spec hard rule #4: no "—" dashes shown on the public surface.
+- Missing description → "About" section hidden entirely (`display:none`).
+- Missing amenities → "What's Included" section hidden.
+- Missing hours → 4th stat pill repurposed for "Vibe" (first amenity); if neither exists, 3-pill row.
+- Empty gallery → hero falls back to gradient placeholder, "Photo gallery" section hidden.
+- Missing price_per_day → "The deal" section hidden; sidebar/sticky-bar show "—" only in the price slot.
+- "House Rules" always renders generic platform-level rules (Stripe deposit, cancellation window, damages, owner-specific rules disclosed after acceptance). No DB column for venue-specific rules yet; future schema enhancement.
+
+**Calendar**
+- Pure CSS Grid (7 cols), Mon-first week, JS-rendered day cells.
+- States: `past` (dimmed, non-clickable), `today` (orange ring), `booked` (muted strikethrough — from `/api/venues/:id/booked-dates`), `selected` (solid orange), available (warm tint, clickable).
+- Month nav: prev/next buttons, capped to current month (no past months) and current+18 months (no infinite future scroll).
+- Visible in both the desktop sidebar (`#cal-grid`) and the mobile booking modal (`#m-cal-grid`) — both calendars stay in sync since they read from the same state object.
+
+**Mobile**
+- Below 900px: single column, sticky bottom bar appears with price + "Pick a date" / "Send inquiry · {date}" CTA.
+- Tap CTA → bottom-sheet modal slides up (border-radius 18px on top corners, max-height 92vh, padding-bottom uses `env(safe-area-inset-bottom)`).
+- Modal contains calendar + booking form + summary card + submit/cancel buttons.
+- Above 900px: modal becomes a centered card; calendar is only in the sidebar.
+- All tap targets >=44x44px (calendar day cells use `min-height:36px` + grid spacing; buttons use `min-height:44px` explicitly).
+
+**Booking submission — IDENTICAL CONTRACT to index.html line 2432**
+
+Payload shape:
+```
+venue_id     -> state.venue.id
+client_name  -> trimmed name input
+client_email -> trimmed email input
+event_date   -> state.selected.iso (YYYY-MM-DD)
+guests       -> parseInt(headcount) || null
+message      -> trimmed text || null
+```
+
+Field names byte-for-byte identical to `index.html` lines 2462-2474. Mirrors, doesn't reinvent. No `phone`, no `guest_count`, no `name`/`email` — matches what the API already accepts.
+
+**Success path**: `window.location.href = '/booking-confirmed.html'` (existing page, untouched by this commit).
+**Error path**: inline error in modal, form data preserved, button re-enabled.
+
+### Verification — full test matrix
+
+| # | Test | Result |
+|---|------|--------|
+| 1 | `GET /api/venues/1` anonymous | PASS — 200, full 11 fields, no Stripe |
+| 2 | `GET /api/venues/1` admin-authed (regression) | PASS — 200, identical shape, dashboard unaffected |
+| 3 | `GET /api/venues/999` | PASS — 404 with `{"error":"Venue not found"}` triggers error state in venue.html |
+| 4 | `GET /api/venues/1/booked-dates` | PASS — returns 5 confirmed event_dates |
+| 5 | `GET /api/venues/3/booked-dates` | PASS — returns `[]` (no confirmed bookings yet) |
+| 6 | Photos uploaded to Chill Room (id=1) | PASS — 4 URLs in gallery, all served at images.venueportal.us |
+| 7 | Photos uploaded to White Swan (id=3) | PASS — 4 URLs in gallery, all served |
+| 8 | Booking POST for venue_id=1 (exact venue.html payload) | PASS — row 37 created, status=pending |
+| 9 | Booking POST for venue_id=3 (exact venue.html payload) | PASS — row 38 created, status=pending |
+| 10 | Test bookings deleted after verification | PASS — `changes: 2`, follow-up SELECT returns `[]` |
+| 11 | Photos still intact after booking tests | PASS — both venues still have 4 photos each |
+| 12 | Worker deployment | PASS — Version `4482a341-8083-4f33-9195-e550391b13e5` live |
+
+### Files touched
+
+- `api.js` — 2 changes: GET /api/venues/:id auth removed (-6 lines), new GET /api/venues/:id/booked-dates handler (+15 lines)
+- `venue.html` — new file, ~600 lines
+- `PUBLIC_SURFACE_V2_DIFF.md` — this section
+- R2 bucket `venue-photos` — 8 new objects (4 per venue)
+- D1 — gallery arrays for venue id=1 and id=3 populated with 4 URLs each
+
+### Not touched (per hard rules)
+
+- `index.html` — VENUES.ws.id wiring from Commit A still in place; nothing else changed
+- `dashboard.html` — untouched
+- Booking POST contract — exact mirror of index.html's existing flow
+- Bottom tab nav — confirmed absent from venue.html (was removed from mockup in iteration #1)

@@ -621,12 +621,13 @@ export default {
       if (venueByIdMatch && request.method === "GET") {
         try {
           const id = Number(venueByIdMatch[1]);
-          const session = await getSession(request, env);
-          if (!isAnyRole(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
-          console.log("[GET /api/venues/:id] user:", session.user_id, "role:", session.role, "session.venue_id:", session.venue_id, "requested venue_id:", id);
-          if (session.role === "venue_owner" && session.venue_id !== id) {
-            return jsonResponse({ error: "Forbidden" }, 403, request);
-          }
+          // PUBLIC: anonymous read allowed so venue.html?id=X (Commit C of the
+          // public-surface rebuild) can render for unauthenticated visitors.
+          // The SELECT below pulls no secrets — Stripe fields are NOT included.
+          // Dashboard's loadVenueProfile() keeps working since extra Authorization
+          // headers don't affect a no-auth endpoint. Operator-approved change.
+          const session = await getSession(request, env).catch(() => null);
+          console.log("[GET /api/venues/:id]", id, "session:", session ? session.role : "public");
           const row = await env.DB.prepare(
             `SELECT id, name, description, capacity, price_per_day, image_url, hours, amenities, gallery, video_url, created_at
              FROM venues WHERE id = ?`
@@ -700,6 +701,24 @@ export default {
           const res = await env.DB.prepare("DELETE FROM venues WHERE id = ?").bind(id).run();
           if (!res.meta.changes) return jsonResponse({ error: "Venue not found" }, 404, request);
           return new Response(null, { status: 204, headers: corsHeaders(request) });
+        } catch (err) {
+          return jsonResponse({ error: err.message }, 500, request);
+        }
+      }
+
+      // ── VENUE BOOKED DATES (public — for venue.html calendar) ─────
+      // Returns only confirmed event_dates for the venue. No PII (no client
+      // name/email/message). Used by venue.html to mark unavailable dates
+      // on its booking calendar. Anonymous read allowed.
+      const venueBookedDatesMatch = path.match(/^\/api\/venues\/(\d+)\/booked-dates$/);
+      if (venueBookedDatesMatch && request.method === "GET") {
+        try {
+          const id = Number(venueBookedDatesMatch[1]);
+          const rows = await env.DB.prepare(
+            "SELECT event_date FROM bookings WHERE venue_id = ? AND status = 'confirmed'"
+          ).bind(id).all();
+          const dates = (rows.results || []).map(r => r.event_date);
+          return jsonResponse({ dates }, 200, request);
         } catch (err) {
           return jsonResponse({ error: err.message }, 500, request);
         }

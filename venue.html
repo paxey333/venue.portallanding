@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="theme-color" content="#000000"/>
+<meta name="color-scheme" content="dark"/>
+<title>Venue.Portal — Loading…</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 18'%3E%3Cpath d='M0 0L6 9L0 18H4L10 9L4 0H0Z' fill='%23ffffff'/%3E%3Cpath d='M9 0L15 9L9 18H13L19 9L13 0H9Z' fill='%23555555'/%3E%3Crect x='19.5' y='7' width='4' height='4' rx='1' fill='%23ffffff'/%3E%3C/svg%3E"/>
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 18'%3E%3Cpath d='M0 0L6 9L0 18H4L10 9L4 0H0Z' fill='%23ffffff'/%3E%3Cpath d='M9 0L15 9L9 18H13L19 9L13 0H9Z' fill='%23555555'/%3E%3Crect x='19.5' y='7' width='4' height='4' rx='1' fill='%23ffffff'/%3E%3C/svg%3E"/>
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="Venue.Portal"/>
+<meta property="og:image" content="https://venueportal.us/images/venue-hero.jpg"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#000000;--surface:#0a0a0a;--surface2:#141414;
+  --border:#1f1f1f;--border2:#2a2a2a;
+  --text:#ffffff;--text2:#a8a8a8;--text3:#666666;
+  --accent:#ff6b1a;--accent-soft:rgba(255,107,26,0.12);
+  --accent-warm:rgba(255,107,26,0.05);
+  --green:#3ddc84;--green-soft:rgba(61,220,132,0.12);
+  --alert:#ff4444;
+  --font:'Inter',sans-serif;
+}
+html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.5;min-height:100%;-webkit-font-smoothing:antialiased}
+body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+@media(min-width:900px){body{padding-bottom:0}}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:transparent;color:inherit}
+input,textarea{font-family:inherit}
+
+/* Placeholder gradient — used when no gallery photos */
+.ph{position:relative;overflow:hidden;background:linear-gradient(135deg,#3a1a05 0%,#1a0a00 60%,#0a0a0a 100%)}
+.ph::after{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 60' fill='none'%3E%3Cpath d='M30 18L40 30L30 42H36L46 30L36 18H30Z' fill='%23ffffff' opacity='0.06'/%3E%3Cpath d='M40 18L50 30L40 42H46L56 30L46 18H40Z' fill='%23ffffff' opacity='0.03'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:center;background-size:140px}
+
+/* ── TOP NAV ───────────────────────────────────────── */
+.topnav{position:sticky;top:0;z-index:50;background:rgba(0,0,0,0.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.topnav-inner{max-width:1280px;margin:0 auto;padding:0 24px;height:60px;display:flex;align-items:center;gap:24px}
+.brand{display:flex;align-items:center;gap:9px;font-weight:800;font-size:15px;letter-spacing:-.3px}
+.brand .dot{color:var(--accent)}
+.nav-links{flex:1;display:flex;align-items:center;gap:24px;font-size:13px;font-weight:500;color:var(--text2);margin-left:8px}
+.nav-links a{transition:color .15s}
+.nav-links a:hover{color:var(--text)}
+.nav-links .nav-onboard{color:var(--accent);font-weight:600;border-left:1px solid var(--border2);padding-left:24px}
+.nav-links .nav-onboard:hover{color:var(--text)}
+.nav-actions{display:flex;align-items:center;gap:10px}
+.btn-text{font-size:13px;font-weight:600;color:var(--text2);padding:7px 12px}
+.btn-text:hover{color:var(--text)}
+.btn-primary{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:#000;font-weight:700;font-size:13px;padding:9px 16px;border-radius:8px;transition:opacity .15s;letter-spacing:-.1px;border:none;cursor:pointer}
+.btn-primary:hover{opacity:.88}
+.btn-primary:disabled{opacity:.55;cursor:not-allowed}
+@media(max-width:760px){.nav-links{display:none}.nav-actions .btn-text{display:none}}
+
+.back-row{max-width:1280px;margin:0 auto;padding:16px 24px 0}
+.back{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--text2);transition:color .15s}
+.back:hover{color:var(--text)}
+
+/* ── LOADING SKELETON ──────────────────────────────── */
+.loading{max-width:1280px;margin:24px auto;padding:0 24px}
+.skel{background:linear-gradient(90deg,var(--surface) 0%,var(--surface2) 50%,var(--surface) 100%);background-size:200% 100%;animation:skel 1.4s ease-in-out infinite;border-radius:8px}
+@keyframes skel{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skel-hero{height:340px;border-radius:0;margin:14px 0 24px;background-color:#0a0a0a}
+.skel-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:24px}
+@media(min-width:760px){.skel-stats{grid-template-columns:repeat(4,1fr);gap:14px}}
+.skel-stat{height:78px;border-radius:12px}
+.skel-block{height:24px;width:60%;margin-bottom:14px}
+.skel-block.long{width:90%;height:14px;margin-bottom:8px}
+
+/* ── ERROR STATE ───────────────────────────────────── */
+.error-state{max-width:520px;margin:80px auto;padding:40px 28px;text-align:center}
+.error-glyph{width:64px;height:64px;border-radius:50%;background:var(--accent-soft);border:1px solid rgba(255,107,26,0.3);color:var(--accent);display:flex;align-items:center;justify-content:center;margin:0 auto 22px;font-size:28px;font-weight:900}
+.error-title{font-size:24px;font-weight:800;letter-spacing:-.5px;margin-bottom:10px}
+.error-body{font-size:14px;color:var(--text2);line-height:1.65;margin-bottom:24px}
+.error-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+/* ── HERO ───────────────────────────────────────────── */
+.v-hero{position:relative;height:48vh;min-height:380px;max-height:560px;overflow:hidden;margin-top:14px}
+.v-hero-bg{position:absolute;inset:0}
+.v-hero-bg img{width:100%;height:100%;object-fit:cover;display:block}
+.v-hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 0%,rgba(0,0,0,0.2) 40%,rgba(0,0,0,0.92) 100%);pointer-events:none}
+.v-hero-inner{position:absolute;left:0;right:0;bottom:0;padding:28px 24px;max-width:1280px;margin:0 auto;width:100%}
+.v-hero-badges{display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap}
+.v-badge{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border-radius:6px}
+.v-badge.live{background:var(--green-soft);border:1px solid rgba(61,220,132,0.3);color:var(--green)}
+.v-badge.live .d{width:5px;height:5px;border-radius:50%;background:var(--green)}
+.v-badge.verified{background:var(--accent-soft);border:1px solid rgba(255,107,26,0.35);color:var(--accent)}
+.v-badge.verified svg{width:10px;height:10px}
+.v-hero-name{font-size:38px;font-weight:900;letter-spacing:-1.2px;line-height:1;margin-bottom:8px}
+.v-hero-loc{font-size:15px;color:var(--text2);font-weight:500;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.v-hero-loc svg{width:14px;height:14px;flex-shrink:0}
+@media(min-width:760px){.v-hero{height:54vh}.v-hero-name{font-size:54px;letter-spacing:-2px}}
+
+/* ── STATS ROW ─────────────────────────────────────── */
+.v-stats{max-width:1280px;margin:0 auto;padding:24px}
+.v-stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media(min-width:760px){.v-stats-grid{grid-template-columns:repeat(4,1fr);gap:14px}}
+.v-stat{background:var(--surface);border:1px solid var(--border);border-left:2px solid var(--accent);border-radius:12px;padding:16px 18px}
+.v-stat .lbl{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:6px}
+.v-stat .val{font-size:20px;font-weight:800;letter-spacing:-.4px;line-height:1.1}
+.v-stat .val small{font-size:12px;color:var(--text2);font-weight:500;letter-spacing:0}
+
+/* ── CONTENT SECTIONS ──────────────────────────────── */
+.v-section-label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px}
+.v-section-title{font-size:24px;font-weight:800;letter-spacing:-.5px;line-height:1.15;margin-bottom:18px}
+.v-section-body{font-size:14.5px;color:var(--text2);line-height:1.7;max-width:680px}
+.v-section-body p{margin-bottom:10px}
+.v-section-body strong{color:var(--text);font-weight:600}
+
+.included{display:grid;grid-template-columns:1fr;gap:10px;margin-top:6px}
+@media(min-width:560px){.included{grid-template-columns:repeat(2,1fr)}}
+.inc-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;gap:11px;align-items:flex-start}
+.inc-check{flex-shrink:0;width:22px;height:22px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;margin-top:1px}
+.inc-check svg{width:11px;height:11px}
+.inc-title{font-size:13px;font-weight:700;color:var(--text)}
+
+.deal-card{background:linear-gradient(135deg,#0d0d0d 0%,#1a1410 100%);border:1px solid var(--border2);border-radius:14px;padding:24px;display:grid;grid-template-columns:1fr;gap:16px}
+@media(min-width:560px){.deal-card{grid-template-columns:repeat(3,1fr)}}
+.deal-item .lbl{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:5px}
+.deal-item .val{font-size:18px;font-weight:800;letter-spacing:-.3px}
+.deal-item .val.accent{color:var(--accent)}
+.deal-item .sub{font-size:12px;color:var(--text3);margin-top:3px;line-height:1.5}
+
+.rules-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+.rule{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 16px;font-size:13.5px;color:var(--text2);display:flex;gap:10px;align-items:flex-start}
+.rule::before{content:'·';color:var(--accent);font-weight:800;flex-shrink:0;font-size:22px;line-height:1}
+
+.gallery{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:6px}
+@media(min-width:560px){.gallery{grid-template-columns:repeat(3,1fr);gap:10px}}
+@media(min-width:900px){.gallery{grid-template-columns:repeat(4,1fr)}}
+.gal-item{aspect-ratio:1;border-radius:10px;border:1px solid var(--border);overflow:hidden}
+.gal-item img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* ── BOOKING CARD (warm orange) ───────────────────── */
+.book-card{background:linear-gradient(160deg,#1a0d05 0%,#0d0805 45%,#050505 100%);border:1px solid var(--border2);border-left:2px solid var(--accent);border-top:1px solid rgba(255,107,26,0.18);border-radius:14px;overflow:hidden;box-shadow:0 8px 32px rgba(255,107,26,0.04),inset 0 1px 0 rgba(255,255,255,0.03)}
+.book-head{padding:22px 22px 16px}
+.book-title{font-size:11px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px}
+.book-price{display:flex;align-items:baseline;gap:8px;margin-bottom:16px}
+.book-price .amt{font-size:32px;font-weight:900;letter-spacing:-1px;line-height:1}
+.book-price .unit{font-size:12px;color:var(--text2);font-weight:500}
+.book-perks{display:flex;flex-direction:column;gap:7px}
+.book-perk{font-size:12px;color:var(--text2);display:flex;align-items:center;gap:7px}
+.book-perk svg{color:var(--green);flex-shrink:0;width:11px;height:11px}
+
+.book-cal-section{padding:18px 22px;border-top:1px solid rgba(255,107,26,0.12);background:linear-gradient(180deg,rgba(255,107,26,0.025) 0%,transparent 100%)}
+.book-cal-prompt{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px}
+.book-cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.book-cal-month{font-size:13px;font-weight:700;letter-spacing:-.1px}
+.book-cal-btn{width:30px;height:30px;border-radius:6px;background:rgba(255,107,26,0.06);border:1px solid rgba(255,107,26,0.2);color:var(--text2);font-size:13px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;min-height:30px}
+.book-cal-btn:hover{background:rgba(255,107,26,0.12);border-color:rgba(255,107,26,0.4);color:var(--text)}
+.book-cal-btn:disabled{opacity:.35;cursor:not-allowed}
+.book-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.book-dow{font-size:9px;font-weight:700;color:var(--text3);text-align:center;padding:4px 0 2px;text-transform:uppercase;letter-spacing:.12em}
+.book-day{aspect-ratio:1;border-radius:6px;background:var(--accent-warm);border:1px solid rgba(255,107,26,0.08);font-size:11.5px;color:var(--text);display:flex;align-items:center;justify-content:center;font-weight:600;cursor:pointer;min-width:0;min-height:36px;transition:all .15s}
+.book-day:hover{background:rgba(255,107,26,0.18);border-color:rgba(255,107,26,0.35);transform:scale(1.04)}
+.book-day.empty{background:transparent;border-color:transparent;cursor:default}
+.book-day.empty:hover{background:transparent;border-color:transparent;transform:none}
+.book-day.past{background:transparent;border-color:transparent;color:var(--text3);opacity:.45;cursor:not-allowed;font-weight:500}
+.book-day.past:hover{background:transparent;border-color:transparent;transform:none}
+.book-day.booked{background:rgba(255,255,255,0.025);border-color:var(--border);color:var(--text3);cursor:not-allowed;text-decoration:line-through;text-decoration-thickness:1px;text-decoration-color:rgba(168,168,168,0.4);font-weight:500}
+.book-day.booked:hover{background:rgba(255,255,255,0.025);border-color:var(--border);transform:none}
+.book-day.today{background:rgba(255,107,26,0.1);border:1.5px solid var(--accent);color:var(--accent);font-weight:700}
+.book-day.selected{background:var(--accent);border-color:var(--accent);color:#000;font-weight:800;box-shadow:0 2px 12px rgba(255,107,26,0.4)}
+.book-day.selected:hover{background:var(--accent);transform:scale(1.04)}
+
+.book-selected-row{margin-top:14px;font-size:12px;color:var(--text2);display:flex;justify-content:space-between;align-items:center}
+.book-selected-row strong{color:var(--text);font-weight:600}
+.book-cta-wrap{padding:14px 22px 22px;border-top:1px solid rgba(255,107,26,0.12)}
+.btn-book{width:100%;background:var(--accent);color:#000;border:none;font-weight:800;font-size:13px;padding:13px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;transition:opacity .15s;letter-spacing:-.1px}
+.btn-book:hover{opacity:.88}
+.btn-book:disabled{background:var(--surface2);color:var(--text3);border:1px solid var(--border2);cursor:not-allowed;font-weight:600}
+.btn-book:disabled:hover{opacity:1}
+.book-footnote{margin-top:10px;font-size:10px;color:var(--text3);text-align:center;letter-spacing:.06em;display:flex;align-items:center;justify-content:center;gap:5px}
+
+/* ── STICKY BOTTOM BAR (mobile) ───────────────────── */
+.sticky-book{position:fixed;bottom:0;left:0;right:0;z-index:30;background:rgba(0,0,0,0.95);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--border2);padding:14px 16px calc(14px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:60px}
+.sticky-book-price{display:flex;flex-direction:column}
+.sticky-book-price .amt{font-size:18px;font-weight:800;letter-spacing:-.4px;line-height:1}
+.sticky-book-price .unit{font-size:11px;color:var(--text2);font-weight:500;margin-top:2px}
+.sticky-book .btn-primary{font-size:13px;padding:11px 18px;min-height:44px}
+@media(min-width:900px){.sticky-book{display:none}}
+
+/* ── TWO-COL LAYOUT ───────────────────────────────── */
+.layout{max-width:1280px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:1fr;gap:24px}
+@media(min-width:900px){.layout{grid-template-columns:1fr 360px;gap:32px;align-items:start;padding-bottom:48px}}
+.layout-content{display:flex;flex-direction:column;gap:36px;min-width:0}
+.layout-sidebar{display:none}
+@media(min-width:900px){.layout-sidebar{display:block;position:sticky;top:80px;align-self:start}}
+
+/* ── BOOKING MODAL (mobile sheet + desktop modal) ─── */
+.modal-overlay{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);align-items:flex-end;justify-content:center}
+@media(min-width:760px){.modal-overlay{align-items:center;padding:20px}}
+.modal-overlay.open{display:flex}
+.modal-card{background:var(--surface);border:1px solid var(--border2);width:100%;max-width:520px;max-height:92vh;overflow-y:auto;border-radius:18px 18px 0 0;padding:24px 22px calc(24px + env(safe-area-inset-bottom,0px));-webkit-overflow-scrolling:touch}
+@media(min-width:760px){.modal-card{border-radius:14px;padding:28px;max-height:90vh}}
+.modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:18px}
+.modal-eyebrow{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.12em;margin-bottom:4px}
+.modal-title{font-size:20px;font-weight:800;letter-spacing:-.4px;line-height:1.15}
+.modal-close{flex-shrink:0;width:34px;height:34px;border-radius:50%;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;line-height:1}
+.modal-close:hover{color:var(--text)}
+.modal-section + .modal-section{margin-top:18px;padding-top:18px;border-top:1px solid var(--border)}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
+.field input,.field textarea{width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);font-size:14px;padding:11px 12px;border-radius:8px;outline:none;transition:border-color .15s;min-height:44px}
+.field textarea{min-height:80px;resize:vertical;font-family:var(--font)}
+.field input:focus,.field textarea:focus{border-color:var(--accent)}
+.row2{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:520px){.row2{grid-template-columns:1fr 1fr;gap:14px}}
+.modal-err{display:none;font-size:12px;color:var(--alert);background:rgba(255,68,68,0.08);border:1px solid rgba(255,68,68,0.25);border-radius:6px;padding:10px 12px;margin-top:6px;line-height:1.5}
+.modal-err.show{display:block}
+.modal-cta-row{margin-top:18px;display:flex;flex-direction:column;gap:10px}
+.modal-summary{background:linear-gradient(135deg,#1a0d05 0%,#0d0805 100%);border:1px solid var(--border2);border-radius:10px;padding:14px 16px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px}
+.modal-summary .lbl{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.1em;font-weight:600}
+.modal-summary .val{font-size:14px;font-weight:700}
+.modal-summary .price{font-size:18px;font-weight:800;letter-spacing:-.3px;color:var(--accent)}
+.btn-submit{width:100%;background:var(--accent);color:#000;border:none;font-weight:800;font-size:14px;padding:14px;border-radius:8px;cursor:pointer;transition:opacity .15s;letter-spacing:-.1px;min-height:48px;display:flex;align-items:center;justify-content:center;gap:6px}
+.btn-submit:hover{opacity:.88}
+.btn-submit:disabled{opacity:.55;cursor:not-allowed}
+.btn-cancel{width:100%;background:transparent;color:var(--text2);border:1px solid var(--border2);font-weight:600;font-size:13px;padding:13px;border-radius:8px;cursor:pointer;min-height:44px}
+.btn-cancel:hover{color:var(--text);border-color:var(--text3)}
+
+/* Mobile sheet: show calendar inside the modal too */
+.modal-calendar{display:block}
+@media(min-width:900px){.modal-calendar{display:none}}
+
+/* ── FOOTER ───────────────────────────────────────── */
+footer{padding:48px 0 36px 0;border-top:1px solid var(--border);margin-top:48px}
+.footer-inner{max-width:1280px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:1fr;gap:32px}
+@media(min-width:760px){.footer-inner{grid-template-columns:2fr 1fr 1fr;gap:48px}}
+.footer-tagline{font-size:13px;color:var(--text2);max-width:280px;line-height:1.55;margin-top:10px}
+.footer-col-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.12em;font-weight:600;margin-bottom:14px}
+.footer-links{display:flex;flex-direction:column;gap:9px;font-size:13px;color:var(--text2)}
+.footer-links a:hover{color:var(--text)}
+.footer-bottom{max-width:1280px;margin:36px auto 0;padding:24px 24px 0;border-top:1px solid var(--border);font-size:11px;color:var(--text3);display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px}
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<header class="topnav">
+  <div class="topnav-inner">
+    <a href="/" class="brand">
+      <svg width="22" height="16" viewBox="0 0 24 18" fill="none"><path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#ffffff"/><path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#ffffff" opacity="0.4"/></svg>
+      <span>Venue<span class="dot">.</span>Portal</span>
+    </a>
+    <div class="nav-links">
+      <a href="/">Find Venues</a>
+      <a href="/onboard.html">For Owners</a>
+      <a href="/#how-it-works">How it works</a>
+      <a href="/onboard.html" class="nav-onboard">Get Onboarded</a>
+    </div>
+    <div class="nav-actions">
+      <a href="/dashboard.html" class="btn-text">Sign In</a>
+      <a href="/onboard.html" class="btn-primary">Get Started →</a>
+    </div>
+  </div>
+</header>
+
+<div class="back-row">
+  <a href="/" class="back">← All venues</a>
+</div>
+
+<!-- LOADING SKELETON -->
+<div id="loading-state" class="loading">
+  <div class="skel skel-hero"></div>
+  <div class="skel-stats">
+    <div class="skel skel-stat"></div><div class="skel skel-stat"></div>
+    <div class="skel skel-stat"></div><div class="skel skel-stat"></div>
+  </div>
+  <div class="skel skel-block"></div>
+  <div class="skel skel-block long"></div>
+  <div class="skel skel-block long"></div>
+  <div class="skel skel-block long"></div>
+</div>
+
+<!-- ERROR STATE -->
+<div id="error-state" class="error-state" style="display:none">
+  <div class="error-glyph">?</div>
+  <div class="error-title" id="error-title">Venue not found</div>
+  <div class="error-body" id="error-body">We couldn't find the venue you're looking for. It may have been removed, or the link might be incorrect.</div>
+  <div class="error-actions">
+    <a href="/" class="btn-primary">Back to all venues</a>
+    <button class="btn-cancel" onclick="location.reload()" style="width:auto;padding:10px 18px">Try again</button>
+  </div>
+</div>
+
+<!-- MAIN CONTENT (hidden until loaded) -->
+<main id="content-state" style="display:none">
+
+  <section class="v-hero">
+    <div class="v-hero-bg" id="hero-bg"></div>
+    <div class="v-hero-inner">
+      <div class="v-hero-badges" id="hero-badges">
+        <span class="v-badge live"><span class="d"></span>Live now</span>
+      </div>
+      <h1 class="v-hero-name" id="hero-name"></h1>
+      <p class="v-hero-loc" id="hero-loc"></p>
+    </div>
+  </section>
+
+  <section class="v-stats">
+    <div class="v-stats-grid" id="stats-grid"></div>
+  </section>
+
+  <div class="layout">
+
+    <div class="layout-content">
+
+      <section id="section-about" style="display:none">
+        <div class="v-section-label">About this venue</div>
+        <h2 class="v-section-title" id="about-title">About the space</h2>
+        <div class="v-section-body" id="about-body"></div>
+      </section>
+
+      <section id="section-included" style="display:none">
+        <div class="v-section-label">What's included</div>
+        <h2 class="v-section-title">Everything you need to host.</h2>
+        <div class="included" id="included-list"></div>
+      </section>
+
+      <section id="section-deal" style="display:none">
+        <div class="v-section-label">The deal</div>
+        <h2 class="v-section-title">Transparent pricing.</h2>
+        <div class="deal-card" id="deal-card"></div>
+      </section>
+
+      <section id="section-rules">
+        <div class="v-section-label">House rules</div>
+        <h2 class="v-section-title">Things to know.</h2>
+        <ul class="rules-list">
+          <li class="rule">Confirmed bookings are locked once Stripe deposit clears.</li>
+          <li class="rule">Cancellation requires 5+ days notice for partial refund.</li>
+          <li class="rule">Promoter responsible for any damages beyond normal wear.</li>
+          <li class="rule">Specific house rules (noise curfew, age restrictions, parking) shared by the venue owner after acceptance.</li>
+        </ul>
+      </section>
+
+      <section id="section-gallery" style="display:none">
+        <div class="v-section-label">Photo gallery</div>
+        <h2 class="v-section-title">See the space.</h2>
+        <div class="gallery" id="gallery-grid"></div>
+      </section>
+
+    </div>
+
+    <aside class="layout-sidebar">
+      <div class="book-card">
+        <div class="book-head">
+          <div class="book-title" id="sidebar-title">Book this venue</div>
+          <div class="book-price"><span class="amt" id="sidebar-price">—</span><span class="unit" id="sidebar-unit">flat fee · per night</span></div>
+          <div class="book-perks">
+            <span class="book-perk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Keep 100% of door</span>
+            <span class="book-perk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Confirmed within 24hrs</span>
+            <span class="book-perk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Stripe-secured deposit</span>
+          </div>
+        </div>
+        <div class="book-cal-section">
+          <div class="book-cal-prompt">Select a date</div>
+          <div class="book-cal-nav">
+            <button class="book-cal-btn" id="cal-prev" aria-label="Previous month">‹</button>
+            <span class="book-cal-month" id="cal-month-label"></span>
+            <button class="book-cal-btn" id="cal-next" aria-label="Next month">›</button>
+          </div>
+          <div class="book-cal-grid" id="cal-grid"></div>
+          <div class="book-selected-row" id="cal-selected-row" style="display:none">
+            <span>Selected: <strong id="cal-selected-label"></strong></span>
+            <button class="book-cal-btn" onclick="clearSelectedDate()" style="width:auto;padding:0 10px;font-size:11px">Clear</button>
+          </div>
+        </div>
+        <div class="book-cta-wrap">
+          <button class="btn-book" id="sidebar-cta" disabled onclick="openBookingModal()">Select a date above</button>
+          <div class="book-footnote">
+            <svg width="9" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            Secured by Stripe
+          </div>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+</main>
+
+<!-- STICKY BOTTOM BAR (mobile only) -->
+<div class="sticky-book" id="sticky-bar" style="display:none">
+  <div class="sticky-book-price">
+    <span class="amt" id="sticky-price">—</span>
+    <span class="unit" id="sticky-unit">flat fee · per night</span>
+  </div>
+  <button class="btn-primary" id="sticky-cta" onclick="openBookingModal()">Pick a date →</button>
+</div>
+
+<!-- BOOKING MODAL -->
+<div class="modal-overlay" id="modal" onclick="if(event.target===this) closeBookingModal()">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div>
+        <div class="modal-eyebrow" id="modal-eyebrow">Send inquiry</div>
+        <div class="modal-title" id="modal-title">Booking inquiry</div>
+      </div>
+      <button class="modal-close" onclick="closeBookingModal()" aria-label="Close">×</button>
+    </div>
+
+    <!-- Mobile-only calendar inside the modal -->
+    <div class="modal-calendar modal-section">
+      <div class="book-cal-prompt">Select a date</div>
+      <div class="book-cal-nav">
+        <button class="book-cal-btn" id="m-cal-prev" aria-label="Previous month">‹</button>
+        <span class="book-cal-month" id="m-cal-month-label"></span>
+        <button class="book-cal-btn" id="m-cal-next" aria-label="Next month">›</button>
+      </div>
+      <div class="book-cal-grid" id="m-cal-grid"></div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-summary">
+        <div>
+          <div class="lbl">Date</div>
+          <div class="val" id="modal-date-val">— select a date —</div>
+        </div>
+        <div style="text-align:right">
+          <div class="lbl">Fee</div>
+          <div class="price" id="modal-price-val">—</div>
+        </div>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label>Your name</label>
+          <input type="text" id="f-name" placeholder="Full name" autocomplete="name"/>
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="f-email" placeholder="you@email.com" autocomplete="email"/>
+        </div>
+      </div>
+      <div class="field">
+        <label>Expected guests</label>
+        <input type="number" id="f-headcount" placeholder="e.g. 80" min="1" onwheel="this.blur()"/>
+      </div>
+      <div class="field">
+        <label>Event details (optional)</label>
+        <textarea id="f-show" placeholder="Event type, vibe, timeline — anything helpful for the venue owner."></textarea>
+      </div>
+
+      <div class="modal-err" id="modal-err"></div>
+
+      <div class="modal-cta-row">
+        <button class="btn-submit" id="modal-submit" onclick="submitInquiry()">Send inquiry →</button>
+        <button class="btn-cancel" onclick="closeBookingModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <a href="/" class="brand"><svg width="22" height="16" viewBox="0 0 24 18" fill="none"><path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#ffffff"/><path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#ffffff" opacity="0.4"/></svg><span>Venue<span class="dot">.</span>Portal</span></a>
+      <p class="footer-tagline">Booking infrastructure for independent venues.</p>
+    </div>
+    <div><div class="footer-col-label">Browse</div><div class="footer-links"><a href="/">All venues</a><a href="/onboard.html">For owners</a></div></div>
+    <div><div class="footer-col-label">Company</div><div class="footer-links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="mailto:hello@venueportal.us">Contact</a></div></div>
+  </div>
+  <div class="footer-bottom"><span>Venue.Portal © 2026</span><span>Made for independent venues</span></div>
+</footer>
+
+<script>
+const API_BASE = 'https://thevenueportal.paxey333.workers.dev';
+const state = {
+  venue: null,
+  bookedDates: new Set(), // YYYY-MM-DD strings
+  selected: null,         // {iso:'YYYY-MM-DD', label:'Sat, Jun 14'}
+  viewYear: null,
+  viewMonth: null,        // 0-11
+};
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const todayISO = () => {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+};
+const fmtLabel = (y, m, d) => {
+  const dt = new Date(y, m, d);
+  return dt.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
+};
+const fmtPrice = n => '$' + Number(n).toLocaleString();
+
+// ── PARSE URL ─────────────────────────────────────
+function parseVenueId() {
+  const params = new URLSearchParams(window.location.search);
+  const raw = params.get('id');
+  if (!raw) return null;
+  const n = parseInt(raw, 10);
+  if (!Number.isFinite(n) || n < 1) return null;
+  return n;
+}
+
+// ── ENTRY POINT ────────────────────────────────────
+(async function init(){
+  const id = parseVenueId();
+  if (id === null) {
+    // No id or invalid id → redirect to home
+    window.location.replace('/');
+    return;
+  }
+  try {
+    const [venueRes, datesRes] = await Promise.allSettled([
+      fetch(`${API_BASE}/api/venues/${id}?t=${Date.now()}`),
+      fetch(`${API_BASE}/api/venues/${id}/booked-dates?t=${Date.now()}`),
+    ]);
+    if (venueRes.status !== 'fulfilled') throw new Error('Network error');
+    const vres = venueRes.value;
+    if (vres.status === 404) { showError('Venue not found', "We couldn't find that venue. It may have been removed."); return; }
+    if (!vres.ok) throw new Error('Server error ' + vres.status);
+    const venue = await vres.json();
+    if (venue.error) { showError('Venue not found', venue.error); return; }
+    state.venue = venue;
+    if (datesRes.status === 'fulfilled' && datesRes.value.ok) {
+      const data = await datesRes.value.json();
+      (data.dates || []).forEach(d => state.bookedDates.add(d));
+    }
+    renderVenue();
+  } catch (e) {
+    console.error('[venue init]', e);
+    showError('Could not load venue', e.message || 'Try refreshing the page.');
+  }
+})();
+
+// ── ERROR STATE ────────────────────────────────────
+function showError(title, body) {
+  $('loading-state').style.display = 'none';
+  $('content-state').style.display = 'none';
+  $('error-title').textContent = title;
+  $('error-body').textContent = body;
+  $('error-state').style.display = 'block';
+  document.title = 'Venue.Portal — Not Found';
+}
+
+// ── RENDER VENUE ────────────────────────────────────
+function renderVenue() {
+  const v = state.venue;
+  document.title = `${v.name} — Venue.Portal`;
+
+  // Hero photo: gallery[0] or gradient placeholder
+  const hero = $('hero-bg');
+  if (v.gallery && v.gallery.length > 0) {
+    hero.innerHTML = `<img src="${esc(v.gallery[0])}" alt="${esc(v.name)}" loading="eager"/>`;
+  } else {
+    hero.className = 'v-hero-bg ph';
+  }
+
+  $('hero-name').textContent = v.name;
+
+  // Location: derived from first sentence of description if it includes an address-shaped prefix
+  // Description begins with the address (Commit A convention). Pull the first sentence as location.
+  let locText = '';
+  if (v.description) {
+    const firstSentence = v.description.split('. ')[0].trim();
+    if (firstSentence && firstSentence.length < 120) locText = firstSentence;
+  }
+  const locEl = $('hero-loc');
+  if (locText) {
+    locEl.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      ${esc(locText)}
+    `;
+  } else {
+    locEl.style.display = 'none';
+  }
+
+  // Stats row
+  const stats = [];
+  if (v.capacity) stats.push({ lbl: 'Capacity', val: v.capacity + ' <small>guests</small>' });
+  if (v.price_per_day) stats.push({ lbl: 'From', val: fmtPrice(v.price_per_day) + ' <small>/ night</small>' });
+  if (v.hours) stats.push({ lbl: 'Hours', val: esc(v.hours) });
+  // 4th stat: first amenity if present, else hide
+  if (v.amenities && v.amenities.length > 0) stats.push({ lbl: 'Vibe', val: esc(v.amenities[0].split('(')[0].trim()) });
+  $('stats-grid').innerHTML = stats.map(s => `
+    <div class="v-stat"><div class="lbl">${s.lbl}</div><div class="val">${s.val}</div></div>
+  `).join('');
+
+  // About — only show if description exists. Drop the leading address sentence
+  // since it's redundant with the hero location line.
+  if (v.description) {
+    const rest = v.description.includes('. ')
+      ? v.description.split('. ').slice(1).join('. ').trim()
+      : v.description;
+    if (rest) {
+      $('about-body').innerHTML = '<p>' + rest.split(/\.\s+/).filter(Boolean).map(p => esc(p.replace(/\.$/,'')) + '.').join('</p><p>') + '</p>';
+      $('section-about').style.display = '';
+    }
+  }
+
+  // What's included — amenities
+  if (v.amenities && v.amenities.length > 0) {
+    $('included-list').innerHTML = v.amenities.map(a => `
+      <div class="inc-item">
+        <div class="inc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div><div class="inc-title">${esc(a)}</div></div>
+      </div>
+    `).join('');
+    $('section-included').style.display = '';
+  }
+
+  // The deal — derived from price_per_day. Deposit = 33% rounded up to nearest $50, capped at $200
+  if (v.price_per_day) {
+    const price = Number(v.price_per_day);
+    let deposit = Math.min(200, Math.ceil((price * 0.33) / 50) * 50);
+    if (deposit < 50) deposit = Math.max(25, Math.round(price * 0.33));
+    $('deal-card').innerHTML = `
+      <div class="deal-item"><div class="lbl">Booking fee</div><div class="val accent">${fmtPrice(price)}</div><div class="sub">Flat per night · No commission</div></div>
+      <div class="deal-item"><div class="lbl">Deposit</div><div class="val">${fmtPrice(deposit)}</div><div class="sub">Held via Stripe to confirm date</div></div>
+      <div class="deal-item"><div class="lbl">Door</div><div class="val">100%</div><div class="sub">Keep everything from ticket sales</div></div>
+    `;
+    $('section-deal').style.display = '';
+  }
+
+  // Gallery — render all photos (skip first which is already in hero)
+  if (v.gallery && v.gallery.length > 1) {
+    $('gallery-grid').innerHTML = v.gallery.slice(1).map(url => `
+      <div class="gal-item"><img src="${esc(url)}" alt="${esc(v.name)}" loading="lazy"/></div>
+    `).join('');
+    $('section-gallery').style.display = '';
+  } else if (v.gallery && v.gallery.length === 1) {
+    // Single photo only — still show in gallery section
+    $('gallery-grid').innerHTML = v.gallery.map(url => `
+      <div class="gal-item"><img src="${esc(url)}" alt="${esc(v.name)}" loading="lazy"/></div>
+    `).join('');
+    $('section-gallery').style.display = '';
+  }
+
+  // Sidebar + sticky bar price
+  if (v.price_per_day) {
+    const price = fmtPrice(v.price_per_day);
+    $('sidebar-price').textContent = price;
+    $('sticky-price').textContent = price;
+  } else {
+    $('sidebar-price').textContent = '—';
+    $('sticky-price').textContent = '—';
+  }
+
+  // Init calendar to current month
+  const now = new Date();
+  state.viewYear = now.getFullYear();
+  state.viewMonth = now.getMonth();
+  renderCalendar();
+
+  // Swap from loading to content
+  $('loading-state').style.display = 'none';
+  $('content-state').style.display = '';
+  $('sticky-bar').style.display = '';
+  document.title = `${v.name} — Venue.Portal`;
+}
+
+// ── CALENDAR ────────────────────────────────────────
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function renderCalendar() {
+  const y = state.viewYear, m = state.viewMonth;
+  const label = `${MONTHS[m]} ${y}`;
+  $('cal-month-label').textContent = label;
+  $('m-cal-month-label').textContent = label;
+
+  // Build cell list
+  const first = new Date(y, m, 1);
+  const startDow = first.getDay(); // 0=Sun
+  // Header row: M T W T F S S
+  const head = ['M','T','W','T','F','S','S'].map(d => `<div class="book-dow">${d}</div>`).join('');
+  // Mon-first: shift Sunday to end
+  const lead = startDow === 0 ? 6 : startDow - 1;
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+  const today = todayISO();
+
+  const cells = [];
+  for (let i = 0; i < lead; i++) cells.push('<div class="book-day empty"></div>');
+  for (let d = 1; d <= daysInMonth; d++) {
+    const iso = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    let cls = 'book-day';
+    let attrs = '';
+    if (iso < today) cls += ' past';
+    else if (state.bookedDates.has(iso)) cls += ' booked';
+    else attrs = ` data-iso="${iso}"`;
+    if (iso === today) cls += ' today';
+    if (state.selected && state.selected.iso === iso) cls += ' selected';
+    cells.push(`<div class="${cls}"${attrs}>${d}</div>`);
+  }
+
+  const html = head + cells.join('');
+  $('cal-grid').innerHTML = html;
+  $('m-cal-grid').innerHTML = html;
+
+  // Wire day clicks
+  document.querySelectorAll('#cal-grid .book-day[data-iso], #m-cal-grid .book-day[data-iso]').forEach(el => {
+    el.addEventListener('click', () => selectDate(el.dataset.iso));
+  });
+
+  // Selected row state
+  if (state.selected) {
+    $('cal-selected-row').style.display = '';
+    $('cal-selected-label').textContent = state.selected.label;
+    $('sidebar-cta').disabled = false;
+    $('sidebar-cta').textContent = `Send inquiry · ${state.selected.label} →`;
+    $('sticky-cta').textContent = `Send inquiry · ${state.selected.label} →`;
+  } else {
+    $('cal-selected-row').style.display = 'none';
+    $('sidebar-cta').disabled = true;
+    $('sidebar-cta').textContent = 'Select a date above';
+    $('sticky-cta').textContent = 'Pick a date →';
+  }
+}
+
+function selectDate(iso) {
+  const [yy, mm, dd] = iso.split('-').map(Number);
+  const label = fmtLabel(yy, mm - 1, dd);
+  state.selected = { iso, label };
+  renderCalendar();
+}
+
+function clearSelectedDate() {
+  state.selected = null;
+  renderCalendar();
+}
+
+function shiftMonth(delta) {
+  const now = new Date();
+  const minYM = now.getFullYear() * 12 + now.getMonth(); // can't go before this
+  const cur = state.viewYear * 12 + state.viewMonth;
+  const next = cur + delta;
+  if (next < minYM) return;
+  if (next > minYM + 18) return; // cap at 18 months out
+  state.viewYear = Math.floor(next / 12);
+  state.viewMonth = next % 12;
+  renderCalendar();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  $('cal-prev').addEventListener('click', () => shiftMonth(-1));
+  $('cal-next').addEventListener('click', () => shiftMonth(1));
+  $('m-cal-prev').addEventListener('click', () => shiftMonth(-1));
+  $('m-cal-next').addEventListener('click', () => shiftMonth(1));
+});
+
+// ── BOOKING MODAL ──────────────────────────────────
+function openBookingModal() {
+  const v = state.venue;
+  if (!v) return;
+  $('modal-title').textContent = v.name;
+  $('modal-eyebrow').textContent = 'Booking inquiry';
+  updateModalSummary();
+  $('modal-err').classList.remove('show');
+  $('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  // Focus name field on desktop (skip on mobile to avoid keyboard pop)
+  if (window.innerWidth >= 760) setTimeout(() => $('f-name').focus(), 100);
+}
+
+function closeBookingModal() {
+  $('modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function updateModalSummary() {
+  $('modal-date-val').textContent = state.selected ? state.selected.label : '— select a date —';
+  $('modal-price-val').textContent = state.venue && state.venue.price_per_day ? fmtPrice(state.venue.price_per_day) : '—';
+}
+
+// Re-sync modal summary whenever selected date changes
+const _origSelectDate = selectDate;
+selectDate = function(iso){ _origSelectDate(iso); updateModalSummary(); };
+
+async function submitInquiry() {
+  const errEl = $('modal-err');
+  const btn = $('modal-submit');
+  errEl.classList.remove('show');
+
+  if (!state.selected) {
+    errEl.textContent = 'Please pick a date first.';
+    errEl.classList.add('show');
+    return;
+  }
+  const name = $('f-name').value.trim();
+  const email = $('f-email').value.trim();
+  const guestsRaw = $('f-headcount').value.trim();
+  const message = $('f-show').value.trim();
+
+  if (!name || !email) {
+    errEl.textContent = 'Name and email are required.';
+    errEl.classList.add('show');
+    return;
+  }
+  if (!/^\S+@\S+\.\S+$/.test(email)) {
+    errEl.textContent = 'Please enter a valid email address.';
+    errEl.classList.add('show');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+
+  try {
+    // Booking POST contract — IDENTICAL to index.html submitBooking() at line 2432
+    // venue_id, client_name, client_email, event_date, guests (int|null), message (string|null)
+    const res = await fetch(`${API_BASE}/api/bookings`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        venue_id:     state.venue.id,
+        client_name:  name,
+        client_email: email,
+        event_date:   state.selected.iso,
+        guests:       parseInt(guestsRaw) || null,
+        message:      message || null,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Submission failed');
+    // Success — redirect to confirmation page per Commit C spec
+    window.location.href = '/booking-confirmed.html';
+  } catch (e) {
+    btn.disabled = false;
+    btn.textContent = 'Send inquiry →';
+    errEl.textContent = e.message || 'Something went wrong. Please try again.';
+    errEl.classList.add('show');
+  }
+}
+</script>
+
+</body>
+</html>
