@@ -16,5 +16,11 @@
       "database_name": "venue-portal-db",
       "database_id": "5253aacd-dc38-4de0-9bc8-20062e0b3193"
     }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "VENUE_PHOTOS",
+      "bucket_name": "venue-photos"
+    }
   ]
 }

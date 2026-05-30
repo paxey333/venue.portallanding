@@ -705,6 +705,128 @@ export default {
         }
       }
 
+      // ── VENUE PHOTOS: UPLOAD / DELETE (R2-backed) ─────────────────
+      // Public URL prefix served by the R2 bucket via Cloudflare custom domain.
+      // Requires the `venue-photos` R2 bucket to have `images.venueportal.us`
+      // connected under Settings -> Public Access -> Connect Domain.
+      const venuePhotosMatch = path.match(/^\/api\/venues\/(\d+)\/photos$/);
+      const R2_PUBLIC_BASE = "https://images.venueportal.us";
+      const MAX_PHOTOS = 8;
+      const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
+      const ALLOWED_MIME = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
+
+      if (venuePhotosMatch && request.method === "POST") {
+        try {
+          const session = await getSession(request, env);
+          if (!isAnyRole(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
+          const id = Number(venuePhotosMatch[1]);
+          if (session.role === "venue_owner" && session.venue_id !== id) {
+            return jsonResponse({ error: "Forbidden" }, 403, request);
+          }
+          if (!env.VENUE_PHOTOS) return jsonResponse({ error: "R2 bucket not bound (VENUE_PHOTOS)" }, 500, request);
+
+          // Parse multipart upload — expects a single file field named "file"
+          let form;
+          try { form = await request.formData(); }
+          catch (e) { return jsonResponse({ error: "Invalid multipart body" }, 400, request); }
+          const file = form.get("file");
+          if (!file || typeof file === "string") {
+            return jsonResponse({ error: "Missing 'file' field in form data" }, 400, request);
+          }
+
+          // Validate MIME
+          const ext = ALLOWED_MIME[file.type];
+          if (!ext) {
+            return jsonResponse({ error: "Unsupported file type. Allowed: image/jpeg, image/png, image/webp." }, 400, request);
+          }
+          // Validate size (read .size if present; fallback to byte count via arrayBuffer)
+          const size = typeof file.size === "number" ? file.size : (await file.arrayBuffer()).byteLength;
+          if (size < 1 || size > MAX_BYTES) {
+            return jsonResponse({ error: `File must be between 1 byte and ${MAX_BYTES} bytes (5MB).` }, 400, request);
+          }
+
+          // Verify venue exists + fetch current gallery
+          const venue = await env.DB.prepare("SELECT id, gallery FROM venues WHERE id = ?").bind(id).first();
+          if (!venue) return jsonResponse({ error: "Venue not found" }, 404, request);
+          let gallery = [];
+          if (venue.gallery) {
+            try { const parsed = JSON.parse(venue.gallery); if (Array.isArray(parsed)) gallery = parsed; }
+            catch (e) { gallery = []; }
+          }
+          if (gallery.length >= MAX_PHOTOS) {
+            return jsonResponse({ error: `This venue already has the maximum of ${MAX_PHOTOS} photos. Delete one first.` }, 409, request);
+          }
+
+          // Build storage key + upload to R2
+          const key = `venue-photos/${id}/${Date.now()}.${ext}`;
+          await env.VENUE_PHOTOS.put(key, file.stream(), {
+            httpMetadata: { contentType: file.type }
+          });
+
+          // Append URL to D1 gallery
+          const url = `${R2_PUBLIC_BASE}/${key}`;
+          gallery.push(url);
+          await env.DB.prepare("UPDATE venues SET gallery = ? WHERE id = ?")
+            .bind(JSON.stringify(gallery), id).run();
+
+          console.log("[VENUE PHOTO UPLOAD]", "venue_id:", id, "key:", key, "size:", size, "gallery_count:", gallery.length);
+          return jsonResponse({ success: true, url, gallery }, 200, request);
+        } catch (err) {
+          console.log("[VENUE PHOTO UPLOAD ERROR]", err && err.message);
+          return jsonResponse({ error: err.message || "Upload failed" }, 500, request);
+        }
+      }
+
+      if (venuePhotosMatch && request.method === "DELETE") {
+        try {
+          const session = await getSession(request, env);
+          if (!isAnyRole(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
+          const id = Number(venuePhotosMatch[1]);
+          if (session.role === "venue_owner" && session.venue_id !== id) {
+            return jsonResponse({ error: "Forbidden" }, 403, request);
+          }
+          if (!env.VENUE_PHOTOS) return jsonResponse({ error: "R2 bucket not bound (VENUE_PHOTOS)" }, 500, request);
+
+          const body = await parseJson(request);
+          const url = String(body.url || "").trim();
+          if (!url) return jsonResponse({ error: "Missing 'url' in request body" }, 400, request);
+          if (!url.startsWith(R2_PUBLIC_BASE + "/")) {
+            return jsonResponse({ error: "URL does not belong to this bucket" }, 400, request);
+          }
+          // Extract the R2 key (everything after the public base + leading /)
+          const key = url.slice(R2_PUBLIC_BASE.length + 1);
+          if (!key.startsWith(`venue-photos/${id}/`)) {
+            return jsonResponse({ error: "URL does not belong to this venue" }, 400, request);
+          }
+
+          // Fetch current gallery
+          const venue = await env.DB.prepare("SELECT id, gallery FROM venues WHERE id = ?").bind(id).first();
+          if (!venue) return jsonResponse({ error: "Venue not found" }, 404, request);
+          let gallery = [];
+          if (venue.gallery) {
+            try { const parsed = JSON.parse(venue.gallery); if (Array.isArray(parsed)) gallery = parsed; }
+            catch (e) { gallery = []; }
+          }
+          const before = gallery.length;
+          gallery = gallery.filter(g => g !== url);
+          const removedFromGallery = gallery.length < before;
+
+          // Delete from R2 regardless of whether it was in the gallery (idempotent)
+          await env.VENUE_PHOTOS.delete(key);
+
+          if (removedFromGallery) {
+            await env.DB.prepare("UPDATE venues SET gallery = ? WHERE id = ?")
+              .bind(JSON.stringify(gallery), id).run();
+          }
+
+          console.log("[VENUE PHOTO DELETE]", "venue_id:", id, "key:", key, "removed_from_gallery:", removedFromGallery, "gallery_count:", gallery.length);
+          return jsonResponse({ success: true, removed: removedFromGallery, gallery }, 200, request);
+        } catch (err) {
+          console.log("[VENUE PHOTO DELETE ERROR]", err && err.message);
+          return jsonResponse({ error: err.message || "Delete failed" }, 500, request);
+        }
+      }
+
       // ── BOOKINGS: CREATE (public) ────────────────────────────────
       if (path === "/api/bookings" && request.method === "POST") {
         try {

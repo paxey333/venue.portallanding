@@ -5,10 +5,10 @@ The public surfaces (`index.html` landing + the hardcoded `#detail-ws` / `#detai
 | Commit | Status | Scope |
 |--------|--------|-------|
 | **A — White Swan D1 seed** | ✅ Done | Reconcile White Swan into D1; wire `VENUES.ws.id` in index.html |
-| B — Photo upload (R2) | pending | Add R2 bucket + upload UI for venue galleries |
+| **B — Photo upload backend (R2)** | ✅ Done | R2 bucket + custom domain + upload/delete endpoints |
 | C — `venue.html?id=X` | pending | New dynamic public venue page using the dashboard v2 visual system |
 | D — Remove `#detail-cr` / `#detail-ws` hardcoded blocks | pending | Once `venue.html` is live, replace inline blocks with redirects |
-| E — Index landing v2 swap | pending | Swap `index.html` to the v2 mockup layout |
+| E — Index landing v2 swap + upload UI in dashboard Edit Profile | pending | Swap `index.html` to the v2 mockup layout; wire the photo upload UI to the Commit B backend |
 
 ---
 
@@ -83,3 +83,105 @@ Only the `id` field changed (`null` → `3`). All other VENUES.ws fields (name/l
 - `PUBLIC_SURFACE_V2_DIFF.md` (new, this file)
 
 No other files modified. `dashboard.html`, `api.js`, and all other live files untouched.
+
+---
+
+## Commit B — Photo upload backend (R2 + custom domain + endpoints)
+
+### Infrastructure
+
+**R2 bucket created**
+- Name: `venue-photos`
+- Created: 2026-05-30 18:24:36 UTC
+- Region: Auto (Cloudflare default — currently US/WNAM)
+- Public access: enabled
+- Custom domain: `images.venueportal.us` (connected via Cloudflare dashboard, SSL provisioned)
+- Object key structure: `venue-photos/{venue_id}/{timestamp}.{ext}`
+
+**Worker binding** (added to `wrangler.jsonc`)
+```jsonc
+"r2_buckets": [
+  {
+    "binding": "VENUE_PHOTOS",
+    "bucket_name": "venue-photos"
+  }
+]
+```
+Verified at deploy time: `env.VENUE_PHOTOS (venue-photos) — R2 Bucket` shows in wrangler output.
+
+### Endpoints
+
+#### `POST /api/venues/:id/photos` — upload one photo
+
+**Auth:** Bearer JWT required. Allowed if `role` ∈ {`admin`, `superadmin`}, OR `role === 'venue_owner' && session.venue_id === :id`. Otherwise 401/403.
+
+**Request:** `multipart/form-data` with a single field named `file`.
+
+**Validation:**
+- MIME type must be one of: `image/jpeg`, `image/png`, `image/webp`. Reject 400 otherwise.
+- File size: 1 byte ≤ size ≤ 5,242,880 bytes (5 MB). Reject 400 otherwise.
+- Current gallery count: must be < 8. Reject 409 if at the limit.
+
+**Behavior:**
+1. Read current `venues.gallery` (parsed from TEXT JSON; defaults to `[]` if null/malformed)
+2. Generate key: `venue-photos/{id}/{Date.now()}.{ext}` where `ext` ∈ {`jpg`, `png`, `webp`}
+3. `env.VENUE_PHOTOS.put(key, file.stream(), { httpMetadata: { contentType: file.type } })`
+4. Append `https://images.venueportal.us/{key}` to gallery array
+5. `UPDATE venues SET gallery = ? WHERE id = ?`
+
+**Response 200:** `{ success: true, url: "<full URL>", gallery: [<full array>] }`
+
+#### `DELETE /api/venues/:id/photos` — remove one photo
+
+**Auth:** same rules as POST.
+
+**Request:** JSON body `{ "url": "<full public URL>" }`.
+
+**Behavior:**
+1. Validate URL starts with `https://images.venueportal.us/` AND key path starts with `venue-photos/{id}/` (prevents cross-venue tampering)
+2. Extract R2 key from URL
+3. Read current gallery, filter out the URL
+4. `env.VENUE_PHOTOS.delete(key)` — idempotent (no error if object doesn't exist)
+5. Write filtered gallery back to D1 only if the URL was actually removed
+
+**Response 200:** `{ success: true, removed: <bool>, gallery: [<updated array>] }`
+
+### End-to-end test results
+
+All tests against deployed worker `8f12508c-66c8-4f00-b555-18c4d29afb8a` with `mossjr1126@gmail.com` admin token.
+
+| Test | Expected | Actual |
+|------|----------|--------|
+| Custom domain SSL handshake | 200/404 with `Server: cloudflare` | ✅ 404 (no root object), SSL valid |
+| Upload 32×32 JPEG (645 B) for venue id=1 | 200 + `images.venueportal.us` URL | ✅ `https://images.venueportal.us/venue-photos/1/1780179100813.jpg` |
+| Fetch URL publicly (no auth) | 200, `Content-Type: image/jpeg`, exact bytes | ✅ 645 B served, SHA256 matches local file byte-for-byte (`49c993a7…7a67f2c`) |
+| D1 `venues.gallery` updated for id=1 | URL present in JSON array | ✅ `["https://images.venueportal.us/venue-photos/1/1780179100813.jpg"]` |
+| Oversize file (6 MB random bytes, `.jpg` ext) | 400 with size message | ✅ `{"error":"File must be between 1 byte and 5242880 bytes (5MB)."}` |
+| Wrong MIME (`.svg`, `image/svg+xml`) | 400 with MIME message | ✅ `{"error":"Unsupported file type. Allowed: image/jpeg, image/png, image/webp."}` |
+| No `Authorization` header | 401 | ✅ `{"error":"Unauthorized"}` |
+| DELETE photo via URL | 200, `removed: true`, gallery `[]` | ✅ `{"success":true,"removed":true,"gallery":[]}` |
+| R2 object actually gone | 404 on the URL | ✅ `HTTP/1.1 404 Not Found` |
+| D1 gallery cleared | `gallery = "[]"` | ✅ confirmed via `SELECT id, gallery FROM venues WHERE id=1` |
+
+**Final state after testing: clean** — no test photos in R2, no test URLs in D1. Venue id=1 gallery back to `[]`.
+
+### Constraints summary
+
+| Constraint | Value |
+|---|---|
+| Max file size | 5,242,880 bytes (5 MB) |
+| Allowed MIME types | `image/jpeg` · `image/png` · `image/webp` |
+| Max photos per venue | 8 (server-enforced via gallery-length check) |
+| Server-side resize | None (CSS handles display) |
+| Public access | Yes (no signed URLs) |
+| URL pattern | `https://images.venueportal.us/venue-photos/{venue_id}/{timestamp}.{ext}` |
+
+### Files touched
+
+- `wrangler.jsonc` (added `r2_buckets` array)
+- `api.js` (added POST + DELETE `/api/venues/:id/photos` handlers, ~110 lines)
+- `PUBLIC_SURFACE_V2_DIFF.md` (this section)
+
+### Follow-up for Commit E
+
+The upload UI in dashboard's Edit Profile form (currently a textarea for pasting URLs in `#edit-gallery`) needs to be replaced with a file-picker + drag-and-drop UI that POSTs to this backend. That's bundled into Commit E along with the index.html v2 swap.
