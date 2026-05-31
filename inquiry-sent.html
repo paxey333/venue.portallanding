@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="theme-color" content="#000000"/>
+<meta name="color-scheme" content="dark"/>
+<title>Inquiry sent — Venue.Portal</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 18'%3E%3Cpath d='M0 0L6 9L0 18H4L10 9L4 0H0Z' fill='%23ffffff'/%3E%3Cpath d='M9 0L15 9L9 18H13L19 9L13 0H9Z' fill='%23555555'/%3E%3Crect x='19.5' y='7' width='4' height='4' rx='1' fill='%23ffffff'/%3E%3C/svg%3E"/>
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 18'%3E%3Cpath d='M0 0L6 9L0 18H4L10 9L4 0H0Z' fill='%23ffffff'/%3E%3Cpath d='M9 0L15 9L9 18H13L19 9L13 0H9Z' fill='%23555555'/%3E%3Crect x='19.5' y='7' width='4' height='4' rx='1' fill='%23ffffff'/%3E%3C/svg%3E"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#000000;--surface:#0a0a0a;--surface2:#141414;
+  --border:#1f1f1f;--border2:#2a2a2a;
+  --text:#ffffff;--text2:#a8a8a8;--text3:#666666;
+  --accent:#ff6b1a;--accent-soft:rgba(255,107,26,0.12);
+  --green:#3ddc84;--green-soft:rgba(61,220,132,0.12);
+  --font:'Inter',sans-serif;
+}
+html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.5;min-height:100%;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:transparent;color:inherit}
+
+.topnav{position:sticky;top:0;z-index:50;background:rgba(0,0,0,0.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.topnav-inner{max-width:1280px;margin:0 auto;padding:0 24px;height:60px;display:flex;align-items:center;gap:24px}
+.brand{display:flex;align-items:center;gap:9px;font-weight:800;font-size:15px;letter-spacing:-.3px}
+.brand .dot{color:var(--accent)}
+.nav-links{flex:1;display:flex;align-items:center;gap:24px;font-size:13px;font-weight:500;color:var(--text2);margin-left:8px}
+.nav-links a{transition:color .15s}
+.nav-links a:hover{color:var(--text)}
+.nav-links .nav-onboard{color:var(--accent);font-weight:600;border-left:1px solid var(--border2);padding-left:24px}
+.nav-actions{display:flex;align-items:center;gap:10px}
+.btn-text{font-size:13px;font-weight:600;color:var(--text2);padding:7px 12px}
+.btn-text:hover{color:var(--text)}
+.btn-primary{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:#000;font-weight:700;font-size:13px;padding:9px 16px;border-radius:8px;transition:opacity .15s;letter-spacing:-.1px;border:none;cursor:pointer}
+.btn-primary:hover{opacity:.88}
+.btn-secondary{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border2);color:var(--text);font-weight:600;font-size:13px;padding:9px 16px;border-radius:8px;transition:border-color .15s}
+.btn-secondary:hover{border-color:var(--text3)}
+@media(max-width:760px){.nav-links{display:none}.nav-actions .btn-text{display:none}}
+
+main{max-width:680px;margin:0 auto;padding:80px 24px 100px;position:relative;text-align:center;animation:fadeInUp .6s ease both}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){main{animation:none}}
+
+.check-circle{width:88px;height:88px;border-radius:50%;background:var(--green-soft);border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center;margin:0 auto 28px;position:relative}
+.check-circle svg{width:42px;height:42px;color:var(--green)}
+.check-circle::before{content:'';position:absolute;inset:-10px;border-radius:50%;border:1px solid rgba(61,220,132,0.18);animation:pulseRing 2.4s ease-in-out infinite}
+@keyframes pulseRing{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(1.08);opacity:.2}}
+
+.eyebrow{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:600;color:var(--green);background:var(--green-soft);border:1px solid rgba(61,220,132,0.3);padding:5px 12px;border-radius:20px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:20px}
+
+h1{font-size:34px;font-weight:900;letter-spacing:-1.2px;line-height:1.1;margin-bottom:16px}
+@media(min-width:760px){h1{font-size:44px;letter-spacing:-1.6px}}
+
+.sub{font-size:16px;color:var(--text2);line-height:1.7;max-width:520px;margin:0 auto 36px}
+.sub strong{color:var(--text);font-weight:600}
+
+.steps-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px 22px;margin:0 auto 36px;max-width:520px;text-align:left}
+.steps-label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.12em;margin-bottom:18px;text-align:center}
+.step{display:flex;gap:14px;align-items:flex-start;padding:14px 0}
+.step + .step{border-top:1px solid var(--border)}
+.step-num{flex-shrink:0;width:28px;height:28px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center}
+.step-body{flex:1;min-width:0}
+.step-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:3px;letter-spacing:-.1px}
+.step-desc{font-size:13px;color:var(--text2);line-height:1.55}
+
+.actions{display:flex;flex-direction:column;gap:10px;align-items:center;max-width:520px;margin:0 auto}
+@media(min-width:520px){.actions{flex-direction:row;justify-content:center}}
+.actions .btn-primary,.actions .btn-secondary{font-size:14px;padding:12px 20px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+@media(max-width:519px){.actions .btn-primary,.actions .btn-secondary{width:100%}}
+
+.footnote{margin-top:36px;font-size:12px;color:var(--text3);letter-spacing:.04em;display:inline-flex;align-items:center;gap:6px}
+.footnote svg{width:11px;height:11px;color:var(--text3)}
+
+footer{padding:32px 24px;border-top:1px solid var(--border);text-align:center}
+.footer-inner{max-width:1280px;margin:0 auto;font-size:11px;color:var(--text3);letter-spacing:.04em;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px}
+.footer-inner .sep{color:var(--border2)}
+.footer-inner a{color:var(--text2)}
+.footer-inner a:hover{color:var(--text)}
+</style>
+</head>
+<body>
+
+<header class="topnav">
+  <div class="topnav-inner">
+    <a href="/" class="brand">
+      <svg width="22" height="16" viewBox="0 0 24 18" fill="none"><path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#ffffff"/><path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#ffffff" opacity="0.4"/></svg>
+      <span>Venue<span class="dot">.</span>Portal</span>
+    </a>
+    <div class="nav-links">
+      <a href="/">Find Venues</a>
+      <a href="/onboard.html">For Owners</a>
+      <a href="/onboard.html" class="nav-onboard">Get Onboarded</a>
+    </div>
+    <div class="nav-actions">
+      <a href="/dashboard.html" class="btn-text">Sign In</a>
+      <a href="/" class="btn-primary">Browse venues →</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="check-circle">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+  </div>
+
+  <div class="eyebrow">
+    <svg width="6" height="6" viewBox="0 0 6 6"><circle cx="3" cy="3" r="3" fill="#3ddc84"/></svg>
+    Inquiry sent
+  </div>
+
+  <h1>Your inquiry is in.</h1>
+  <p class="sub">The venue owner has your request and will respond within 24 hours. We'll email you the moment they accept — including a Stripe payment link to lock the date.</p>
+
+  <div class="steps-card">
+    <div class="steps-label">What happens next</div>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <div class="step-title">Venue reviews your request</div>
+        <div class="step-desc">Owner checks your date, headcount, and event details. Usually within 24 hours.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <div class="step-title">You get a confirmation email</div>
+        <div class="step-desc">If accepted, you'll receive a Stripe payment link to confirm your booking with a deposit.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <div class="step-title">Pay the deposit, you're booked</div>
+        <div class="step-desc">Date locked. Door is yours. Show up, run your event. That simple.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <a href="/" class="btn-primary">← Browse more venues</a>
+    <a href="mailto:hello@venueportal.us" class="btn-secondary">Email support</a>
+  </div>
+
+  <div class="footnote">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+    Secured by Venue.Portal · No charges until you confirm
+  </div>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <span>Venue.Portal © 2026</span>
+    <span class="sep">·</span>
+    <a href="/privacy.html">Privacy</a>
+    <span class="sep">·</span>
+    <a href="/terms.html">Terms</a>
+    <span class="sep">·</span>
+    <a href="mailto:hello@venueportal.us">Contact</a>
+  </div>
+</footer>
+
+</body>
+</html>

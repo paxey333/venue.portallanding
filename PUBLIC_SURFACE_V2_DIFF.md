@@ -329,3 +329,59 @@ Field names byte-for-byte identical to `index.html` lines 2462-2474. Mirrors, do
 - `dashboard.html` — untouched
 - Booking POST contract — exact mirror of index.html's existing flow
 - Bottom tab nav — confirmed absent from venue.html (was removed from mockup in iteration #1)
+
+---
+
+## Commit C fix-up #1 — photos render, inquiry-sent page, sidebar overflow, entrance animations
+
+User-reported issues from browser review of venue.html?id=1 and ?id=3:
+
+1. ERR_BLOCKED_BY_CLIENT in console — **ignored** (Brave shields blocking Cloudflare analytics beacon, not actionable).
+2. Photos not rendering in venue.html despite API returning correct gallery URLs and R2 URLs working directly when hit.
+3. Booking submission redirected to `/booking-confirmed.html` (old pre-v2 page that errors "no session id provided").
+4. Desktop sticky booking sidebar overflowed viewport — Book button below the fold.
+5. Missing entrance animations on content reveal.
+
+### Fixes
+
+**Fix #2 — Bulletproof gallery rendering in `venue.html`**
+- Normalized `v.gallery` to filter out non-string / empty entries.
+- Rewrote hero + gallery rendering from innerHTML template literals to `document.createElement('img')` with explicit inline `width:100%;height:100%;object-fit:cover;display:block` styles as belt-and-suspenders against any CSS / parsing edge case.
+- Added `onerror` / `onload` console diagnostics on each img.
+- Exposed `window.__venueDebug = { venue, gallery, heroSrc, galleryRendered }` for in-browser inspection.
+- Console logs: `[venue] rendering`, `[venue] gallery normalized`, `[venue] hero img loaded`, `[venue] gallery render`, and DOM img count after render.
+
+**Fix #3 — New `inquiry-sent.html` (replaces redirect destination)**
+- New v2-styled confirmation page mirroring venue.html design tokens (pure black, Inter, orange accent, green success state).
+- Green check-circle with pulsing ring animation, "Inquiry sent" pill, "Your inquiry is in." headline.
+- 3-step "what happens next" card: owner review → confirmation email → Stripe deposit.
+- CTAs: Browse more venues / Email support. Footer with Privacy/Terms/Contact.
+- `submitInquiry()` in venue.html now redirects to `/inquiry-sent.html` (was `/booking-confirmed.html`).
+- `booking-confirmed.html` NOT touched per hard rules.
+
+**Fix #4 — Compact booking sidebar (CSS-only)**
+- Reduced `.book-head` padding 22/22/16 → 18/20/14; `.book-price .amt` 32px → 28px; `.book-perks` gap 7 → 6.
+- Reduced `.book-cal-section` padding 18/22 → 14/20; cal nav margin 12 → 10; cal-btn 30x30 → 28x28; cal grid gap 4 → 3.
+- Reduced `.book-day` min-height 36 → 30 on mobile; further to 28 on desktop sidebar via media query.
+- Reduced `.book-cta-wrap` padding 14/22/22 → 12/20/18; btn-book padding 13 → 12.
+- **Desktop only (min-width:900px)**: hidden `.book-perks` inside `.layout-sidebar` (perks still show in mobile bottom-sheet modal). Calendar cells shrink font 11.5 → 10.5 on sidebar to fit.
+
+**Fix #5 — Entrance animations**
+- `@keyframes fadeInUp` (translateY 16px → 0, opacity 0 → 1, 600ms ease both).
+- `.anim-fade-up` + 6 stagger classes `.anim-d1` (.05s) through `.anim-d6` (.55s).
+- `prefers-reduced-motion:reduce` disables the animation.
+- JS in `renderVenue()` post-reveal applies stagger classes to: hero (d1), stats (d2), about (d3), included (d4), deal (d5), sidebar (d3). Skips sections still hidden.
+
+### Files touched
+
+- `venue.html` — gallery createElement rewrite + debug logging, submit redirect URL, sidebar compact CSS, fadeInUp keyframes + stagger classes + JS hook
+- `inquiry-sent.html` — new file, ~170 lines
+- `PUBLIC_SURFACE_V2_DIFF.md` — this section
+
+### Not touched (per hard rules)
+
+- `api.js` — no changes; existing public GET /api/venues/:id and /booked-dates from Commit C still in place
+- `index.html` — untouched
+- `dashboard.html` — untouched
+- `booking-confirmed.html` — left as-is; venue.html no longer redirects to it
+- Booking POST contract — identical payload, only the success redirect URL changed

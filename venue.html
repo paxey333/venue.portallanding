@@ -136,25 +136,29 @@ input,textarea{font-family:inherit}
 
 /* ── BOOKING CARD (warm orange) ───────────────────── */
 .book-card{background:linear-gradient(160deg,#1a0d05 0%,#0d0805 45%,#050505 100%);border:1px solid var(--border2);border-left:2px solid var(--accent);border-top:1px solid rgba(255,107,26,0.18);border-radius:14px;overflow:hidden;box-shadow:0 8px 32px rgba(255,107,26,0.04),inset 0 1px 0 rgba(255,255,255,0.03)}
-.book-head{padding:22px 22px 16px}
-.book-title{font-size:11px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px}
-.book-price{display:flex;align-items:baseline;gap:8px;margin-bottom:16px}
-.book-price .amt{font-size:32px;font-weight:900;letter-spacing:-1px;line-height:1}
+.book-head{padding:18px 20px 14px}
+.book-title{font-size:11px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.12em;margin-bottom:6px}
+.book-price{display:flex;align-items:baseline;gap:8px;margin-bottom:12px}
+.book-price .amt{font-size:28px;font-weight:900;letter-spacing:-1px;line-height:1}
 .book-price .unit{font-size:12px;color:var(--text2);font-weight:500}
-.book-perks{display:flex;flex-direction:column;gap:7px}
-.book-perk{font-size:12px;color:var(--text2);display:flex;align-items:center;gap:7px}
+.book-perks{display:flex;flex-direction:column;gap:6px}
+.book-perk{font-size:11.5px;color:var(--text2);display:flex;align-items:center;gap:7px}
 .book-perk svg{color:var(--green);flex-shrink:0;width:11px;height:11px}
+/* Desktop sidebar: drop perks to fit booking card in viewport without scrolling */
+@media(min-width:900px){.layout-sidebar .book-perks{display:none}.layout-sidebar .book-price{margin-bottom:0}}
 
-.book-cal-section{padding:18px 22px;border-top:1px solid rgba(255,107,26,0.12);background:linear-gradient(180deg,rgba(255,107,26,0.025) 0%,transparent 100%)}
-.book-cal-prompt{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px}
-.book-cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.book-cal-section{padding:14px 20px;border-top:1px solid rgba(255,107,26,0.12);background:linear-gradient(180deg,rgba(255,107,26,0.025) 0%,transparent 100%)}
+.book-cal-prompt{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
+.book-cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .book-cal-month{font-size:13px;font-weight:700;letter-spacing:-.1px}
-.book-cal-btn{width:30px;height:30px;border-radius:6px;background:rgba(255,107,26,0.06);border:1px solid rgba(255,107,26,0.2);color:var(--text2);font-size:13px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;min-height:30px}
+.book-cal-btn{width:28px;height:28px;border-radius:6px;background:rgba(255,107,26,0.06);border:1px solid rgba(255,107,26,0.2);color:var(--text2);font-size:13px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;min-height:28px}
 .book-cal-btn:hover{background:rgba(255,107,26,0.12);border-color:rgba(255,107,26,0.4);color:var(--text)}
 .book-cal-btn:disabled{opacity:.35;cursor:not-allowed}
-.book-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
-.book-dow{font-size:9px;font-weight:700;color:var(--text3);text-align:center;padding:4px 0 2px;text-transform:uppercase;letter-spacing:.12em}
-.book-day{aspect-ratio:1;border-radius:6px;background:var(--accent-warm);border:1px solid rgba(255,107,26,0.08);font-size:11.5px;color:var(--text);display:flex;align-items:center;justify-content:center;font-weight:600;cursor:pointer;min-width:0;min-height:36px;transition:all .15s}
+.book-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.book-dow{font-size:9px;font-weight:700;color:var(--text3);text-align:center;padding:3px 0 2px;text-transform:uppercase;letter-spacing:.12em}
+.book-day{aspect-ratio:1;border-radius:6px;background:var(--accent-warm);border:1px solid rgba(255,107,26,0.08);font-size:11px;color:var(--text);display:flex;align-items:center;justify-content:center;font-weight:600;cursor:pointer;min-width:0;min-height:30px;transition:all .15s}
+/* Compact day cells on desktop sidebar where space is tight */
+@media(min-width:900px){.layout-sidebar .book-day{min-height:28px;font-size:10.5px}.layout-sidebar .book-cal-grid{gap:2px}}
 .book-day:hover{background:rgba(255,107,26,0.18);border-color:rgba(255,107,26,0.35);transform:scale(1.04)}
 .book-day.empty{background:transparent;border-color:transparent;cursor:default}
 .book-day.empty:hover{background:transparent;border-color:transparent;transform:none}
@@ -166,10 +170,10 @@ input,textarea{font-family:inherit}
 .book-day.selected{background:var(--accent);border-color:var(--accent);color:#000;font-weight:800;box-shadow:0 2px 12px rgba(255,107,26,0.4)}
 .book-day.selected:hover{background:var(--accent);transform:scale(1.04)}
 
-.book-selected-row{margin-top:14px;font-size:12px;color:var(--text2);display:flex;justify-content:space-between;align-items:center}
+.book-selected-row{margin-top:10px;font-size:12px;color:var(--text2);display:flex;justify-content:space-between;align-items:center}
 .book-selected-row strong{color:var(--text);font-weight:600}
-.book-cta-wrap{padding:14px 22px 22px;border-top:1px solid rgba(255,107,26,0.12)}
-.btn-book{width:100%;background:var(--accent);color:#000;border:none;font-weight:800;font-size:13px;padding:13px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;transition:opacity .15s;letter-spacing:-.1px}
+.book-cta-wrap{padding:12px 20px 18px;border-top:1px solid rgba(255,107,26,0.12)}
+.btn-book{width:100%;background:var(--accent);color:#000;border:none;font-weight:800;font-size:13px;padding:12px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;transition:opacity .15s;letter-spacing:-.1px}
 .btn-book:hover{opacity:.88}
 .btn-book:disabled{background:var(--surface2);color:var(--text3);border:1px solid var(--border2);cursor:not-allowed;font-weight:600}
 .btn-book:disabled:hover{opacity:1}
@@ -235,6 +239,17 @@ footer{padding:48px 0 36px 0;border-top:1px solid var(--border);margin-top:48px}
 .footer-links{display:flex;flex-direction:column;gap:9px;font-size:13px;color:var(--text2)}
 .footer-links a:hover{color:var(--text)}
 .footer-bottom{max-width:1280px;margin:36px auto 0;padding:24px 24px 0;border-top:1px solid var(--border);font-size:11px;color:var(--text3);display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px}
+
+/* ── ENTRANCE ANIMATIONS ──────────────────────────── */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.anim-fade-up{animation:fadeInUp .6s ease both}
+.anim-d1{animation-delay:.05s}
+.anim-d2{animation-delay:.15s}
+.anim-d3{animation-delay:.25s}
+.anim-d4{animation-delay:.35s}
+.anim-d5{animation-delay:.45s}
+.anim-d6{animation-delay:.55s}
+@media(prefers-reduced-motion:reduce){.anim-fade-up{animation:none}}
 </style>
 </head>
 <body>
@@ -547,10 +562,24 @@ function renderVenue() {
   const v = state.venue;
   document.title = `${v.name} — Venue.Portal`;
 
-  // Hero photo: gallery[0] or gradient placeholder
+  // Diagnostics — exposed on window so issues can be inspected from console
+  console.log('[venue] rendering', { id: v.id, name: v.name, galleryRaw: v.gallery });
+  const galleryArr = Array.isArray(v.gallery) ? v.gallery.filter(u => typeof u === 'string' && u.trim().length > 0) : [];
+  console.log('[venue] gallery normalized', { count: galleryArr.length, urls: galleryArr });
+  window.__venueDebug = { venue: v, gallery: galleryArr, heroSrc: galleryArr[0] || null };
+
+  // Hero photo: gallery[0] or gradient placeholder. Build via createElement for resilience.
   const hero = $('hero-bg');
-  if (v.gallery && v.gallery.length > 0) {
-    hero.innerHTML = `<img src="${esc(v.gallery[0])}" alt="${esc(v.name)}" loading="eager"/>`;
+  hero.innerHTML = '';
+  if (galleryArr.length > 0) {
+    const heroImg = document.createElement('img');
+    heroImg.src = galleryArr[0];
+    heroImg.alt = v.name || 'Venue';
+    heroImg.loading = 'eager';
+    heroImg.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block';
+    heroImg.onerror = () => { console.error('[venue] hero img failed', galleryArr[0]); hero.className = 'v-hero-bg ph'; };
+    heroImg.onload = () => console.log('[venue] hero img loaded', galleryArr[0]);
+    hero.appendChild(heroImg);
   } else {
     hero.className = 'v-hero-bg ph';
   }
@@ -621,18 +650,28 @@ function renderVenue() {
     $('section-deal').style.display = '';
   }
 
-  // Gallery — render all photos (skip first which is already in hero)
-  if (v.gallery && v.gallery.length > 1) {
-    $('gallery-grid').innerHTML = v.gallery.slice(1).map(url => `
-      <div class="gal-item"><img src="${esc(url)}" alt="${esc(v.name)}" loading="lazy"/></div>
-    `).join('');
+  // Gallery — render all photos (skip first which is already in hero).
+  // If only one photo total, still surface it in the gallery section.
+  const galleryToShow = galleryArr.length > 1 ? galleryArr.slice(1) : galleryArr;
+  console.log('[venue] gallery render', { toShow: galleryToShow.length });
+  if (galleryToShow.length > 0) {
+    const grid = $('gallery-grid');
+    grid.innerHTML = '';
+    galleryToShow.forEach((url, i) => {
+      const cell = document.createElement('div');
+      cell.className = 'gal-item';
+      const img = document.createElement('img');
+      img.src = url;
+      img.alt = (v.name || 'Venue') + ' photo ' + (i + 2);
+      img.loading = 'lazy';
+      img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block';
+      img.onerror = () => console.error('[venue] gallery img failed', url);
+      cell.appendChild(img);
+      grid.appendChild(cell);
+    });
     $('section-gallery').style.display = '';
-  } else if (v.gallery && v.gallery.length === 1) {
-    // Single photo only — still show in gallery section
-    $('gallery-grid').innerHTML = v.gallery.map(url => `
-      <div class="gal-item"><img src="${esc(url)}" alt="${esc(v.name)}" loading="lazy"/></div>
-    `).join('');
-    $('section-gallery').style.display = '';
+    window.__venueDebug.galleryRendered = galleryToShow.length;
+    console.log('[venue] gallery DOM imgs after render', document.querySelectorAll('#gallery-grid img').length);
   }
 
   // Sidebar + sticky bar price
@@ -656,6 +695,20 @@ function renderVenue() {
   $('content-state').style.display = '';
   $('sticky-bar').style.display = '';
   document.title = `${v.name} — Venue.Portal`;
+
+  // Entrance animations — staggered fade-up on the major chunks
+  const animTargets = [
+    { sel: '.v-hero',         delay: 'anim-d1' },
+    { sel: '.v-stats',        delay: 'anim-d2' },
+    { sel: '#section-about',  delay: 'anim-d3' },
+    { sel: '#section-included', delay: 'anim-d4' },
+    { sel: '#section-deal',   delay: 'anim-d5' },
+    { sel: '.layout-sidebar', delay: 'anim-d3' },
+  ];
+  animTargets.forEach(t => {
+    const el = document.querySelector(t.sel);
+    if (el && el.style.display !== 'none') el.classList.add('anim-fade-up', t.delay);
+  });
 }
 
 // ── CALENDAR ────────────────────────────────────────
@@ -820,8 +873,8 @@ async function submitInquiry() {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Submission failed');
-    // Success — redirect to confirmation page per Commit C spec
-    window.location.href = '/booking-confirmed.html';
+    // Success — redirect to v2-styled inquiry-sent confirmation page
+    window.location.href = '/inquiry-sent.html';
   } catch (e) {
     btn.disabled = false;
     btn.textContent = 'Send inquiry →';
