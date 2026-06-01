@@ -552,3 +552,102 @@ Page loads (/index.html):
 
 - **Commit F (future)**: extract admin panel from index.html into a dedicated /admin.html with its own v2 design and redirect admins there on login (mirrors the venue_owner -> dashboard.html split).
 - **Cleanup commit (future)**: delete index.html.backup-v1 once Commit D is verified live for 48hrs.
+
+---
+
+## Commit D fix-up #1 — carousel photos, entrance animations, onboard.html v2 refresh
+
+Three coordinated fixes following in-browser review of Commit D.
+
+### Fix 1 — Carousel photos (root cause + fix)
+
+**Reported**: Carousel on the new index.html showed both real venues with gradient placeholders, not real photos. Meanwhile venue.html?id=1 and ?id=3 rendered the real hero photos correctly.
+
+**Root cause**: The API endpoints behave differently by design:
+- `GET /api/venues` (list) returns only `id, name, description, capacity, price_per_day, image_url, created_at` — **no gallery, no amenities, no hours**. Lightweight.
+- `GET /api/venues/:id` (single) returns the full object including `gallery` (R2 URLs), `amenities`, `hours`.
+
+`renderCarousel()` was hitting the lightweight list endpoint, so `v.gallery` was always undefined and the cards always fell through to the gradient fallback.
+
+**Fix**: In `renderCarousel()`, after fetching the list, fire one `GET /api/venues/:id` per row in parallel via `Promise.allSettled`, then map to the enriched row. If any enrichment fails, fall back to the lightweight list row gracefully. Two parallel requests for the current venue count is cheap and stays inside the existing API contract (no `api.js` change).
+
+```js
+const list = await API.getVenues() || [];
+const enriched = await Promise.allSettled(list.map(v => API.getVenue(v.id)));
+venues = list.map((v, i) => {
+  const r = enriched[i];
+  return (r.status === 'fulfilled' && r.value && !r.value.error) ? r.value : v;
+});
+```
+
+Also added a console.log line summarising `{ id, gallery_len }` per venue for in-browser debugging.
+
+### Fix 2 — Entrance animations on index.html
+
+Added the same `@keyframes fadeInUp` pattern used in venue.html (translateY 16px to 0, opacity 0 to 1, 600ms ease, both fill). Stagger classes `.anim-d0` through `.anim-d6` (0–600ms in 100ms steps).
+
+Sections decorated:
+
+| Section | Class | Delay |
+|---|---|---|
+| Hero | `anim-fade-up anim-d0` | 0ms |
+| Carousel wrap | `anim-fade-up anim-d1` | 100ms |
+| Value props | `anim-fade-up anim-d2` | 200ms |
+| How it works | `anim-fade-up anim-d3` | 300ms |
+| Spotlight | `anim-fade-up anim-d4` | 400ms |
+| Owner CTA strip | `anim-fade-up anim-d5` | 500ms |
+| Footer | `anim-fade-up anim-d6` | 600ms |
+
+`@media(prefers-reduced-motion:reduce)` disables the animation. CSS-only — no JS required since classes are present on initial render.
+
+### Fix 3 — Full v2 refresh of onboard.html
+
+Visual layer fully swapped to match the v2 design system (matches index.html, venue.html, inquiry-sent.html, dashboard.html).
+
+**What changed**:
+- Background `#111` → `#000`; surfaces `#161412/#1e1b17` → `#0a0a0a/#141414`; borders shifted to `#1f1f1f/#2a2a2a`.
+- Orange `#f5a623` (amber) → `#ff6b1a` (warm orange) — matches the rest of the platform.
+- Typography: dropped Syne + DM Sans + DM Mono Google Fonts request. Now Inter only. All `var(--display)`, `var(--mono)`, `var(--sans)` references gone; visual hierarchy now comes from `font-weight` (400/500/600/700/800/900), `letter-spacing`, and `font-size`.
+- Removed the BETA badge (out of place — platform is past beta-vibe positioning).
+- Removed the legacy stripe-gradient body decoration (`body::before`/`body::after` background art).
+- New top nav: chevron + "Venue.Portal" wordmark on the left, "← Back to home" link on the right routing to `/`. Matches the top nav pattern in index.html / venue.html / dashboard.html.
+- Hero eyebrow restyled as an orange pill ("List your venue") matching the eyebrow on venue.html.
+- Hero title bumped to 34px / 42px (mobile / desktop), letter-spacing `-1.5px` on desktop. Matches v2 heading scale.
+- Cards: `--radius-lg: 14px` (was 10px), padding `22px` (was 20px), tighter card-title styling (matches the section labels on other pages).
+- Form inputs: `min-height: 44px` (was implicit ~36px), input bg switched to `--bg` so they read as a darker well inside the lighter card (matches dashboard's Edit Profile form pattern).
+- Amenity options: `min-height: 42px`, font 12px, checked-state uses the v2 accent-soft background + accent border + bolder check text.
+- Submit button: black text on orange, `min-height: 50px`, font-weight 800, matches the primary CTA pattern across the platform.
+- Success state: green check-circle 64px with pulsing ring animation (matches the inquiry-sent.html success-circle treatment); heading bumped to 26px / 900 weight.
+- Added `@keyframes fadeInUp` + stagger classes — hero (d0), 5 cards (d1–d5), submit wrap (d6). `prefers-reduced-motion:reduce` disables.
+
+**What was preserved (verbatim where possible)**:
+- All 14 form field IDs: `f-name`, `f-address`, `f-capacity`, `f-price`, `f-hours`, `f-desc`, `f-rules`, `f-photos`, `f-video`, `f-cname`, `f-cemail`, `f-cphone`, `f-notes`, `amenity-grid` — verified each exists exactly once.
+- AMENITIES array — byte-identical (15 options, same order).
+- POST body shape — all 14 keys identical (`venue_name`, `address`, `capacity`, `price_per_day`, `hours`, `description`, `house_rules`, `amenities`, `photo_links`, `video_url`, `contact_name`, `contact_email`, `contact_phone`, `additional_notes`).
+- POST endpoint — `https://thevenueportal.paxey333.workers.dev/api/onboard`, unchanged.
+- Validation logic — required-field checks + email regex unchanged.
+- Success state copy and structure preserved (just visually restyled).
+- Field names, placeholders, autocomplete attributes — all preserved.
+
+### Files touched
+
+- `index.html` — `renderCarousel()` enrichment + `@keyframes fadeInUp` + stagger classes on 7 sections (1,476 lines, was 1,460)
+- `onboard.html` — full visual rewrite (350 lines, was 327; functional layer byte-identical)
+- `PUBLIC_SURFACE_V2_DIFF.md` — this section
+
+### Not touched (per hard rules)
+
+- `api.js` — no changes. Carousel enrichment uses existing public `GET /api/venues/:id` endpoint.
+- `venue.html`, `dashboard.html`, `inquiry-sent.html`, `booking-confirmed.html` — untouched.
+- Onboard POST contract — byte-identical payload shape.
+- AMENITIES array — byte-identical contents and order.
+- Form field IDs and validation logic — unchanged.
+
+### Browser-side verification (for user)
+
+- Visit `/` (incognito) → carousel cards show **real photos**: band shot for Chill Room (id=1), stage shot for White Swan (id=3). Plus 3 coming-soon placeholders.
+- Open DevTools console → see `[index] carousel venues [{id:1, gallery_len:3},{id:3, gallery_len:2}]`.
+- First paint → sections fade in with stagger (hero first, footer last).
+- Visit `/onboard.html` → new v2 black background, orange `#ff6b1a` accents, Inter throughout, chevron logo top-left, "← Back to home" top-right. BETA badge gone.
+- Fill out a test submission with "TEST_FIXUP" in venue name → confirms submit + success state renders with v2 styling.
+- Mobile (375px): both pages collapse cleanly, no horizontal scroll, all tap targets ≥ 44px.

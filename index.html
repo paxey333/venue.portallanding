@@ -178,6 +178,18 @@ footer{padding:64px 0 calc(96px + env(safe-area-inset-bottom,0px)) 0;border-top:
 .bt-item svg{width:20px;height:20px}
 @media(min-width:760px){.bottom-tabs{display:none}}
 
+/* ── ENTRANCE ANIMATIONS (Commit D fix-up #1) ─────────── */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.anim-fade-up{animation:fadeInUp .6s ease both}
+.anim-d0{animation-delay:0ms}
+.anim-d1{animation-delay:100ms}
+.anim-d2{animation-delay:200ms}
+.anim-d3{animation-delay:300ms}
+.anim-d4{animation-delay:400ms}
+.anim-d5{animation-delay:500ms}
+.anim-d6{animation-delay:600ms}
+@media(prefers-reduced-motion:reduce){.anim-fade-up{animation:none}}
+
 /* ── LOGIN MODAL (v2-styled, opens on Sign In click) ── */
 .login-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.78);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px}
 .login-overlay.open{display:flex}
@@ -341,14 +353,14 @@ table tbody tr:hover td{color:var(--text)}
   <main>
 
     <!-- HERO -->
-    <section class="hero">
+    <section class="hero anim-fade-up anim-d0">
       <div class="hero-inner">
         <div class="hero-eyebrow"><span class="pulse"></span><span id="hero-eyebrow-text">Live venues now booking</span></div>
         <h1>Real venues.<br>Real bookings.</h1>
         <p class="sub">Independent operators. Live calendars. Stripe-secured deposits.</p>
       </div>
 
-      <div class="carousel-wrap" id="carousel">
+      <div class="carousel-wrap anim-fade-up anim-d1" id="carousel">
         <div class="carousel-head">
           <span class="carousel-label">Featured this week</span>
           <span class="carousel-count" id="carousel-count">Loading…</span>
@@ -365,7 +377,7 @@ table tbody tr:hover td{color:var(--text)}
     </section>
 
     <!-- OWNER CTA STRIP -->
-    <section class="owner-cta" id="owner-cta">
+    <section class="owner-cta anim-fade-up anim-d5" id="owner-cta">
       <div class="owner-cta-inner">
         <div>
           <div class="owner-cta-eyebrow">For venue owners</div>
@@ -377,7 +389,7 @@ table tbody tr:hover td{color:var(--text)}
     </section>
 
     <!-- VALUE PROPS -->
-    <section class="value-props">
+    <section class="value-props anim-fade-up anim-d2">
       <div class="prop-card">
         <div class="prop-icon">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -402,7 +414,7 @@ table tbody tr:hover td{color:var(--text)}
     </section>
 
     <!-- HOW IT WORKS -->
-    <section class="how" id="how">
+    <section class="how anim-fade-up anim-d3" id="how">
       <div class="section-label">How it works</div>
       <h2 class="section-title-landing">Three steps from idea<br>to booked.</h2>
       <div class="steps">
@@ -425,7 +437,7 @@ table tbody tr:hover td{color:var(--text)}
     </section>
 
     <!-- SPOTLIGHT -->
-    <section class="spotlight">
+    <section class="spotlight anim-fade-up anim-d4">
       <div class="section-label">Featured venue</div>
       <h2 class="section-title-landing">This week's spotlight</h2>
       <div class="spotlight-card" id="spotlight-card">
@@ -444,7 +456,7 @@ table tbody tr:hover td{color:var(--text)}
 
   </main>
 
-  <footer>
+  <footer class="anim-fade-up anim-d6">
     <div class="footer-inner">
       <div class="footer-brand-col">
         <a href="/" class="brand">
@@ -787,7 +799,16 @@ async function renderCarousel() {
 
   let venues = [];
   try {
-    venues = await API.getVenues() || [];
+    // /api/venues list endpoint is lightweight — doesn't return gallery/amenities/hours.
+    // Enrich each row in parallel via /api/venues/:id so we can show real cover photos
+    // and richer stats. If any single enrichment fails, fall back to the lightweight row.
+    const list = await API.getVenues() || [];
+    const enriched = await Promise.allSettled(list.map(v => API.getVenue(v.id)));
+    venues = list.map((v, i) => {
+      const r = enriched[i];
+      return (r.status === 'fulfilled' && r.value && !r.value.error) ? r.value : v;
+    });
+    console.log('[index] carousel venues', venues.map(v => ({ id: v.id, gallery_len: (v.gallery||[]).length })));
   } catch (e) {
     console.error('[index] /api/venues failed', e);
     venues = [];
