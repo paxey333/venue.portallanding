@@ -385,3 +385,55 @@ User-reported issues from browser review of venue.html?id=1 and ?id=3:
 - `dashboard.html` — untouched
 - `booking-confirmed.html` — left as-is; venue.html no longer redirects to it
 - Booking POST contract — identical payload, only the success redirect URL changed
+
+---
+
+## Commit C fix-up #2 — swap gradient placeholders for real venue photos
+
+The 8 gradient placeholder JPEGs seeded in Commit C (4 per venue, generated via PIL) have been replaced with 5 real photos provided by the venue owners.
+
+### What changed
+
+**R2 / D1 — pure data swap, no code touched.**
+
+8 placeholder URLs deleted from R2 + removed from D1 gallery arrays via `DELETE /api/venues/:id/photos`:
+
+- venue 1: `1780179828453.jpg`, `1780179829891.jpg`, `1780179831227.jpg`, `1780179832555.jpg`
+- venue 3: `1780179834101.jpg`, `1780179835431.jpg`, `1780179836862.jpg`, `1780179838191.jpg`
+
+5 real photos uploaded via `POST /api/venues/:id/photos` in hero-first order so `gallery[0]` is the hero image rendered by venue.html.
+
+### Final gallery state
+
+**Chill Room (venue id=1)** — 3 photos:
+1. `https://images.venueportal.us/venue-photos/1/1780303861275.jpg` — hero (band)
+2. `https://images.venueportal.us/venue-photos/1/1780303861731.jpg` — lounge
+3. `https://images.venueportal.us/venue-photos/1/1780303862267.jpg` — panorama
+
+**White Swan Live (venue id=3)** — 2 photos:
+1. `https://images.venueportal.us/venue-photos/3/1780303862937.jpg` — hero (stage)
+2. `https://images.venueportal.us/venue-photos/3/1780303863373.jpg` — audience
+
+### Verification
+
+| # | Check | Result |
+|---|-------|--------|
+| 1 | All 8 placeholders deleted from R2 | PASS — both galleries verified `[]` mid-swap |
+| 2 | Real photos uploaded in correct order | PASS — `-hero-` files landed at `gallery[0]` |
+| 3 | Venue 1 final gallery length = 3 | PASS |
+| 4 | Venue 3 final gallery length = 2 | PASS |
+| 5 | Hero URL public HEAD (venue 1) | PASS — 200, `image/jpeg` via `images.venueportal.us` |
+| 6 | Hero URL public HEAD (venue 3) | PASS — 200, `image/jpeg` via `images.venueportal.us` |
+| 7 | Local `./photo-upload-batch/` folder removed | PASS — JPEGs live in R2 only, not the repo |
+
+### Files touched
+
+- R2 bucket `venue-photos` — 8 objects deleted, 5 objects created
+- D1 `venues.gallery` — venue 1 array trimmed 4→0→3, venue 3 array trimmed 4→0→2
+- `PUBLIC_SURFACE_V2_DIFF.md` — this section
+- `./photo-upload-batch/` — removed (was untracked, never committed)
+
+### Not touched
+
+- `api.js`, `venue.html`, `inquiry-sent.html`, `index.html`, `dashboard.html` — pure data swap, no code change
+- `booking-confirmed.html` — still left for legacy compatibility
