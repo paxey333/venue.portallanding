@@ -437,3 +437,118 @@ The 8 gradient placeholder JPEGs seeded in Commit C (4 per venue, generated via 
 
 - `api.js`, `venue.html`, `inquiry-sent.html`, `index.html`, `dashboard.html` — pure data swap, no code change
 - `booking-confirmed.html` — still left for legacy compatibility
+
+---
+
+## Commit D — new index.html with dynamic carousel + v2 design system
+
+The largest commit in the public-surface rebuild. Replaces the 2,532-line legacy index.html (DM Sans / Syne / DM Mono fonts, tabbed-app shell, two hardcoded venue detail blocks with full calendar + booking modal stack, location selector) with a v2 marketing landing (Inter, pure black, orange accent) that fetches venues from /api/venues and routes clicks to venue.html with the venue id in the URL.
+
+### Strategy
+1. Backup committed first as 8da302d — index.html.backup-v1 is the rollback target.
+2. All admin/login/users logic preserved byte-for-byte where possible; only colour vars and font family remapped.
+3. Public landing is the default view for anonymous visitors. On admin login, JS hides the landing and swaps in #admin-shell. On venue_owner login, JS redirects to dashboard.html.
+4. No hardcoded venue data anywhere. Carousel and spotlight fetch from /api/venues and render dynamically. Empty state pads with coming-soon placeholders.
+
+### File metrics
+
+|                | v1                       | v2          | delta     |
+|----------------|--------------------------|-------------|-----------|
+| Lines          | 2,532                    | 1,460       | -1,072    |
+| External fonts | DM Sans + Syne + DM Mono | Inter       | 3 to 1    |
+| Top-level shell| nav + 5 tabs             | Public landing OR admin shell (login-gated) | reshaped |
+| Hardcoded venues | 2 (detail-cr, detail-ws) | 0         | full delete |
+| Booking surface | In-page modal + calendar engine | Routes to venue.html | full delete |
+
+### Audit-list verification (Step 5)
+
+| Category | Items checked | Status |
+|---|---|---|
+| Global functions preserved/added | 37 (all unique) | All exactly-once present |
+| IDs from JS targets (static ones) | 42 (all unique) | All exactly-once present in HTML |
+| Admin-injected IDs (admin-venue-count, admin-venue-list, av-*, admin-booking-count, admin-revenue, admin-bookings-tbody, add-venue-form, av-owner-section) | rendered by renderAdminPanel() innerHTML at runtime, same as v1 | Preserved verbatim |
+| CSS classes JS toggles | active, open, show, copied, panel, tab-btn | All have CSS rules |
+| Dropped functions | showTab, openModal, closeModal, maybeCloseModal, submitBooking, toggleAcc, toggleAddForm, calPrev/Next, calState, initAllCals, renderCal, selectDate, galleryInit, gallerySetImage, galleryFullscreen, renderVenueOwnerPanel, loadVenueOwnerData, voChangeStatus, onLocationChange, onVenueChange, goToVenue, openVenue, backToSelector, resetToHome | All confirmed 0 occurrences |
+| Dropped refs | VENUES, BY_LOCATION, detail-cr/ws, booking-confirmed.html | All confirmed 0 occurrences |
+
+### What changed (per the locked spec answers)
+
+**Q1 (Location selector):** REMOVED. The venue-selector-bar and related dropdowns are gone. Carousel is the only entry point.
+
+**Q2 (Booking modal):** REMOVED. The v1 file had a full booking modal + calendar engine wired to the deleted detail blocks. Booking is now exclusively a venue.html concern. The booking POST contract is unchanged (identical payload to venue.html); API.createBooking() remains in the service layer as a public method should any future caller need it.
+
+**Q3 (Tabbed shell to public landing + hidden admin shell):**
+- #public-landing div = the v2 marketing landing (top nav, hero, dynamic carousel, owner CTA strip, value props, how-it-works, spotlight, footer, bottom-tab nav).
+- #admin-shell div = hidden by default. On admin/superadmin login, showAdminShell() hides the landing and reveals this shell, which wraps the preserved #tab-admin + #tab-users panels and the three user-management modals.
+- On venue_owner login: window.location.replace('dashboard.html') — index.html never renders the venue-owner panel anymore. All renderVenueOwnerPanel/loadVenueOwnerData/renderVenueOwnerBookings/voChangeStatus + vo-* IDs are deleted.
+- On handleLogout(): clear session, hide admin shell, window.location.replace('/') for the anonymous landing.
+- On page boot with active session: superadmin/admin auto-swaps to admin shell; venue_owner redirects to dashboard.
+
+**Q4 (Fonts):** switched to Inter exclusively (matches venue.html, inquiry-sent.html, dashboard.html, onboard.html). --display, --mono, --sans all remap to Inter. Dropped Google Fonts request for DM Sans + Syne + DM Mono.
+
+**Q5 (VENUES object):** DELETED. No surviving consumer.
+
+**Reviews + About:** DROPPED. No equivalent sections in v2.
+
+### What was added (NEW)
+
+1. **renderCarousel()** — fetches /api/venues, renders one anchor.venue-card per live venue linking to venue.html?id=N. Hero image from gallery[0] when present, gradient placeholder otherwise. Pads with 3 coming-soon cards (LegacySound, Mark's Demo Studio, "List your venue") so the carousel always feels populated. Updates the hero eyebrow with live count + city list. Sets the spotlight section to the first live venue with stats and an "Explore venue" link.
+2. **openLoginModal() / closeLoginModal()** — v2-styled login overlay replacing the v1 in-tab login panel. Opens from "Sign In" in top nav AND the bottom-tab "Sign In" item on mobile. Enter-to-submit wired on the password field via DOMContentLoaded.
+3. **showAdminShell() / hideAdminShell() / showAdminTab(id)** — shell-swap helpers that replaced the old showTab() tab-router.
+4. **Boot IIFE** — runs renderCarousel() always (anonymous visitors see live venues immediately), then checks session: venue_owner to dashboard.html; admin/superadmin auto-swap to admin shell; anonymous stay on landing.
+
+### Onboarding funnel (per locked spec)
+
+- "Sign In" (top nav + bottom-tab) opens login modal. Admin stays on index. Venue_owner redirects to dashboard.html.
+- "Get Started" (top nav) AND "Get Onboarded" (CTA strip) AND footer links all route to /onboard.html (existing, untouched).
+- No public signup endpoint. Account creation remains admin-driven via the preserved create-user modal.
+
+### Preserved verbatim (byte-for-byte where possible)
+
+- Session-expired banner IIFE
+- API service layer (all 15 methods)
+- apiFetch, all session helpers (getToken, setToken, clearSession, getRole, getName, getVenueId, etc.)
+- renderAdminPanel (with its innerHTML template), loadAdminVenues, renderAdminVenueList, openAddVenueForm, closeAddVenueForm, startEditVenue, saveVenue, confirmDeleteVenue
+- adminViewVenue — now opens venue.html?id=N in a new tab (Commit C surface)
+- loadAdminBookings, renderAdminBookings, changeBookingStatus, removeBooking — revenue calc no longer references the deleted VENUES object; now uses apiVenues for price_per_day lookup on confirmed bookings only
+- All user-management logic: loadUsers, create-user modal flow, password reset modal flow, delete user
+- refreshUsersTabVisibility
+- escHtml
+- All three user-management modals (HTML structure + IDs identical)
+
+### Booking POST contract — UNCHANGED
+
+POST /api/bookings with { venue_id, client_name, client_email, event_date, guests, message }. The contract is exclusively exercised by venue.html now; index.html no longer submits bookings.
+
+### Files touched
+
+- index.html — full rewrite per spec (1,460 lines)
+- index.html.backup-v1 — preserved rollback target (created in standalone commit 8da302d)
+- PUBLIC_SURFACE_V2_DIFF.md — this section
+
+### Not touched (per hard rules)
+
+- api.js — no changes
+- dashboard.html, venue.html, inquiry-sent.html, onboard.html, booking-confirmed.html, booking-cancelled.html, privacy.html, terms.html, legacysound-demo.html, studio-demo.html — untouched
+- All *-v2-mockup.html source files — untouched
+- D1 schema, R2 bucket — untouched
+
+### Browser-side verification (for user)
+
+Page loads (/index.html):
+- Carousel populates with Chill Room + White Swan + 3 coming-soon cards
+- Hero eyebrow reads "2 venues live ..." with the live city list
+- Spotlight section pulled from first live venue with photo + stats
+- Click either real card lands on venue.html?id=1 (or ?id=3)
+- "Get Started" / "Get Onboarded" route to /onboard.html
+- "Sign In" opens the login modal; submit credentials:
+  - venue_owner is redirected to /dashboard.html
+  - admin / superadmin: landing hides, admin panel renders with venues + bookings + (if superadmin) Users tab
+- Admin "+ Create User" opens modal; generated credentials displayed
+- Admin "Sign out" reloads to anonymous landing
+- Mobile (375px): nav collapses, carousel scroll-snaps, bottom-tab nav visible, all CTAs at least 44px tap targets
+
+### Follow-up filed (NOT part of D)
+
+- **Commit F (future)**: extract admin panel from index.html into a dedicated /admin.html with its own v2 design and redirect admins there on login (mirrors the venue_owner -> dashboard.html split).
+- **Cleanup commit (future)**: delete index.html.backup-v1 once Commit D is verified live for 48hrs.
