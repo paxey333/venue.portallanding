@@ -651,3 +651,60 @@ Visual layer fully swapped to match the v2 design system (matches index.html, ve
 - Visit `/onboard.html` → new v2 black background, orange `#ff6b1a` accents, Inter throughout, chevron logo top-left, "← Back to home" top-right. BETA badge gone.
 - Fill out a test submission with "TEST_FIXUP" in venue name → confirms submit + success state renders with v2 styling.
 - Mobile (375px): both pages collapse cleanly, no horizontal scroll, all tap targets ≥ 44px.
+
+---
+
+## Commit D fix-up #2 — carousel framing + Browse-tab scroll-to-top
+
+Two small mobile-polish fixes after in-browser review of D.1.
+
+### Fix 1 — Carousel card photo framing
+
+**Reported**: Carousel cards on index.html showed real photos (D.1 fix worked) but the photos rendered with inconsistent crops/aspect ratios — Chill Room's portrait band shot dictated card height, White Swan's landscape stage shot fit differently, cards felt visually inconsistent.
+
+**Root cause**: `.vc-img` already had `aspect-ratio:4/3` set, but the inner `<img>` only had `width:100%;height:100%;object-fit:cover;display:block` (from the global `.ph` block). With `aspect-ratio` on the parent, some browsers/edge cases still let the intrinsic image dimensions influence layout — particularly when the img isn't strictly contained.
+
+**Fix**: Lock the img to absolute positioning inside the aspect-ratio container so it's guaranteed to fill the 4:3 frame regardless of intrinsic dimensions:
+
+```css
+.vc-img{aspect-ratio:4/3;width:100%;position:relative;overflow:hidden}
+.vc-img img{position:absolute;inset:0;width:100%;height:100%;
+            object-fit:cover;object-position:center;display:block}
+```
+
+Added `overflow:hidden` on the parent for belt-and-suspenders cropping; `object-position:center` ensures the most important part of the photo (typically the subject) stays visible after cover-cropping.
+
+Card body layout (text below photo) is unaffected — the card was already a flex column with `.vc-body` taking remaining space.
+
+### Fix 2 — Bottom-nav Browse tab: tap to scroll-to-top
+
+**Pattern**: Standard mobile-app UX — tapping the active tab again scrolls to top.
+
+**Implementation**:
+- Browse was a `<a href="#carousel">` anchor. Converted to `<button type="button" onclick="browseTabTap()" aria-label="Scroll to top">`.
+- New JS handler:
+  ```js
+  function browseTabTap() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  ```
+- No-op at the top (smooth-scroll to position 0 from position 0 is a harmless no-visible-change call).
+- Other bottom-tab items unchanged: How (anchor to `#how`), For owners (anchor to `/onboard.html`), Sign In (opens login modal).
+
+### Files touched
+
+- `index.html` — `.vc-img` CSS hardening (+1 rule, ~2 lines), Browse anchor → button conversion, new `browseTabTap()` helper (~6 lines total). Net ~+10 lines.
+- `PUBLIC_SURFACE_V2_DIFF.md` — this section
+
+### Not touched (per hard rules)
+
+- `api.js`, `venue.html`, `dashboard.html`, `onboard.html`, `inquiry-sent.html`, `booking-confirmed.html` — untouched
+- No new endpoints, no third-party libs
+
+### Browser-side verification (for user)
+
+- Mobile (375px): all 5 carousel cards render at identical 4:3 aspect ratios — Chill Room band shot is cover-cropped, White Swan stage shot is cover-cropped, both look visually consistent. No card taller/shorter than its siblings.
+- Desktop (≥1280px): same consistent framing at larger size, 4 cards visible per row, each at 4:3.
+- Mobile, scrolled halfway down: tap **Browse** in bottom nav → page smooth-scrolls to top.
+- Mobile, already at top: tap **Browse** → no visible change, no error in console.
+- Other bottom-tab items (How / For owners / Sign In) behave as before.

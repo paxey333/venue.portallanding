@@ -92,7 +92,8 @@ img,svg{display:block;max-width:100%}
 .venue-card{flex:0 0 80%;scroll-snap-align:start;background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:border-color .18s,transform .18s}
 .venue-card:hover{border-color:var(--border2)}
 .venue-card:active{transform:scale(.995)}
-.vc-img{aspect-ratio:4/3;width:100%;position:relative}
+.vc-img{aspect-ratio:4/3;width:100%;position:relative;overflow:hidden}
+.vc-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block}
 .vc-body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:6px;flex:1}
 .vc-loc{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;display:flex;align-items:center;gap:6px}
 .vc-loc .live-dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
@@ -495,10 +496,10 @@ table tbody tr:hover td{color:var(--text)}
   <!-- BOTTOM TAB NAV (mobile only) -->
   <nav class="bottom-tabs">
     <div class="bottom-tabs-inner">
-      <a href="#carousel" class="bt-item active">
+      <button type="button" class="bt-item active" onclick="browseTabTap()" aria-label="Scroll to top">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
         <span>Browse</span>
-      </a>
+      </button>
       <a href="#how" class="bt-item">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
         <span>How it works</span>
@@ -916,6 +917,12 @@ function openLoginModal() {
 function closeLoginModal() {
   document.getElementById('login-overlay').classList.remove('open');
   document.body.style.overflow = '';
+}
+
+/* Browse tab (bottom nav, mobile only): tap to scroll-to-top.
+   Smooth-scroll if not at top; no-op (harmless) if already at top. */
+function browseTabTap() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 /* For backwards compat — any code still calling showLoginPanel() now opens the modal. */
