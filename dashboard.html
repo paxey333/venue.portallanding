@@ -233,6 +233,50 @@ section{display:flex;flex-direction:column;gap:14px}
 .profile-edit-form input:focus,.profile-edit-form textarea:focus{border-color:var(--accent)}
 .profile-edit-form textarea{resize:vertical;min-height:80px}
 .profile-edit-form #edit-save-err{font-size:11px;color:var(--alert);margin-top:4px}
+
+/* ─── PHOTO MANAGER (Commit E) ────────────────────────────── */
+.photo-mgr{margin-bottom:14px}
+.photo-mgr-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.photo-mgr-count{font-size:11px;font-weight:700;color:var(--text);letter-spacing:.02em}
+.photo-mgr-hint{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em}
+.photo-mgr-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.photo-mgr-grid:empty{display:none}
+@media(max-width:640px){.photo-mgr-grid{grid-template-columns:repeat(2,1fr);gap:6px}}
+
+.photo-mgr-thumb{position:relative;aspect-ratio:16/9;border-radius:8px;overflow:hidden;background:var(--surface2);border:1px solid var(--border);cursor:grab;transition:border-color .15s,transform .15s,opacity .15s;-webkit-user-select:none;user-select:none}
+.photo-mgr-thumb:hover{border-color:var(--border2)}
+.photo-mgr-thumb.dragging{opacity:.45;cursor:grabbing}
+.photo-mgr-thumb.drag-over{border-color:var(--accent);transform:scale(1.02);box-shadow:0 0 0 2px var(--accent-soft,rgba(255,107,26,0.18))}
+.photo-mgr-thumb img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.photo-mgr-thumb .pm-hero{position:absolute;top:6px;left:6px;background:var(--accent);color:#000;font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:3px 7px;border-radius:4px;line-height:1;pointer-events:none}
+.photo-mgr-thumb .pm-del{position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,0.7);border:1px solid rgba(255,255,255,0.18);color:var(--text);font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s,color .15s,border-color .15s;padding:0;min-height:26px}
+.photo-mgr-thumb .pm-del:hover{background:rgba(0,0,0,0.85);color:var(--alert);border-color:var(--alert)}
+@media(max-width:640px){.photo-mgr-thumb .pm-del{width:32px;height:32px;min-height:32px;font-size:16px}}
+
+.photo-mgr-thumb.uploading::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,0.55);display:block}
+.photo-mgr-thumb .pm-spinner{position:absolute;top:50%;left:50%;width:28px;height:28px;margin:-14px 0 0 -14px;border:3px solid rgba(255,255,255,0.16);border-top-color:var(--accent);border-radius:50%;animation:pmSpin .85s linear infinite;z-index:2}
+@keyframes pmSpin{to{transform:rotate(360deg)}}
+.photo-mgr-thumb.err{border-color:var(--alert)}
+.photo-mgr-thumb.err::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,0.55);display:block}
+.photo-mgr-thumb .pm-err-msg{position:absolute;left:6px;right:6px;bottom:6px;font-size:10px;font-weight:600;color:var(--alert);background:rgba(0,0,0,0.7);padding:4px 6px;border-radius:4px;z-index:2;text-align:center;line-height:1.3}
+
+.photo-mgr-thumb .pm-confirm{position:absolute;inset:0;background:rgba(0,0,0,0.82);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:10px;z-index:3}
+.photo-mgr-thumb .pm-confirm-txt{font-size:11px;font-weight:700;color:var(--text);text-align:center;line-height:1.3}
+.photo-mgr-thumb .pm-confirm-row{display:flex;gap:6px}
+.photo-mgr-thumb .pm-confirm-btn{font-size:10px;font-weight:700;padding:6px 10px;border-radius:5px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);cursor:pointer;min-height:30px}
+.photo-mgr-thumb .pm-confirm-btn.yes{background:var(--alert);border-color:var(--alert);color:#000}
+.photo-mgr-thumb .pm-confirm-btn.yes:hover{opacity:.88}
+.photo-mgr-thumb .pm-confirm-btn:hover{border-color:var(--text2)}
+
+.photo-mgr-drop{border:1px dashed var(--border2);border-radius:10px;padding:24px 16px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s;display:flex;flex-direction:column;align-items:center;gap:6px;min-height:120px;justify-content:center}
+.photo-mgr-drop:hover,.photo-mgr-drop:focus,.photo-mgr-drop.drag-over{border-color:var(--accent);background:rgba(255,107,26,0.04);outline:none}
+.photo-mgr-drop-icon{color:var(--text2)}
+.photo-mgr-drop:hover .photo-mgr-drop-icon,.photo-mgr-drop.drag-over .photo-mgr-drop-icon{color:var(--accent)}
+.photo-mgr-drop-title{font-size:13px;font-weight:600;color:var(--text)}
+.photo-mgr-drop-sub{font-size:11px;color:var(--text3)}
+.photo-mgr-max{font-size:12px;color:var(--text2);background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;text-align:center}
+.photo-mgr-err{display:none;font-size:11px;color:var(--alert);background:rgba(255,68,68,0.08);border:1px solid rgba(255,68,68,0.25);border-radius:6px;padding:8px 10px;margin-top:8px;line-height:1.5}
+.photo-mgr-err.show{display:block}
 /* Amenity toggle buttons (rendered by JS into #amenity-toggle-grid) */
 #amenity-toggle-grid{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 12px}
 .amenity-toggle{background:var(--surface2);border:1px solid var(--border2);color:var(--text2);font-family:var(--sans);font-size:11px;font-weight:500;padding:6px 12px;border-radius:20px;cursor:pointer;transition:background .15s,border-color .15s,color .15s;white-space:nowrap}
@@ -669,8 +713,23 @@ section{display:flex;flex-direction:column;gap:14px}
         <textarea id="edit-description"></textarea>
         <label style="display:block;font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Video URL (optional)</label>
         <input id="edit-video" type="text"/>
-        <label style="display:block;font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Gallery image URLs (one per line)</label>
-        <textarea id="edit-gallery"></textarea>
+        <label style="display:block;font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Photos</label>
+        <div class="photo-mgr" id="photo-mgr">
+          <div class="photo-mgr-head">
+            <span class="photo-mgr-count" id="photo-mgr-count">0 of 8 photos</span>
+            <span class="photo-mgr-hint">Drag to reorder · First photo is the hero</span>
+          </div>
+          <div class="photo-mgr-grid" id="photo-mgr-grid"></div>
+          <div class="photo-mgr-drop" id="photo-mgr-drop" tabindex="0" role="button" aria-label="Click or drop photos to upload">
+            <div class="photo-mgr-drop-icon" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </div>
+            <div class="photo-mgr-drop-title">Drag photos here or click to browse</div>
+            <div class="photo-mgr-drop-sub">JPG, PNG, or WebP · Auto-resized to 2400px max</div>
+          </div>
+          <div class="photo-mgr-max" id="photo-mgr-max" style="display:none">Max 8 photos reached. Delete one to add more.</div>
+          <div class="photo-mgr-err" id="photo-mgr-err"></div>
+        </div>
         <label style="display:block;font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Amenities</label>
         <div id="amenity-toggle-grid"></div>
         <div id="edit-save-err"></div>
@@ -1246,8 +1305,8 @@ function startProfileEdit() {
   document.getElementById('edit-hours').value       = currentVenue.hours || '';
   document.getElementById('edit-description').value = currentVenue.description || '';
   document.getElementById('edit-video').value       = currentVenue.video_url || '';
-  const gallery = Array.isArray(currentVenue.gallery) ? currentVenue.gallery : [];
-  document.getElementById('edit-gallery').value     = gallery.join('\n');
+  // Photo manager (Commit E) — handles its own state from currentVenue.gallery
+  initPhotoManager();
   const amenities = Array.isArray(currentVenue.amenities) ? currentVenue.amenities : [];
   renderAmenityToggles(amenities);
   document.getElementById('profile-display').classList.add('hidden');
@@ -1264,8 +1323,9 @@ function cancelProfileEdit() {
 async function saveProfileEdit() {
   const errEl = document.getElementById('edit-save-err');
   errEl.style.display = 'none';
-  const galleryRaw = document.getElementById('edit-gallery').value.trim();
-  const gallery = galleryRaw ? galleryRaw.split('\n').map(s => s.trim()).filter(Boolean).slice(0,6) : [];
+  // Gallery is managed independently by the photo manager (Commit E):
+  // uploads/deletes/reorders PATCH gallery in real-time, so it's intentionally
+  // omitted from this body — saving the profile leaves the gallery untouched.
   const body = {
     name:          document.getElementById('edit-name').value.trim(),
     description:   document.getElementById('edit-description').value.trim(),
@@ -1274,7 +1334,6 @@ async function saveProfileEdit() {
     hours:         document.getElementById('edit-hours').value.trim(),
     video_url:     document.getElementById('edit-video').value.trim() || null,
     amenities:     getSelectedAmenities(),
-    gallery:       gallery,
   };
   if (!body.name) { errEl.style.display=''; errEl.textContent='Venue name is required.'; return; }
   try {
@@ -1301,6 +1360,282 @@ async function saveProfileEdit() {
   } catch(e) {
     errEl.style.display = '';
     errEl.textContent = 'Save failed: ' + e.message;
+  }
+}
+
+/* ─── PHOTO MANAGER (Commit E) ─────────────────────────────────
+   Lives inside the Edit Profile form. Source of truth is
+   currentVenue.gallery; all ops PATCH/POST/DELETE in real time
+   and refresh currentVenue.gallery from the server response. */
+
+const PHOTO_MAX = 8;
+
+function initPhotoManager() {
+  const errEl = document.getElementById('photo-mgr-err');
+  if (errEl) { errEl.classList.remove('show'); errEl.textContent = ''; }
+  renderPhotoManager();
+  wirePhotoManagerDropZone();
+}
+
+function pmShowErr(msg) {
+  const el = document.getElementById('photo-mgr-err');
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 6000);
+}
+
+function renderPhotoManager() {
+  const grid    = document.getElementById('photo-mgr-grid');
+  const dropEl  = document.getElementById('photo-mgr-drop');
+  const maxEl   = document.getElementById('photo-mgr-max');
+  const countEl = document.getElementById('photo-mgr-count');
+  if (!grid) return;
+
+  const gallery = Array.isArray(currentVenue.gallery) ? currentVenue.gallery : [];
+  countEl.textContent = `${gallery.length} of ${PHOTO_MAX} photos`;
+
+  if (gallery.length >= PHOTO_MAX) {
+    dropEl.style.display = 'none';
+    maxEl.style.display  = '';
+  } else {
+    dropEl.style.display = '';
+    maxEl.style.display  = 'none';
+  }
+
+  grid.innerHTML = gallery.map((url, idx) => `
+    <div class="photo-mgr-thumb" draggable="true" data-idx="${idx}" data-url="${esc(url)}">
+      <img src="${esc(url)}" alt="Venue photo ${idx + 1}" loading="lazy" onerror="this.style.opacity='.25'"/>
+      ${idx === 0 ? '<span class="pm-hero">Hero photo</span>' : ''}
+      <button type="button" class="pm-del" aria-label="Delete photo" onclick="pmAskDelete(${idx})">×</button>
+    </div>
+  `).join('');
+
+  grid.querySelectorAll('.photo-mgr-thumb').forEach(el => {
+    el.addEventListener('dragstart', pmOnDragStart);
+    el.addEventListener('dragend',   pmOnDragEnd);
+    el.addEventListener('dragover',  pmOnDragOver);
+    el.addEventListener('dragleave', pmOnDragLeave);
+    el.addEventListener('drop',      pmOnDrop);
+  });
+}
+
+/* ── DELETE FLOW ───────────────────────────────────── */
+function pmAskDelete(idx) {
+  const grid = document.getElementById('photo-mgr-grid');
+  const thumb = grid.querySelector(`.photo-mgr-thumb[data-idx="${idx}"]`);
+  if (!thumb || thumb.querySelector('.pm-confirm')) return;
+  const url = thumb.dataset.url;
+  const confirm = document.createElement('div');
+  confirm.className = 'pm-confirm';
+  confirm.innerHTML = `
+    <div class="pm-confirm-txt">Delete this photo?</div>
+    <div class="pm-confirm-row">
+      <button type="button" class="pm-confirm-btn yes">Delete</button>
+      <button type="button" class="pm-confirm-btn no">Cancel</button>
+    </div>`;
+  thumb.appendChild(confirm);
+  confirm.querySelector('.pm-confirm-btn.yes').addEventListener('click', () => deletePhoto(url));
+  confirm.querySelector('.pm-confirm-btn.no').addEventListener('click', () => confirm.remove());
+}
+
+async function deletePhoto(url) {
+  try {
+    const res = await fetch(API_BASE + '/api/venues/' + EFFECTIVE_VENUE_ID + '/photos', {
+      method: 'DELETE',
+      headers: { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url }),
+    });
+    if (handleAuth(res)) return;
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || data.error) throw new Error(data.error || 'Delete failed');
+    currentVenue.gallery = Array.isArray(data.gallery) ? data.gallery : (currentVenue.gallery || []).filter(u => u !== url);
+    renderPhotoManager();
+    renderMedia();
+  } catch (e) {
+    pmShowErr('Could not delete photo: ' + (e.message || 'unknown error'));
+  }
+}
+
+/* ── REORDER (PATCH gallery-only) ──────────────────── */
+let pmDragSrcIdx = null;
+
+function pmOnDragStart(e) {
+  pmDragSrcIdx = Number(e.currentTarget.dataset.idx);
+  e.currentTarget.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+  try { e.dataTransfer.setData('text/plain', String(pmDragSrcIdx)); } catch (err) {}
+}
+function pmOnDragEnd(e) {
+  e.currentTarget.classList.remove('dragging');
+  document.querySelectorAll('.photo-mgr-thumb.drag-over').forEach(el => el.classList.remove('drag-over'));
+  pmDragSrcIdx = null;
+}
+function pmOnDragOver(e) {
+  if (pmDragSrcIdx === null) return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  e.currentTarget.classList.add('drag-over');
+}
+function pmOnDragLeave(e) {
+  e.currentTarget.classList.remove('drag-over');
+}
+async function pmOnDrop(e) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  if (pmDragSrcIdx === null) return;
+  const dst = Number(e.currentTarget.dataset.idx);
+  const src = pmDragSrcIdx;
+  pmDragSrcIdx = null;
+  if (src === dst) return;
+  const arr = Array.isArray(currentVenue.gallery) ? currentVenue.gallery.slice() : [];
+  if (src < 0 || src >= arr.length || dst < 0 || dst >= arr.length) return;
+  const [moved] = arr.splice(src, 1);
+  arr.splice(dst, 0, moved);
+  await reorderPhotos(arr);
+}
+
+async function reorderPhotos(newOrderArray) {
+  // Optimistic UI: update immediately, then PATCH. Revert on failure.
+  const prev = (currentVenue.gallery || []).slice();
+  currentVenue.gallery = newOrderArray;
+  renderPhotoManager();
+  renderMedia();
+  try {
+    const res = await fetch(API_BASE + '/api/venues/' + EFFECTIVE_VENUE_ID, {
+      method: 'PATCH',
+      headers: { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ gallery: newOrderArray }),
+    });
+    if (handleAuth(res)) return;
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || data.error) throw new Error(data.error || 'Reorder failed');
+    if (Array.isArray(data.gallery)) {
+      currentVenue.gallery = data.gallery;
+      renderPhotoManager();
+      renderMedia();
+    }
+  } catch (e) {
+    currentVenue.gallery = prev;
+    renderPhotoManager();
+    renderMedia();
+    pmShowErr('Could not save new order: ' + (e.message || 'unknown error'));
+  }
+}
+
+/* ── UPLOAD FLOW ───────────────────────────────────── */
+function wirePhotoManagerDropZone() {
+  const drop  = document.getElementById('photo-mgr-drop');
+  const input = document.getElementById('photo-file-input');
+  if (!drop || !input || drop.dataset.wired === '1') return;
+  drop.dataset.wired = '1';
+  drop.addEventListener('click', () => input.click());
+  drop.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); } });
+  drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('drag-over'); });
+  drop.addEventListener('dragleave', () => drop.classList.remove('drag-over'));
+  drop.addEventListener('drop', async e => {
+    e.preventDefault();
+    drop.classList.remove('drag-over');
+    const files = Array.from(e.dataTransfer.files || []).filter(f => /^image\/(jpeg|png|webp)$/i.test(f.type));
+    for (const f of files) await uploadPhoto(f);
+  });
+  input.addEventListener('change', async e => {
+    const files = Array.from(e.target.files || []);
+    for (const f of files) await uploadPhoto(f);
+    e.target.value = '';
+  });
+}
+
+async function resizeImageIfNeeded(file) {
+  const MAX_W   = 2400;
+  const MAX_BYT = 1.5 * 1024 * 1024;
+  if (file.size <= MAX_BYT) {
+    const dims = await imageDimensions(file);
+    if (dims.width <= MAX_W) return file;
+  }
+  const img = await loadImage(file);
+  const scale = img.width > MAX_W ? MAX_W / img.width : 1;
+  const w = Math.round(img.width  * scale);
+  const h = Math.round(img.height * scale);
+  const canvas = document.createElement('canvas');
+  canvas.width = w; canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(img, 0, 0, w, h);
+  return await new Promise((resolve, reject) => {
+    canvas.toBlob(b => b ? resolve(b) : reject(new Error('Canvas encode failed')), 'image/jpeg', 0.85);
+  });
+}
+
+function loadImage(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload  = () => { URL.revokeObjectURL(url); resolve(img); };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Could not read image')); };
+    img.src = url;
+  });
+}
+
+function imageDimensions(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload  = () => { URL.revokeObjectURL(url); resolve({ width: img.naturalWidth, height: img.naturalHeight }); };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Could not read image')); };
+    img.src = url;
+  });
+}
+
+async function uploadPhoto(file) {
+  if ((currentVenue.gallery || []).length >= PHOTO_MAX) {
+    pmShowErr('Max 8 photos reached. Delete one to add more.');
+    return;
+  }
+  if (!/^image\/(jpeg|png|webp)$/i.test(file.type)) {
+    pmShowErr('Unsupported file type. Use JPG, PNG, or WebP.');
+    return;
+  }
+
+  const grid = document.getElementById('photo-mgr-grid');
+  const previewUrl = URL.createObjectURL(file);
+  const ph = document.createElement('div');
+  ph.className = 'photo-mgr-thumb uploading';
+  ph.innerHTML = `
+    <img src="${previewUrl}" alt="Uploading"/>
+    <div class="pm-spinner" aria-label="Uploading"></div>`;
+  grid.appendChild(ph);
+
+  try {
+    const blob = await resizeImageIfNeeded(file);
+    const ext = (file.type === 'image/png') ? 'png' : (file.type === 'image/webp') ? 'webp' : 'jpg';
+    const filename = (file.name || ('photo.' + ext)).replace(/[^\w.\-]+/g, '_');
+    // If we resized, the canvas output is JPEG; otherwise keep original MIME.
+    const sendBlob = (blob === file) ? file : new Blob([blob], { type: 'image/jpeg' });
+
+    const form = new FormData();
+    form.append('file', sendBlob, filename);
+
+    const res = await fetch(API_BASE + '/api/venues/' + EFFECTIVE_VENUE_ID + '/photos', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + TOKEN }, // do NOT set Content-Type — browser sets multipart boundary
+      body: form,
+    });
+    if (handleAuth(res)) return;
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.success) throw new Error(data.error || 'Upload failed');
+
+    currentVenue.gallery = Array.isArray(data.gallery) ? data.gallery : ((currentVenue.gallery || []).concat([data.url]));
+    URL.revokeObjectURL(previewUrl);
+    renderPhotoManager();
+    renderMedia();
+  } catch (e) {
+    URL.revokeObjectURL(previewUrl);
+    ph.classList.remove('uploading');
+    ph.classList.add('err');
+    ph.innerHTML = `
+      <img src="${previewUrl}" alt="Upload failed"/>
+      <div class="pm-err-msg">${esc(e.message || 'Upload failed')}</div>
+      <button type="button" class="pm-del" aria-label="Dismiss" onclick="this.parentElement.remove()">×</button>`;
   }
 }
 
@@ -1677,5 +2012,8 @@ async function submitPassword() {
   }
 }
 </script>
+<!-- Hidden file picker for the photo manager (Commit E). Outside any container that might submit. -->
+<input type="file" id="photo-file-input" accept="image/jpeg,image/png,image/webp" multiple style="display:none" aria-hidden="true"/>
+
 </body>
 </html>

@@ -708,3 +708,126 @@ Card body layout (text below photo) is unaffected — the card was already a fle
 - Mobile, scrolled halfway down: tap **Browse** in bottom nav → page smooth-scrolls to top.
 - Mobile, already at top: tap **Browse** → no visible change, no error in console.
 - Other bottom-tab items (How / For owners / Sign In) behave as before.
+
+---
+
+## Commit E — Photo upload UI in dashboard.html
+
+Last commit of the public-surface rebuild workstream. Replaces the legacy "one URL per line" textarea in dashboard's Edit Profile form with a fully-featured photo management component: drag-and-drop upload (with client-side resize), thumbnail grid with hero badge, drag-to-reorder, inline-confirm delete. Real-time PATCH/POST/DELETE — no "save" button needed for gallery changes.
+
+### Strategy
+
+1. **No api.js changes**: the three endpoints needed (`POST/DELETE /api/venues/:id/photos`, `PATCH /api/venues/:id`) all exist and accept the required body shapes. PATCH already accepts gallery-only updates via `'gallery' in body` (api.js:670).
+2. **Surgical JS edits only**: `startProfileEdit()` and `saveProfileEdit()` get two-line changes each — no refactor.
+3. **Server is the source of truth**: every successful op (upload, delete, reorder) returns the canonical gallery array, which is assigned back to `currentVenue.gallery`. Client state never drifts from server state.
+4. **Optimistic UI for reorder**: drag-drop re-renders immediately, then PATCH; on failure, revert from snapshot.
+
+### File metrics
+
+| File | Before | After | Delta |
+|------|--------|-------|-------|
+| dashboard.html | 1,681 lines | 2,019 lines | +338 |
+
+### Component spec (delivered)
+
+**Layout** (inside `#profile-edit-form`, replacing the old `<label>Gallery image URLs</label> + <textarea id="edit-gallery">`):
+- `#photo-mgr-count` "X of 8 photos" + hint "Drag to reorder · First photo is the hero"
+- `#photo-mgr-grid` — 3 cols desktop / 2 cols mobile, `aspect-ratio:16/9`, `object-fit:cover`, rounded corners
+- `#photo-mgr-drop` — dashed border dropzone with upload icon + copy + JPG/PNG/WebP hint
+- `#photo-mgr-max` — "Max 8 photos reached" message (shown only at cap)
+- `#photo-mgr-err` — inline error banner (auto-dismisses after 6s)
+- `#photo-file-input` — hidden multi-select file picker, placed just before `</body>` (outside any form-like container)
+
+**Thumbnail features**:
+- "Hero photo" orange pill on `gallery[0]`
+- Top-right × delete button (rgba(0,0,0,0.7) background, hover turns red)
+- HTML5 native drag (`draggable="true"`) with `.dragging` opacity + `.drag-over` target highlight (accent border + scale-up)
+- Click ×  →  inline confirm panel ("Delete this photo?" + Delete/Cancel buttons) → DELETE request
+
+**Upload pipeline**:
+1. User drops or selects files (filtered to image/jpeg, image/png, image/webp).
+2. For each file: immediately inject a placeholder thumb with the file's object-URL preview + spinner overlay.
+3. `resizeImageIfNeeded(file)`: if `file.size > 1.5MB` OR `width > 2400px`, draw to canvas at max 2400px wide preserving aspect ratio, encode as JPEG quality 0.85. Otherwise return original file untouched.
+4. POST as multipart/form-data (`file` field, `Authorization: Bearer <TOKEN>` header, **no Content-Type header** — browser sets multipart boundary).
+5. On success: server returns the canonical `gallery` array. Assign to `currentVenue.gallery`, re-render the manager + `renderMedia()` to sync the read-only `#media-section`.
+6. On failure: placeholder thumb gets `.err` class + error message + dismiss button.
+
+**Reorder pipeline**:
+1. `dragstart` records source index, sets `effectAllowed='move'`, calls `setData('text/plain', src)` for Firefox compatibility.
+2. `dragover` on target thumb adds `.drag-over` highlight and prevents default (required for drop to fire).
+3. `drop` reorders the array (splice/insert), updates `currentVenue.gallery` optimistically, re-renders.
+4. PATCH `{ gallery: newOrder }` is fired. Response is normative — overwrites `currentVenue.gallery` again.
+5. On PATCH failure, revert to pre-drag snapshot.
+
+### Visual design — v2 tokens used throughout
+
+- `--bg:#000`, `--surface:#0a0a0a`, `--surface2:#141414`, `--border:#1f1f1f`, `--border2:#2a2a2a`
+- `--text:#fff`, `--text2:#a8a8a8`, `--text3:#666` (existing dashboard tokens)
+- `--accent:#ff6b1a` (existing dashboard token)
+- `--alert:#ff4444` (existing dashboard token) — delete X hover + error banner
+- Inter font inherits from dashboard's `--sans` (already mapped to Inter elsewhere)
+- Min 44px tap target enforced on mobile via `@media(max-width:640px)` rules (delete button bumps to 32px, drop zone min-height 120px)
+- Spinner: 28px circle, `border-color: var(--accent)` top, 0.85s linear infinite rotate
+
+### Edits applied
+
+| # | Location | Change |
+|---|----------|--------|
+| 1 | dashboard.html L672–673 | Replaced `<label>Gallery image URLs</label> + <textarea id="edit-gallery">` with the `#photo-mgr` component (~17 lines of HTML) |
+| 2 | dashboard.html after L235 | Added `.photo-mgr-*` CSS (~46 lines, v2 tokens, mobile breakpoints) |
+| 3 | dashboard.html L1249–1251 | `startProfileEdit()` — removed `edit-gallery.value = gallery.join('\n')` line, replaced with `initPhotoManager()` call |
+| 4 | dashboard.html L1267–1278 | `saveProfileEdit()` — dropped the `galleryRaw`/`gallery` variable lines and the `gallery: gallery` field in body. Gallery is now managed independently |
+| 5 | Before `function renderMedia()` (now L1366) | Inserted the Photo Manager module (~250 lines): `initPhotoManager`, `pmShowErr`, `renderPhotoManager`, `pmAskDelete`, `deletePhoto`, drag helpers `pmOnDragStart/End/Over/Leave/Drop`, `reorderPhotos`, `wirePhotoManagerDropZone`, `resizeImageIfNeeded`, `loadImage`, `imageDimensions`, `uploadPhoto` |
+| 6 | dashboard.html before `</body>` | Added hidden `<input type="file" id="photo-file-input" accept="image/jpeg,image/png,image/webp" multiple>` — outside any form-like container |
+
+### Wiring verification (grep counts)
+
+- Old `edit-gallery` references: **0** (cleanly removed)
+- All 9 preserved Edit Profile field IDs (`edit-name`, `edit-location`, `edit-capacity`, `edit-price`, `edit-hours`, `edit-description`, `edit-video`, `amenity-toggle-grid`, `edit-save-err`): **1 each**
+- 7 new photo-manager IDs (`photo-mgr`, `photo-mgr-grid`, `photo-mgr-drop`, `photo-mgr-max`, `photo-mgr-count`, `photo-mgr-err`, `photo-file-input`): **1 each**
+- 9 new photo-manager functions (`initPhotoManager`, `renderPhotoManager`, `pmAskDelete`, `deletePhoto`, `reorderPhotos`, `uploadPhoto`, `resizeImageIfNeeded`, `wirePhotoManagerDropZone`, `pmShowErr`): **1 each**
+- 5 preserved functions (`startProfileEdit`, `cancelProfileEdit`, `saveProfileEdit`, `renderMedia`, `esc`): still **1 each**
+
+### Files touched
+
+- `dashboard.html` — component HTML + CSS + JS module + hidden file input + surgical edits to start/saveProfileEdit (1,681 → 2,019 lines)
+- `PUBLIC_SURFACE_V2_DIFF.md` — this section
+
+### Not touched (per hard rules)
+
+- `api.js` — no changes. All 3 endpoints (`POST /api/venues/:id/photos`, `DELETE /api/venues/:id/photos`, `PATCH /api/venues/:id` with gallery-only body) already exist and accept the required shapes.
+- `venue.html`, `index.html`, `onboard.html`, `inquiry-sent.html`, `booking-confirmed.html`, `booking-cancelled.html` — untouched
+- All `*-v2-mockup.html` source files — untouched
+- D1 schema, R2 bucket — untouched
+- All other dashboard sections (Stripe block, bookings, inquiries, password-change, owner switcher) — untouched
+
+### Browser-side verification (for user)
+
+Log into dashboard.html as a venue_owner (or via admin's "Owner Dashboard →" button):
+
+**Edit Profile flow**:
+1. Click "Edit profile" → Photo Manager renders with existing gallery photos, hero badge on first.
+2. **Upload (click-to-browse)**: Click drop zone → file picker opens → select 1–N images → each shows a spinner thumb, then settles to a real thumb. Photos appear in `#media-section` (below) without page reload.
+3. **Upload (drag-and-drop)**: Drag files from desktop onto the drop zone → border highlights orange → drop → same upload pipeline.
+4. **Large file**: drop a 4MB photo → resized client-side to ≤2400px, JPEG quality 0.85 → upload size is much smaller, server still receives a valid image/jpeg.
+5. **At 8 photos**: drop zone hides, "Max 8 photos reached" message appears. Try uploading more → inline error toast.
+6. **Reorder**: drag thumb #3 onto thumb #1 → grid re-renders immediately with new order, hero badge moves to the new #1, `#media-section` below also updates. PATCH fires in the background.
+7. **Delete**: click × on a thumb → inline "Delete this photo?" confirm appears → click Delete → thumb disappears, count decrements, `#media-section` updates.
+8. **Save profile**: click Save changes → name/description/capacity/price/hours/video/amenities save via PATCH. Gallery is intentionally NOT in the request body (it's managed in real-time).
+9. **Cancel**: click Cancel → form closes, gallery state unchanged (any uploads/deletes/reorders done during the session are already persisted).
+
+**Mobile (375px)**:
+- Drop zone min-height 120px, tap targets ≥ 30px (delete button bumps to 32px on small screens).
+- Grid drops to 2 columns.
+- Native drag-reorder still works on touch (browser-dependent — long-press to start drag on most mobile browsers; if unsupported, user can delete + re-upload in desired order as fallback).
+
+**Cross-page sync**:
+- After uploading on dashboard.html → visit `/venue.html?id={your_id}` → new photo appears in hero/gallery
+- After reordering on dashboard.html → visit `/venue.html?id={your_id}` → hero updates to the new gallery[0]
+- After deleting on dashboard.html → visit `/index.html` carousel → card photo updates (or falls back to gradient if you deleted them all)
+
+### Follow-up filed (NOT part of E)
+
+- **Mobile drag-reorder polish**: HTML5 native drag is hit-or-miss on touch. A future commit could add a long-press + JS-managed reorder fallback (or swap to a small library like Sortable.js).
+- **Bulk upload progress bar**: currently each file shows its own spinner. A future commit could add a top-level "Uploading 3 of 5" summary.
+- **Edit-Profile-Cancel revert UX**: clicking Cancel after uploading photos doesn't undo the uploads (they're already on the server). The "Cancel" name on the button only refers to the text-field changes. A future commit could rename the button to "Done" or add an undo-uploads option.
