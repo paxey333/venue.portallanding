@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="theme-color" content="#000000"/>
+<meta name="color-scheme" content="dark"/>
+<title>Admin · Venue.Portal</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 18'%3E%3Cpath d='M0 0L6 9L0 18H4L10 9L4 0H0Z' fill='%23ffffff'/%3E%3Cpath d='M9 0L15 9L9 18H13L19 9L13 0H9Z' fill='%23555555'/%3E%3Crect x='19.5' y='7' width='4' height='4' rx='1' fill='%23ffffff'/%3E%3C/svg%3E"/>
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 18'%3E%3Cpath d='M0 0L6 9L0 18H4L10 9L4 0H0Z' fill='%23ffffff'/%3E%3Cpath d='M9 0L15 9L9 18H13L19 9L13 0H9Z' fill='%23555555'/%3E%3Crect x='19.5' y='7' width='4' height='4' rx='1' fill='%23ffffff'/%3E%3C/svg%3E"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ── Shared base (duplicated from index.html — both files need it) ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#000000;--surface:#0a0a0a;--surface2:#141414;
+  --border:#1f1f1f;--border2:#2a2a2a;
+  --text:#ffffff;--text2:#a8a8a8;--text3:#666666;
+  --accent:#ff6b1a;--accent-soft:rgba(255,107,26,0.12);
+  --green:#3ddc84;--green-soft:rgba(61,220,132,0.12);
+  --alert:#ff4444;
+  --silver:#a8a8a8;
+  --font:'Inter',sans-serif;
+  --display:'Inter',sans-serif;
+  --mono:'Inter',sans-serif;
+  --sans:'Inter',sans-serif;
+  --radius:6px;
+  --radius-lg:10px;
+}
+html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.5;min-height:100%;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:transparent;color:inherit}
+img,svg{display:block;max-width:100%}
+
+/* ── Top nav (shared style with index.html / venue.html / dashboard.html) ── */
+.topnav{position:sticky;top:0;z-index:50;background:rgba(0,0,0,0.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.topnav-inner{max-width:1280px;margin:0 auto;padding:0 24px;height:60px;display:flex;align-items:center;gap:24px}
+.brand{display:flex;align-items:center;gap:9px;font-weight:800;font-size:15px;letter-spacing:-.3px}
+.brand .dot{color:var(--accent)}
+.nav-actions{display:flex;align-items:center;gap:10px;margin-left:auto}
+.btn-text{font-size:13px;font-weight:600;color:var(--text2);padding:7px 12px;transition:color .15s}
+.btn-text:hover{color:var(--text)}
+.btn-primary{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:#000;font-weight:700;font-size:13px;padding:9px 16px;border-radius:8px;transition:opacity .15s;letter-spacing:-.1px;border:none;cursor:pointer}
+.btn-primary:hover{opacity:.88}
+.btn-primary:disabled{opacity:.55;cursor:not-allowed}
+.btn-secondary{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border2);color:var(--text);font-weight:600;font-size:13px;padding:9px 16px;border-radius:8px;transition:border-color .15s}
+.btn-secondary:hover{border-color:var(--text3)}
+
+/* Session-expired banner (preserved IIFE) */
+#session-expired-banner{display:none;background:rgba(255,107,26,0.08);border-bottom:1px solid rgba(255,107,26,0.3);color:var(--accent);font-size:13px;font-weight:600;padding:10px 16px;text-align:center}
+
+/* ──────────────────────────────────────────────────────────
+   ADMIN PANEL — moved verbatim from index.html (Commit F).
+────────────────────────────────────────────────────────── */
+#admin-shell{max-width:1080px;margin:0 auto;padding:24px 20px 80px}
+.admin-nav{display:flex;align-items:center;justify-content:space-between;padding-bottom:18px;border-bottom:1px solid var(--border);margin-bottom:24px;gap:12px;flex-wrap:wrap}
+.admin-nav-tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tab-btn{background:none;border:1px solid var(--border2);color:var(--text2);font-family:var(--font);font-size:12px;font-weight:600;padding:7px 14px;border-radius:6px;cursor:pointer;transition:all .15s}
+.tab-btn:hover{color:var(--text);border-color:var(--text3)}
+.tab-btn.active{background:var(--accent);color:#000;border-color:var(--accent)}
+
+.panel{display:none;padding:0;max-width:none;margin:0;overflow-x:hidden;background:transparent;position:relative;z-index:1}
+.panel.active{display:block}
+
+.page-heading{font-family:var(--display);font-size:24px;font-weight:800;margin-bottom:5px;letter-spacing:-.5px}
+.heading-rule{width:48px;height:2px;background:linear-gradient(90deg,var(--accent) 0%,transparent 100%);border-radius:2px;margin-bottom:18px}
+.page-sub{color:var(--text2);font-size:13px;margin-bottom:24px}
+
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-left:2px solid var(--accent);border-radius:12px;padding:18px 20px;transition:border-color .2s}
+.stat-card:hover{border-color:var(--border2)}
+.stat-label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text2);margin-bottom:6px;font-weight:600}
+.stat-val{font-family:var(--display);font-size:26px;font-weight:800;letter-spacing:-.5px}
+
+.section-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px}
+.section-title{font-size:14px;font-weight:700;letter-spacing:-.2px}
+
+.btn-sm{background:var(--surface2);color:var(--text);border:1px solid var(--border2);cursor:pointer;font-family:var(--font);font-size:12px;font-weight:600;padding:7px 13px;border-radius:6px;transition:background .15s}
+.btn-sm:hover{background:var(--border)}
+
+.btn-ghost{background:none;border:1px solid var(--border2);color:var(--text2);font-family:var(--font);font-size:12px;font-weight:500;padding:6px 11px;border-radius:6px;cursor:pointer;transition:border-color .15s,color .15s}
+.btn-ghost:hover{border-color:var(--text2);color:var(--text)}
+.btn-ghost-sm{background:none;border:1px solid var(--border2);color:var(--text2);font-family:var(--font);font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:600;padding:5px 10px;border-radius:6px;cursor:pointer;transition:border-color .15s,color .15s}
+.btn-ghost-sm:hover{border-color:var(--text2);color:var(--text)}
+.btn-cancel{background:none;border:1px solid var(--border2);color:var(--text3);font-family:var(--font);font-size:13px;padding:9px 14px;border-radius:6px;cursor:pointer}
+.btn-cancel:hover{color:var(--text2);border-color:var(--text2)}
+
+.add-form{display:none;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:14px}
+.add-form.open{display:block}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-field{display:flex;flex-direction:column;gap:5px}
+.form-field.full{grid-column:1/-1}
+.form-field label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text2);font-weight:600}
+.form-field input,.form-field textarea{background:var(--bg);border:1px solid var(--border2);color:var(--text);font-family:var(--font);font-size:13px;padding:9px 11px;border-radius:6px;transition:border-color .15s;min-height:38px}
+.form-field textarea{min-height:80px;resize:vertical}
+.form-field input:focus,.form-field textarea:focus{outline:none;border-color:var(--accent)}
+.form-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+
+.venue-list-admin{display:flex;flex-direction:column;gap:8px}
+.vla-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 18px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;transition:border-color .2s,transform .15s}
+.vla-item:hover{border-color:var(--border2)}
+.vla-actions{display:flex;gap:6px;flex-wrap:wrap;align-items:center;flex-shrink:0}
+.btn-delete-icon{color:#f87171;border-color:#3a1a1a;padding:6px 9px;font-size:11px;line-height:1}
+.btn-delete-icon:hover{background:rgba(248,113,113,0.08);border-color:#f87171;color:#f87171}
+.vla-name{font-family:var(--display);font-size:14px;font-weight:700}
+.vla-slug{font-size:11px;color:var(--text3);margin-top:2px}
+.tag{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 7px;border-radius:4px}
+.tag-live{background:var(--green-soft);color:var(--green);border:1px solid rgba(61,220,132,0.25)}
+.btn-view-site{background:rgba(255,107,26,0.06);border:1px solid rgba(255,107,26,0.3);color:var(--accent);font-family:var(--font);font-size:11px;font-weight:600;padding:6px 11px;border-radius:6px;cursor:pointer;transition:background .15s,border-color .15s}
+.btn-view-site:hover{background:rgba(255,107,26,0.12);border-color:var(--accent)}
+
+table{width:100%;border-collapse:collapse;font-size:13px}
+table thead th{text-align:left;padding:10px 12px;color:var(--text2);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid var(--border)}
+table tbody td{padding:12px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+table tbody tr:hover td{color:var(--text)}
+
+.user-row{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 18px;transition:border-color .15s;gap:12px}
+.user-row:hover{border-color:var(--border2)}
+.user-row-left{flex:1;min-width:0}
+.user-email{font-family:var(--display);font-size:14px;font-weight:700;color:var(--text);margin-bottom:3px;overflow-wrap:break-word}
+.user-meta{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);font-weight:600}
+.user-row-actions{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap}
+
+.user-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:500;align-items:center;justify-content:center;padding:20px}
+.user-modal-overlay.open{display:flex}
+.user-modal{background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:28px;max-width:460px;width:100%;max-height:90vh;overflow-y:auto}
+.user-modal-title{font-family:var(--display);font-size:20px;font-weight:800;letter-spacing:-.3px;margin-bottom:6px}
+.user-modal-sub{font-family:var(--font);font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:18px}
+.user-form-field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.user-form-label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);font-weight:600}
+.user-form-input{width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);font-family:var(--font);font-size:13px;padding:10px 12px;border-radius:6px;transition:border-color .15s;min-height:40px}
+.user-form-input:focus{outline:none;border-color:var(--accent)}
+.user-modal-err{display:none;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);color:#f87171;font-size:11px;padding:9px 12px;border-radius:6px;margin-bottom:12px;line-height:1.5}
+.user-modal-err.show{display:block}
+.user-modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
+.user-cred-row{background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:12px 14px;margin-bottom:12px}
+.user-cred-label{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);font-weight:600;margin-bottom:6px}
+.user-cred-value{font-family:'Inter',sans-serif;font-size:13px;color:var(--text);word-break:break-all}
+.user-cred-pw{font-family:'Inter',sans-serif;font-size:13px;color:var(--text);background:transparent;padding:0;word-break:break-all;flex:1}
+.btn-copy{background:var(--accent);color:#000;border:none;font-weight:700;font-size:11px;padding:6px 12px;border-radius:6px;cursor:pointer;transition:opacity .15s;letter-spacing:.04em}
+.btn-copy:hover{opacity:.88}
+.btn-copy.copied{background:var(--green);color:#000}
+
+@media(max-width:760px){
+  #admin-shell{padding:16px 14px 80px}
+  .stats-row{grid-template-columns:1fr}
+  .form-grid{grid-template-columns:1fr}
+  .vla-actions{width:100%;justify-content:flex-start}
+  .btn-view-site{font-size:10px;padding:5px 9px}
+}
+</style>
+</head>
+<body>
+
+<!-- Session-expired banner (preserved IIFE handles display) -->
+<div id="session-expired-banner">Your session expired. Please sign in again.</div>
+
+<header class="topnav">
+  <div class="topnav-inner">
+    <a href="/" class="brand">
+      <svg width="22" height="16" viewBox="0 0 24 18" fill="none">
+        <path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#ffffff"/>
+        <path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#ffffff" opacity="0.4"/>
+      </svg>
+      <span>Venue<span class="dot">.</span>Portal · Admin</span>
+    </a>
+    <div class="nav-actions">
+      <span class="btn-text" id="admin-user-label" style="font-size:12px"></span>
+      <a href="/" class="btn-text" title="Open the public landing">View landing →</a>
+      <button class="btn-secondary" onclick="handleLogout()">Sign out</button>
+    </div>
+  </div>
+</header>
+
+<div id="admin-shell">
+
+  <div class="admin-nav">
+    <div class="admin-nav-tabs">
+      <button class="tab-btn active" id="maintab-admin" onclick="showAdminTab('admin')">Dashboard</button>
+      <button class="tab-btn" id="maintab-users" onclick="showAdminTab('users')" style="display:none">Users</button>
+    </div>
+  </div>
+
+  <!-- DASHBOARD PANEL — innerHTML rewritten by renderAdminPanel() -->
+  <div id="tab-admin" class="panel active">
+    <p style="color:var(--text3);font-size:12px;padding:20px 0">Loading dashboard…</p>
+  </div>
+
+  <!-- USERS PANEL — structure stays, list populated by loadUsers() -->
+  <div id="tab-users" class="panel">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px">
+      <div>
+        <h1 class="page-heading">User Management</h1>
+        <div class="heading-rule"></div>
+        <p class="page-sub">Create logins for venue owners and promoters. Manage existing accounts.</p>
+      </div>
+      <button class="btn-primary" onclick="openCreateUserModal()">+ Create User</button>
+    </div>
+    <div id="users-list" style="display:flex;flex-direction:column;gap:8px"></div>
+  </div>
+
+</div>
+
+<!-- ──────────────────────────────────────────────────────────────
+     ADMIN USER-MANAGEMENT MODALS
+────────────────────────────────────────────────────────────────── -->
+
+<!-- CREATE USER MODAL -->
+<div class="user-modal-overlay" id="user-modal-overlay" onclick="if(event.target===this) closeCreateUserModal()">
+  <div class="user-modal">
+    <div class="user-modal-title">Create User</div>
+    <div class="user-modal-sub">Generate a login for a venue owner, promoter, or admin.</div>
+    <div class="user-form-field">
+      <label class="user-form-label">Name</label>
+      <input class="user-form-input" id="cu-name" type="text" placeholder="Display name (optional)"/>
+    </div>
+    <div class="user-form-field">
+      <label class="user-form-label">Email</label>
+      <input class="user-form-input" id="cu-email" type="email" placeholder="someone@example.com"/>
+    </div>
+    <div class="user-form-field">
+      <label class="user-form-label">Role</label>
+      <select class="user-form-input" id="cu-role" onchange="onCreateUserRoleChange()">
+        <option value="venue_owner">Venue Owner</option>
+        <option value="promoter">Promoter</option>
+        <option value="admin" id="cu-role-admin-opt">Admin</option>
+      </select>
+    </div>
+    <div class="user-form-field" id="cu-venue-wrap">
+      <label class="user-form-label">Venue</label>
+      <select class="user-form-input" id="cu-venue"></select>
+    </div>
+    <div class="user-form-field">
+      <label class="user-form-label" style="display:flex;align-items:center;gap:8px">
+        <input type="checkbox" id="cu-autogen" checked onchange="onAutogenToggle()"/>
+        <span>Auto-generate password</span>
+      </label>
+    </div>
+    <div class="user-form-field" id="cu-password-wrap" style="display:none">
+      <label class="user-form-label">Password</label>
+      <input class="user-form-input" id="cu-password" type="text" placeholder="Min 8 chars"/>
+    </div>
+    <div class="user-modal-err" id="cu-err"></div>
+    <div class="user-modal-actions">
+      <button class="btn-cancel" onclick="closeCreateUserModal()">Cancel</button>
+      <button class="btn-primary" id="cu-submit" onclick="submitCreateUser()">Create User</button>
+    </div>
+  </div>
+</div>
+
+<!-- USER CREATED SUCCESS MODAL -->
+<div class="user-modal-overlay" id="user-success-overlay" onclick="if(event.target===this) closeUserSuccessModal()">
+  <div class="user-modal">
+    <div class="user-modal-title" style="color:var(--green)">User created</div>
+    <div class="user-modal-sub" id="us-summary"></div>
+    <div class="user-cred-row">
+      <div class="user-cred-label">EMAIL</div>
+      <div class="user-cred-value" id="us-email"></div>
+    </div>
+    <div class="user-cred-row">
+      <div class="user-cred-label" style="color:var(--accent)">PASSWORD — copy now, this won't be shown again</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <code class="user-cred-pw" id="us-password"></code>
+        <button type="button" class="btn-copy" onclick="copyUserPassword()">Copy</button>
+      </div>
+    </div>
+    <div class="user-modal-actions">
+      <button class="btn-primary" onclick="closeUserSuccessModal()">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- PASSWORD RESET RESULT MODAL -->
+<div class="user-modal-overlay" id="user-reset-overlay" onclick="if(event.target===this) closeUserResetModal()">
+  <div class="user-modal">
+    <div class="user-modal-title" style="color:var(--accent)">Password reset</div>
+    <div class="user-modal-sub" id="ur-summary"></div>
+    <div class="user-cred-row">
+      <div class="user-cred-label" style="color:var(--accent)">NEW PASSWORD — copy now, this won't be shown again</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <code class="user-cred-pw" id="ur-password"></code>
+        <button type="button" class="btn-copy" onclick="copyResetPassword()">Copy</button>
+      </div>
+    </div>
+    <div class="user-modal-actions">
+      <button class="btn-primary" onclick="closeUserResetModal()">Done</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+/* Session-expired banner — preserved verbatim from v1 */
+(function(){
+  if (new URLSearchParams(window.location.search).get('session_expired') === '1') {
+    const b = document.getElementById('session-expired-banner');
+    if (b) {
+      b.style.display = 'block';
+      setTimeout(() => { b.style.transition = 'opacity .3s'; b.style.opacity = '0'; setTimeout(() => b.remove(), 350); }, 5000);
+    }
+    history.replaceState({}, '', window.location.pathname);
+  }
+})();
+</script>
+
+<script>
+/* ─────────────────────────────────────────────
+   API SERVICE LAYER  (shared with index.html — duplicated by design)
+   Base: https://thevenueportal.paxey333.workers.dev
+───────────────────────────────────────────── */
+const API_BASE  = 'https://thevenueportal.paxey333.workers.dev';
+const TOKEN_KEY    = 'vp_admin_token';
+const ROLE_KEY     = 'vp_user_role';
+const NAME_KEY     = 'vp_user_name';
+const VENUE_ID_KEY = 'vp_venue_id';
+
+const getToken   = ()  => localStorage.getItem(TOKEN_KEY);
+const setToken   = (t) => localStorage.setItem(TOKEN_KEY, t);
+const clearToken = ()  => localStorage.removeItem(TOKEN_KEY);
+const isLoggedIn = ()  => !!getToken();
+const getRole    = ()  => localStorage.getItem(ROLE_KEY) || '';
+const setRole    = (r) => localStorage.setItem(ROLE_KEY, r);
+const getName    = ()  => localStorage.getItem(NAME_KEY) || '';
+const setName    = (n) => localStorage.setItem(NAME_KEY, n);
+const getVenueId = ()  => { const v = localStorage.getItem(VENUE_ID_KEY); return v ? parseInt(v, 10) : null; };
+const setVenueId = (id) => id != null ? localStorage.setItem(VENUE_ID_KEY, String(id)) : localStorage.removeItem(VENUE_ID_KEY);
+
+function clearSession() {
+  clearToken();
+  localStorage.removeItem(ROLE_KEY);
+  localStorage.removeItem(NAME_KEY);
+  localStorage.removeItem(VENUE_ID_KEY);
+}
+
+async function apiFetch(path, { method = 'GET', body, auth = false } = {}) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (auth) {
+    const token = getToken();
+    if (!token) throw new Error('NOT_AUTHED');
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  const res = await fetch(API_BASE + path, {
+    method,
+    headers,
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (res.status === 401) { clearToken(); throw new Error('UNAUTHORIZED'); }
+  if (!res.ok) { const t = await res.text(); throw new Error(t || `HTTP ${res.status}`); }
+  if (res.status === 204) return null;
+  return res.json();
+}
+
+const API = {
+  login:               (email, pw)   => apiFetch('/api/auth/login', { method:'POST', body:{ email, password:pw } }),
+  getVenues:           ()            => apiFetch('/api/venues'),
+  getVenue:            (id)          => apiFetch(`/api/venues/${id}`),
+  createVenue:         (b)           => apiFetch('/api/venues',       { method:'POST',   body:b, auth:true }),
+  updateVenue:         (id, b)       => apiFetch(`/api/venues/${id}`, { method:'PUT',    body:b, auth:true }),
+  deleteVenue:         (id)          => apiFetch(`/api/venues/${id}`, { method:'DELETE',         auth:true }),
+  createBooking:       (b)           => apiFetch('/api/bookings',     { method:'POST',   body:b }),
+  getBookings:         ()            => apiFetch('/api/bookings',     { auth:true }),
+  updateBookingStatus: (id, status)  => apiFetch(`/api/bookings/${id}/status`, { method:'PATCH', body:{ status }, auth:true }),
+  deleteBooking:       (id)          => apiFetch(`/api/bookings/${id}`, { method:'DELETE', auth:true }),
+  getVenueStats:       (id)          => apiFetch(`/api/venues/${id}/stats`, { auth:true }),
+  getUsers:            ()            => apiFetch('/api/users',                                  { auth:true }),
+  createUser:          (b)           => apiFetch('/api/users',          { method:'POST',   body:b, auth:true }),
+  resetUserPassword:   (id)          => apiFetch(`/api/users/${id}`,    { method:'PATCH',          auth:true }),
+  deleteUser:          (id)          => apiFetch(`/api/users/${id}`,    { method:'DELETE',         auth:true }),
+};
+
+/* Shared with admin module: populated by loadAdminVenues; used by venue rows + create-user dropdown + booking revenue calc. */
+let apiVenues = [];
+
+/* ─────────────────────────────────────────────
+   ESCAPE HELPER  (shared utility, duplicated from index.html)
+───────────────────────────────────────────── */
+function escHtml(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ─────────────────────────────────────────────
+   ADMIN TAB SWITCHER  (no shell-swap needed — admin.html IS the admin page)
+───────────────────────────────────────────── */
+function showAdminTab(id) {
+  document.querySelectorAll('#admin-shell .panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('#admin-shell .tab-btn').forEach(b => b.classList.remove('active'));
+  const panel = document.getElementById('tab-' + id);
+  const btn   = document.getElementById('maintab-' + id);
+  if (panel) panel.classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (id === 'users') loadUsers();
+}
+
+/* ─────────────────────────────────────────────
+   ADMIN PANEL  (moved verbatim from index.html)
+───────────────────────────────────────────── */
+async function renderAdminPanel() {
+  const panel = document.getElementById('tab-admin');
+
+  /* skeleton while loading */
+  panel.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+      <div>
+        <h1 class="page-heading">Dashboard</h1>
+        <div class="heading-rule"></div>
+        <p class="page-sub">Manage and onboard venues</p>
+      </div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-label">Total Venues</div><div class="stat-val" id="admin-venue-count">—</div></div>
+      <div class="stat-card"><div class="stat-label">Total Bookings</div><div class="stat-val" id="admin-booking-count">—</div></div>
+      <div class="stat-card"><div class="stat-label">Revenue</div><div class="stat-val" id="admin-revenue">—</div></div>
+    </div>
+    <div class="section-hd">
+      <span class="section-title">Venues</span>
+      <button class="btn-sm" onclick="openAddVenueForm()">+ Add venue</button>
+    </div>
+    <div id="add-venue-form" class="add-form">
+      <div class="form-grid">
+        <div class="form-field"><label>Venue Name</label><input type="text" id="av-name" placeholder="e.g. The Majestic"/></div>
+        <div class="form-field"><label>Capacity</label><input type="number" id="av-capacity"/></div>
+        <div class="form-field"><label>Price Per Day ($)</label><input type="number" id="av-price"/></div>
+        <div class="form-field"><label>Image URL</label><input type="text" id="av-image" placeholder="https://…"/></div>
+        <div class="form-field full"><label>Description</label><textarea id="av-desc" placeholder="Tell bookers about the space…"></textarea></div>
+      </div>
+      <div id="av-owner-section">
+        <div style="margin:18px 0 12px;border-top:1px solid var(--border);padding-top:14px">
+          <span style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);font-weight:600">Venue Owner Account</span>
+        </div>
+        <div class="form-grid">
+          <div class="form-field"><label>Owner Name</label><input type="text" id="av-owner-name" placeholder="Jane Smith"/></div>
+          <div class="form-field"><label>Owner Email</label><input type="email" id="av-owner-email" placeholder="jane@example.com"/></div>
+          <div class="form-field"><label>Temporary Password</label><input type="text" id="av-owner-password" placeholder="Temp123!"/></div>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-primary" onclick="saveVenue()">Save Venue</button>
+        <button class="btn-cancel" onclick="closeAddVenueForm()">Cancel</button>
+      </div>
+      <div id="av-err" style="font-size:12px;color:#f87171;margin-top:8px;display:none"></div>
+    </div>
+    <div class="venue-list-admin" id="admin-venue-list"><p style="color:var(--text3);font-size:12px">Loading venues…</p></div>
+
+    <div style="height:32px"></div>
+    <div class="section-hd"><span class="section-title">Booking Activity</span></div>
+    <table>
+      <thead><tr><th>Venue</th><th>Guest</th><th>Date</th><th>Status</th></tr></thead>
+      <tbody id="admin-bookings-tbody"><tr class="empty-row"><td colspan="4" style="text-align:center;color:var(--text3);padding:20px">Loading…</td></tr></tbody>
+    </table>`;
+
+  /* load data */
+  await Promise.all([ loadAdminVenues(), loadAdminBookings() ]);
+}
+
+/* ─ Venues ─ */
+let editingVenueId = null;
+
+async function loadAdminVenues() {
+  try {
+    apiVenues = await API.getVenues() || [];
+    document.getElementById('admin-venue-count').textContent = apiVenues.length;
+    renderAdminVenueList();
+  } catch(e) {
+    document.getElementById('admin-venue-list').innerHTML = `<p style="color:#f87171;font-size:12px">Failed to load venues: ${escHtml(e.message)}</p>`;
+  }
+}
+
+function renderAdminVenueList() {
+  const list = document.getElementById('admin-venue-list');
+  if (!apiVenues.length) { list.innerHTML = '<p style="color:var(--text3);font-size:12px">No venues yet.</p>'; return; }
+  list.innerHTML = apiVenues.map(v => `
+    <div class="vla-item">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+          <div class="vla-name">${escHtml(v.name)}</div>
+          <span class="tag tag-live">Live</span>
+        </div>
+        <div class="vla-slug">Cap: ${escHtml(v.capacity || '—')} · $${escHtml(v.price_per_day || '—')}/day</div>
+      </div>
+      <div class="vla-actions">
+        <button class="btn-view-site" onclick="adminViewVenue(${v.id})">View Site →</button>
+        <button class="btn-view-site" style="border-color:rgba(100,150,255,0.3);background:rgba(100,150,255,0.06);color:#6496ff" onclick="window.location.href='dashboard.html?venue_id=${v.id}'">Owner Dashboard →</button>
+        <button class="btn-ghost" onclick="startEditVenue(${v.id})">Edit</button>
+        <button class="btn-ghost btn-delete-icon" title="Delete venue" onclick="confirmDeleteVenue(${v.id},'${escHtml(v.name)}')">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+function openAddVenueForm() {
+  editingVenueId = null;
+  ['av-name','av-capacity','av-price','av-image','av-desc','av-owner-name','av-owner-email','av-owner-password'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.getElementById('av-owner-section').style.display = '';
+  document.getElementById('add-venue-form').classList.add('open');
+}
+
+function closeAddVenueForm() {
+  editingVenueId = null;
+  document.getElementById('add-venue-form').classList.remove('open');
+}
+
+function startEditVenue(id) {
+  const v = apiVenues.find(x => x.id === id);
+  if (!v) return;
+  editingVenueId = id;
+  document.getElementById('av-name').value     = v.name        || '';
+  document.getElementById('av-capacity').value = v.capacity    || '';
+  document.getElementById('av-price').value    = v.price_per_day || '';
+  document.getElementById('av-image').value    = v.image_url   || '';
+  document.getElementById('av-desc').value     = v.description || '';
+  document.getElementById('av-owner-section').style.display = 'none';
+  document.getElementById('add-venue-form').classList.add('open');
+  document.getElementById('add-venue-form').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+async function saveVenue() {
+  const errEl = document.getElementById('av-err');
+  errEl.style.display = 'none';
+  const body = {
+    name:          document.getElementById('av-name').value.trim(),
+    description:   document.getElementById('av-desc').value.trim(),
+    capacity:      parseInt(document.getElementById('av-capacity').value) || null,
+    price_per_day: parseFloat(document.getElementById('av-price').value) || null,
+    image_url:     document.getElementById('av-image').value.trim() || null,
+  };
+  if (!body.name) { errEl.style.display=''; errEl.textContent='Venue name is required.'; return; }
+  try {
+    if (editingVenueId) {
+      await API.updateVenue(editingVenueId, body);
+      closeAddVenueForm();
+      await loadAdminVenues();
+    } else {
+      const ownerName     = document.getElementById('av-owner-name').value.trim();
+      const ownerEmail    = document.getElementById('av-owner-email').value.trim();
+      const ownerPassword = document.getElementById('av-owner-password').value.trim();
+      if (!ownerName || !ownerEmail || !ownerPassword) {
+        errEl.style.display=''; errEl.textContent='Owner name, email, and temporary password are required.'; return;
+      }
+      const created = await API.createVenue(body);
+      try {
+        await apiFetch('/api/users', {
+          method: 'POST',
+          body: { name: ownerName, email: ownerEmail, password: ownerPassword, role: 'venue_owner', venue_id: created.id },
+          auth: true,
+        });
+      } catch(userErr) {
+        errEl.style.display=''; errEl.textContent='Venue created, but owner account failed: ' + userErr.message;
+        await loadAdminVenues();
+        return;
+      }
+      closeAddVenueForm();
+      await loadAdminVenues();
+    }
+  } catch(e) {
+    errEl.style.display=''; errEl.textContent='Save failed: ' + e.message;
+  }
+}
+
+async function confirmDeleteVenue(id, name) {
+  if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+  try {
+    await API.deleteVenue(id);
+    await loadAdminVenues();
+  } catch(e) {
+    alert('Delete failed: ' + e.message);
+  }
+}
+
+function adminViewVenue(venueId) {
+  window.open('/venue.html?id=' + encodeURIComponent(venueId), '_blank');
+}
+
+/* ─ Bookings ─ */
+async function loadAdminBookings() {
+  try {
+    const bookings = await API.getBookings() || [];
+    renderAdminBookings(bookings);
+    document.getElementById('admin-booking-count').textContent = bookings.length;
+    let rev = 0;
+    bookings.forEach(b => {
+      if (b.status === 'confirmed') {
+        const v = apiVenues.find(x => x.name === b.venue_name);
+        if (v && v.price_per_day) rev += Number(v.price_per_day);
+      }
+    });
+    document.getElementById('admin-revenue').textContent = '$' + rev.toLocaleString();
+  } catch(e) {
+    const tbody = document.getElementById('admin-bookings-tbody');
+    if (tbody) tbody.innerHTML = `<tr><td colspan="5" style="color:#f87171;font-size:12px;padding:16px">Failed to load bookings: ${escHtml(e.message)}</td></tr>`;
+  }
+}
+
+function renderAdminBookings(bookings) {
+  const tbody = document.getElementById('admin-bookings-tbody');
+  if (!tbody) return;
+  if (!bookings.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="4" style="text-align:center;color:var(--text3);padding:28px">No bookings yet.</td></tr>';
+    return;
+  }
+  const statusColors = { confirmed:'var(--green)', accepted:'var(--accent)', pending:'var(--text2)', cancelled:'#f87171', declined:'#f87171' };
+  tbody.innerHTML = bookings.map(b => {
+    const statusColor = statusColors[b.status] || 'var(--text2)';
+    return `<tr>
+      <td style="color:var(--text)">${escHtml(b.venue_name || '—')}</td>
+      <td>${escHtml(b.client_name || '—')}<br><span style="font-size:11px;color:var(--text3)">${escHtml(b.client_email || '')}</span></td>
+      <td style="font-size:12px">${escHtml(b.event_date || '—')}</td>
+      <td><span style="font-size:11px;color:${statusColor};text-transform:uppercase;font-weight:700">${escHtml(b.status || 'pending')}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+async function changeBookingStatus(id, status) {
+  try {
+    await API.updateBookingStatus(id, status);
+    await loadAdminBookings();
+  } catch(e) { alert('Status update failed: ' + e.message); }
+}
+
+async function removeBooking(id) {
+  if (!confirm('Delete this booking?')) return;
+  try {
+    await API.deleteBooking(id);
+    await loadAdminBookings();
+  } catch(e) { alert('Delete failed: ' + e.message); }
+}
+
+/* ─────────────────────────────────────────────
+   USER MANAGEMENT  (admin / superadmin only)
+───────────────────────────────────────────── */
+let _usersList = [];
+
+function fmtUserDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  if (isNaN(d)) return iso;
+  return d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+}
+
+async function loadUsers() {
+  const list = document.getElementById('users-list');
+  list.innerHTML = '<div style="font-size:11px;color:var(--text3);padding:12px 0">Loading users...</div>';
+  try {
+    const users = await API.getUsers() || [];
+    _usersList = users;
+    if (!users.length) {
+      list.innerHTML = '<div style="font-size:11px;color:var(--text3);padding:12px 0">No users yet.</div>';
+      return;
+    }
+    list.innerHTML = users.map(u => {
+      const venueLabel = u.venue_name ? escHtml(u.venue_name) : (u.venue_id ? 'venue #' + u.venue_id : 'No venue');
+      return `
+        <div class="user-row">
+          <div class="user-row-left">
+            <div class="user-email">${escHtml(u.email)}</div>
+            <div class="user-meta">${escHtml(u.role)} &middot; ${venueLabel} &middot; created ${escHtml(fmtUserDate(u.created_at))}</div>
+          </div>
+          <div class="user-row-actions">
+            <button class="btn-ghost-sm" onclick="resetUserPassword(${u.id})">Reset Password</button>
+            <button class="btn-ghost-sm" onclick="confirmDeleteUser(${u.id})" style="color:#f87171">Remove</button>
+          </div>
+        </div>`;
+    }).join('');
+  } catch(e) {
+    list.innerHTML = `<div style="font-size:11px;color:#f87171;padding:12px 0">Could not load users: ${escHtml(e.message)}</div>`;
+  }
+}
+
+function openCreateUserModal() {
+  const venueSel = document.getElementById('cu-venue');
+  const fillVenues = (vs) => {
+    venueSel.innerHTML = (vs || []).map(v => `<option value="${v.id}">${escHtml(v.name)} (id=${v.id})</option>`).join('') || '<option value="">No venues available</option>';
+  };
+  if (Array.isArray(apiVenues) && apiVenues.length) {
+    fillVenues(apiVenues);
+  } else {
+    fillVenues([]);
+    API.getVenues().then(vs => { apiVenues = vs || []; fillVenues(apiVenues); }).catch(() => {});
+  }
+
+  const adminOpt = document.getElementById('cu-role-admin-opt');
+  if (adminOpt) adminOpt.style.display = (getRole() === 'superadmin') ? '' : 'none';
+
+  document.getElementById('cu-name').value = '';
+  document.getElementById('cu-email').value = '';
+  document.getElementById('cu-role').value = 'venue_owner';
+  document.getElementById('cu-autogen').checked = true;
+  document.getElementById('cu-password').value = '';
+  document.getElementById('cu-password-wrap').style.display = 'none';
+  document.getElementById('cu-err').classList.remove('show');
+  document.getElementById('cu-err').textContent = '';
+  document.getElementById('cu-submit').disabled = false;
+  document.getElementById('cu-submit').textContent = 'Create User';
+  onCreateUserRoleChange();
+  document.getElementById('user-modal-overlay').classList.add('open');
+}
+
+function closeCreateUserModal() {
+  document.getElementById('user-modal-overlay').classList.remove('open');
+}
+
+function onCreateUserRoleChange() {
+  const role = document.getElementById('cu-role').value;
+  const wrap = document.getElementById('cu-venue-wrap');
+  wrap.style.display = (role === 'venue_owner') ? '' : 'none';
+}
+
+function onAutogenToggle() {
+  const auto = document.getElementById('cu-autogen').checked;
+  document.getElementById('cu-password-wrap').style.display = auto ? 'none' : '';
+}
+
+async function submitCreateUser() {
+  const name = document.getElementById('cu-name').value.trim();
+  const email = document.getElementById('cu-email').value.trim().toLowerCase();
+  const role  = document.getElementById('cu-role').value;
+  const autoGen = document.getElementById('cu-autogen').checked;
+  const manualPw = document.getElementById('cu-password').value;
+  const venueId = (role === 'venue_owner') ? parseInt(document.getElementById('cu-venue').value, 10) : null;
+  const errEl = document.getElementById('cu-err');
+  const submitBtn = document.getElementById('cu-submit');
+  const showErr = (m) => { errEl.textContent = m; errEl.classList.add('show'); };
+  errEl.classList.remove('show');
+
+  if (!email || !/^\S+@\S+\.\S+$/.test(email)) { showErr('Valid email is required.'); return; }
+  if (!role)                                    { showErr('Role is required.'); return; }
+  if (role === 'venue_owner' && !venueId)       { showErr('Venue is required for venue owners.'); return; }
+  if (!autoGen && manualPw.length < 8)          { showErr('Manual password must be at least 8 characters.'); return; }
+
+  const body = { email, role };
+  if (name) body.name = name;
+  if (venueId) body.venue_id = venueId;
+  if (!autoGen) body.password = manualPw;
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Creating...';
+  try {
+    const created = await API.createUser(body);
+    if (!created || !created.email) throw new Error('Unexpected response');
+    closeCreateUserModal();
+    showUserSuccessModal(created);
+    await loadUsers();
+  } catch(e) {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Create User';
+    showErr(e.message || 'Could not create user.');
+  }
+}
+
+function showUserSuccessModal(user) {
+  const venueLabel = user.venue_name ? user.venue_name : (user.venue_id ? 'venue #' + user.venue_id : 'No venue');
+  document.getElementById('us-summary').textContent = user.role + ' · ' + venueLabel;
+  document.getElementById('us-email').textContent = user.email;
+  document.getElementById('us-password').textContent = user.password || '(not returned)';
+  document.getElementById('user-success-overlay').classList.add('open');
+}
+
+function closeUserSuccessModal() {
+  document.getElementById('user-success-overlay').classList.remove('open');
+}
+
+function copyUserPassword() {
+  const pw = document.getElementById('us-password').textContent;
+  navigator.clipboard.writeText(pw).then(() => {
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = 'Copied';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1600);
+  }).catch(() => {});
+}
+
+async function resetUserPassword(id) {
+  const u = _usersList.find(x => x.id === id);
+  const label = u ? u.email : ('user #' + id);
+  if (!confirm(`Reset password for ${label}? They will need the new password to log in.`)) return;
+  try {
+    const res = await API.resetUserPassword(id);
+    if (!res || !res.generated_password) throw new Error('Unexpected response');
+    document.getElementById('ur-summary').textContent = label;
+    document.getElementById('ur-password').textContent = res.generated_password;
+    document.getElementById('user-reset-overlay').classList.add('open');
+  } catch(e) {
+    alert('Reset failed: ' + (e.message || 'unknown error'));
+  }
+}
+
+function closeUserResetModal() {
+  document.getElementById('user-reset-overlay').classList.remove('open');
+}
+
+function copyResetPassword() {
+  const pw = document.getElementById('ur-password').textContent;
+  navigator.clipboard.writeText(pw).then(() => {
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = 'Copied';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1600);
+  }).catch(() => {});
+}
+
+async function confirmDeleteUser(id) {
+  const u = _usersList.find(x => x.id === id);
+  const label = u ? u.email : ('user #' + id);
+  if (!confirm(`Remove ${label}? This cannot be undone.`)) return;
+  try {
+    await API.deleteUser(id);
+    await loadUsers();
+  } catch(e) {
+    alert('Remove failed: ' + (e.message || 'unknown error'));
+  }
+}
+
+function refreshUsersTabVisibility() {
+  const role = getRole();
+  const showUsers = isLoggedIn() && (role === 'admin' || role === 'superadmin');
+  const btn = document.getElementById('maintab-users');
+  if (btn) btn.style.display = showUsers ? '' : 'none';
+}
+
+/* ─ Logout ─ */
+function handleLogout() {
+  clearSession();
+  // Back to anonymous landing
+  window.location.replace('/');
+}
+
+/* ─────────────────────────────────────────────
+   BOOT  (admin.html-specific: role gate + auto-render)
+   - Not logged in           → bounce to landing
+   - Logged in as venue_owner → bounce to dashboard
+   - Logged in as admin/super → render admin panel
+───────────────────────────────────────────── */
+(function bootAdmin() {
+  if (!isLoggedIn()) {
+    window.location.replace('/');
+    return;
+  }
+  const role = getRole();
+  if (role !== 'admin' && role !== 'superadmin') {
+    if (role === 'venue_owner') {
+      window.location.replace('dashboard.html');
+    } else {
+      window.location.replace('/');
+    }
+    return;
+  }
+  // Authorised — update header label and paint the dashboard.
+  const label = document.getElementById('admin-user-label');
+  if (label) {
+    const name = getName() || (role === 'superadmin' ? 'Superadmin' : 'Admin');
+    label.textContent = name + ' · ' + role;
+  }
+  refreshUsersTabVisibility();
+  renderAdminPanel();
+})();
+</script>
+
+</body>
+</html>
