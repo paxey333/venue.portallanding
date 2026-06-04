@@ -1429,17 +1429,38 @@ function pmAskDelete(idx) {
   const thumb = grid.querySelector(`.photo-mgr-thumb[data-idx="${idx}"]`);
   if (!thumb || thumb.querySelector('.pm-confirm')) return;
   const url = thumb.dataset.url;
-  const confirm = document.createElement('div');
-  confirm.className = 'pm-confirm';
-  confirm.innerHTML = `
+  // NOTE: local var renamed from `confirm` to `overlay` — the prior name shadowed
+  // window.confirm and made the intent of `confirm.remove()` ambiguous.
+  const overlay = document.createElement('div');
+  overlay.className = 'pm-confirm';
+  // Don't let mouse events inside the overlay reach the draggable parent thumb
+  // (otherwise a Cancel click can initiate a phantom drag in some browsers).
+  overlay.setAttribute('draggable', 'false');
+  overlay.addEventListener('click',     e => e.stopPropagation());
+  overlay.addEventListener('mousedown', e => e.stopPropagation());
+  // Button order swapped to standard UX: Cancel left, Delete right.
+  overlay.innerHTML = `
     <div class="pm-confirm-txt">Delete this photo?</div>
     <div class="pm-confirm-row">
-      <button type="button" class="pm-confirm-btn yes">Delete</button>
-      <button type="button" class="pm-confirm-btn no">Cancel</button>
+      <button type="button" class="pm-confirm-btn no" data-action="cancel">Cancel</button>
+      <button type="button" class="pm-confirm-btn yes" data-action="delete">Delete</button>
     </div>`;
-  thumb.appendChild(confirm);
-  confirm.querySelector('.pm-confirm-btn.yes').addEventListener('click', () => deletePhoto(url));
-  confirm.querySelector('.pm-confirm-btn.no').addEventListener('click', () => confirm.remove());
+  thumb.appendChild(overlay);
+  overlay.querySelector('[data-action="delete"]').addEventListener('click', e => {
+    e.stopPropagation();
+    e.preventDefault();
+    deletePhoto(url);
+  });
+  overlay.querySelector('[data-action="cancel"]').addEventListener('click', e => {
+    e.stopPropagation();
+    e.preventDefault();
+    pmCancelDelete(thumb);
+  });
+}
+
+function pmCancelDelete(thumb) {
+  const c = thumb && thumb.querySelector('.pm-confirm');
+  if (c) c.remove();
 }
 
 async function deletePhoto(url) {
