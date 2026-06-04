@@ -1424,36 +1424,47 @@ export default {
           const esc = (s) => String(s == null ? "" : s)
             .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
           const amenities = Array.isArray(body.amenities) ? body.amenities : [];
-          const row = (label, val) => `<tr><td style="padding:6px 12px 6px 0;color:#888;font-family:monospace;font-size:11px;text-transform:uppercase;letter-spacing:.08em;vertical-align:top;white-space:nowrap">${esc(label)}</td><td style="padding:6px 0;color:#111;font-size:14px;line-height:1.5">${esc(val) || '<span style="color:#bbb">—</span>'}</td></tr>`;
-          const html = `
-            <div style="font-family:sans-serif;max-width:640px;margin:0 auto;padding:20px;background:#fff;color:#111">
-              <h2 style="margin:0 0 4px;font-size:20px">New Venue Onboarding</h2>
-              <div style="color:#888;font-size:12px;margin-bottom:18px">${esc(venueName)}</div>
-              <table style="width:100%;border-collapse:collapse;border-top:1px solid #eee">
-                ${row('Venue Name',      body.venue_name)}
-                ${row('Address',         body.address)}
-                ${row('Capacity',        body.capacity)}
-                ${row('Price / Night',   body.price_per_day)}
-                ${row('Hours',           body.hours)}
-                ${row('Description',     body.description)}
-                ${row('House Rules',     body.house_rules)}
-                ${row('Amenities',       amenities.join(', '))}
-                ${row('Photo Links',     body.photo_links)}
-                ${row('Video URL',       body.video_url)}
-                ${row('Contact Name',    body.contact_name)}
-                ${row('Contact Email',   body.contact_email)}
-                ${row('Contact Phone',   body.contact_phone)}
-                ${row('Additional Notes',body.additional_notes)}
+
+          const row = (label, val) => {
+            const v = esc(val);
+            return `<tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:12px 0 2px">${esc(label)}</td></tr>
+                    <tr><td style="font-size:14px;font-weight:600;color:#111;padding-bottom:12px;border-bottom:1px solid #eee">${v || '<span style="color:#bbb;font-weight:400">—</span>'}</td></tr>`;
+          };
+
+          const html = `<div style="font-family:sans-serif;max-width:560px;margin:0 auto;background:#fff;color:#111;padding:32px 28px;border-radius:8px">
+            <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#888;margin-bottom:20px">Venue.Portal</div>
+            <h1 style="font-size:22px;font-weight:800;margin:0 0 6px">New venue onboarding.</h1>
+            <p style="color:#555;font-size:14px;margin:0 0 24px;line-height:1.6"><strong>${esc(venueName)}</strong> just submitted an onboarding request. Reply to this email to reach the venue owner directly.</p>
+            <div style="background:#f7f7f7;border-radius:8px;padding:20px 22px;margin-bottom:24px">
+              <table style="width:100%;border-collapse:collapse">
+                ${row('Venue Name',       body.venue_name)}
+                ${row('Address',          body.address)}
+                ${row('Capacity',         body.capacity)}
+                ${row('Price / Night',    body.price_per_day)}
+                ${row('Hours',            body.hours)}
+                ${row('Description',      body.description)}
+                ${row('House Rules',      body.house_rules)}
+                ${row('Amenities',        amenities.join(', '))}
+                ${row('Photo Links',      body.photo_links)}
+                ${row('Video URL',        body.video_url)}
+                ${row('Contact Name',     body.contact_name)}
+                ${row('Contact Email',    body.contact_email)}
+                ${row('Contact Phone',    body.contact_phone)}
+                ${row('Additional Notes', body.additional_notes)}
               </table>
-              <div style="margin-top:16px;color:#888;font-size:11px">Submitted via /onboard.html</div>
-            </div>`;
+            </div>
+            <a href="https://venueportal.us/admin.html" style="display:inline-block;background:#111;color:#fff;font-weight:700;font-size:13px;padding:12px 22px;border-radius:6px;text-decoration:none">Open Admin →</a>
+            <div style="margin-top:24px;padding-top:16px;border-top:1px solid #eee;font-family:monospace;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#bbb">Venue.Portal · Onboarding</div>
+          </div>`;
 
           if (!env.RESEND_API_KEY) {
             console.log("[onboard] RESEND_API_KEY not configured; submission logged only:", venueName);
             return jsonResponse({ ok: true, message: "Submission received" }, 200, request);
           }
 
-          const adminEmail = env.ADMIN_EMAIL || "paxey333@gmail.com";
+          // Both admin and sales (Mark) get notified on every onboarding submission
+          const recipients = ['paxey333@gmail.com', 'mossjr1126@gmail.com'];
+
           const resendRes = await fetch("https://api.resend.com/emails", {
             method: "POST",
             headers: {
@@ -1462,9 +1473,9 @@ export default {
             },
             body: JSON.stringify({
               from: "Venue Portal <noreply@venueportal.us>",
-              to: [adminEmail],
+              to: recipients,
               reply_to: contactEmail,
-              subject: "New Venue Onboarding Submission — " + venueName,
+              subject: "New venue onboarding — " + venueName,
               html
             })
           });
@@ -1473,6 +1484,35 @@ export default {
             console.log("[onboard] resend error:", resendRes.status, errText);
             return jsonResponse({ error: "Email delivery failed" }, 502, request);
           }
+
+          // Confirmation email to the venue owner who submitted the form.
+          // Non-fatal: admin notification already succeeded; submitter still gets {ok:true}.
+          try {
+            const contactName = String(body.contact_name || "").trim();
+            const greeting = contactName ? `Hey ${esc(contactName.split(/\s+/)[0])},` : 'Hey there,';
+            const confirmHtml = `<div style="font-family:sans-serif;max-width:520px;margin:0 auto;background:#fff;color:#111;padding:32px 28px;border-radius:8px">
+              <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#888;margin-bottom:20px">Venue.Portal</div>
+              <h1 style="font-size:22px;font-weight:800;margin:0 0 6px">Got it. Thanks for submitting.</h1>
+              <p style="color:#555;font-size:14px;margin:0 0 18px;line-height:1.7">${greeting}</p>
+              <p style="color:#555;font-size:14px;margin:0 0 18px;line-height:1.7">We received your onboarding details for <strong>${esc(venueName)}</strong>. Our team will review and reach out within 24 hours to set up your dashboard and get you live.</p>
+              <p style="color:#555;font-size:14px;margin:0 0 24px;line-height:1.7">In the meantime, feel free to reply to this email with any questions.</p>
+              <div style="margin-top:24px;padding-top:16px;border-top:1px solid #eee;font-family:monospace;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#bbb">Venue.Portal · Flat fee. No cuts.</div>
+            </div>`;
+            await fetch("https://api.resend.com/emails", {
+              method: "POST",
+              headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
+              body: JSON.stringify({
+                from: "Venue Portal <noreply@venueportal.us>",
+                to: [contactEmail],
+                reply_to: 'venueportalus@gmail.com',
+                subject: "We received your submission — Venue.Portal",
+                html: confirmHtml
+              })
+            });
+          } catch (confirmErr) {
+            console.log("[onboard] confirmation email failed (non-fatal):", confirmErr.message);
+          }
+
           return jsonResponse({ ok: true, message: "Submission received" }, 200, request);
         } catch (err) {
           console.log("[onboard] error:", err.message);
