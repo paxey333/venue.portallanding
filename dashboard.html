@@ -199,6 +199,42 @@ section{display:flex;flex-direction:column;gap:14px}
 .booking-name{font-size:15px;font-weight:700}
 .booking-meta{font-size:12px;color:var(--text2);font-weight:500;display:flex;gap:10px;flex-wrap:wrap}
 .booking-meta .sep{color:var(--text3)}
+
+/* Confirmed-bookings row + badge (E.3) */
+.booking-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:16px;
+  padding:14px 16px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  margin-bottom:10px;
+  transition:border-color .15s ease;
+}
+.booking-item:last-child{margin-bottom:0}
+.booking-item:hover{border-color:var(--border2)}
+.booking-event{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px;letter-spacing:-.01em}
+.badge-confirmed{
+  display:inline-flex;
+  align-items:center;
+  padding:5px 10px;
+  font-size:10px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  border-radius:999px;
+  background:rgba(61,220,132,0.1);
+  color:var(--green);
+  border:1px solid rgba(61,220,132,0.25);
+  white-space:nowrap;
+  flex-shrink:0;
+}
+@media(max-width:640px){
+  .booking-item{padding:12px 14px;gap:12px}
+  .booking-event{font-size:13px}
+}
 .booking-amount{padding-right:20px;text-align:right}
 .booking-amount-val{font-size:18px;font-weight:800;letter-spacing:-.3px}
 .booking-status{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--green);margin-top:2px}
@@ -1026,7 +1062,7 @@ async function renderBookings() {
           <div class="booking-event">${esc(b.client_name)}</div>
           <div class="booking-meta">${esc(b.client_email)}<br>${esc(fmtDate(b.event_date))}${b.guests ? ' &middot; ' + b.guests + ' guests' : ''}</div>
         </div>
-        <span class="badge badge-confirmed">confirmed</span>
+        <span class="badge badge-confirmed">CONFIRMED</span>
       </div>`).join('');
   } catch (e) {
     console.log('[renderBookings] fetch error (' + API_BASE + '/api/bookings):', e.message);
@@ -1978,7 +2014,12 @@ function copyDraft(taId, id) {
 /* ─── MOBILE NAV ────────────────────────────────────── */
 function scrollToSection(id) {
   const el = document.getElementById(id);
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (!el) return;
+  const nav = document.querySelector('.nav');
+  const navHeight = nav ? nav.offsetHeight : 0;
+  // -16 = breathing room below the nav so the section title isn't kissing the border
+  const y = el.getBoundingClientRect().top + window.scrollY - navHeight - 16;
+  window.scrollTo({ top: y, behavior: 'smooth' });
 }
 
 (function initMobileNav() {
