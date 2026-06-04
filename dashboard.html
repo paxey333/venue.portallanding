@@ -70,16 +70,19 @@ main{max-width:1280px;margin:0 auto;padding:24px;display:flex;flex-direction:col
 .hero-countdown{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--text);font-weight:600;margin-top:4px}
 .hero-countdown .dot{width:5px;height:5px;border-radius:50%;background:var(--green)}
 .hero-right{position:relative;z-index:1;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
-.hero-cta{display:inline-flex;align-items:center;gap:8px;background:var(--text);color:#000;font-weight:700;font-size:14px;padding:13px 24px;border-radius:10px;transition:opacity .15s;border:none;cursor:pointer}
-.hero-cta:hover{opacity:.88}
+.hero-cta{display:inline-flex;align-items:center;gap:8px;background:var(--text);color:#000;font-weight:700;font-size:14px;padding:13px 24px;border-radius:10px;transition:opacity .15s ease,transform .15s ease,box-shadow .15s ease;border:none;cursor:pointer}
+.hero-cta:hover{opacity:.88;transform:translateY(-1px);box-shadow:0 4px 16px rgba(255,107,26,0.25)}
+.hero-cta:active{transform:translateY(0)}
 .hero-flyer-art{width:120px;height:160px;border-radius:10px;background:linear-gradient(160deg,#ff6b1a 0%,#cc3300 100%);box-shadow:0 8px 32px rgba(255,107,26,0.25);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:38px;letter-spacing:-1px;color:#000;transform:rotate(-3deg)}
 
 /* ── QUICK PILLS ─────────────────────────────── */
 .quick-pills{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}
 .quick-pills::-webkit-scrollbar{display:none}
-.pill{display:inline-flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--border);color:var(--text2);font-size:13px;font-weight:600;padding:8px 14px;border-radius:24px;white-space:nowrap;cursor:pointer;transition:all .15s}
-.pill:hover{background:var(--surface2);color:var(--text);border-color:var(--border2)}
-.pill.active{background:var(--text);color:#000;border-color:var(--text)}
+.pill{display:inline-flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--border);color:var(--text2);font-size:13px;font-weight:600;padding:8px 14px;border-radius:24px;white-space:nowrap;cursor:pointer;transition:all .15s ease}
+.pill:hover{background:var(--surface2);color:var(--text);border-color:var(--border2);transform:translateY(-1px)}
+.pill:active{transform:translateY(0)}
+.pill.active{background:var(--text);color:#000;border-color:var(--text);transform:none}
+.pill.active:hover{transform:none}
 .pill-count{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 6px;border-radius:9px;font-size:10px;font-weight:700;letter-spacing:.02em}
 .pill-count.orange{background:var(--accent);color:#000}
 .pill-count.green{background:var(--green);color:#000}
@@ -88,7 +91,8 @@ main{max-width:1280px;margin:0 auto;padding:24px;display:flex;flex-direction:col
 
 /* ── STATS ───────────────────────────────────── */
 .stats-overview{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-.stat-card{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px 14px;overflow:hidden}
+.stat-card{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px 14px;overflow:hidden;transition:border-color .2s ease,transform .2s ease}
+.stat-card:hover{border-color:var(--border2);transform:translateY(-2px)}
 .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
 .stat-card.accent-orange::before{background:var(--accent)}
 .stat-card.accent-green::before{background:var(--green)}
@@ -117,7 +121,10 @@ main{max-width:1280px;margin:0 auto;padding:24px;display:flex;flex-direction:col
 /* ── SECTION ─────────────────────────────────── */
 section{display:flex;flex-direction:column;gap:14px}
 .section-hd{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
-.section-title{font-size:18px;font-weight:700;letter-spacing:-.3px}
+.section-title{font-size:18px;font-weight:700;letter-spacing:-.3px;position:relative;padding-left:14px}
+.section-title::before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px rgba(255,107,26,0.4)}
+/* Keyboard-accessibility focus rings on interactive elements (E.4) */
+.pill:focus-visible,.cal-nav-btn:focus-visible,.hero-cta:focus-visible,.mobile-nav-item:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .section-sub{font-size:13px;color:var(--text2);font-weight:500}
 .section-count{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 7px;border-radius:10px;background:var(--surface2);font-size:11px;font-weight:700;color:var(--text2);margin-left:8px}
 
@@ -156,7 +163,9 @@ section{display:flex;flex-direction:column;gap:14px}
 .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .cal-month{font-size:14px;font-weight:700;letter-spacing:-.1px}
 .cal-nav-btns{display:flex;gap:6px}
-.cal-nav-btn{width:28px;height:28px;border-radius:6px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);font-size:14px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.cal-nav-btn{width:38px;height:38px;border-radius:8px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);font-size:18px;font-weight:600;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s ease;line-height:1}
+.cal-nav-btn:hover{background:var(--surface);border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
+.cal-nav-btn:active{transform:translateY(0)}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
 .cal-dow{font-size:9px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;text-align:center;padding:4px 0}
 .cal-day{aspect-ratio:1;border-radius:6px;background:var(--surface2);font-size:11px;color:var(--text2);display:flex;align-items:center;justify-content:center;font-weight:500;cursor:pointer;position:relative}
@@ -422,7 +431,7 @@ section{display:flex;flex-direction:column;gap:14px}
       </div>
       <div class="hero-right">
         <div class="hero-flyer-art" style="background:linear-gradient(160deg,#2a2a2a 0%,#0a0a0a 100%);color:var(--text2);font-size:22px">+</div>
-        <button class="hero-cta" style="background:var(--accent);color:#000">Add availability →</button>
+        <button class="hero-cta" style="background:var(--accent);color:#000" onclick="scrollToSection('cal-card-section')">Add availability →</button>
       </div>
     </div>
 
@@ -430,11 +439,11 @@ section{display:flex;flex-direction:column;gap:14px}
 
   <!-- QUICK PILLS -->
   <div class="quick-pills" id="quick-pills">
-    <button class="pill active">Overview</button>
-    <button class="pill">Inquiries <span class="pill-count orange" id="qp-inquiries">3</span></button>
-    <button class="pill">Upcoming <span class="pill-count green" id="qp-upcoming">5</span></button>
-    <button class="pill">Action needed <span class="pill-count red" id="qp-action">2</span></button>
-    <button class="pill">This month <span class="pill-count orange" id="qp-month">8</span></button>
+    <button type="button" class="pill active" data-target="top">Overview</button>
+    <button type="button" class="pill" data-target="inquiry-section">Inquiries <span class="pill-count orange" id="qp-inquiries">0</span></button>
+    <button type="button" class="pill" data-target="booking-section">Upcoming <span class="pill-count green" id="qp-upcoming">0</span></button>
+    <button type="button" class="pill" data-target="inquiry-section">Action needed <span class="pill-count red" id="qp-action">0</span></button>
+    <button type="button" class="pill" data-target="cal-card-section">This month <span class="pill-count orange" id="qp-month">0</span></button>
   </div>
 
   <!-- STATS -->
@@ -1042,6 +1051,7 @@ async function renderBookings() {
     const data = await res.json();
     if (!res.ok || !Array.isArray(data)) throw new Error('Failed to load bookings');
     allBookings = data;
+    updateQuickPillCounts();
     renderCalendarDots();
 
     const confirmed = data
@@ -1112,6 +1122,8 @@ async function renderInquiries() {
     if (handleAuth(res)) return;
     const data = await res.json();
     if (!Array.isArray(data)) console.log('[renderInquiries] unexpected response shape:', data);
+    // Keep allBookings in sync so the quick-pill counts also work if this fetch resolves first.
+    if (Array.isArray(data)) { allBookings = data; updateQuickPillCounts(); }
     const inquiries = Array.isArray(data) ? data.filter(q => q.status === 'pending' || q.status === 'declined') : [];
     if (inquiries.length === 0) {
       list.innerHTML = `
@@ -2021,6 +2033,45 @@ function scrollToSection(id) {
   const y = el.getBoundingClientRect().top + window.scrollY - navHeight - 16;
   window.scrollTo({ top: y, behavior: 'smooth' });
 }
+
+/* ─── QUICK PILLS (E.4) ─────────────────────────────────
+   Counts derived live from allBookings on every refresh.
+   Pending bookings (status='pending') count as Inquiries
+   AND as Action Needed (different framing, same data). */
+function updateQuickPillCounts() {
+  const bookings = Array.isArray(allBookings) ? allBookings : [];
+  const pending = bookings.filter(b => b.status === 'pending' || b.status === 'pending_owner').length;
+  const confirmed = bookings.filter(b => b.status === 'confirmed');
+  const todayMidnight = new Date(new Date().toDateString());
+  const upcoming = confirmed.filter(b => {
+    const d = new Date(b.event_date);
+    return !isNaN(d) && d >= todayMidnight;
+  }).length;
+  const now = new Date();
+  const thisMonth = confirmed.filter(b => {
+    const d = new Date(b.event_date);
+    return !isNaN(d) && d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+  }).length;
+  const setCount = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = String(val); };
+  setCount('qp-inquiries', pending);
+  setCount('qp-upcoming',  upcoming);
+  setCount('qp-action',    pending);
+  setCount('qp-month',     thisMonth);
+}
+
+(function initQuickPills() {
+  const wrap = document.getElementById('quick-pills');
+  if (!wrap) return;
+  wrap.addEventListener('click', (e) => {
+    const btn = e.target.closest('.pill');
+    if (!btn) return;
+    wrap.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    const target = btn.dataset.target;
+    if (target === 'top') { window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+    if (target) scrollToSection(target);
+  });
+})();
 
 (function initMobileNav() {
   const items = [
