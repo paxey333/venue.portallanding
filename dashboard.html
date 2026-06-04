@@ -920,8 +920,11 @@ function handleLogout() {
 }
 
 /* ─── HEADER ────────────────────────────────────────── */
-document.getElementById('hdr-venue-name').textContent = USERNAME;
-document.getElementById('hdr-greeting').textContent   = IS_ADMIN_PREVIEW ? 'Previewing as venue owner' : 'Welcome back, ' + USERNAME;
+// Rebuild hdr-greeting's innerHTML so the nested <strong id="hdr-venue-name">
+// is preserved — loadVenueProfile() depends on it existing in the DOM later.
+document.getElementById('hdr-greeting').innerHTML = IS_ADMIN_PREVIEW
+  ? 'Previewing as <strong id="hdr-venue-name">venue owner</strong>'
+  : 'Welcome back, <strong id="hdr-venue-name">' + esc(USERNAME) + '</strong>';
 if (IS_ADMIN_PREVIEW) {
   if (window.innerWidth > 768) {
     document.getElementById('admin-preview-badge').style.display = 'block';
