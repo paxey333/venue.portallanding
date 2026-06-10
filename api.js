@@ -575,7 +575,7 @@ export default {
       if (path === "/api/venues" && request.method === "GET") {
         try {
           const rows = await env.DB.prepare(
-            `SELECT id, name, description, capacity, price_per_day, image_url, created_at
+            `SELECT id, name, description, capacity, price_per_day, image_url, address, city, state, created_at
              FROM venues ORDER BY id DESC`
           ).all();
           return jsonResponse(rows.results || [], 200, request);
@@ -595,18 +595,21 @@ export default {
           if (!name) return jsonResponse({ error: "Venue name is required" }, 400, request);
 
           const result = await env.DB.prepare(
-            `INSERT INTO venues (name, description, capacity, price_per_day, image_url)
-             VALUES (?, ?, ?, ?, ?)`
+            `INSERT INTO venues (name, description, capacity, price_per_day, image_url, address, city, state)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
           ).bind(
             name,
             body.description ? String(body.description) : null,
             toIntOrNull(body.capacity),
             toNumberOrNull(body.price_per_day),
-            body.image_url ? String(body.image_url) : null
+            body.image_url ? String(body.image_url) : null,
+            body.address ? String(body.address) : null,
+            body.city ? String(body.city) : null,
+            body.state ? String(body.state) : null
           ).run();
 
           const created = await env.DB.prepare(
-            `SELECT id, name, description, capacity, price_per_day, image_url, created_at
+            `SELECT id, name, description, capacity, price_per_day, image_url, address, city, state, created_at
              FROM venues WHERE id = ?`
           ).bind(result.meta.last_row_id).first();
           return jsonResponse(created, 201, request);
@@ -629,7 +632,7 @@ export default {
           const session = await getSession(request, env).catch(() => null);
           console.log("[GET /api/venues/:id]", id, "session:", session ? session.role : "public");
           const row = await env.DB.prepare(
-            `SELECT id, name, description, capacity, price_per_day, image_url, hours, amenities, gallery, video_url, created_at
+            `SELECT id, name, description, capacity, price_per_day, image_url, hours, amenities, gallery, video_url, address, city, state, created_at
              FROM venues WHERE id = ?`
           ).bind(id).first();
           if (!row) return jsonResponse({ error: "Venue not found" }, 404, request);
@@ -669,6 +672,9 @@ export default {
           if ('video_url' in body)     { fields.push('video_url=?');     values.push(body.video_url ? String(body.video_url) : null); }
           if ('amenities' in body)     { fields.push('amenities=?');     values.push(Array.isArray(body.amenities) ? JSON.stringify(body.amenities) : null); }
           if ('gallery' in body)       { fields.push('gallery=?');       values.push(Array.isArray(body.gallery) ? JSON.stringify(body.gallery) : null); }
+          if ('address' in body)       { fields.push('address=?');       values.push(body.address ? String(body.address) : null); }
+          if ('city' in body)          { fields.push('city=?');          values.push(body.city ? String(body.city) : null); }
+          if ('state' in body)         { fields.push('state=?');         values.push(body.state ? String(body.state) : null); }
 
           if (!fields.length) return jsonResponse({ error: "No fields to update" }, 400, request);
 
@@ -681,7 +687,7 @@ export default {
           ).bind(...values).run();
 
           const updated = await env.DB.prepare(
-            `SELECT id, name, description, capacity, price_per_day, image_url, hours, amenities, gallery, video_url, created_at FROM venues WHERE id=?`
+            `SELECT id, name, description, capacity, price_per_day, image_url, hours, amenities, gallery, video_url, address, city, state, created_at FROM venues WHERE id=?`
           ).bind(id).first();
           let amenities = [];
           try { const a = updated.amenities ? JSON.parse(updated.amenities) : []; amenities = Array.isArray(a) ? a : []; } catch(e) { amenities = []; }
@@ -1279,7 +1285,7 @@ export default {
           }
 
           const venue = await env.DB.prepare(
-            "SELECT id, name, capacity, price_per_day FROM venues WHERE id = ?"
+            "SELECT id, name, capacity, price_per_day, created_at FROM venues WHERE id = ?"
           ).bind(id).first();
 
           const totalBookings = await env.DB.prepare(

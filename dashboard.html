@@ -508,9 +508,9 @@ section{display:flex;flex-direction:column;gap:14px}
       <div class="stat-card accent-orange">
         <div class="stat-label-row">
           <span class="stat-label">Revenue</span>
-          <span class="stat-trend up" id="st-revenue-trend">↑ 12%</span>
+          <span class="stat-trend up" id="st-revenue-trend" style="display:none">↑ 12%</span>
         </div>
-        <div class="stat-val" id="st-revenue">$3,250</div>
+        <div class="stat-val" id="st-revenue">—</div>
         <div class="stat-sub" id="st-revenue-sub">this month</div>
         <svg class="stat-spark" id="st-revenue-spark" viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,18 L15,15 L30,17 L45,12 L60,10 L75,6 L100,8" stroke="#ff6b1a" stroke-width="1.5" fill="none"/></svg>
       </div>
@@ -518,9 +518,9 @@ section{display:flex;flex-direction:column;gap:14px}
       <div class="stat-card accent-green">
         <div class="stat-label-row">
           <span class="stat-label">Bookings</span>
-          <span class="stat-trend up" id="st-bookings-trend">↑ 2</span>
+          <span class="stat-trend up" id="st-bookings-trend" style="display:none">↑ 2</span>
         </div>
-        <div class="stat-val" id="st-bookings">8</div>
+        <div class="stat-val" id="st-bookings">—</div>
         <div class="stat-sub" id="st-bookings-sub">confirmed</div>
         <svg class="stat-spark" id="st-bookings-spark" viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,20 L20,17 L40,15 L60,12 L80,10 L100,7" stroke="#3ddc84" stroke-width="1.5" fill="none"/></svg>
       </div>
@@ -528,9 +528,9 @@ section{display:flex;flex-direction:column;gap:14px}
       <div class="stat-card accent-orange">
         <div class="stat-label-row">
           <span class="stat-label">Inquiries</span>
-          <span class="stat-trend up" id="st-inquiries-trend">↑ 3</span>
+          <span class="stat-trend up" id="st-inquiries-trend" style="display:none">↑ 3</span>
         </div>
-        <div class="stat-val" id="st-inquiries">5</div>
+        <div class="stat-val" id="st-inquiries">—</div>
         <div class="stat-sub" id="st-inquiries-sub">pending review</div>
         <svg class="stat-spark" id="st-inquiries-spark" viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,14 L20,10 L40,16 L60,8 L80,11 L100,5" stroke="#ff6b1a" stroke-width="1.5" fill="none"/></svg>
       </div>
@@ -538,9 +538,9 @@ section{display:flex;flex-direction:column;gap:14px}
       <div class="stat-card accent-orange">
         <div class="stat-label-row">
           <span class="stat-label">Acceptance Rate</span>
-          <span class="stat-trend up" id="st-views-trend">↑ 18%</span>
+          <span class="stat-trend up" id="st-views-trend" style="display:none">↑ 18%</span>
         </div>
-        <div class="stat-val" id="st-views">1,247</div>
+        <div class="stat-val" id="st-views">—</div>
         <div class="stat-sub" id="st-views-sub">last 30 days</div>
         <svg class="stat-spark" id="st-views-spark" viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,22 L18,18 L36,14 L54,12 L72,6 L100,4" stroke="#ff6b1a" stroke-width="1.5" fill="none"/></svg>
       </div>
@@ -553,17 +553,17 @@ section{display:flex;flex-direction:column;gap:14px}
     <div class="achv-card gold">
       <div class="achv-icon">★</div>
       <div class="achv-label">Bookings confirmed</div>
-      <div class="achv-val" id="achv-bookings">14</div>
+      <div class="achv-val" id="achv-bookings">—</div>
     </div>
     <div class="achv-card silver">
       <div class="achv-icon">⏱</div>
       <div class="achv-label">Months active</div>
-      <div class="achv-val" id="achv-months">4</div>
+      <div class="achv-val" id="achv-months">—</div>
     </div>
     <div class="achv-card emerald">
       <div class="achv-icon">$</div>
       <div class="achv-label">Lifetime revenue</div>
-      <div class="achv-val" id="achv-revenue">$8,200</div>
+      <div class="achv-val" id="achv-revenue">—</div>
     </div>
   </div>
 
@@ -783,8 +783,7 @@ section{display:flex;flex-direction:column;gap:14px}
               <div class="profile-name" id="pf-name">—</div>
               <span class="tier-badge" id="tier-badge"></span>
             </div>
-            <!-- #pf-location: wired (loadVenueProfile writes v.description here per v1 quirk) but visually hidden to dedupe the description text shown at #pf-description-display below. Restore visibility (or display a real location) when a dedicated `location` column ships in the venues schema. -->
-            <div class="profile-loc" id="pf-location" style="display:none"></div>
+            <div class="profile-loc" id="pf-location"></div>
           </div>
         </div>
         <div class="profile-grid">
@@ -800,8 +799,12 @@ section{display:flex;flex-direction:column;gap:14px}
       <div class="profile-edit-form" id="profile-edit-form">
         <label style="display:block;font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Venue name</label>
         <input id="edit-name" type="text"/>
-        <label style="display:block;font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Location</label>
-        <input id="edit-location" type="text"/>
+        <label style="display:block;font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Address</label>
+        <input id="edit-address" type="text" placeholder="1320 E Broadway Rd Suite 108"/>
+        <label style="display:block;font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;margin-top:10px">City</label>
+        <input id="edit-city" type="text" placeholder="Tempe"/>
+        <label style="display:block;font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;margin-top:10px">State</label>
+        <input id="edit-state" type="text" placeholder="AZ" style="max-width:80px"/>
         <label style="display:block;font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Capacity</label>
         <input id="edit-capacity" type="number" onwheel="this.blur()"/>
         <label style="display:block;font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Price per day ($)</label>
@@ -1074,6 +1077,23 @@ async function renderStats() {
     if (vEl && total !== null) {
       vEl.textContent = total === 0 ? '--' : Math.round(((confirmed || 0) / total) * 100) + '%';
       if (vSub) { vSub.textContent = 'of all inquiries confirmed'; vSub.style.color = 'var(--text3)'; }
+    }
+
+    // Achievements row — lifetime stats (never fall back to mock numbers)
+    const achvBookings = document.getElementById('achv-bookings');
+    if (achvBookings) achvBookings.textContent = confirmed !== null ? confirmed : 0;
+
+    const achvRevenue = document.getElementById('achv-revenue');
+    if (achvRevenue) achvRevenue.textContent = money((confirmed || 0) * pricePerDay);
+
+    const achvMonths = document.getElementById('achv-months');
+    if (achvMonths && s.venue?.created_at) {
+      const created = new Date(s.venue.created_at);
+      const now = new Date();
+      const months = (now.getFullYear() - created.getFullYear()) * 12 + (now.getMonth() - created.getMonth());
+      achvMonths.textContent = Math.max(0, months);
+    } else if (achvMonths) {
+      achvMonths.textContent = 0;
     }
   } catch (e) {
     console.log('[renderStats] fetch error (' + endpoint + '):', e.message);
@@ -1462,7 +1482,8 @@ async function loadVenueProfile() {
     currentVenue = v;
     document.getElementById('hdr-venue-name').textContent = v.name || '';
     document.getElementById('pf-name').textContent        = v.name || '';
-    document.getElementById('pf-location').textContent    = v.description || '—';
+    const locParts = [v.address, v.city && v.state ? `${v.city}, ${v.state}` : (v.city || v.state || '')].filter(Boolean);
+    document.getElementById('pf-location').textContent    = locParts.join(' · ') || '—';
     document.getElementById('pf-capacity').textContent    = v.capacity ? v.capacity.toLocaleString() + ' capacity' : '—';
     document.getElementById('pf-price').textContent       = v.price_per_day ? '$' + v.price_per_day + ' / night' : '—';
     const pfHours = document.getElementById('pf-hours');
@@ -1488,7 +1509,9 @@ async function loadVenueProfile() {
 
 function startProfileEdit() {
   document.getElementById('edit-name').value        = currentVenue.name || '';
-  document.getElementById('edit-location').value    = currentVenue.description || '';
+  document.getElementById('edit-address').value     = currentVenue.address || '';
+  document.getElementById('edit-city').value        = currentVenue.city || '';
+  document.getElementById('edit-state').value       = currentVenue.state || '';
   document.getElementById('edit-capacity').value    = currentVenue.capacity || '';
   document.getElementById('edit-price').value       = currentVenue.price_per_day || '';
   document.getElementById('edit-hours').value       = currentVenue.hours || '';
@@ -1523,6 +1546,9 @@ async function saveProfileEdit() {
     hours:         document.getElementById('edit-hours').value.trim(),
     video_url:     document.getElementById('edit-video').value.trim() || null,
     amenities:     getSelectedAmenities(),
+    address:       document.getElementById('edit-address').value.trim() || null,
+    city:          document.getElementById('edit-city').value.trim() || null,
+    state:         document.getElementById('edit-state').value.trim() || null,
   };
   if (!body.name) { errEl.style.display=''; errEl.textContent='Venue name is required.'; return; }
   try {
@@ -1540,7 +1566,12 @@ async function saveProfileEdit() {
     // loadVenueProfile() refetch below.
     const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
     if ('name' in body) { setText('pf-name', body.name || ''); setText('hdr-venue-name', body.name || ''); }
-    if ('description' in body) { setText('pf-location', body.description || '—'); setText('pf-description-display', body.description || '—'); }
+    if ('description' in body) { setText('pf-description-display', body.description || '—'); }
+    if ('address' in body || 'city' in body || 'state' in body) {
+      const merged = { ...currentVenue, ...body };
+      const lp = [merged.address, merged.city && merged.state ? `${merged.city}, ${merged.state}` : (merged.city || merged.state || '')].filter(Boolean);
+      setText('pf-location', lp.join(' · ') || '—');
+    }
     if ('capacity' in body) { setText('pf-capacity', body.capacity ? body.capacity.toLocaleString() + ' capacity' : '—'); }
     if ('price_per_day' in body) { setText('pf-price', body.price_per_day ? '$' + body.price_per_day + ' / night' : '—'); }
     if ('hours' in body) { setText('pf-hours', body.hours || '—'); setText('pf-hours-display', body.hours || '—'); }
