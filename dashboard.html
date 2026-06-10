@@ -1973,7 +1973,10 @@ function showStripeBanner(msg, color, borderColor) {
   setTimeout(() => banner.remove(), 5000);
 }
 
+// Calendar state — declared here (before renderCalendar() is called) to avoid temporal dead zone
 let calMonthOffset = 0;
+let calSelectedDate = null;
+let calEventMap = {};
 
 // Clear any stale data structures from previous session.
 // If the venue_id differs from last load (e.g., admin previewing a different venue,
@@ -2013,9 +2016,6 @@ function shiftCalMonth(delta) {
 }
 
 /* ─── CALENDAR PHASE 1 ──────────────────────────────────── */
-let calEventMap = {}; // date-string -> array of {type:'booking'|'block', ...}
-let calSelectedDate = null;
-
 async function loadCalendarData() {
   const vid = (typeof EFFECTIVE_VENUE_ID !== 'undefined') ? EFFECTIVE_VENUE_ID : (currentVenue && currentVenue.id);
   if (!vid) return;
