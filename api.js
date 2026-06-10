@@ -464,7 +464,7 @@ export default {
           const hashedPassword = await hashPassword(plainPassword, env.TOKEN_SECRET);
 
           await env.DB.prepare(
-            "INSERT INTO users (email, password, role, venue_id, name) VALUES (?, ?, ?, ?, ?)"
+            "INSERT INTO users (email, password, role, venue_id, name, first_login) VALUES (?, ?, ?, ?, ?, 1)"
           ).bind(email, hashedPassword, role, venueId, name).run();
 
           const created = await env.DB.prepare(
@@ -714,11 +714,88 @@ export default {
       if (venueBookedDatesMatch && request.method === "GET") {
         try {
           const id = Number(venueBookedDatesMatch[1]);
-          const rows = await env.DB.prepare(
-            "SELECT event_date FROM bookings WHERE venue_id = ? AND status = 'confirmed'"
+          const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 30);
+          const cutoffStr = cutoff.toISOString().slice(0, 10);
+          const bookingRows = await env.DB.prepare(
+            `SELECT id, event_date, event_time_start, event_time_end, status,
+                    client_name, client_email, guests, message, created_at
+             FROM bookings
+             WHERE venue_id = ? AND status IN ('confirmed','pending','accepted')
+               AND event_date >= ?
+             ORDER BY event_date ASC`
+          ).bind(id, cutoffStr).all();
+          const blockRows = await env.DB.prepare(
+            `SELECT id, block_date AS date, time_start, time_end, reason
+             FROM venue_blocks WHERE venue_id = ? ORDER BY block_date ASC`
           ).bind(id).all();
-          const dates = (rows.results || []).map(r => r.event_date);
-          return jsonResponse({ dates }, 200, request);
+          const events = (bookingRows.results || []).map(r => ({
+            id: r.id,
+            date: r.event_date,
+            time_start: r.event_time_start || null,
+            time_end: r.event_time_end || null,
+            status: r.status,
+            client_name: r.client_name,
+            client_email: r.client_email,
+            guests: r.guests,
+            message: r.message,
+            created_at: r.created_at
+          }));
+          const blocks = (blockRows.results || []).map(r => ({
+            id: r.id,
+            date: r.date,
+            time_start: r.time_start || null,
+            time_end: r.time_end || null,
+            reason: r.reason
+          }));
+          return jsonResponse({ events, blocks }, 200, request);
+        } catch (err) {
+          return jsonResponse({ error: err.message }, 500, request);
+        }
+      }
+
+      // ── VENUE BLOCKS: CREATE ──────────────────────────────────────
+      const venueBlocksMatch = path.match(/^\/api\/venues\/(\d+)\/blocks$/);
+      if (venueBlocksMatch && request.method === "POST") {
+        try {
+          const session = await getSession(request, env);
+          if (!isAnyRole(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
+          const id = Number(venueBlocksMatch[1]);
+          if (session.role === "venue_owner" && session.venue_id !== id) {
+            return jsonResponse({ error: "Forbidden" }, 403, request);
+          }
+          const body = await parseJson(request);
+          const blockDate = String(body.block_date || "").trim();
+          const reason = String(body.reason || "Blocked").trim();
+          if (!blockDate) return jsonResponse({ error: "block_date is required" }, 400, request);
+          const result = await env.DB.prepare(
+            `INSERT INTO venue_blocks (venue_id, block_date, time_start, time_end, reason)
+             VALUES (?, ?, ?, ?, ?)`
+          ).bind(id, blockDate, body.time_start || null, body.time_end || null, reason).run();
+          const created = await env.DB.prepare(
+            "SELECT id, venue_id, block_date AS date, time_start, time_end, reason, created_at FROM venue_blocks WHERE id = ?"
+          ).bind(result.meta.last_row_id).first();
+          return jsonResponse(created, 201, request);
+        } catch (err) {
+          return jsonResponse({ error: err.message }, 500, request);
+        }
+      }
+
+      // ── VENUE BLOCKS: DELETE ──────────────────────────────────────
+      const venueBlockDeleteMatch = path.match(/^\/api\/venues\/(\d+)\/blocks\/(\d+)$/);
+      if (venueBlockDeleteMatch && request.method === "DELETE") {
+        try {
+          const session = await getSession(request, env);
+          if (!isAnyRole(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
+          const venueId = Number(venueBlockDeleteMatch[1]);
+          const blockId = Number(venueBlockDeleteMatch[2]);
+          if (session.role === "venue_owner" && session.venue_id !== venueId) {
+            return jsonResponse({ error: "Forbidden" }, 403, request);
+          }
+          const res = await env.DB.prepare(
+            "DELETE FROM venue_blocks WHERE id = ? AND venue_id = ?"
+          ).bind(blockId, venueId).run();
+          if (!res.meta.changes) return jsonResponse({ error: "Block not found" }, 404, request);
+          return jsonResponse({ ok: true }, 200, request);
         } catch (err) {
           return jsonResponse({ error: err.message }, 500, request);
         }
@@ -1095,10 +1172,47 @@ export default {
             }
 
           } else if (status === "declined") {
+            const declineRow = await env.DB.prepare(
+              `SELECT b.id, b.venue_id, b.client_name, b.client_email, b.event_date, b.guests,
+                      v.name AS venue_name
+               FROM bookings b LEFT JOIN venues v ON v.id = b.venue_id WHERE b.id = ?`
+            ).bind(id).first();
+            if (!declineRow) return jsonResponse({ error: "Booking not found" }, 404, request);
+
             const res = await env.DB.prepare(
               "UPDATE bookings SET status='declined' WHERE id=?"
             ).bind(id).run();
             if (!res.meta.changes) return jsonResponse({ error: "Booking not found" }, 404, request);
+
+            if (env.RESEND_API_KEY && declineRow.client_email) {
+              try {
+                const firstName = (declineRow.client_name || '').split(/\s+/)[0] || 'there';
+                const eventDate = declineRow.event_date || '';
+                const venueName = declineRow.venue_name || 'the venue';
+                const html = `<div style="font-family:sans-serif;max-width:520px;margin:0 auto;background:#fff;color:#111;padding:32px 28px;border-radius:8px">
+        <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#888;margin-bottom:20px">Venue.Portal</div>
+        <h1 style="font-size:22px;font-weight:800;margin:0 0 12px">Update on your booking request</h1>
+        <p style="color:#555;font-size:14px;line-height:1.7;margin:0 0 16px">Hey ${firstName},</p>
+        <p style="color:#555;font-size:14px;line-height:1.7;margin:0 0 16px">Unfortunately <strong>${venueName}</strong> isn't able to accommodate your booking request for <strong>${eventDate}</strong>. This could be due to a scheduling conflict, capacity, or other availability reasons.</p>
+        <p style="color:#555;font-size:14px;line-height:1.7;margin:0 0 24px">Don't worry — there are other great independent venues on Venue Portal. Browse available spaces and submit a new request anytime.</p>
+        <p style="text-align:center;margin:24px 0"><a href="https://venueportal.us" style="display:inline-block;background:#ff6b1a;color:#000;font-weight:700;font-size:14px;padding:13px 26px;border-radius:6px;text-decoration:none">Browse Venues &#x2192;</a></p>
+        <div style="margin-top:24px;padding-top:16px;border-top:1px solid #eee;font-family:monospace;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#bbb">Venue.Portal &middot; Flat fee. No cuts.</div>
+      </div>`;
+                await fetch("https://api.resend.com/emails", {
+                  method: "POST",
+                  headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    from: "Venue Portal <noreply@venueportal.us>",
+                    to: [declineRow.client_email],
+                    reply_to: "venueportalus@gmail.com",
+                    subject: `Update on your booking request — ${venueName}`,
+                    html
+                  })
+                });
+              } catch (declineEmailErr) {
+                console.log("[bookings/decline] email failed (non-fatal):", declineEmailErr.message);
+              }
+            }
 
           } else {
             const res = await env.DB.prepare(

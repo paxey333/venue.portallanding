@@ -186,6 +186,60 @@ section{display:flex;flex-direction:column;gap:14px}
 .bk-cal-pill.pending{background:var(--accent-soft);border-color:rgba(255,107,26,0.3);color:var(--accent)}
 .bk-dow-full{display:inline}
 .bk-dow-short{display:none}
+/* ── CALENDAR PHASE 1 ──────────────────────────────────── */
+:root{
+  --cal-confirmed:#22c55e;--cal-confirmed-text:#052e16;
+  --cal-pending:#f59e0b;--cal-pending-text:#fbbf24;
+  --cal-blocked:#ef4444;--cal-blocked-text:#450a0a;
+  --cal-today:#ff6b1a;
+}
+.cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.cal-head-l{display:flex;align-items:center;gap:6px}
+.cal-legend{display:flex;gap:10px;flex-wrap:wrap}
+.cal-legend span{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text3);font-weight:500}
+.lg-dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.lg-conf{background:var(--cal-confirmed)}
+.lg-pend{background:var(--cal-pending)}
+.lg-blk{background:var(--cal-blocked)}
+/* event bars inside cells */
+.ev-bar{display:block;margin-top:3px;border-radius:3px;padding:2px 5px;font-size:9px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;cursor:pointer}
+.ev-bar.ev-confirmed{background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.3);color:var(--cal-confirmed)}
+.ev-bar.ev-pending{background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);color:var(--cal-pending);background-image:repeating-linear-gradient(45deg,transparent,transparent 3px,rgba(245,158,11,.07) 3px,rgba(245,158,11,.07) 6px)}
+.ev-bar.ev-blocked{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.25);color:var(--cal-blocked)}
+.ev-more{display:block;margin-top:2px;font-size:8px;color:var(--text3);padding-left:2px}
+.bk-cal-day.selected{border-color:var(--cal-today)!important;background:rgba(255,107,26,.07)}
+/* detail panel */
+.cal-detail{margin-top:14px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:16px;animation:fadeSlideIn .18s ease}
+@keyframes fadeSlideIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.cal-detail-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.cal-detail-date{font-size:13px;font-weight:700;color:var(--text)}
+.cal-detail-close{background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;padding:0 2px;line-height:1}
+.cal-detail-close:hover{color:var(--text)}
+.cal-evt-list{display:flex;flex-direction:column;gap:10px}
+.cal-evt-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px}
+.cal-evt-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px}
+.cal-evt-name{font-size:13px;font-weight:700;color:var(--text)}
+.cal-evt-pill{font-size:9px;font-weight:700;padding:3px 8px;border-radius:10px;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap}
+.cal-evt-pill.ev-confirmed{background:rgba(34,197,94,.18);color:var(--cal-confirmed)}
+.cal-evt-pill.ev-pending{background:rgba(245,158,11,.15);color:var(--cal-pending)}
+.cal-evt-pill.ev-blocked{background:rgba(239,68,68,.15);color:var(--cal-blocked)}
+.cal-evt-meta{font-size:11px;color:var(--text3);line-height:1.6}
+.cal-evt-meta span{margin-right:10px}
+.cal-evt-msg{margin-top:6px;font-size:11px;color:var(--text2);line-height:1.5;border-top:1px solid var(--border);padding-top:6px}
+.cal-evt-pending-note{margin-top:6px;font-size:10px;color:var(--cal-pending);display:flex;align-items:center;gap:6px}
+.cal-evt-pending-note a{color:var(--cal-pending);text-decoration:underline;cursor:pointer}
+.cal-empty-day{text-align:center;padding:20px 0;color:var(--text3);font-size:12px}
+/* block form */
+.cal-block-form{margin-top:12px;padding-top:12px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:8px}
+.cal-block-form input,.cal-block-form select{background:var(--surface);border:1px solid var(--border2);border-radius:6px;padding:7px 10px;font-size:12px;color:var(--text);outline:none;width:100%;box-sizing:border-box}
+.cal-block-form input:focus,.cal-block-form select:focus{border-color:var(--accent)}
+.cal-block-form-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cal-block-btn{background:var(--cal-blocked);color:#fff;border:none;border-radius:6px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer}
+.cal-block-btn:hover{opacity:.85}
+.cal-add-block-btn{background:none;border:1px solid var(--border2);border-radius:6px;padding:6px 12px;font-size:11px;color:var(--text3);cursor:pointer;margin-top:4px;align-self:flex-start}
+.cal-add-block-btn:hover{border-color:var(--accent);color:var(--accent)}
+.cal-block-del{background:none;border:none;color:var(--cal-blocked);font-size:10px;cursor:pointer;padding:0;margin-top:4px;display:block}
+.cal-block-del:hover{text-decoration:underline}
 .stripe-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;display:flex;flex-direction:column;gap:14px}
 .stripe-card.connected{background:linear-gradient(135deg,#021a0a 0%,#0a0a0a 100%);border-color:rgba(61,220,132,0.2)}
 .stripe-eyebrow{font-size:10px;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:.1em}
@@ -603,20 +657,19 @@ section{display:flex;flex-direction:column;gap:14px}
     <div class="cal-stripe-row">
       <div class="cal-card">
         <div class="cal-head">
-          <span class="cal-month" id="cal-month-label">June 2026</span>
-          <div class="cal-nav-btns">
-            <button class="cal-nav-btn" onclick="shiftCalMonth(-1)">‹</button>
-            <button class="cal-nav-btn" onclick="shiftCalMonth(1)">›</button>
+          <div class="cal-head-l">
+            <button class="cal-nav-btn" onclick="shiftCalMonth(-1)" aria-label="Previous">&#8249;</button>
+            <span class="cal-month" id="cal-month-label">—</span>
+            <button class="cal-nav-btn" onclick="shiftCalMonth(1)" aria-label="Next">&#8250;</button>
+          </div>
+          <div class="cal-legend">
+            <span><span class="lg-dot lg-conf"></span>Confirmed</span>
+            <span><span class="lg-dot lg-pend"></span>Pending</span>
+            <span><span class="lg-dot lg-blk"></span>Blocked</span>
           </div>
         </div>
-        <div class="cal-grid" id="bk-cal-grid">
-          <div class="cal-dow">S</div><div class="cal-dow">M</div><div class="cal-dow">T</div><div class="cal-dow">W</div><div class="cal-dow">T</div><div class="cal-dow">F</div><div class="cal-dow">S</div>
-          <div class="cal-day empty"></div><div class="cal-day">1</div><div class="cal-day">2</div><div class="cal-day">3</div><div class="cal-day">4</div><div class="cal-day booked">5</div><div class="cal-day today">6</div>
-          <div class="cal-day">7</div><div class="cal-day">8</div><div class="cal-day">9</div><div class="cal-day">10</div><div class="cal-day">11</div><div class="cal-day">12</div><div class="cal-day">13</div>
-          <div class="cal-day booked">14</div><div class="cal-day">15</div><div class="cal-day">16</div><div class="cal-day">17</div><div class="cal-day">18</div><div class="cal-day">19</div><div class="cal-day">20</div>
-          <div class="cal-day">21</div><div class="cal-day">22</div><div class="cal-day booked">23</div><div class="cal-day">24</div><div class="cal-day">25</div><div class="cal-day">26</div><div class="cal-day">27</div>
-          <div class="cal-day">28</div><div class="cal-day">29</div><div class="cal-day booked">30</div>
-        </div>
+        <div class="bk-cal-grid" id="bk-cal-grid"></div>
+        <div class="cal-detail" id="cal-detail" style="display:none"></div>
       </div>
 
       <div id="stripe-block">
@@ -1055,6 +1108,7 @@ async function renderBookings() {
     updateQuickPillCounts();
     renderRevenueChart();
     renderCalendarDots();
+    loadCalendarData().then(() => renderCalendar());
 
     const confirmed = data
       .filter(b => b.status === 'confirmed')
@@ -1933,6 +1987,7 @@ window._lastVenueId = EFFECTIVE_VENUE_ID;
 loadVenueProfile();
 renderStats();
 renderCalendar();
+loadCalendarData().then(() => renderCalendar());
 
 // Handle Stripe return params
 (function handleStripeReturn() {
@@ -1957,6 +2012,30 @@ function shiftCalMonth(delta) {
   renderCalendar();
 }
 
+/* ─── CALENDAR PHASE 1 ──────────────────────────────────── */
+let calEventMap = {}; // date-string -> array of {type:'booking'|'block', ...}
+let calSelectedDate = null;
+
+async function loadCalendarData() {
+  const vid = (typeof EFFECTIVE_VENUE_ID !== 'undefined') ? EFFECTIVE_VENUE_ID : (currentVenue && currentVenue.id);
+  if (!vid) return;
+  try {
+    const res = await fetch(`/api/venues/${vid}/booked-dates`, { credentials: 'include' });
+    if (!res.ok) return;
+    const data = await res.json();
+    const map = {};
+    (data.events || []).forEach(e => {
+      if (!map[e.date]) map[e.date] = [];
+      map[e.date].push({ type: 'booking', ...e });
+    });
+    (data.blocks || []).forEach(b => {
+      if (!map[b.date]) map[b.date] = [];
+      map[b.date].push({ type: 'block', ...b });
+    });
+    calEventMap = map;
+  } catch(e) { /* non-fatal */ }
+}
+
 function renderCalendar() {
   const grid = document.getElementById('bk-cal-grid');
   if (!grid) return;
@@ -1967,46 +2046,183 @@ function renderCalendar() {
   const label    = document.getElementById('cal-month-label');
   if (label) label.textContent = target.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   const start = new Date(target);
-  const dow   = start.getDay();
-  start.setDate(start.getDate() - (dow === 0 ? 6 : dow - 1));
-  const dowFull  = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-  const dowShort = ['M','T','W','T','F','S','S'];
-  let html = dowFull.map((n,i) =>
-    `<div class="bk-cal-dow"><span class="bk-dow-full">${n}</span><span class="bk-dow-short">${dowShort[i]}</span></div>`
-  ).join('');
+  start.setDate(start.getDate() - start.getDay()); // Sun-start
+  const dowLabels = ['S','M','T','W','T','F','S'];
+  let html = dowLabels.map(n => `<div class="bk-cal-dow"><span>${n}</span></div>`).join('');
   for (let i = 0; i < 42; i++) {
     const d = new Date(start); d.setDate(start.getDate() + i);
     const dStr    = toLocalDateStr(d);
     const isToday = dStr === todayStr;
     const isPast  = d < today;
     const isOut   = d.getMonth() !== curMonth;
+    const isSelected = dStr === calSelectedDate;
     let cls = 'bk-cal-day';
-    if (isToday) cls += ' today';
-    if (isPast)  cls += ' past';
-    if (isOut)   cls += ' out';
-    html += `<div class="${cls}" data-date="${dStr}"><span class="bk-day-num">${d.getDate()}</span></div>`;
+    if (isToday)    cls += ' today';
+    if (isPast)     cls += ' past';
+    if (isOut)      cls += ' out';
+    if (isSelected) cls += ' selected';
+    const dayEvents = calEventMap[dStr] || [];
+    const bars = buildEventBars(dayEvents);
+    const clickable = isOut ? '' : `onclick="calDayClick('${dStr}')"`;
+    html += `<div class="${cls}" data-date="${dStr}" ${clickable}><span class="bk-day-num">${d.getDate()}</span>${bars}</div>`;
   }
   grid.innerHTML = html;
-  renderCalendarDots();
 }
 
-function renderCalendarDots() {
-  const grid = document.getElementById('bk-cal-grid');
-  if (!grid || !allBookings.length) return;
-  grid.querySelectorAll('.bk-cal-pill').forEach(el => el.remove());
-  // Calendar shows confirmed bookings only — pending/declined/cancelled never render here.
-  const calendarBookings = allBookings.filter(b => b.status === 'confirmed');
-  calendarBookings.forEach(b => {
-    const dStr = normalizeDate(b.event_date);
-    const cell = grid.querySelector('[data-date="' + dStr + '"]');
-    if (!cell) return;
-    const pill = document.createElement('span');
-    pill.className = 'bk-cal-pill';
-    pill.textContent = b.client_name || 'Booking';
-    pill.title = (b.client_name || '') + ' · ' + b.event_date;
-    cell.appendChild(pill);
+function buildEventBars(events) {
+  if (!events.length) return '';
+  let html = '';
+  const visible = events.slice(0, 2);
+  const extra = events.length - 2;
+  visible.forEach(ev => {
+    const cls = ev.type === 'block' ? 'ev-blocked' : (ev.status === 'confirmed' ? 'ev-confirmed' : 'ev-pending');
+    const label = ev.type === 'block' ? (ev.reason || 'Blocked') : (ev.client_name || 'Inquiry');
+    html += `<span class="ev-bar ${cls}">${escHtml(label)}</span>`;
   });
+  if (extra > 0) html += `<span class="ev-more">+${extra} more</span>`;
+  return html;
 }
+
+function escHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function calDayClick(dateStr) {
+  const detail = document.getElementById('cal-detail');
+  if (!detail) return;
+  // deselect if clicking same day
+  if (calSelectedDate === dateStr) {
+    calSelectedDate = null;
+    detail.style.display = 'none';
+    renderCalendar();
+    return;
+  }
+  calSelectedDate = dateStr;
+  renderCalendar(); // re-render to apply .selected
+  renderCalDetail(dateStr);
+  detail.style.display = '';
+}
+
+function renderCalDetail(dateStr) {
+  const detail = document.getElementById('cal-detail');
+  if (!detail) return;
+  const events = calEventMap[dateStr] || [];
+  const label = new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  let html = `<div class="cal-detail-hd">
+    <span class="cal-detail-date">${label}</span>
+    <button class="cal-detail-close" onclick="calDetailClose()" aria-label="Close">&times;</button>
+  </div>`;
+  if (!events.length) {
+    html += `<div class="cal-empty-day">No events scheduled</div>`;
+  } else {
+    html += `<div class="cal-evt-list">`;
+    events.forEach(ev => {
+      if (ev.type === 'block') {
+        const time = (ev.time_start && ev.time_end) ? `${ev.time_start} - ${ev.time_end}` : (ev.time_start || 'All day');
+        html += `<div class="cal-evt-card">
+          <div class="cal-evt-top">
+            <span class="cal-evt-name">${escHtml(ev.reason || 'Blocked')}</span>
+            <span class="cal-evt-pill ev-blocked">Blocked</span>
+          </div>
+          <div class="cal-evt-meta"><span>&#128274; ${escHtml(time)}</span></div>
+          <button class="cal-block-del" onclick="calDeleteBlock(${ev.id},'${dateStr}')">Remove block</button>
+        </div>`;
+      } else {
+        const statusCls = ev.status === 'confirmed' ? 'ev-confirmed' : 'ev-pending';
+        const statusLabel = ev.status === 'confirmed' ? 'Confirmed' : 'Pending';
+        const time = (ev.time_start && ev.time_end) ? `${ev.time_start} - ${ev.time_end}` : 'All day';
+        const ago = ev.created_at ? calRelTime(ev.created_at) : '';
+        html += `<div class="cal-evt-card">
+          <div class="cal-evt-top">
+            <span class="cal-evt-name">${escHtml(ev.client_name || 'Inquiry')}</span>
+            <span class="cal-evt-pill ${statusCls}">${statusLabel}</span>
+          </div>
+          <div class="cal-evt-meta">
+            <span>&#128337; ${escHtml(time)}</span>
+            ${ev.client_email ? `<span>&#9993;&#65039; ${escHtml(ev.client_email)}</span>` : ''}
+            ${ev.guests ? `<span>&#128101; ${ev.guests} guests</span>` : ''}
+          </div>
+          ${ev.message ? `<div class="cal-evt-msg">${escHtml(ev.message)}</div>` : ''}
+          ${ev.status === 'pending' ? `<div class="cal-evt-pending-note">&#9203; Awaiting your response${ago ? ' &middot; '+ago : ''} &mdash; <a onclick="scrollToSection('inquiry-section')">respond &rarr;</a></div>` : ''}
+        </div>`;
+      }
+    });
+    html += `</div>`;
+  }
+  // Block time button + inline form
+  html += `<button class="cal-add-block-btn" id="cal-add-block-btn-${dateStr}" onclick="calShowBlockForm('${dateStr}')">+ Block this day</button>
+  <div id="cal-block-form-${dateStr}" style="display:none">
+    <div class="cal-block-form">
+      <input type="text" id="cal-block-reason-${dateStr}" placeholder="Reason (e.g. Private event, Maintenance)" />
+      <div class="cal-block-form-row">
+        <input type="time" id="cal-block-ts-${dateStr}" placeholder="Start time (optional)" />
+        <input type="time" id="cal-block-te-${dateStr}" placeholder="End time (optional)" />
+      </div>
+      <button class="cal-block-btn" onclick="calSubmitBlock('${dateStr}')">Block time</button>
+    </div>
+  </div>`;
+  detail.innerHTML = html;
+}
+
+function calRelTime(isoStr) {
+  try {
+    const ms = Date.now() - new Date(isoStr).getTime();
+    const mins = Math.floor(ms / 60000);
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    return `${Math.floor(hrs/24)}d ago`;
+  } catch { return ''; }
+}
+
+function calDetailClose() {
+  calSelectedDate = null;
+  const detail = document.getElementById('cal-detail');
+  if (detail) detail.style.display = 'none';
+  renderCalendar();
+}
+
+function calShowBlockForm(dateStr) {
+  const form = document.getElementById(`cal-block-form-${dateStr}`);
+  const btn  = document.getElementById(`cal-add-block-btn-${dateStr}`);
+  if (form) form.style.display = '';
+  if (btn)  btn.style.display  = 'none';
+}
+
+async function calSubmitBlock(dateStr) {
+  const reason   = (document.getElementById(`cal-block-reason-${dateStr}`)?.value || '').trim() || 'Blocked';
+  const timeStart = document.getElementById(`cal-block-ts-${dateStr}`)?.value || null;
+  const timeEnd   = document.getElementById(`cal-block-te-${dateStr}`)?.value || null;
+  const vid = (typeof EFFECTIVE_VENUE_ID !== 'undefined') ? EFFECTIVE_VENUE_ID : (currentVenue && currentVenue.id);
+  if (!vid) return;
+  try {
+    const res = await fetch(`/api/venues/${vid}/blocks`, {
+      method: 'POST', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ block_date: dateStr, reason, time_start: timeStart, time_end: timeEnd })
+    });
+    if (!res.ok) { alert('Failed to save block'); return; }
+    await loadCalendarData();
+    renderCalendar();
+    renderCalDetail(dateStr);
+  } catch(e) { alert('Error saving block'); }
+}
+
+async function calDeleteBlock(blockId, dateStr) {
+  const vid = (typeof EFFECTIVE_VENUE_ID !== 'undefined') ? EFFECTIVE_VENUE_ID : (currentVenue && currentVenue.id);
+  if (!vid) return;
+  try {
+    const res = await fetch(`/api/venues/${vid}/blocks/${blockId}`, {
+      method: 'DELETE', credentials: 'include'
+    });
+    if (!res.ok) { alert('Failed to remove block'); return; }
+    await loadCalendarData();
+    renderCalendar();
+    renderCalDetail(dateStr);
+  } catch(e) { alert('Error removing block'); }
+}
+
+function renderCalendarDots() { /* superseded by renderCalendar() Phase 1 */ }
 
 /* ─── AI DRAFT REPLY ────────────────────────────────── */
 let activeDraftId = null;

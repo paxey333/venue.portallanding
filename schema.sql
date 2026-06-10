@@ -24,6 +24,9 @@ CREATE TABLE IF NOT EXISTS bookings (
 CREATE INDEX IF NOT EXISTS idx_bookings_venue_id ON bookings (venue_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings (status);
 
+-- first_login flag for password-change prompt on first login (applied via migration)
+-- ALTER TABLE users ADD COLUMN first_login INTEGER NOT NULL DEFAULT 1;
+
 -- Stripe Connect columns (applied via migration)
 -- ALTER TABLE venues ADD COLUMN stripe_account_id TEXT;
 -- ALTER TABLE venues ADD COLUMN stripe_connected INTEGER DEFAULT 0;
@@ -33,6 +36,22 @@ CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings (status);
 -- ALTER TABLE bookings ADD COLUMN stripe_session_id TEXT;
 -- ALTER TABLE bookings ADD COLUMN total_amount INTEGER DEFAULT 50000;
 -- ALTER TABLE bookings ADD COLUMN platform_fee INTEGER DEFAULT 5000;
+
+-- Calendar Phase 1: time slots on bookings (applied via migration)
+-- ALTER TABLE bookings ADD COLUMN event_time_start TEXT;
+-- ALTER TABLE bookings ADD COLUMN event_time_end TEXT;
+
+-- Calendar Phase 1: manual venue blocks (applied via migration)
+-- CREATE TABLE IF NOT EXISTS venue_blocks (
+--   id INTEGER PRIMARY KEY AUTOINCREMENT,
+--   venue_id INTEGER NOT NULL REFERENCES venues(id) ON DELETE CASCADE,
+--   block_date TEXT NOT NULL,
+--   time_start TEXT,
+--   time_end TEXT,
+--   reason TEXT NOT NULL DEFAULT 'Blocked',
+--   created_at TEXT NOT NULL DEFAULT (datetime('now'))
+-- );
+-- CREATE INDEX IF NOT EXISTS idx_venue_blocks_venue_date ON venue_blocks(venue_id, block_date);
 CREATE TABLE IF NOT EXISTS users (
   id          INTEGER PRIMARY KEY AUTOINCREMENT,
   email       TEXT    NOT NULL UNIQUE,
