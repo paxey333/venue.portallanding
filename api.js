@@ -747,7 +747,23 @@ export default {
             time_end: r.time_end || null,
             reason: r.reason
           }));
-          return jsonResponse({ events, blocks }, 200, request);
+
+          // Auth-aware response: owners/admins get full detail; public gets only taken dates.
+          // Pending bookings are NEVER exposed publicly (owner-only info).
+          const session = await getSession(request, env);
+          const isPrivileged = session && (
+            isAdminOrAbove(session) ||
+            (session.venue_id === Number(id))
+          );
+          if (isPrivileged) {
+            return jsonResponse({ events, blocks }, 200, request);
+          }
+          const takenDates = new Set();
+          events
+            .filter(e => e.status === 'confirmed' || e.status === 'accepted')
+            .forEach(e => takenDates.add(e.date));
+          blocks.forEach(b => takenDates.add(b.date));
+          return jsonResponse({ dates: Array.from(takenDates).sort() }, 200, request);
         } catch (err) {
           return jsonResponse({ error: err.message }, 500, request);
         }

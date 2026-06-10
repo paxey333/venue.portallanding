@@ -164,8 +164,11 @@ input,textarea{font-family:inherit}
 .book-day.empty:hover{background:transparent;border-color:transparent;transform:none}
 .book-day.past{background:transparent;border-color:transparent;color:var(--text3);opacity:.45;cursor:not-allowed;font-weight:500}
 .book-day.past:hover{background:transparent;border-color:transparent;transform:none}
-.book-day.booked{background:rgba(255,255,255,0.025);border-color:var(--border);color:var(--text3);cursor:not-allowed;text-decoration:line-through;text-decoration-thickness:1px;text-decoration-color:rgba(168,168,168,0.4);font-weight:500}
-.book-day.booked:hover{background:rgba(255,255,255,0.025);border-color:var(--border);transform:none}
+.book-day.booked{background:rgba(255,255,255,0.02);border-color:rgba(255,255,255,0.08);color:#5a3a3a;cursor:not-allowed;font-weight:500;position:relative;overflow:hidden}
+.book-day.booked::before{content:"";position:absolute;top:14%;left:14%;right:14%;bottom:14%;background:linear-gradient(135deg,transparent 46%,#6a3a3a 46%,#6a3a3a 54%,transparent 54%),linear-gradient(45deg,transparent 46%,#6a3a3a 46%,#6a3a3a 54%,transparent 54%);opacity:0.55;pointer-events:none}
+.book-day.booked:hover{background:rgba(255,255,255,0.02);border-color:rgba(255,255,255,0.08);transform:none}
+.cal-availability-hint{margin-top:12px;font-size:11px;color:var(--text2);text-align:center;letter-spacing:0.04em}
+.cal-availability-hint strong{color:var(--text);font-weight:600}
 .book-day.today{background:rgba(255,107,26,0.1);border:1.5px solid var(--accent);color:var(--accent);font-weight:700}
 .book-day.selected{background:var(--accent);border-color:var(--accent);color:#000;font-weight:800;box-shadow:0 2px 12px rgba(255,107,26,0.4)}
 .book-day.selected:hover{background:var(--accent);transform:scale(1.04)}
@@ -380,6 +383,7 @@ footer{padding:48px 0 36px 0;border-top:1px solid var(--border);margin-top:48px}
             <button class="book-cal-btn" id="cal-next" aria-label="Next month">›</button>
           </div>
           <div class="book-cal-grid" id="cal-grid"></div>
+          <div class="cal-availability-hint" id="cal-availability-hint"></div>
           <div class="book-selected-row" id="cal-selected-row" style="display:none">
             <span>Selected: <strong id="cal-selected-label"></strong></span>
             <button class="book-cal-btn" onclick="clearSelectedDate()" style="width:auto;padding:0 10px;font-size:11px">Clear</button>
@@ -747,6 +751,17 @@ function renderCalendar() {
   const html = head + cells.join('');
   $('cal-grid').innerHTML = html;
   $('m-cal-grid').innerHTML = html;
+
+  // Availability hint
+  const monthPrefix = `${y}-${String(m+1).padStart(2,'0')}-`;
+  const bookedThisMonth = [...state.bookedDates].filter(d => d.startsWith(monthPrefix)).length;
+  const pastCount = Array.from({length: daysInMonth}, (_, i) => {
+    const iso = `${monthPrefix}${String(i+1).padStart(2,'0')}`;
+    return iso < today ? 1 : 0;
+  }).reduce((a, b) => a + b, 0);
+  const availableCount = Math.max(0, daysInMonth - bookedThisMonth - pastCount);
+  const hint = document.getElementById('cal-availability-hint');
+  if (hint) hint.innerHTML = `<strong>${availableCount} night${availableCount !== 1 ? 's' : ''} available</strong> in ${MONTHS[m]}`;
 
   // Wire day clicks
   document.querySelectorAll('#cal-grid .book-day[data-iso], #m-cal-grid .book-day[data-iso]').forEach(el => {
