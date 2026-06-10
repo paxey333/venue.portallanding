@@ -234,8 +234,8 @@ section{display:flex;flex-direction:column;gap:14px}
 .cal-block-form input,.cal-block-form select{background:var(--surface);border:1px solid var(--border2);border-radius:6px;padding:7px 10px;font-size:12px;color:var(--text);outline:none;width:100%;box-sizing:border-box}
 .cal-block-form input:focus,.cal-block-form select:focus{border-color:var(--accent)}
 .cal-block-form-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.cal-block-btn{background:var(--cal-blocked);color:#fff;border:none;border-radius:6px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer}
-.cal-block-btn:hover{opacity:.85}
+.cal-block-btn{background:var(--surface);border:1px solid var(--border2);color:var(--text2);border-radius:6px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s}
+.cal-block-btn:hover{border-color:var(--accent);color:var(--accent)}
 .cal-add-block-btn{background:none;border:1px solid var(--border2);border-radius:6px;padding:6px 12px;font-size:11px;color:var(--text3);cursor:pointer;margin-top:4px;align-self:flex-start}
 .cal-add-block-btn:hover{border-color:var(--accent);color:var(--accent)}
 .cal-block-del{background:none;border:none;color:var(--cal-blocked);font-size:10px;cursor:pointer;padding:0;margin-top:4px;display:block}
@@ -2154,9 +2154,13 @@ function renderCalDetail(dateStr) {
   <div id="cal-block-form-${dateStr}" style="display:none">
     <div class="cal-block-form">
       <input type="text" id="cal-block-reason-${dateStr}" placeholder="Reason (e.g. Private event, Maintenance)" />
-      <div class="cal-block-form-row">
-        <input type="time" id="cal-block-ts-${dateStr}" placeholder="Start time (optional)" />
-        <input type="time" id="cal-block-te-${dateStr}" placeholder="End time (optional)" />
+      <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text3);cursor:pointer">
+        <input type="checkbox" id="cal-block-allday-${dateStr}" onchange="calToggleAllDay('${dateStr}')" checked />
+        All day
+      </label>
+      <div class="cal-block-form-row" id="cal-block-times-${dateStr}" style="display:none">
+        <input type="time" id="cal-block-ts-${dateStr}" value="18:00" />
+        <input type="time" id="cal-block-te-${dateStr}" value="23:00" />
       </div>
       <button class="cal-block-btn" onclick="calSubmitBlock('${dateStr}')">Block time</button>
     </div>
@@ -2189,37 +2193,54 @@ function calShowBlockForm(dateStr) {
   if (btn)  btn.style.display  = 'none';
 }
 
+function calToggleAllDay(dateStr) {
+  const allDay = document.getElementById(`cal-block-allday-${dateStr}`)?.checked;
+  const timesRow = document.getElementById(`cal-block-times-${dateStr}`);
+  if (timesRow) timesRow.style.display = allDay ? 'none' : '';
+}
+
 async function calSubmitBlock(dateStr) {
-  const reason   = (document.getElementById(`cal-block-reason-${dateStr}`)?.value || '').trim() || 'Blocked';
-  const timeStart = document.getElementById(`cal-block-ts-${dateStr}`)?.value || null;
-  const timeEnd   = document.getElementById(`cal-block-te-${dateStr}`)?.value || null;
+  const reason = (document.getElementById(`cal-block-reason-${dateStr}`)?.value || '').trim();
+  if (!reason) { alert('Please enter a reason for the block.'); return; }
+  const allDay = document.getElementById(`cal-block-allday-${dateStr}`)?.checked ?? true;
+  const timeStart = allDay ? null : (document.getElementById(`cal-block-ts-${dateStr}`)?.value || null);
+  const timeEnd   = allDay ? null : (document.getElementById(`cal-block-te-${dateStr}`)?.value || null);
   const vid = (typeof EFFECTIVE_VENUE_ID !== 'undefined') ? EFFECTIVE_VENUE_ID : (currentVenue && currentVenue.id);
   if (!vid) return;
   try {
-    const res = await fetch(`/api/venues/${vid}/blocks`, {
-      method: 'POST', credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
+    const res = await fetch(API_BASE + '/api/venues/' + vid + '/blocks', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type': 'application/json' },
       body: JSON.stringify({ block_date: dateStr, reason, time_start: timeStart, time_end: timeEnd })
     });
-    if (!res.ok) { alert('Failed to save block'); return; }
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => ({}));
+      alert('Failed to save block: ' + (errBody.error || res.status));
+      return;
+    }
     await loadCalendarData();
     renderCalendar();
     renderCalDetail(dateStr);
-  } catch(e) { alert('Error saving block'); }
+  } catch(e) { alert('Error saving block: ' + e.message); }
 }
 
 async function calDeleteBlock(blockId, dateStr) {
   const vid = (typeof EFFECTIVE_VENUE_ID !== 'undefined') ? EFFECTIVE_VENUE_ID : (currentVenue && currentVenue.id);
   if (!vid) return;
   try {
-    const res = await fetch(`/api/venues/${vid}/blocks/${blockId}`, {
-      method: 'DELETE', credentials: 'include'
+    const res = await fetch(API_BASE + '/api/venues/' + vid + '/blocks/' + blockId, {
+      method: 'DELETE',
+      headers: { 'Authorization': 'Bearer ' + TOKEN }
     });
-    if (!res.ok) { alert('Failed to remove block'); return; }
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => ({}));
+      alert('Failed to remove block: ' + (errBody.error || res.status));
+      return;
+    }
     await loadCalendarData();
     renderCalendar();
     renderCalDetail(dateStr);
-  } catch(e) { alert('Error removing block'); }
+  } catch(e) { alert('Error removing block: ' + e.message); }
 }
 
 function renderCalendarDots() { /* superseded by renderCalendar() Phase 1 */ }
