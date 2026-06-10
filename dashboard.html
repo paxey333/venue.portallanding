@@ -2020,7 +2020,7 @@ async function loadCalendarData() {
   const vid = (typeof EFFECTIVE_VENUE_ID !== 'undefined') ? EFFECTIVE_VENUE_ID : (currentVenue && currentVenue.id);
   if (!vid) return;
   try {
-    const res = await fetch(`/api/venues/${vid}/booked-dates`, { credentials: 'include' });
+    const res = await fetch(API_BASE + '/api/venues/' + vid + '/booked-dates', { headers: { 'Authorization': 'Bearer ' + TOKEN } });
     if (!res.ok) return;
     const data = await res.json();
     const map = {};
