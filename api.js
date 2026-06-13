@@ -823,6 +823,67 @@ export default {
         }
       }
 
+      // ── VENUE AVAILABILITY RULES: GET (public) ───────────────────
+      const venueRulesMatch = path.match(/^\/api\/venues\/(\d+)\/availability-rules$/);
+      if (venueRulesMatch && request.method === "GET") {
+        try {
+          const id = Number(venueRulesMatch[1]);
+          const rows = await env.DB.prepare(
+            "SELECT day_of_week, time_start, time_end, is_open FROM venue_availability_rules WHERE venue_id = ? ORDER BY day_of_week ASC"
+          ).bind(id).all();
+          if (rows.results && rows.results.length > 0) {
+            return jsonResponse({ rules: rows.results }, 200, request);
+          }
+          const defaults = [];
+          for (let d = 0; d < 7; d++) defaults.push({ day_of_week: d, time_start: "00:00", time_end: "23:59", is_open: 1 });
+          return jsonResponse({ rules: defaults }, 200, request);
+        } catch (err) {
+          return jsonResponse({ error: err.message }, 500, request);
+        }
+      }
+
+      // ── VENUE AVAILABILITY RULES: PUT (owner/admin) ──────────────
+      if (venueRulesMatch && request.method === "PUT") {
+        try {
+          const session = await getSession(request, env);
+          if (!isAnyRole(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
+          const id = Number(venueRulesMatch[1]);
+          if (session.role === "venue_owner" && session.venue_id !== id) {
+            return jsonResponse({ error: "Forbidden" }, 403, request);
+          }
+          const body = await parseJson(request);
+          const rules = body.rules;
+          if (!Array.isArray(rules) || rules.length !== 7) {
+            return jsonResponse({ error: "rules must be an array of exactly 7 entries" }, 400, request);
+          }
+          const seen = new Set();
+          const hhmmRe = /^\d{2}:\d{2}$/;
+          for (const r of rules) {
+            const dow = Number(r.day_of_week);
+            if (dow < 0 || dow > 6 || !Number.isInteger(dow)) return jsonResponse({ error: "Invalid day_of_week: " + r.day_of_week }, 400, request);
+            if (seen.has(dow)) return jsonResponse({ error: "Duplicate day_of_week: " + dow }, 400, request);
+            seen.add(dow);
+            if (Number(r.is_open)) {
+              if (!r.time_start || !r.time_end) return jsonResponse({ error: "time_start and time_end required when is_open=1 for day " + dow }, 400, request);
+              if (!hhmmRe.test(r.time_start) || !hhmmRe.test(r.time_end)) return jsonResponse({ error: "Times must be HH:MM for day " + dow }, 400, request);
+              if (r.time_start >= r.time_end) return jsonResponse({ error: "time_start must be before time_end for day " + dow }, 400, request);
+            }
+          }
+          await env.DB.prepare("DELETE FROM venue_availability_rules WHERE venue_id = ?").bind(id).run();
+          const stmt = env.DB.prepare(
+            "INSERT INTO venue_availability_rules (venue_id, day_of_week, time_start, time_end, is_open) VALUES (?, ?, ?, ?, ?)"
+          );
+          const batch = rules.map(r => stmt.bind(id, Number(r.day_of_week), r.is_open ? r.time_start : null, r.is_open ? r.time_end : null, r.is_open ? 1 : 0));
+          await env.DB.batch(batch);
+          const saved = await env.DB.prepare(
+            "SELECT day_of_week, time_start, time_end, is_open FROM venue_availability_rules WHERE venue_id = ? ORDER BY day_of_week ASC"
+          ).bind(id).all();
+          return jsonResponse({ rules: saved.results || [] }, 200, request);
+        } catch (err) {
+          return jsonResponse({ error: err.message }, 500, request);
+        }
+      }
+
       // ── VENUE PHOTOS: UPLOAD / DELETE (R2-backed) ─────────────────
       // Public URL prefix served by the R2 bucket via Cloudflare custom domain.
       // Requires the `venue-photos` R2 bucket to have `images.venueportal.us`

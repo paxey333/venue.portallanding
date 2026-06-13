@@ -68,6 +68,19 @@ CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings (status);
 -- );
 -- CREATE INDEX IF NOT EXISTS idx_calendar_tokens_token ON calendar_tokens(token);
 -- CREATE INDEX IF NOT EXISTS idx_calendar_tokens_venue ON calendar_tokens(venue_id);
+
+-- Phase 2B.1: recurring availability rules (applied via migration)
+-- CREATE TABLE IF NOT EXISTS venue_availability_rules (
+--   id INTEGER PRIMARY KEY AUTOINCREMENT,
+--   venue_id INTEGER NOT NULL REFERENCES venues(id) ON DELETE CASCADE,
+--   day_of_week INTEGER NOT NULL CHECK(day_of_week >= 0 AND day_of_week <= 6),
+--   time_start TEXT,
+--   time_end TEXT,
+--   is_open INTEGER NOT NULL DEFAULT 1,
+--   created_at TEXT NOT NULL DEFAULT (datetime('now')),
+--   UNIQUE(venue_id, day_of_week)
+-- );
+-- CREATE INDEX IF NOT EXISTS idx_venue_avail_rules_venue ON venue_availability_rules(venue_id);
 CREATE TABLE IF NOT EXISTS users (
   id          INTEGER PRIMARY KEY AUTOINCREMENT,
   email       TEXT    NOT NULL UNIQUE,

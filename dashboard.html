@@ -240,6 +240,38 @@ section{display:flex;flex-direction:column;gap:14px}
 .cal-add-block-btn:hover{border-color:var(--accent);color:var(--accent)}
 .cal-block-del{background:none;border:none;color:var(--cal-blocked);font-size:10px;cursor:pointer;padding:0;margin-top:4px;display:block}
 .cal-block-del:hover{text-decoration:underline}
+/* ── VIEW TOGGLE ─────────────────────────────── */
+.cal-view-toggle{display:inline-flex;background:var(--surface2);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-left:8px}
+.cal-view-btn{background:none;border:none;color:var(--text3);font-size:10px;font-weight:600;padding:4px 10px;cursor:pointer;text-transform:uppercase;letter-spacing:.06em;transition:all .12s}
+.cal-view-btn.active{background:var(--accent);color:#000}
+/* ── WEEK VIEW ───────────────────────────────── */
+.week-grid{display:grid;grid-template-columns:42px repeat(7,1fr);max-height:420px;overflow-y:auto;border:1px solid var(--border);border-radius:8px}
+.week-corner{background:var(--surface2);border-bottom:1px solid var(--border);border-right:1px solid var(--border);position:sticky;top:0;z-index:2}
+.week-col-hd{background:var(--surface2);border-bottom:1px solid var(--border);border-right:1px solid var(--border);text-align:center;padding:6px 2px;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;position:sticky;top:0;z-index:2;cursor:pointer}
+.week-col-hd:hover{color:var(--accent)}
+.week-col-hd.today{color:var(--accent);border-bottom-color:var(--accent)}
+.week-col-hd .wk-day-num{display:block;font-size:14px;font-weight:700;color:var(--text);line-height:1.2}
+.week-col-hd.today .wk-day-num{color:var(--accent)}
+.week-hour-label{background:var(--surface2);border-bottom:1px solid var(--border);border-right:1px solid var(--border);font-size:9px;color:var(--text3);padding:4px 4px 4px 6px;text-align:right;min-height:36px;display:flex;align-items:flex-start}
+.week-cell{border-bottom:1px solid var(--border);border-right:1px solid var(--border);min-height:36px;position:relative;cursor:pointer;padding:1px 2px}
+.week-cell:hover{background:rgba(255,255,255,.03)}
+.week-cell.closed{background:repeating-linear-gradient(135deg,transparent,transparent 4px,rgba(255,255,255,.025) 4px,rgba(255,255,255,.025) 8px)}
+.week-cell.out-of-hours{background:repeating-linear-gradient(135deg,transparent,transparent 4px,rgba(255,255,255,.025) 4px,rgba(255,255,255,.025) 8px)}
+.week-ev{position:absolute;left:2px;right:2px;border-radius:3px;padding:1px 4px;font-size:8px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;z-index:1;min-height:14px;line-height:14px}
+.week-ev.ev-confirmed{background:rgba(34,197,94,.25);border:1px solid rgba(34,197,94,.4);color:var(--cal-confirmed)}
+.week-ev.ev-pending{background:rgba(245,158,11,.2);border:1px solid rgba(245,158,11,.35);color:var(--cal-pending)}
+.week-ev.ev-blocked{background:rgba(239,68,68,.2);border:1px solid rgba(239,68,68,.3);color:var(--cal-blocked)}
+.week-ev.no-time{position:relative;margin-top:1px}
+/* ── OPERATING HOURS GRID ────────────────────── */
+.hours-grid{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.hours-row{display:grid;grid-template-columns:48px 60px 1fr 1fr;gap:8px;align-items:center}
+.hours-day{font-size:11px;font-weight:600;color:var(--text2)}
+.hours-toggle{appearance:none;width:36px;height:20px;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;position:relative;cursor:pointer;transition:all .15s;flex-shrink:0}
+.hours-toggle:checked{background:var(--cal-confirmed);border-color:var(--cal-confirmed)}
+.hours-toggle::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;transition:transform .15s}
+.hours-toggle:checked::after{transform:translateX(16px)}
+.hours-time{background:var(--bg);border:1px solid var(--border2);border-radius:6px;padding:6px 8px;font-size:12px;color:var(--text);outline:none;width:100%}
+.hours-time:disabled{opacity:.3;cursor:not-allowed}
 .stripe-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;display:flex;flex-direction:column;gap:14px}
 .stripe-card.connected{background:linear-gradient(135deg,#021a0a 0%,#0a0a0a 100%);border-color:rgba(61,220,132,0.2)}
 .stripe-eyebrow{font-size:10px;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:.1em}
@@ -662,6 +694,10 @@ section{display:flex;flex-direction:column;gap:14px}
             <span class="cal-month" id="cal-month-label">—</span>
             <button class="cal-nav-btn" onclick="shiftCalMonth(1)" aria-label="Next">&#8250;</button>
           </div>
+          <div class="cal-view-toggle" id="cal-view-toggle">
+            <button class="cal-view-btn active" data-view="month" onclick="setCalView('month')">Month</button>
+            <button class="cal-view-btn" data-view="week" onclick="setCalView('week')">Week</button>
+          </div>
           <div class="cal-legend">
             <span><span class="lg-dot lg-conf"></span>Confirmed</span>
             <span><span class="lg-dot lg-pend"></span>Pending</span>
@@ -825,6 +861,8 @@ section{display:flex;flex-direction:column;gap:14px}
         <input id="edit-price" type="number" onwheel="this.blur()"/>
         <label style="display:block;font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Hours</label>
         <input id="edit-hours" type="text"/>
+        <label style="display:block;font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;margin-top:10px">Operating hours (used by booking calendar)</label>
+        <div class="hours-grid" id="hours-grid"></div>
         <label style="display:block;font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Description</label>
         <textarea id="edit-description"></textarea>
         <label style="display:block;font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Video URL (optional)</label>
@@ -1535,6 +1573,7 @@ function startProfileEdit() {
   initPhotoManager();
   const amenities = Array.isArray(currentVenue.amenities) ? currentVenue.amenities : [];
   renderAmenityToggles(amenities);
+  renderHoursGrid(venueAvailRules);
   document.getElementById('profile-display').classList.add('hidden');
   document.getElementById('profile-edit-form').classList.add('active');
   document.getElementById('edit-btn').style.display = 'none';
@@ -1589,6 +1628,7 @@ async function saveProfileEdit() {
     if ('capacity' in body) { setText('pf-capacity', body.capacity ? body.capacity.toLocaleString() + ' capacity' : '—'); }
     if ('price_per_day' in body) { setText('pf-price', body.price_per_day ? '$' + body.price_per_day + ' / night' : '—'); }
     if ('hours' in body) { setText('pf-hours', body.hours || '—'); setText('pf-hours-display', body.hours || '—'); }
+    await saveAvailabilityRules();
     cancelProfileEdit();
     loadVenueProfile();
   } catch(e) {
@@ -2020,8 +2060,11 @@ function showStripeBanner(msg, color, borderColor) {
 
 // Calendar state — declared here (before renderCalendar() is called) to avoid temporal dead zone
 let calMonthOffset = 0;
+let calWeekOffset = 0;
 let calSelectedDate = null;
 let calEventMap = {};
+let calView = localStorage.getItem('vp_cal_view') || (window.innerWidth <= 375 ? 'week' : 'month');
+let venueAvailRules = null;
 
 // Clear any stale data structures from previous session.
 // If the venue_id differs from last load (e.g., admin previewing a different venue,
@@ -2034,8 +2077,9 @@ window._lastVenueId = EFFECTIVE_VENUE_ID;
 
 loadVenueProfile();
 renderStats();
+initCalViewToggle();
 renderCalendar();
-loadCalendarData().then(() => renderCalendar());
+loadCalendarData().then(() => { loadAvailabilityRules().then(() => renderCalendar()); });
 
 // Handle Stripe return params
 (function handleStripeReturn() {
@@ -2056,8 +2100,30 @@ loadCalendarData().then(() => renderCalendar());
 
 /* ─── BOOKING CALENDAR ──────────────────────────────── */
 function shiftCalMonth(delta) {
-  calMonthOffset += delta;
+  if (calView === 'week') { calWeekOffset += delta; }
+  else { calMonthOffset += delta; }
   renderCalendar();
+}
+
+function setCalView(view) {
+  calView = view;
+  localStorage.setItem('vp_cal_view', view);
+  document.querySelectorAll('.cal-view-btn').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+  renderCalendar();
+}
+
+function initCalViewToggle() {
+  document.querySelectorAll('.cal-view-btn').forEach(b => b.classList.toggle('active', b.dataset.view === calView));
+}
+
+async function loadAvailabilityRules() {
+  const vid = EFFECTIVE_VENUE_ID;
+  if (!vid) return;
+  try {
+    const res = await fetch(API_BASE + '/api/venues/' + vid + '/availability-rules');
+    const data = await res.json();
+    venueAvailRules = data.rules || null;
+  } catch(e) { venueAvailRules = null; }
 }
 
 /* ─── CALENDAR PHASE 1 ──────────────────────────────────── */
@@ -2082,8 +2148,14 @@ async function loadCalendarData() {
 }
 
 function renderCalendar() {
+  if (calView === 'week') { renderWeekView(); return; }
+  renderMonthView();
+}
+
+function renderMonthView() {
   const grid = document.getElementById('bk-cal-grid');
   if (!grid) return;
+  grid.className = 'bk-cal-grid';
   const today = new Date(); today.setHours(0,0,0,0);
   const todayStr = toLocalDateStr(today);
   const target   = new Date(today.getFullYear(), today.getMonth() + calMonthOffset, 1);
@@ -2091,7 +2163,7 @@ function renderCalendar() {
   const label    = document.getElementById('cal-month-label');
   if (label) label.textContent = target.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   const start = new Date(target);
-  start.setDate(start.getDate() - start.getDay()); // Sun-start
+  start.setDate(start.getDate() - start.getDay());
   const dowLabels = ['S','M','T','W','T','F','S'];
   let html = dowLabels.map(n => `<div class="bk-cal-dow"><span>${n}</span></div>`).join('');
   for (let i = 0; i < 42; i++) {
@@ -2112,6 +2184,84 @@ function renderCalendar() {
     html += `<div class="${cls}" data-date="${dStr}" ${clickable}><span class="bk-day-num">${d.getDate()}</span>${bars}</div>`;
   }
   grid.innerHTML = html;
+}
+
+function renderWeekView() {
+  const grid = document.getElementById('bk-cal-grid');
+  if (!grid) return;
+  grid.className = 'week-grid';
+  const today = new Date(); today.setHours(0,0,0,0);
+  const todayStr = toLocalDateStr(today);
+  const weekStart = new Date(today);
+  weekStart.setDate(weekStart.getDate() - weekStart.getDay() + calWeekOffset * 7);
+  const label = document.getElementById('cal-month-label');
+  const weekEnd = new Date(weekStart); weekEnd.setDate(weekEnd.getDate() + 6);
+  if (label) {
+    const fmt = d => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    label.textContent = fmt(weekStart) + ' - ' + fmt(weekEnd) + ', ' + weekEnd.getFullYear();
+  }
+  const hours = [];
+  for (let h = 9; h < 24; h++) hours.push(h);
+  hours.push(0, 1, 2);
+  const dowNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  let html = '<div class="week-corner"></div>';
+  const days = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(weekStart); d.setDate(weekStart.getDate() + i);
+    const dStr = toLocalDateStr(d);
+    days.push({ date: d, str: dStr });
+    const isTd = dStr === todayStr;
+    html += `<div class="week-col-hd${isTd ? ' today' : ''}" onclick="calDayClick('${dStr}')"><span class="wk-day-num">${d.getDate()}</span>${dowNames[d.getDay()]}</div>`;
+  }
+  for (const h of hours) {
+    const hLabel = h === 0 ? '12a' : h < 12 ? h + 'a' : h === 12 ? '12p' : (h - 12) + 'p';
+    html += `<div class="week-hour-label">${hLabel}</div>`;
+    for (let i = 0; i < 7; i++) {
+      const dStr = days[i].str;
+      const dow = days[i].date.getDay();
+      const isClosed = isHourClosed(dow, h);
+      const hh = String(h).padStart(2, '0');
+      html += `<div class="week-cell${isClosed ? ' closed' : ''}" data-date="${dStr}" data-hour="${hh}" onclick="calDayClick('${dStr}')">`;
+      const evts = (calEventMap[dStr] || []).filter(ev => {
+        const tStart = ev.time_start || ev.event_time_start;
+        if (!tStart) return h === 9;
+        const evH = parseInt(tStart.split(':')[0], 10);
+        return evH === h;
+      });
+      evts.forEach(ev => {
+        const cls = ev.type === 'block' ? 'ev-blocked' : (ev.status === 'confirmed' ? 'ev-confirmed' : 'ev-pending');
+        const tStart = ev.time_start || ev.event_time_start;
+        const tEnd = ev.time_end || ev.event_time_end;
+        const lbl = ev.type === 'block' ? (ev.reason || 'Blocked') : (ev.client_name || 'Booking');
+        const noTime = !tStart;
+        const span = getEventSpan(tStart, tEnd, hours);
+        html += `<div class="week-ev ${cls}${noTime ? ' no-time' : ''}" style="height:${span * 36 - 2}px">${escHtml(lbl)}${noTime ? ' <span style="opacity:.5;font-size:7px">(no time)</span>' : ''}</div>`;
+      });
+      html += '</div>';
+    }
+  }
+  grid.innerHTML = html;
+}
+
+function isHourClosed(dow, hour) {
+  if (!venueAvailRules) return false;
+  const rule = venueAvailRules.find(r => r.day_of_week === dow);
+  if (!rule) return false;
+  if (!rule.is_open) return true;
+  if (!rule.time_start || !rule.time_end) return false;
+  const startH = parseInt(rule.time_start.split(':')[0], 10);
+  const endH = parseInt(rule.time_end.split(':')[0], 10);
+  const endM = parseInt(rule.time_end.split(':')[1], 10);
+  const effEnd = endM > 0 ? endH + 1 : endH;
+  return hour < startH || hour >= effEnd;
+}
+
+function getEventSpan(tStart, tEnd, hours) {
+  if (!tStart || !tEnd) return 1;
+  const sh = parseInt(tStart.split(':')[0], 10);
+  const eh = parseInt(tEnd.split(':')[0], 10);
+  const diff = eh > sh ? eh - sh : 1;
+  return Math.max(1, Math.min(diff, 6));
 }
 
 function buildEventBars(events) {
@@ -2289,6 +2439,66 @@ async function calDeleteBlock(blockId, dateStr) {
 }
 
 function renderCalendarDots() { /* superseded by renderCalendar() Phase 1 */ }
+
+/* ─── OPERATING HOURS (Edit Profile) ─────────────────── */
+const DAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+function renderHoursGrid(rules) {
+  const grid = document.getElementById('hours-grid');
+  if (!grid) return;
+  let html = '';
+  for (let d = 0; d < 7; d++) {
+    const r = (rules && rules.find(x => x.day_of_week === d)) || { day_of_week: d, is_open: 1, time_start: '00:00', time_end: '23:59' };
+    const open = Number(r.is_open);
+    html += `<div class="hours-row">
+      <span class="hours-day">${DAY_NAMES[d].slice(0,3)}</span>
+      <input type="checkbox" class="hours-toggle" id="hr-open-${d}" ${open ? 'checked' : ''} onchange="toggleHoursRow(${d})"/>
+      <input type="time" class="hours-time" id="hr-start-${d}" value="${r.time_start || '00:00'}" ${open ? '' : 'disabled'}/>
+      <input type="time" class="hours-time" id="hr-end-${d}" value="${r.time_end || '23:59'}" ${open ? '' : 'disabled'}/>
+    </div>`;
+  }
+  grid.innerHTML = html;
+}
+
+function toggleHoursRow(dow) {
+  const open = document.getElementById('hr-open-' + dow).checked;
+  document.getElementById('hr-start-' + dow).disabled = !open;
+  document.getElementById('hr-end-' + dow).disabled = !open;
+}
+
+function collectHoursRules() {
+  const rules = [];
+  for (let d = 0; d < 7; d++) {
+    const isOpen = document.getElementById('hr-open-' + d).checked ? 1 : 0;
+    rules.push({
+      day_of_week: d,
+      is_open: isOpen,
+      time_start: isOpen ? document.getElementById('hr-start-' + d).value : null,
+      time_end: isOpen ? document.getElementById('hr-end-' + d).value : null
+    });
+  }
+  return rules;
+}
+
+async function saveAvailabilityRules() {
+  const vid = EFFECTIVE_VENUE_ID;
+  if (!vid) return;
+  const rules = collectHoursRules();
+  try {
+    const res = await fetch(API_BASE + '/api/venues/' + vid + '/availability-rules', {
+      method: 'PUT',
+      headers: { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rules })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to save hours');
+    venueAvailRules = data.rules || rules;
+    renderCalendar();
+  } catch(e) {
+    const errEl = document.getElementById('edit-save-err');
+    if (errEl) { errEl.style.display = ''; errEl.textContent = 'Hours: ' + e.message; }
+  }
+}
 
 /* ─── iCAL FEED ──────────────────────────────────────── */
 let icalTokenData = null;
