@@ -27,6 +27,11 @@ CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings (status);
 -- first_login flag for password-change prompt on first login (applied via migration)
 -- ALTER TABLE users ADD COLUMN first_login INTEGER NOT NULL DEFAULT 1;
 
+-- Address columns (applied via migration)
+-- ALTER TABLE venues ADD COLUMN address TEXT;
+-- ALTER TABLE venues ADD COLUMN city TEXT;
+-- ALTER TABLE venues ADD COLUMN state TEXT;
+
 -- Stripe Connect columns (applied via migration)
 -- ALTER TABLE venues ADD COLUMN stripe_account_id TEXT;
 -- ALTER TABLE venues ADD COLUMN stripe_connected INTEGER DEFAULT 0;
@@ -52,6 +57,17 @@ CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings (status);
 --   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 -- );
 -- CREATE INDEX IF NOT EXISTS idx_venue_blocks_venue_date ON venue_blocks(venue_id, block_date);
+
+-- Phase 2A: iCal feed tokens (applied via migration)
+-- CREATE TABLE IF NOT EXISTS calendar_tokens (
+--   id INTEGER PRIMARY KEY AUTOINCREMENT,
+--   venue_id INTEGER NOT NULL REFERENCES venues(id) ON DELETE CASCADE,
+--   token TEXT NOT NULL UNIQUE,
+--   label TEXT NOT NULL DEFAULT 'Default',
+--   created_at TEXT NOT NULL DEFAULT (datetime('now'))
+-- );
+-- CREATE INDEX IF NOT EXISTS idx_calendar_tokens_token ON calendar_tokens(token);
+-- CREATE INDEX IF NOT EXISTS idx_calendar_tokens_venue ON calendar_tokens(venue_id);
 CREATE TABLE IF NOT EXISTS users (
   id          INTEGER PRIMARY KEY AUTOINCREMENT,
   email       TEXT    NOT NULL UNIQUE,

@@ -670,6 +670,20 @@ section{display:flex;flex-direction:column;gap:14px}
         </div>
         <div class="bk-cal-grid" id="bk-cal-grid"></div>
         <div class="cal-detail" id="cal-detail" style="display:none"></div>
+        <div class="ical-subscribe" id="ical-subscribe" style="margin-top:16px;padding:14px 16px;background:#1a1a1a;border-radius:10px;border:1px solid #262626">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <span style="font-size:13px;font-weight:600;color:#ccc">Sync to Google / Apple / Outlook</span>
+            <span id="ical-status" style="font-size:11px;color:#666"></span>
+          </div>
+          <div id="ical-feed-url-row" style="display:none;gap:8px;align-items:center">
+            <input id="ical-feed-url" readonly style="flex:1;background:#111;border:1px solid #333;border-radius:6px;padding:8px 10px;font-size:12px;color:#aaa;font-family:monospace;min-width:0" />
+            <button onclick="copyIcalUrl()" style="background:#333;color:#fff;border:none;border-radius:6px;padding:8px 14px;font-size:12px;cursor:pointer;white-space:nowrap">Copy URL</button>
+            <button onclick="revokeIcalToken()" style="background:transparent;color:#ef4444;border:1px solid #ef4444;border-radius:6px;padding:8px 10px;font-size:11px;cursor:pointer;white-space:nowrap">Revoke</button>
+          </div>
+          <div id="ical-generate-row">
+            <button onclick="generateIcalToken()" style="background:#262626;color:#ccc;border:1px solid #333;border-radius:6px;padding:8px 16px;font-size:12px;cursor:pointer">Generate subscribe link</button>
+          </div>
+        </div>
       </div>
 
       <div id="stripe-block">
@@ -2275,6 +2289,85 @@ async function calDeleteBlock(blockId, dateStr) {
 }
 
 function renderCalendarDots() { /* superseded by renderCalendar() Phase 1 */ }
+
+/* ─── iCAL FEED ──────────────────────────────────────── */
+let icalTokenData = null;
+
+async function loadIcalToken() {
+  const vid = EFFECTIVE_VENUE_ID;
+  if (!vid) return;
+  try {
+    const res = await fetch(API_BASE + '/api/calendar-tokens?venue_id=' + vid, {
+      headers: { 'Authorization': 'Bearer ' + TOKEN }
+    });
+    const data = await res.json();
+    const tokens = data.tokens || [];
+    if (tokens.length > 0) {
+      icalTokenData = tokens[0];
+      showIcalUrl(icalTokenData.token);
+    } else {
+      icalTokenData = null;
+      document.getElementById('ical-feed-url-row').style.display = 'none';
+      document.getElementById('ical-generate-row').style.display = '';
+      document.getElementById('ical-status').textContent = '';
+    }
+  } catch(e) { console.error('iCal load error', e); }
+}
+
+function showIcalUrl(token) {
+  const url = API_BASE + '/api/calendar/feed/' + token;
+  document.getElementById('ical-feed-url').value = url;
+  document.getElementById('ical-feed-url-row').style.display = 'flex';
+  document.getElementById('ical-generate-row').style.display = 'none';
+  document.getElementById('ical-status').textContent = '';
+}
+
+async function generateIcalToken() {
+  const vid = EFFECTIVE_VENUE_ID;
+  if (!vid) return;
+  try {
+    const res = await fetch(API_BASE + '/api/calendar-tokens', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ venue_id: vid, label: 'Default' })
+    });
+    if (!res.ok) { const e = await res.json(); alert(e.error || 'Failed'); return; }
+    const data = await res.json();
+    icalTokenData = { id: null, token: data.token, label: data.label };
+    showIcalUrl(data.token);
+    await loadIcalToken();
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+async function copyIcalUrl() {
+  const input = document.getElementById('ical-feed-url');
+  try {
+    await navigator.clipboard.writeText(input.value);
+    document.getElementById('ical-status').textContent = 'Copied!';
+    setTimeout(() => { document.getElementById('ical-status').textContent = ''; }, 2000);
+  } catch(e) {
+    input.select();
+    document.execCommand('copy');
+    document.getElementById('ical-status').textContent = 'Copied!';
+  }
+}
+
+async function revokeIcalToken() {
+  if (!icalTokenData || !icalTokenData.id) return;
+  if (!confirm('Revoke this calendar link? Anyone using it will lose access.')) return;
+  try {
+    await fetch(API_BASE + '/api/calendar-tokens/' + icalTokenData.id, {
+      method: 'DELETE',
+      headers: { 'Authorization': 'Bearer ' + TOKEN }
+    });
+    icalTokenData = null;
+    document.getElementById('ical-feed-url-row').style.display = 'none';
+    document.getElementById('ical-generate-row').style.display = '';
+    document.getElementById('ical-status').textContent = 'Revoked';
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+loadIcalToken();
 
 /* ─── AI DRAFT REPLY ────────────────────────────────── */
 let activeDraftId = null;

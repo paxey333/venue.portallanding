@@ -1739,6 +1739,182 @@ export default {
         }
       }
 
+      // ── iCAL FEED: PUBLIC (token-authenticated) ──────────────────
+      const calFeedMatch = path.match(/^\/api\/calendar\/feed\/([A-Za-z0-9_-]{32,})$/);
+      if (calFeedMatch && request.method === "GET") {
+        try {
+          const feedToken = calFeedMatch[1];
+          const row = await env.DB.prepare(
+            "SELECT venue_id FROM calendar_tokens WHERE token = ?"
+          ).bind(feedToken).first();
+          if (!row) return textResponse("Not found", 404, request);
+
+          const venueRow = await env.DB.prepare(
+            "SELECT name FROM venues WHERE id = ?"
+          ).bind(row.venue_id).first();
+          const venueName = venueRow ? venueRow.name : "Venue";
+
+          const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 90);
+          const cutoffStr = cutoff.toISOString().slice(0, 10);
+
+          const bookings = await env.DB.prepare(
+            `SELECT id, event_date, event_time_start, event_time_end, status,
+                    client_name, guests
+             FROM bookings
+             WHERE venue_id = ? AND status IN ('confirmed','accepted','pending')
+               AND event_date >= ?
+             ORDER BY event_date ASC`
+          ).bind(row.venue_id, cutoffStr).all();
+
+          const blocks = await env.DB.prepare(
+            `SELECT id, block_date, time_start, time_end, reason
+             FROM venue_blocks WHERE venue_id = ? AND block_date >= ?
+             ORDER BY block_date ASC`
+          ).bind(row.venue_id, cutoffStr).all();
+
+          const lines = [
+            "BEGIN:VCALENDAR",
+            "VERSION:2.0",
+            "PRODID:-//VenuePortal//EN",
+            "CALSCALE:GREGORIAN",
+            "METHOD:PUBLISH",
+            "X-WR-CALNAME:" + venueName + " Bookings",
+          ];
+
+          for (const b of (bookings.results || [])) {
+            const uid = "booking-" + b.id + "@venueportal.us";
+            const dtStart = b.event_time_start
+              ? b.event_date.replace(/-/g, "") + "T" + b.event_time_start.replace(/:/g, "") + "00"
+              : b.event_date.replace(/-/g, "");
+            const dtEnd = b.event_time_end
+              ? b.event_date.replace(/-/g, "") + "T" + b.event_time_end.replace(/:/g, "") + "00"
+              : b.event_date.replace(/-/g, "");
+            const isAllDay = !b.event_time_start;
+            const statusMap = { confirmed: "CONFIRMED", accepted: "CONFIRMED", pending: "TENTATIVE" };
+
+            lines.push("BEGIN:VEVENT");
+            lines.push("UID:" + uid);
+            if (isAllDay) {
+              lines.push("DTSTART;VALUE=DATE:" + dtStart);
+              const nextDay = new Date(b.event_date + "T00:00:00Z");
+              nextDay.setUTCDate(nextDay.getUTCDate() + 1);
+              lines.push("DTEND;VALUE=DATE:" + nextDay.toISOString().slice(0, 10).replace(/-/g, ""));
+            } else {
+              lines.push("DTSTART:" + dtStart);
+              lines.push("DTEND:" + dtEnd);
+            }
+            lines.push("SUMMARY:" + (b.status === "pending" ? "[Pending] " : "") + (b.client_name || "Booking"));
+            if (b.guests) lines.push("DESCRIPTION:Guests: " + b.guests);
+            lines.push("STATUS:" + (statusMap[b.status] || "TENTATIVE"));
+            lines.push("END:VEVENT");
+          }
+
+          for (const bl of (blocks.results || [])) {
+            const uid = "block-" + bl.id + "@venueportal.us";
+            const dtStart = bl.time_start
+              ? bl.block_date.replace(/-/g, "") + "T" + bl.time_start.replace(/:/g, "") + "00"
+              : bl.block_date.replace(/-/g, "");
+            const isAllDay = !bl.time_start;
+
+            lines.push("BEGIN:VEVENT");
+            lines.push("UID:" + uid);
+            if (isAllDay) {
+              lines.push("DTSTART;VALUE=DATE:" + dtStart);
+              const nextDay = new Date(bl.block_date + "T00:00:00Z");
+              nextDay.setUTCDate(nextDay.getUTCDate() + 1);
+              lines.push("DTEND;VALUE=DATE:" + nextDay.toISOString().slice(0, 10).replace(/-/g, ""));
+            } else {
+              lines.push("DTSTART:" + dtStart);
+              const dtEnd = bl.time_end
+                ? bl.block_date.replace(/-/g, "") + "T" + bl.time_end.replace(/:/g, "") + "00"
+                : dtStart;
+              lines.push("DTEND:" + dtEnd);
+            }
+            lines.push("SUMMARY:[Blocked] " + (bl.reason || "Blocked"));
+            lines.push("STATUS:CONFIRMED");
+            lines.push("END:VEVENT");
+          }
+
+          lines.push("END:VCALENDAR");
+          const ics = lines.join("\r\n") + "\r\n";
+
+          return new Response(ics, {
+            status: 200,
+            headers: {
+              "Content-Type": "text/calendar; charset=utf-8",
+              "Content-Disposition": 'attachment; filename="venue-calendar.ics"',
+              "Cache-Control": "no-cache, no-store",
+              ...corsHeaders(request)
+            }
+          });
+        } catch (err) {
+          return textResponse("Internal server error", 500, request);
+        }
+      }
+
+      // ── CALENDAR TOKENS: CREATE ──────────────────────────────────
+      if (path === "/api/calendar-tokens" && request.method === "POST") {
+        try {
+          const session = await getSession(request, env);
+          if (!isAnyRole(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
+          const body = await parseJson(request);
+          const venueId = session.role === "venue_owner" ? session.venue_id : (body.venue_id || null);
+          if (!venueId) return jsonResponse({ error: "venue_id required" }, 400, request);
+          if (session.role === "venue_owner" && session.venue_id !== venueId) {
+            return jsonResponse({ error: "Forbidden" }, 403, request);
+          }
+          const arr = new Uint8Array(24);
+          crypto.getRandomValues(arr);
+          const token = toBase64(arr).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+          const label = String(body.label || "Default").trim().slice(0, 50);
+          await env.DB.prepare(
+            "INSERT INTO calendar_tokens (venue_id, token, label) VALUES (?, ?, ?)"
+          ).bind(venueId, token, label).run();
+          return jsonResponse({ token, label, venue_id: venueId }, 201, request);
+        } catch (err) {
+          return jsonResponse({ error: err.message }, 500, request);
+        }
+      }
+
+      // ── CALENDAR TOKENS: LIST ────────────────────────────────────
+      if (path === "/api/calendar-tokens" && request.method === "GET") {
+        try {
+          const session = await getSession(request, env);
+          if (!isAnyRole(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
+          const venueId = session.role === "venue_owner"
+            ? session.venue_id
+            : (url.searchParams.get("venue_id") || null);
+          if (!venueId) return jsonResponse({ error: "venue_id required" }, 400, request);
+          const rows = await env.DB.prepare(
+            "SELECT id, token, label, created_at FROM calendar_tokens WHERE venue_id = ? ORDER BY created_at DESC"
+          ).bind(Number(venueId)).all();
+          return jsonResponse({ tokens: rows.results || [] }, 200, request);
+        } catch (err) {
+          return jsonResponse({ error: err.message }, 500, request);
+        }
+      }
+
+      // ── CALENDAR TOKENS: DELETE (revoke) ─────────────────────────
+      const calTokenDeleteMatch = path.match(/^\/api\/calendar-tokens\/(\d+)$/);
+      if (calTokenDeleteMatch && request.method === "DELETE") {
+        try {
+          const session = await getSession(request, env);
+          if (!isAnyRole(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
+          const tokenId = Number(calTokenDeleteMatch[1]);
+          const existing = await env.DB.prepare(
+            "SELECT venue_id FROM calendar_tokens WHERE id = ?"
+          ).bind(tokenId).first();
+          if (!existing) return jsonResponse({ error: "Not found" }, 404, request);
+          if (session.role === "venue_owner" && session.venue_id !== existing.venue_id) {
+            return jsonResponse({ error: "Forbidden" }, 403, request);
+          }
+          await env.DB.prepare("DELETE FROM calendar_tokens WHERE id = ?").bind(tokenId).run();
+          return jsonResponse({ ok: true }, 200, request);
+        } catch (err) {
+          return jsonResponse({ error: err.message }, 500, request);
+        }
+      }
+
       return textResponse("Not found", 404, request);
 
     } catch (err) {
