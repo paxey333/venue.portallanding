@@ -22,5 +22,8 @@
       "binding": "VENUE_PHOTOS",
       "bucket_name": "venue-photos"
     }
-  ]
+  ],
+  "triggers": {
+    "crons": ["0 * * * *"]
+  }
 }

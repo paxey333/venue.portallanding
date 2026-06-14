@@ -1243,6 +1243,24 @@ function timerBadge(created_at) {
   return `<span style="font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.06em;padding:3px 8px;border-radius:4px;background:${bg};color:${color};border:1px solid ${bdr};${bold}margin-left:7px;flex-shrink:0;white-space:nowrap">${text}</span>`;
 }
 
+function expiryPill(expires_at) {
+  if (!expires_at) return '';
+  const exp = new Date(expires_at + 'Z');
+  if (isNaN(exp)) return '';
+  const msLeft = exp.getTime() - Date.now();
+  let text, color, bg, bdr;
+  if (msLeft <= 0) {
+    text = 'expiring soon'; color = '#ef4444'; bg = 'rgba(239,68,68,0.12)'; bdr = 'rgba(239,68,68,0.25)';
+  } else if (msLeft < 86400000) {
+    const hrs = Math.max(1, Math.ceil(msLeft / 3600000));
+    text = 'expires in ' + hrs + 'h'; color = '#f59e0b'; bg = 'rgba(245,158,11,0.12)'; bdr = 'rgba(245,158,11,0.25)';
+  } else {
+    const days = Math.ceil(msLeft / 86400000);
+    text = 'expires in ' + days + 'd'; color = 'var(--text3)'; bg = 'rgba(255,255,255,0.04)'; bdr = 'rgba(255,255,255,0.08)';
+  }
+  return `<span style="font-family:var(--mono);font-size:8px;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:4px;background:${bg};color:${color};border:1px solid ${bdr};margin-left:6px;flex-shrink:0;white-space:nowrap">${text}</span>`;
+}
+
 /* ─── INQUIRIES ─────────────────────────────────────── */
 async function renderInquiries() {
   const list = document.getElementById('inquiry-list');
@@ -1258,7 +1276,7 @@ async function renderInquiries() {
     if (!Array.isArray(data)) console.log('[renderInquiries] unexpected response shape:', data);
     // Keep allBookings in sync so the quick-pill counts also work if this fetch resolves first.
     if (Array.isArray(data)) { allBookings = data; updateQuickPillCounts(); }
-    const inquiries = Array.isArray(data) ? data.filter(q => q.status === 'pending' || q.status === 'declined') : [];
+    const inquiries = Array.isArray(data) ? data.filter(q => q.status === 'pending' || q.status === 'declined' || q.status === 'expired') : [];
     if (inquiries.length === 0) {
       list.innerHTML = `
         <div class="inquiries-empty-slim">
@@ -1272,7 +1290,7 @@ async function renderInquiries() {
     }
     list.innerHTML = inquiries.map(q => `
       <div class="inquiry-item" id="inq-${q.id}">
-        <div class="inquiry-name" style="display:flex;align-items:center;gap:0">${esc(q.client_name)}${timerBadge(q.created_at)}</div>
+        <div class="inquiry-name" style="display:flex;align-items:center;gap:0">${esc(q.client_name)}${timerBadge(q.created_at)}${q.status === 'pending' ? expiryPill(q.expires_at) : ''}</div>
         <div class="inquiry-meta">${esc(q.client_email)} &middot; ${esc(fmtDate(q.event_date))} &middot; ${q.guests || 0} guests</div>
         <div class="inquiry-note">${q.message ? '"' + esc(q.message) + '"' : ''}</div>
         <div class="inquiry-actions" id="inq-act-${q.id}">
@@ -1280,6 +1298,8 @@ async function renderInquiries() {
             <button class="btn-draft"   onclick="draftReply(${q.id})">Draft Reply</button>
             <button class="btn-accept"  onclick="acceptInquiry(${q.id})">Accept</button>
             <button class="btn-decline" onclick="declineInquiry(${q.id})">Decline</button>
+          ` : q.status === 'expired' ? `
+            <span style="font-family:var(--mono);font-size:11px;color:var(--cal-blocked)">Expired</span>
           ` : `
             <span style="font-family:var(--mono);font-size:11px;color:var(--text3)">Declined</span>
           `}

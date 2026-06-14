@@ -81,6 +81,10 @@ CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings (status);
 --   UNIQUE(venue_id, day_of_week)
 -- );
 -- CREATE INDEX IF NOT EXISTS idx_venue_avail_rules_venue ON venue_availability_rules(venue_id);
+
+-- Phase 2C: auto-expiring inquiries (applied via migration)
+-- ALTER TABLE bookings ADD COLUMN expires_at TEXT;
+-- UPDATE bookings SET expires_at = datetime(created_at, '+7 days') WHERE status = 'pending' AND expires_at IS NULL;
 CREATE TABLE IF NOT EXISTS users (
   id          INTEGER PRIMARY KEY AUTOINCREMENT,
   email       TEXT    NOT NULL UNIQUE,

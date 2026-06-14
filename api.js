@@ -14,6 +14,7 @@ const ALLOWED_ORIGINS = [
   "https://thevenueportal.paxey333.workers.dev"
 ];
 const TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
+const INQUIRY_EXPIRY_DAYS = 7;
 
 // ── CORS ─────────────────────────────────────────────────────────────────────
 
@@ -229,7 +230,7 @@ export default {
               ).bind(bookingId).first();
               if (booking) {
                 await env.DB.prepare(
-                  "UPDATE bookings SET status='confirmed' WHERE id=?"
+                  "UPDATE bookings SET status='confirmed', expires_at=NULL WHERE id=?"
                 ).bind(booking.id).run();
               }
             }
@@ -240,7 +241,7 @@ export default {
             console.log("Webhook: checkout.session.completed for session", sess.id);
 
             const result = await env.DB.prepare(
-              "UPDATE bookings SET status = 'confirmed' WHERE stripe_session_id = ?"
+              "UPDATE bookings SET status = 'confirmed', expires_at = NULL WHERE stripe_session_id = ?"
             ).bind(sess.id).run();
             console.log("Booking status update result:", JSON.stringify(result));
 
@@ -1023,8 +1024,8 @@ export default {
           if (!venue) return jsonResponse({ error: "Venue not found" }, 404, request);
 
           const result = await env.DB.prepare(
-            `INSERT INTO bookings (venue_id, client_name, client_email, event_date, guests, message, status)
-             VALUES (?, ?, ?, ?, ?, ?, 'pending')`
+            `INSERT INTO bookings (venue_id, client_name, client_email, event_date, guests, message, status, expires_at)
+             VALUES (?, ?, ?, ?, ?, ?, 'pending', datetime('now', '+${INQUIRY_EXPIRY_DAYS} days'))`
           ).bind(
             venueId, clientName, clientEmail, eventDate,
             toIntOrNull(body.guests),
@@ -1122,7 +1123,7 @@ export default {
           if (filterVenueId === "ALL") {
             rows = await env.DB.prepare(
               `SELECT b.id, b.venue_id, v.name AS venue_name, b.client_name, b.client_email,
-                      b.event_date, b.guests, b.message, b.status, b.created_at
+                      b.event_date, b.guests, b.message, b.status, b.created_at, b.expires_at
                FROM bookings b LEFT JOIN venues v ON v.id = b.venue_id
                ORDER BY b.id DESC`
             ).all();
@@ -1227,7 +1228,7 @@ export default {
             const sessionId = stripeData.id;
 
             await env.DB.prepare(
-              "UPDATE bookings SET status='confirmed', payment_link=?, stripe_session_id=? WHERE id=?"
+              "UPDATE bookings SET status='confirmed', payment_link=?, stripe_session_id=?, expires_at=NULL WHERE id=?"
             ).bind(paymentLink, sessionId, id).run();
 
             await env.DB.prepare(
@@ -1263,7 +1264,7 @@ export default {
             if (!declineRow) return jsonResponse({ error: "Booking not found" }, 404, request);
 
             const res = await env.DB.prepare(
-              "UPDATE bookings SET status='declined' WHERE id=?"
+              "UPDATE bookings SET status='declined', expires_at=NULL WHERE id=?"
             ).bind(id).run();
             if (!res.meta.changes) return jsonResponse({ error: "Booking not found" }, 404, request);
 
@@ -1299,7 +1300,7 @@ export default {
 
           } else {
             const res = await env.DB.prepare(
-              "UPDATE bookings SET status = ? WHERE id = ?"
+              "UPDATE bookings SET status = ?, expires_at = NULL WHERE id = ?"
             ).bind(status, id).run();
             if (!res.meta.changes) return jsonResponse({ error: "Booking not found" }, 404, request);
           }
@@ -2019,6 +2020,58 @@ export default {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders(request) }
       });
+    }
+  },
+
+  async scheduled(event, env, ctx) {
+    try {
+      const rows = await env.DB.prepare(
+        `SELECT b.id, b.venue_id, b.client_name, b.client_email, b.event_date,
+                v.name AS venue_name
+         FROM bookings b LEFT JOIN venues v ON v.id = b.venue_id
+         WHERE b.status = 'pending' AND b.expires_at IS NOT NULL AND b.expires_at < datetime('now')`
+      ).all();
+      const expired = rows.results || [];
+      if (expired.length === 0) { console.log("[cron] No inquiries to expire."); return; }
+
+      for (const row of expired) {
+        await env.DB.prepare(
+          "UPDATE bookings SET status = 'expired', expires_at = NULL WHERE id = ?"
+        ).bind(row.id).run();
+
+        if (env.RESEND_API_KEY && row.client_email) {
+          try {
+            const firstName = (row.client_name || '').split(/\s+/)[0] || 'there';
+            const venueName = row.venue_name || 'the venue';
+            const eventDate = row.event_date || '';
+            const venueUrl = (env.FRONTEND_URL || 'https://venueportal.us') + '/venue.html?id=' + row.venue_id;
+            await fetch("https://api.resend.com/emails", {
+              method: "POST",
+              headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
+              body: JSON.stringify({
+                from: "Venue Portal <noreply@venueportal.us>",
+                to: [row.client_email],
+                reply_to: "venueportalus@gmail.com",
+                subject: "Your inquiry to " + venueName + " has expired",
+                html: `<div style="font-family:sans-serif;max-width:520px;margin:0 auto;background:#fff;color:#111;padding:32px 28px;border-radius:8px">
+        <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#888;margin-bottom:20px">Venue.Portal</div>
+        <h1 style="font-size:22px;font-weight:800;margin:0 0 12px">Inquiry expired</h1>
+        <p style="color:#555;font-size:14px;line-height:1.7;margin:0 0 16px">Hey ${firstName},</p>
+        <p style="color:#555;font-size:14px;line-height:1.7;margin:0 0 16px">Your inquiry to <strong>${venueName}</strong> for <strong>${eventDate}</strong> expired after ${INQUIRY_EXPIRY_DAYS} days without a response. The venue gets a lot of requests and sometimes inquiries slip through &mdash; it happens.</p>
+        <p style="color:#555;font-size:14px;line-height:1.7;margin:0 0 24px">If you're still interested, you can submit a fresh inquiry anytime:</p>
+        <p style="text-align:center;margin:24px 0"><a href="${venueUrl}" style="display:inline-block;background:#ff6b1a;color:#000;font-weight:700;font-size:14px;padding:13px 26px;border-radius:6px;text-decoration:none">Visit ${venueName} &#x2192;</a></p>
+        <div style="margin-top:24px;padding-top:16px;border-top:1px solid #eee;font-family:monospace;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#bbb">Venue.Portal &middot; Flat fee. No cuts.</div>
+      </div>`
+              })
+            });
+          } catch (emailErr) {
+            console.log("[cron] Email failed for booking " + row.id + " (non-fatal):", emailErr.message);
+          }
+        }
+      }
+      console.log("[cron] Expired " + expired.length + " inquiries.");
+    } catch (err) {
+      console.error("[cron] Sweep failed:", err.message);
     }
   }
 };
