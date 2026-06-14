@@ -63,10 +63,16 @@ input,textarea{font-family:inherit}
 .loading{max-width:1280px;margin:24px auto;padding:0 24px}
 .skel{background:linear-gradient(90deg,var(--surface) 0%,var(--surface2) 50%,var(--surface) 100%);background-size:200% 100%;animation:skel 1.4s ease-in-out infinite;border-radius:8px}
 @keyframes skel{0%{background-position:200% 0}100%{background-position:-200% 0}}
-.skel-hero{height:340px;border-radius:0;margin:14px 0 24px;background-color:#0a0a0a}
-.skel-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:24px}
-@media(min-width:760px){.skel-stats{grid-template-columns:repeat(4,1fr);gap:14px}}
-.skel-stat{height:78px;border-radius:12px}
+.skel-split{display:flex;flex-direction:column;gap:0;margin:14px 0 24px}
+.skel-hero{height:45vh;min-height:280px;max-height:480px;border-radius:0;background-color:#0a0a0a}
+.skel-info{display:flex;flex-direction:column;gap:10px;padding:20px 0}
+.skel-info-line{height:16px;border-radius:4px}
+.skel-info-line.w40{width:40%}.skel-info-line.w70{width:70%}.skel-info-line.w30{width:30%}
+@media(min-width:900px){
+  .skel-split{flex-direction:row;gap:32px}
+  .skel-hero{width:60%;border-radius:14px;min-height:360px}
+  .skel-info{flex:1;justify-content:center;padding:8px 0}
+}
 .skel-block{height:24px;width:60%;margin-bottom:14px}
 .skel-block.long{width:90%;height:14px;margin-bottom:8px}
 
@@ -77,31 +83,47 @@ input,textarea{font-family:inherit}
 .error-body{font-size:14px;color:var(--text2);line-height:1.65;margin-bottom:24px}
 .error-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 
-/* ── HERO ───────────────────────────────────────────── */
-.v-hero{position:relative;height:48vh;min-height:380px;max-height:560px;overflow:hidden;margin-top:14px}
-.v-hero-bg{position:absolute;inset:0}
-.v-hero-bg img{width:100%;height:100%;object-fit:cover;display:block}
-.v-hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 0%,rgba(0,0,0,0.2) 40%,rgba(0,0,0,0.92) 100%);pointer-events:none}
-.v-hero-inner{position:absolute;left:0;right:0;bottom:0;padding:28px 24px;max-width:1280px;margin:0 auto;width:100%}
+/* ── SPLIT HERO ────────────────────────────────────── */
+.v-hero{max-width:1280px;margin:14px auto 0;padding:0 24px}
+.v-hero-split{display:flex;flex-direction:column;gap:0}
+.v-hero-photo{position:relative;width:100%;height:45vh;min-height:280px;max-height:480px;overflow:hidden}
+.v-hero-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.v-hero-photo::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(0,0,0,0.5) 100%);pointer-events:none}
+.v-hero-thumbs{display:flex;gap:6px;margin-top:8px}
+.v-hero-thumb{width:56px;height:56px;border-radius:8px;overflow:hidden;border:2px solid transparent;cursor:pointer;transition:border-color .15s;flex-shrink:0}
+.v-hero-thumb.active{border-color:var(--accent)}
+.v-hero-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.v-hero-info{padding:20px 0 0}
 .v-hero-badges{display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap}
 .v-badge{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border-radius:6px}
 .v-badge.live{background:var(--green-soft);border:1px solid rgba(61,220,132,0.3);color:var(--green)}
 .v-badge.live .d{width:5px;height:5px;border-radius:50%;background:var(--green)}
 .v-badge.verified{background:var(--accent-soft);border:1px solid rgba(255,107,26,0.35);color:var(--accent)}
 .v-badge.verified svg{width:10px;height:10px}
-.v-hero-name{font-size:38px;font-weight:900;letter-spacing:-1.2px;line-height:1;margin-bottom:8px}
-.v-hero-loc{font-size:15px;color:var(--text2);font-weight:500;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.v-hero-name{font-size:32px;font-weight:900;letter-spacing:-1px;line-height:1.05;margin-bottom:8px}
+.v-hero-loc{font-size:14px;color:var(--text2);font-weight:500;display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px}
 .v-hero-loc svg{width:14px;height:14px;flex-shrink:0}
-@media(min-width:760px){.v-hero{height:54vh}.v-hero-name{font-size:54px;letter-spacing:-2px}}
+.v-hero-price{display:flex;align-items:baseline;gap:8px;margin-bottom:16px}
+.v-hero-price .amt{font-size:28px;font-weight:900;letter-spacing:-1px;line-height:1}
+.v-hero-price .unit{font-size:12px;color:var(--text2);font-weight:500}
+.v-hero-stats{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+.v-hero-stat{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2)}
+.v-hero-stat::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--accent);flex-shrink:0}
+.v-hero-stat strong{color:var(--text);font-weight:700}
+.v-hero-cta{width:100%;background:var(--accent);color:#000;border:none;font-weight:800;font-size:14px;padding:13px 20px;border-radius:8px;cursor:pointer;transition:opacity .15s;letter-spacing:-.1px;display:flex;align-items:center;justify-content:center;gap:6px}
+.v-hero-cta:hover{opacity:.88}
+@media(min-width:900px){
+  .v-hero{margin-top:24px}
+  .v-hero-split{flex-direction:row;gap:32px;align-items:stretch}
+  .v-hero-photo{width:60%;flex-shrink:0;border-radius:14px;border:1px solid var(--border);height:auto;min-height:360px;max-height:520px}
+  .v-hero-photo::after{display:none}
+  .v-hero-info{padding:8px 0;display:flex;flex-direction:column;justify-content:center;flex:1;min-width:0}
+  .v-hero-name{font-size:40px;letter-spacing:-1.5px}
+  .v-hero-cta{width:auto;align-self:flex-start;padding:13px 28px}
+}
 
-/* ── STATS ROW ─────────────────────────────────────── */
-.v-stats{max-width:1280px;margin:0 auto;padding:24px}
-.v-stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-@media(min-width:760px){.v-stats-grid{grid-template-columns:repeat(4,1fr);gap:14px}}
-.v-stat{background:var(--surface);border:1px solid var(--border);border-left:2px solid var(--accent);border-radius:12px;padding:16px 18px}
-.v-stat .lbl{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:6px}
-.v-stat .val{font-size:20px;font-weight:800;letter-spacing:-.4px;line-height:1.1}
-.v-stat .val small{font-size:12px;color:var(--text2);font-weight:500;letter-spacing:0}
+/* stats-grid: hidden container kept for JS compat, hero uses .v-hero-stats instead */
+.v-stats{display:none}
 
 /* ── CONTENT SECTIONS ──────────────────────────────── */
 .v-section-label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px}
@@ -133,6 +155,18 @@ input,textarea{font-family:inherit}
 @media(min-width:900px){.gallery{grid-template-columns:repeat(4,1fr)}}
 .gal-item{aspect-ratio:1;border-radius:10px;border:1px solid var(--border);overflow:hidden}
 .gal-item img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* ── HOW BOOKING WORKS ────────────────────────────── */
+.how-steps{display:grid;grid-template-columns:1fr;gap:16px}
+@media(min-width:760px){.how-steps{grid-template-columns:repeat(3,1fr);gap:20px}}
+.how-step{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;position:relative}
+.how-step-num{font-size:28px;font-weight:900;color:var(--accent);letter-spacing:-1px;line-height:1;margin-bottom:8px}
+.how-step-title{font-size:14px;font-weight:700;margin-bottom:4px}
+.how-step-body{font-size:12.5px;color:var(--text2);line-height:1.55}
+@media(min-width:760px){.how-step{padding:24px}}
+
+/* ── GALLERY (masonry first image) ───────────────── */
+@media(min-width:560px){.gallery.has-many .gal-item:first-child{grid-column:span 2;grid-row:span 2}}
 
 /* ── BOOKING CARD (warm orange) ───────────────────── */
 .book-card{background:linear-gradient(160deg,#1a0d05 0%,#0d0805 45%,#050505 100%);border:1px solid var(--border2);border-left:2px solid var(--accent);border-top:1px solid rgba(255,107,26,0.18);border-radius:14px;overflow:hidden;box-shadow:0 8px 32px rgba(255,107,26,0.04),inset 0 1px 0 rgba(255,255,255,0.03)}
@@ -193,7 +227,7 @@ input,textarea{font-family:inherit}
 /* ── TWO-COL LAYOUT ───────────────────────────────── */
 .layout{max-width:1280px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:1fr;gap:24px}
 @media(min-width:900px){.layout{grid-template-columns:1fr 360px;gap:32px;align-items:start;padding-bottom:48px}}
-.layout-content{display:flex;flex-direction:column;gap:36px;min-width:0}
+.layout-content{display:flex;flex-direction:column;gap:48px;min-width:0}
 .layout-sidebar{display:none}
 @media(min-width:900px){.layout-sidebar{display:block;position:sticky;top:80px;align-self:start}}
 
@@ -283,13 +317,18 @@ footer{padding:48px 0 36px 0;border-top:1px solid var(--border);margin-top:48px}
 
 <!-- LOADING SKELETON -->
 <div id="loading-state" class="loading">
-  <div class="skel skel-hero"></div>
-  <div class="skel-stats">
-    <div class="skel skel-stat"></div><div class="skel skel-stat"></div>
-    <div class="skel skel-stat"></div><div class="skel skel-stat"></div>
+  <div class="skel-split">
+    <div class="skel skel-hero"></div>
+    <div class="skel-info">
+      <div class="skel skel-info-line w40"></div>
+      <div class="skel skel-info-line w70"></div>
+      <div class="skel skel-info-line w30"></div>
+      <div class="skel skel-info-line w40" style="margin-top:8px"></div>
+      <div class="skel skel-info-line w70"></div>
+      <div class="skel skel-info-line w70"></div>
+    </div>
   </div>
   <div class="skel skel-block"></div>
-  <div class="skel skel-block long"></div>
   <div class="skel skel-block long"></div>
   <div class="skel skel-block long"></div>
 </div>
@@ -309,18 +348,24 @@ footer{padding:48px 0 36px 0;border-top:1px solid var(--border);margin-top:48px}
 <main id="content-state" style="display:none">
 
   <section class="v-hero">
-    <div class="v-hero-bg" id="hero-bg"></div>
-    <div class="v-hero-inner">
-      <div class="v-hero-badges" id="hero-badges">
-        <span class="v-badge live"><span class="d"></span>Live now</span>
+    <div class="v-hero-split">
+      <div class="v-hero-photo" id="hero-bg"></div>
+      <div class="v-hero-info">
+        <div class="v-hero-badges" id="hero-badges">
+          <span class="v-badge live"><span class="d"></span>Live now</span>
+        </div>
+        <h1 class="v-hero-name" id="hero-name"></h1>
+        <p class="v-hero-loc" id="hero-loc"></p>
+        <div class="v-hero-price"><span class="amt" id="hero-price">—</span><span class="unit" id="hero-unit">flat fee · per night</span></div>
+        <div class="v-hero-stats" id="stats-grid"></div>
+        <button class="v-hero-cta" onclick="document.querySelector('.book-card').scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>{const c=document.querySelector('.book-card');c.style.boxShadow='0 0 0 2px var(--accent)';setTimeout(()=>c.style.boxShadow='',800)},400)">Book this venue →</button>
       </div>
-      <h1 class="v-hero-name" id="hero-name"></h1>
-      <p class="v-hero-loc" id="hero-loc"></p>
     </div>
+    <div class="v-hero-thumbs" id="hero-thumbs"></div>
   </section>
 
-  <section class="v-stats">
-    <div class="v-stats-grid" id="stats-grid"></div>
+  <section class="v-stats" style="display:none">
+    <div class="v-stats-grid"></div>
   </section>
 
   <div class="layout">
@@ -343,6 +388,16 @@ footer{padding:48px 0 36px 0;border-top:1px solid var(--border);margin-top:48px}
         <div class="v-section-label">The deal</div>
         <h2 class="v-section-title">Transparent pricing.</h2>
         <div class="deal-card" id="deal-card"></div>
+      </section>
+
+      <section id="section-how">
+        <div class="v-section-label">How it works</div>
+        <h2 class="v-section-title">Book in three steps.</h2>
+        <div class="how-steps">
+          <div class="how-step"><div class="how-step-num">1</div><div class="how-step-title">Send an inquiry</div><div class="how-step-body">Pick a date and tell the venue about your event. No commitment yet.</div></div>
+          <div class="how-step"><div class="how-step-num">2</div><div class="how-step-title">Get accepted</div><div class="how-step-body">The venue owner reviews and accepts within 24 hours. You'll get an email.</div></div>
+          <div class="how-step"><div class="how-step-num">3</div><div class="how-step-title">Confirm with deposit</div><div class="how-step-body">Pay a small Stripe-secured deposit to lock your date. Keep 100% of door revenue.</div></div>
+        </div>
       </section>
 
       <section id="section-rules">
@@ -578,20 +633,38 @@ function renderVenue() {
   console.log('[venue] gallery normalized', { count: galleryArr.length, urls: galleryArr });
   window.__venueDebug = { venue: v, gallery: galleryArr, heroSrc: galleryArr[0] || null };
 
-  // Hero photo: gallery[0] or gradient placeholder. Build via createElement for resilience.
+  // Hero photo: gallery[0] or gradient placeholder
   const hero = $('hero-bg');
   hero.innerHTML = '';
   if (galleryArr.length > 0) {
     const heroImg = document.createElement('img');
+    heroImg.id = 'hero-img';
     heroImg.src = galleryArr[0];
     heroImg.alt = v.name || 'Venue';
     heroImg.loading = 'eager';
     heroImg.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block';
-    heroImg.onerror = () => { console.error('[venue] hero img failed', galleryArr[0]); hero.className = 'v-hero-bg ph'; };
-    heroImg.onload = () => console.log('[venue] hero img loaded', galleryArr[0]);
+    heroImg.onerror = () => { console.error('[venue] hero img failed', galleryArr[0]); hero.classList.add('ph'); };
     hero.appendChild(heroImg);
   } else {
-    hero.className = 'v-hero-bg ph';
+    hero.classList.add('ph');
+  }
+
+  // Thumbnails (max 4, only if >1 photo)
+  const thumbs = $('hero-thumbs');
+  thumbs.innerHTML = '';
+  const thumbUrls = galleryArr.slice(0, 4);
+  if (thumbUrls.length > 1) {
+    thumbUrls.forEach((url, i) => {
+      const t = document.createElement('div');
+      t.className = 'v-hero-thumb' + (i === 0 ? ' active' : '');
+      const img = document.createElement('img');
+      img.src = url;
+      img.alt = 'Photo ' + (i + 1);
+      img.loading = i === 0 ? 'eager' : 'lazy';
+      t.appendChild(img);
+      t.addEventListener('click', () => swapHero(url, t));
+      thumbs.appendChild(t);
+    });
   }
 
   $('hero-name').textContent = v.name;
@@ -613,16 +686,17 @@ function renderVenue() {
     locEl.style.display = 'none';
   }
 
-  // Stats row
+  // Hero price
+  if (v.price_per_day) {
+    $('hero-price').textContent = fmtPrice(v.price_per_day);
+  }
+
+  // Hero stats — compact list, capped at 3
   const stats = [];
-  if (v.capacity) stats.push({ lbl: 'Capacity', val: v.capacity + ' <small>guests</small>' });
-  if (v.price_per_day) stats.push({ lbl: 'From', val: fmtPrice(v.price_per_day) + ' <small>/ night</small>' });
-  if (v.hours) stats.push({ lbl: 'Hours', val: esc(v.hours) });
-  // 4th stat: first amenity if present, else hide
-  if (v.amenities && v.amenities.length > 0) stats.push({ lbl: 'Vibe', val: esc(v.amenities[0].split('(')[0].trim()) });
-  $('stats-grid').innerHTML = stats.map(s => `
-    <div class="v-stat"><div class="lbl">${s.lbl}</div><div class="val">${s.val}</div></div>
-  `).join('');
+  if (v.capacity) stats.push(`<strong>${v.capacity}</strong> guests`);
+  if (v.amenities && v.amenities.length > 0) stats.push(`<strong>${esc(v.amenities[0].split('(')[0].trim())}</strong>`);
+  if (v.hours) stats.push(`<strong>${esc(v.hours)}</strong>`);
+  $('stats-grid').innerHTML = stats.slice(0, 3).map(s => `<div class="v-hero-stat">${s}</div>`).join('');
 
   // About — show full description now that address is in its own column
   if (v.description) {
@@ -661,6 +735,7 @@ function renderVenue() {
   if (galleryToShow.length > 0) {
     const grid = $('gallery-grid');
     grid.innerHTML = '';
+    if (galleryToShow.length >= 3) grid.classList.add('has-many');
     galleryToShow.forEach((url, i) => {
       const cell = document.createElement('div');
       cell.className = 'gal-item';
@@ -700,19 +775,43 @@ function renderVenue() {
   $('sticky-bar').style.display = '';
   document.title = `${v.name} — Venue.Portal`;
 
-  // Entrance animations — staggered fade-up on the major chunks
-  const animTargets = [
-    { sel: '.v-hero',         delay: 'anim-d1' },
-    { sel: '.v-stats',        delay: 'anim-d2' },
-    { sel: '#section-about',  delay: 'anim-d3' },
-    { sel: '#section-included', delay: 'anim-d4' },
-    { sel: '#section-deal',   delay: 'anim-d5' },
-    { sel: '.layout-sidebar', delay: 'anim-d3' },
-  ];
-  animTargets.forEach(t => {
-    const el = document.querySelector(t.sel);
-    if (el && el.style.display !== 'none') el.classList.add('anim-fade-up', t.delay);
-  });
+  // Double-rAF: let browser paint the unhidden layout, then animate
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    const animTargets = [
+      { sel: '#section-about',    delay: 'anim-d2' },
+      { sel: '#section-included', delay: 'anim-d3' },
+      { sel: '#section-deal',     delay: 'anim-d4' },
+      { sel: '#section-how',      delay: 'anim-d5' },
+      { sel: '.layout-sidebar',   delay: 'anim-d2' },
+    ];
+    animTargets.forEach(t => {
+      const el = document.querySelector(t.sel);
+      if (el && el.style.display !== 'none') el.classList.add('anim-fade-up', t.delay);
+    });
+  }));
+
+  // Hero fade-up: wait for hero image to load so it doesn't pop in empty
+  const heroSection = document.querySelector('.v-hero');
+  const heroImg = $('hero-img');
+  function fadeHero() {
+    if (heroSection && !heroSection.classList.contains('anim-fade-up')) {
+      heroSection.classList.add('anim-fade-up', 'anim-d1');
+    }
+  }
+  if (heroImg) {
+    if (heroImg.complete) { fadeHero(); }
+    else { heroImg.onload = fadeHero; setTimeout(fadeHero, 200); }
+  } else {
+    fadeHero();
+  }
+}
+
+// ── HERO THUMBNAIL SWAP ─────────────────────────────
+function swapHero(url, thumbEl) {
+  const img = $('hero-img');
+  if (img) img.src = url;
+  document.querySelectorAll('.v-hero-thumb').forEach(t => t.classList.remove('active'));
+  if (thumbEl) thumbEl.classList.add('active');
 }
 
 // ── CALENDAR ────────────────────────────────────────
