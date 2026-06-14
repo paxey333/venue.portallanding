@@ -262,6 +262,11 @@ section{display:flex;flex-direction:column;gap:14px}
 .week-ev.ev-pending{background:rgba(245,158,11,.2);border:1px solid rgba(245,158,11,.35);color:var(--cal-pending)}
 .week-ev.ev-blocked{background:rgba(239,68,68,.2);border:1px solid rgba(239,68,68,.3);color:var(--cal-blocked)}
 .week-ev.no-time{position:relative;margin-top:1px}
+/* ── DAY VIEW ────────────────────────────────── */
+.day-grid{display:grid;grid-template-columns:42px 1fr;max-height:420px;overflow-y:auto;border:1px solid var(--border);border-radius:8px}
+.day-hd{grid-column:1/-1;background:var(--surface2);border-bottom:1px solid var(--border);padding:10px 14px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:2;cursor:pointer}
+.day-hd-date{font-size:14px;font-weight:700;color:var(--text)}
+.day-closed-pill{font-size:9px;font-weight:700;padding:3px 8px;border-radius:10px;background:rgba(239,68,68,.15);color:var(--cal-blocked);text-transform:uppercase;letter-spacing:.06em}
 /* ── OPERATING HOURS GRID ────────────────────── */
 .hours-grid{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
 .hours-row{display:grid;grid-template-columns:48px 60px 1fr 1fr;gap:8px;align-items:center}
@@ -697,6 +702,7 @@ section{display:flex;flex-direction:column;gap:14px}
           <div class="cal-view-toggle" id="cal-view-toggle">
             <button class="cal-view-btn active" data-view="month" onclick="setCalView('month')">Month</button>
             <button class="cal-view-btn" data-view="week" onclick="setCalView('week')">Week</button>
+            <button class="cal-view-btn" data-view="day" onclick="setCalView('day')">Day</button>
           </div>
           <div class="cal-legend">
             <span><span class="lg-dot lg-conf"></span>Confirmed</span>
@@ -2061,6 +2067,7 @@ function showStripeBanner(msg, color, borderColor) {
 // Calendar state — declared here (before renderCalendar() is called) to avoid temporal dead zone
 let calMonthOffset = 0;
 let calWeekOffset = 0;
+let calDayOffset = 0;
 let calSelectedDate = null;
 let calEventMap = {};
 let calView = localStorage.getItem('vp_cal_view') || (window.innerWidth <= 375 ? 'week' : 'month');
@@ -2100,7 +2107,8 @@ loadCalendarData().then(() => { loadAvailabilityRules().then(() => renderCalenda
 
 /* ─── BOOKING CALENDAR ──────────────────────────────── */
 function shiftCalMonth(delta) {
-  if (calView === 'week') { calWeekOffset += delta; }
+  if (calView === 'day') { calDayOffset += delta; }
+  else if (calView === 'week') { calWeekOffset += delta; }
   else { calMonthOffset += delta; }
   renderCalendar();
 }
@@ -2148,6 +2156,7 @@ async function loadCalendarData() {
 }
 
 function renderCalendar() {
+  if (calView === 'day') { renderDayView(); return; }
   if (calView === 'week') { renderWeekView(); return; }
   renderMonthView();
 }
@@ -2262,6 +2271,47 @@ function getEventSpan(tStart, tEnd, hours) {
   const eh = parseInt(tEnd.split(':')[0], 10);
   const diff = eh > sh ? eh - sh : 1;
   return Math.max(1, Math.min(diff, 6));
+}
+
+function renderDayView() {
+  const grid = document.getElementById('bk-cal-grid');
+  if (!grid) return;
+  grid.className = 'day-grid';
+  const today = new Date(); today.setHours(0,0,0,0);
+  const todayStr = toLocalDateStr(today);
+  const target = new Date(today);
+  target.setDate(target.getDate() + calDayOffset);
+  const dStr = toLocalDateStr(target);
+  const dow = target.getDay();
+  const label = document.getElementById('cal-month-label');
+  if (label) label.textContent = target.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+  const dayIsClosed = venueAvailRules ? venueAvailRules.some(r => r.day_of_week === dow && !r.is_open) : false;
+  const hours = [];
+  for (let h = 9; h < 24; h++) hours.push(h);
+  hours.push(0, 1, 2);
+  let html = `<div class="day-hd" onclick="calDayClick('${dStr}')"><span class="day-hd-date">${target.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' })}</span>${dayIsClosed ? '<span class="day-closed-pill">Closed today</span>' : ''}</div>`;
+  for (const h of hours) {
+    const hLabel = h === 0 ? '12a' : h < 12 ? h + 'a' : h === 12 ? '12p' : (h - 12) + 'p';
+    const isClosed = isHourClosed(dow, h);
+    html += `<div class="week-hour-label">${hLabel}</div>`;
+    html += `<div class="week-cell${isClosed ? ' closed' : ''}" data-date="${dStr}" data-hour="${String(h).padStart(2,'0')}" onclick="calDayClick('${dStr}')">`;
+    const evts = (calEventMap[dStr] || []).filter(ev => {
+      const tStart = ev.time_start || ev.event_time_start;
+      if (!tStart) return h === 9;
+      return parseInt(tStart.split(':')[0], 10) === h;
+    });
+    evts.forEach(ev => {
+      const cls = ev.type === 'block' ? 'ev-blocked' : (ev.status === 'confirmed' ? 'ev-confirmed' : 'ev-pending');
+      const tStart = ev.time_start || ev.event_time_start;
+      const tEnd = ev.time_end || ev.event_time_end;
+      const lbl = ev.type === 'block' ? (ev.reason || 'Blocked') : (ev.client_name || 'Booking');
+      const noTime = !tStart;
+      const span = getEventSpan(tStart, tEnd, hours);
+      html += `<div class="week-ev ${cls}${noTime ? ' no-time' : ''}" style="height:${span * 36 - 2}px">${escHtml(lbl)}${noTime ? ' <span style="opacity:.5;font-size:7px">(no time)</span>' : ''}</div>`;
+    });
+    html += '</div>';
+  }
+  grid.innerHTML = html;
 }
 
 function buildEventBars(events) {

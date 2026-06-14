@@ -529,9 +529,10 @@ function parseVenueId() {
     return;
   }
   try {
-    const [venueRes, datesRes] = await Promise.allSettled([
+    const [venueRes, datesRes, rulesRes] = await Promise.allSettled([
       fetch(`${API_BASE}/api/venues/${id}?t=${Date.now()}`),
       fetch(`${API_BASE}/api/venues/${id}/booked-dates?t=${Date.now()}`),
+      fetch(`${API_BASE}/api/venues/${id}/availability-rules?t=${Date.now()}`),
     ]);
     if (venueRes.status !== 'fulfilled') throw new Error('Network error');
     const vres = venueRes.value;
@@ -543,6 +544,11 @@ function parseVenueId() {
     if (datesRes.status === 'fulfilled' && datesRes.value.ok) {
       const data = await datesRes.value.json();
       (data.dates || []).forEach(d => state.bookedDates.add(d));
+    }
+    state.closedDays = new Set();
+    if (rulesRes.status === 'fulfilled' && rulesRes.value.ok) {
+      const rData = await rulesRes.value.json();
+      (rData.rules || []).forEach(r => { if (!r.is_open) state.closedDays.add(r.day_of_week); });
     }
     renderVenue();
   } catch (e) {
@@ -590,12 +596,12 @@ function renderVenue() {
 
   $('hero-name').textContent = v.name;
 
-  // Location: derived from first sentence of description if it includes an address-shaped prefix
-  // Description begins with the address (Commit A convention). Pull the first sentence as location.
+  // Location from dedicated address columns
   let locText = '';
-  if (v.description) {
-    const firstSentence = v.description.split('. ')[0].trim();
-    if (firstSentence && firstSentence.length < 120) locText = firstSentence;
+  if (v.address) {
+    locText = v.city && v.state ? `${v.address}, ${v.city}, ${v.state}` : v.address;
+  } else if (v.city && v.state) {
+    locText = `${v.city}, ${v.state}`;
   }
   const locEl = $('hero-loc');
   if (locText) {
@@ -618,16 +624,10 @@ function renderVenue() {
     <div class="v-stat"><div class="lbl">${s.lbl}</div><div class="val">${s.val}</div></div>
   `).join('');
 
-  // About — only show if description exists. Drop the leading address sentence
-  // since it's redundant with the hero location line.
+  // About — show full description now that address is in its own column
   if (v.description) {
-    const rest = v.description.includes('. ')
-      ? v.description.split('. ').slice(1).join('. ').trim()
-      : v.description;
-    if (rest) {
-      $('about-body').innerHTML = '<p>' + rest.split(/\.\s+/).filter(Boolean).map(p => esc(p.replace(/\.$/,'')) + '.').join('</p><p>') + '</p>';
-      $('section-about').style.display = '';
-    }
+    $('about-body').innerHTML = '<p>' + v.description.split(/\.\s+/).filter(Boolean).map(p => esc(p.replace(/\.$/,'')) + '.').join('</p><p>') + '</p>';
+    $('section-about').style.display = '';
   }
 
   // What's included — amenities
@@ -736,16 +736,21 @@ function renderCalendar() {
 
   const cells = [];
   for (let i = 0; i < lead; i++) cells.push('<div class="book-day empty"></div>');
+  const DOW_NAMES = ['Sundays','Mondays','Tuesdays','Wednesdays','Thursdays','Fridays','Saturdays'];
   for (let d = 1; d <= daysInMonth; d++) {
     const iso = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const dow = new Date(y, m, d).getDay();
+    const isClosed = state.closedDays && state.closedDays.has(dow);
     let cls = 'book-day';
     let attrs = '';
     if (iso < today) cls += ' past';
-    else if (state.bookedDates.has(iso)) cls += ' booked';
+    else if (state.bookedDates.has(iso) || isClosed) cls += ' booked';
     else attrs = ` data-iso="${iso}"`;
     if (iso === today) cls += ' today';
     if (state.selected && state.selected.iso === iso) cls += ' selected';
-    cells.push(`<div class="${cls}"${attrs}>${d}</div>`);
+    // TODO (2B.3): time-windowed rules (is_open=1 with partial hours) need per-slot UI, not per-day
+    const tip = isClosed && iso >= today ? ` title="Closed ${DOW_NAMES[dow]}" aria-label="Closed ${DOW_NAMES[dow]}"` : '';
+    cells.push(`<div class="${cls}"${attrs}${tip}>${d}</div>`);
   }
 
   const html = head + cells.join('');
@@ -759,7 +764,14 @@ function renderCalendar() {
     const iso = `${monthPrefix}${String(i+1).padStart(2,'0')}`;
     return iso < today ? 1 : 0;
   }).reduce((a, b) => a + b, 0);
-  const availableCount = Math.max(0, daysInMonth - bookedThisMonth - pastCount);
+  let closedThisMonth = 0;
+  if (state.closedDays && state.closedDays.size > 0) {
+    for (let d = 1; d <= daysInMonth; d++) {
+      const iso = `${monthPrefix}${String(d).padStart(2,'0')}`;
+      if (iso >= today && state.closedDays.has(new Date(y, m, d).getDay()) && !state.bookedDates.has(iso)) closedThisMonth++;
+    }
+  }
+  const availableCount = Math.max(0, daysInMonth - bookedThisMonth - pastCount - closedThisMonth);
   const hint = document.getElementById('cal-availability-hint');
   if (hint) hint.innerHTML = `<strong>${availableCount} night${availableCount !== 1 ? 's' : ''} available</strong> in ${MONTHS[m]}`;
 

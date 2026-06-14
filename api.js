@@ -1801,6 +1801,10 @@ export default {
       }
 
       // ── iCAL FEED: PUBLIC (token-authenticated) ──────────────────
+      // Emits real bookings + manual blocks as VEVENTs, plus synthetic
+      // "Closed" all-day VEVENTs for days where venue_availability_rules
+      // has is_open=0. Booking event times are NOT clipped to operating
+      // windows in this version (TODO 2B.3).
       const calFeedMatch = path.match(/^\/api\/calendar\/feed\/([A-Za-z0-9_-]{32,})$/);
       if (calFeedMatch && request.method === "GET") {
         try {
@@ -1832,6 +1836,12 @@ export default {
              FROM venue_blocks WHERE venue_id = ? AND block_date >= ?
              ORDER BY block_date ASC`
           ).bind(row.venue_id, cutoffStr).all();
+
+          const availRules = await env.DB.prepare(
+            "SELECT day_of_week, is_open FROM venue_availability_rules WHERE venue_id = ?"
+          ).bind(row.venue_id).all();
+          const closedDows = new Set();
+          for (const r of (availRules.results || [])) { if (!r.is_open) closedDows.add(r.day_of_week); }
 
           const lines = [
             "BEGIN:VCALENDAR",
@@ -1894,6 +1904,28 @@ export default {
             lines.push("SUMMARY:[Blocked] " + (bl.reason || "Blocked"));
             lines.push("STATUS:CONFIRMED");
             lines.push("END:VEVENT");
+          }
+
+          if (closedDows.size > 0) {
+            const feedEnd = new Date(); feedEnd.setDate(feedEnd.getDate() + 365);
+            const cursor = new Date(cutoffStr + "T00:00:00Z");
+            while (cursor <= feedEnd) {
+              if (closedDows.has(cursor.getUTCDay())) {
+                const ds = cursor.toISOString().slice(0, 10);
+                const dsCompact = ds.replace(/-/g, "");
+                const nextDay = new Date(cursor); nextDay.setUTCDate(nextDay.getUTCDate() + 1);
+                const ndCompact = nextDay.toISOString().slice(0, 10).replace(/-/g, "");
+                lines.push("BEGIN:VEVENT");
+                lines.push("UID:closed-" + row.venue_id + "-" + dsCompact + "@venueportal.us");
+                lines.push("DTSTART;VALUE=DATE:" + dsCompact);
+                lines.push("DTEND;VALUE=DATE:" + ndCompact);
+                lines.push("SUMMARY:Closed");
+                lines.push("STATUS:CONFIRMED");
+                lines.push("TRANSP:TRANSPARENT");
+                lines.push("END:VEVENT");
+              }
+              cursor.setUTCDate(cursor.getUTCDate() + 1);
+            }
           }
 
           lines.push("END:VCALENDAR");
