@@ -256,7 +256,7 @@ footer{padding:64px 0 calc(96px + env(safe-area-inset-bottom,0px)) 0;border-top:
         <p class="sub">Independent operators. Live calendars. Stripe-secured deposits.</p>
       </div>
 
-      <div class="carousel-wrap anim-fade-up anim-d1" id="carousel">
+      <div class="carousel-wrap" id="carousel">
         <div class="carousel-head">
           <span class="carousel-label">Featured this week</span>
           <span class="carousel-count" id="carousel-count">Loading…</span>
@@ -538,9 +538,9 @@ let apiVenues = [];
    to coming-soon placeholders if empty.
 ───────────────────────────────────────────── */
 const COMING_SOON_CARDS = [
-  { vibe:'ph-purple', loc:'Los Angeles, CA', name:'LegacySound',          stat_label:'Type',        stat_val:'Recording studio' },
-  { vibe:'ph-gold',   loc:'Phoenix, AZ',     name:"Mark's Demo Studio",    stat_label:'Type',        stat_val:'Recording / Production' },
-  { vibe:'ph-grey',   loc:'Your city',       name:'List your venue',       stat_label:'Get started', stat_val:'48hr onboarding' },
+  { vibe:'ph-warm',  loc:'New venue',  name:'Coming soon',     stat_label:'Status',      stat_val:'Onboarding' },
+  { vibe:'ph-cool',  loc:'New venue',  name:'Coming soon',     stat_label:'Status',      stat_val:'Onboarding' },
+  { vibe:'ph-grey',  loc:'Your city',  name:'List your venue', stat_label:'Get started', stat_val:'48hr onboarding' },
 ];
 const VIBE_BY_INDEX = ['ph-warm','ph-cool','ph-purple','ph-gold','ph-grey'];
 
@@ -572,7 +572,7 @@ async function renderCarousel() {
   const realCards = venues.map((v, i) => {
     const heroUrl = (Array.isArray(v.gallery) && v.gallery[0]) ? v.gallery[0] : null;
     const vibeCls = VIBE_BY_INDEX[i % VIBE_BY_INDEX.length];
-    const location = deriveLocation(v.description);
+    const location = v.address ? (v.city && v.state ? `${v.address}, ${v.city}, ${v.state}` : v.address) : (v.city && v.state ? `${v.city}, ${v.state}` : '');
     const capacity = v.capacity ? `<div class="stat"><span class="stat-label">Capacity</span><span class="stat-val">${escHtml(v.capacity)}</span></div>` : '';
     const price = v.price_per_day ? `<div class="stat"><span class="stat-label">From</span><span class="stat-val">$${escHtml(v.price_per_day)}</span></div>` : '';
     const vibeStat = (v.amenities && v.amenities[0]) ? `<div class="stat"><span class="stat-label">Vibe</span><span class="stat-val">${escHtml(String(v.amenities[0]).split('(')[0].trim())}</span></div>` : '';
@@ -606,13 +606,30 @@ async function renderCarousel() {
 
   track.innerHTML = (realCards.length ? realCards.join('') : '') + csCards.join('');
 
+  // Animate cards in cleanly after they're in the DOM
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!reduceMotion) {
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      Array.from(track.children).forEach((card, i) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(12px)';
+        card.style.transition = 'opacity .4s ease, transform .4s ease';
+        card.style.transitionDelay = `${Math.min(i * 60, 360)}ms`;
+        requestAnimationFrame(() => {
+          card.style.opacity = '1';
+          card.style.transform = 'translateY(0)';
+        });
+      });
+    }));
+  }
+
   const liveN = venues.length;
   const totalN = liveN + csCards.length;
   countEl.textContent = liveN > 0 ? `Showing ${totalN} venue${totalN === 1 ? '' : 's'}` : 'Coming soon';
   if (eyebrowEl) {
     if (liveN === 0) eyebrowEl.textContent = 'Onboarding new venues now';
     else {
-      const cities = Array.from(new Set(venues.map(v => deriveCity(v.description)).filter(Boolean)));
+      const cities = Array.from(new Set(venues.map(v => v.city && v.state ? `${v.city}, ${v.state}` : (v.city || '')).filter(Boolean)));
       eyebrowEl.textContent = `${liveN} venue${liveN === 1 ? '' : 's'} live${cities.length ? ' · ' + cities.join(' & ') : ''}`;
     }
   }
@@ -621,17 +638,6 @@ async function renderCarousel() {
   renderSpotlight(venues[0]);
 }
 
-function deriveLocation(desc) {
-  if (!desc) return '';
-  const first = String(desc).split('. ')[0].trim();
-  return first.length < 120 ? first : '';
-}
-function deriveCity(desc) {
-  if (!desc) return '';
-  // crude: pull "City, ST" pattern from first sentence
-  const m = String(desc).match(/([A-Z][a-zA-Z]+(?:\s[A-Z][a-zA-Z]+)*),\s*([A-Z]{2})/);
-  return m ? `${m[1]}, ${m[2]}` : '';
-}
 
 function renderSpotlight(v) {
   const card = document.getElementById('spotlight-card');
