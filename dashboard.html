@@ -232,6 +232,7 @@ section{display:flex;flex-direction:column;gap:14px}
 /* block form */
 .cal-block-form{margin-top:12px;padding-top:12px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:8px}
 .cal-block-form input,.cal-block-form select{background:var(--surface);border:1px solid var(--border2);border-radius:6px;padding:7px 10px;font-size:12px;color:var(--text);outline:none;width:100%;box-sizing:border-box}
+.cal-block-form input[type="checkbox"]{width:auto;padding:0}
 .cal-block-form input:focus,.cal-block-form select:focus{border-color:var(--accent)}
 .cal-block-form-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .cal-block-btn{background:var(--surface);border:1px solid var(--border2);color:var(--text2);border-radius:6px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s}
@@ -468,6 +469,14 @@ section{display:flex;flex-direction:column;gap:14px}
   .bk-cal-day{min-height:44px;padding:4px 4px 3px}
   .bk-dow-full{display:none}
   .bk-dow-short{display:inline}
+  #ical-feed-url-row{flex-wrap:wrap}
+  #ical-feed-url-row input{width:100%}
+  .cal-block-form-row{grid-template-columns:1fr}
+}
+@media(max-width:640px){
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea{font-size:16px}
 }
 </style>
 </head>
@@ -488,7 +497,7 @@ section{display:flex;flex-direction:column;gap:14px}
     </div>
     <div class="nav-actions">
       <span class="admin-badge" id="admin-preview-badge" style="display:none"></span>
-      <button class="btn" id="btn-back-to-admin" style="display:none" onclick="window.location.href='index.html'">← Admin</button>
+      <button class="btn" id="btn-back-to-admin" style="display:none" onclick="window.location.href='admin.html'">← Admin</button>
       <button class="btn" onclick="handleLogout()">Log Out</button>
     </div>
   </div>
@@ -1086,7 +1095,7 @@ document.getElementById('hdr-greeting').innerHTML = IS_ADMIN_PREVIEW
   ? 'Previewing as <strong id="hdr-venue-name">venue owner</strong>'
   : 'Welcome back, <strong id="hdr-venue-name">' + esc(USERNAME) + '</strong>';
 if (IS_ADMIN_PREVIEW) {
-  if (window.innerWidth > 768) {
+  if (window.innerWidth > 900) {
     document.getElementById('admin-preview-badge').style.display = 'block';
   }
   document.getElementById('btn-back-to-admin').style.display = 'inline-block';
