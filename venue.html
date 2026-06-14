@@ -358,7 +358,7 @@ footer{padding:48px 0 36px 0;border-top:1px solid var(--border);margin-top:48px}
         <p class="v-hero-loc" id="hero-loc"></p>
         <div class="v-hero-price"><span class="amt" id="hero-price">—</span><span class="unit" id="hero-unit">flat fee · per night</span></div>
         <div class="v-hero-stats" id="stats-grid"></div>
-        <button class="v-hero-cta" onclick="document.querySelector('.book-card').scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>{const c=document.querySelector('.book-card');c.style.boxShadow='0 0 0 2px var(--accent)';setTimeout(()=>c.style.boxShadow='',800)},400)">Book this venue →</button>
+        <button class="v-hero-cta" onclick="heroBookClick()">Book this venue →</button>
       </div>
     </div>
     <div class="v-hero-thumbs" id="hero-thumbs"></div>
@@ -803,6 +803,18 @@ function renderVenue() {
     else { heroImg.onload = fadeHero; setTimeout(fadeHero, 200); }
   } else {
     fadeHero();
+  }
+}
+
+// ── HERO BOOK CTA ───────────────────────────────────
+function heroBookClick() {
+  if (window.innerWidth >= 900) {
+    const c = document.querySelector('.book-card');
+    if (!c) return;
+    c.scrollIntoView({behavior:'smooth',block:'center'});
+    setTimeout(() => { c.style.boxShadow='0 0 0 2px var(--accent)'; setTimeout(() => c.style.boxShadow='', 800); }, 400);
+  } else {
+    openBookingModal();
   }
 }
 
