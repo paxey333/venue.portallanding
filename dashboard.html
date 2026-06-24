@@ -1054,7 +1054,7 @@ function friendlyError(e){
 function handleAuth(res){
   if (res && res.status === 401) {
     localStorage.clear();
-    window.location.href = 'index.html?session_expired=1';
+    window.location.href = 'login.html?session_expired=1';
     return true;
   }
   return false;
@@ -1077,7 +1077,7 @@ const ANTHROPIC_API = 'https://api.anthropic.com/v1/messages';
       const role = localStorage.getItem('vp_user_role');
       const isAdmin = (role === 'superadmin' || role === 'admin');
       if (!tok || (role !== 'venue_owner' && !isAdmin)) {
-        window.location.replace('index.html');
+        window.location.replace('login.html');
       } else {
         window.location.reload();
       }
@@ -1089,7 +1089,7 @@ const ANTHROPIC_API = 'https://api.anthropic.com/v1/messages';
 function handleLogout() {
   // Clear ALL localStorage so a stale venue_id from a previous session can't leak into a new login.
   localStorage.clear();
-  window.location.replace('index.html');
+  window.location.replace('login.html');
 }
 
 /* ─── HEADER ────────────────────────────────────────── */

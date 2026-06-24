@@ -423,6 +423,9 @@ async function renderAdminPanel() {
         <div class="form-field"><label>Capacity</label><input type="number" id="av-capacity"/></div>
         <div class="form-field"><label>Price Per Day ($)</label><input type="number" id="av-price"/></div>
         <div class="form-field"><label>Image URL</label><input type="text" id="av-image" placeholder="https://…"/></div>
+        <div class="form-field full"><label>Address</label><input type="text" id="av-address" placeholder="1320 E Broadway Rd Suite 108"/></div>
+        <div class="form-field"><label>City</label><input type="text" id="av-city" placeholder="Tempe"/></div>
+        <div class="form-field"><label>State</label><input type="text" id="av-state" placeholder="AZ"/></div>
         <div class="form-field full"><label>Description</label><textarea id="av-desc" placeholder="Tell bookers about the space…"></textarea></div>
       </div>
       <div id="av-owner-section">
@@ -490,7 +493,7 @@ function renderAdminVenueList() {
 
 function openAddVenueForm() {
   editingVenueId = null;
-  ['av-name','av-capacity','av-price','av-image','av-desc','av-owner-name','av-owner-email','av-owner-password'].forEach(id => {
+  ['av-name','av-capacity','av-price','av-image','av-address','av-city','av-state','av-desc','av-owner-name','av-owner-email','av-owner-password'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
@@ -507,11 +510,14 @@ function startEditVenue(id) {
   const v = apiVenues.find(x => x.id === id);
   if (!v) return;
   editingVenueId = id;
-  document.getElementById('av-name').value     = v.name        || '';
-  document.getElementById('av-capacity').value = v.capacity    || '';
+  document.getElementById('av-name').value     = v.name          || '';
+  document.getElementById('av-capacity').value = v.capacity      || '';
   document.getElementById('av-price').value    = v.price_per_day || '';
-  document.getElementById('av-image').value    = v.image_url   || '';
-  document.getElementById('av-desc').value     = v.description || '';
+  document.getElementById('av-image').value    = v.image_url     || '';
+  document.getElementById('av-address').value  = v.address       || '';
+  document.getElementById('av-city').value     = v.city          || '';
+  document.getElementById('av-state').value    = v.state         || '';
+  document.getElementById('av-desc').value     = v.description   || '';
   document.getElementById('av-owner-section').style.display = 'none';
   document.getElementById('add-venue-form').classList.add('open');
   document.getElementById('add-venue-form').scrollIntoView({ behavior:'smooth', block:'start' });
@@ -526,6 +532,9 @@ async function saveVenue() {
     capacity:      parseInt(document.getElementById('av-capacity').value) || null,
     price_per_day: parseFloat(document.getElementById('av-price').value) || null,
     image_url:     document.getElementById('av-image').value.trim() || null,
+    address:       document.getElementById('av-address').value.trim() || null,
+    city:          document.getElementById('av-city').value.trim() || null,
+    state:         document.getElementById('av-state').value.trim() || null,
   };
   if (!body.name) { errEl.style.display=''; errEl.textContent='Venue name is required.'; return; }
   try {
@@ -826,7 +835,7 @@ function refreshUsersTabVisibility() {
 function handleLogout() {
   clearSession();
   // Back to anonymous landing
-  window.location.replace('/');
+  window.location.replace('login.html');
 }
 
 /* ─────────────────────────────────────────────
@@ -837,7 +846,7 @@ function handleLogout() {
 ───────────────────────────────────────────── */
 (function bootAdmin() {
   if (!isLoggedIn()) {
-    window.location.replace('/');
+    window.location.replace('login.html');
     return;
   }
   const role = getRole();
@@ -845,7 +854,7 @@ function handleLogout() {
     if (role === 'venue_owner') {
       window.location.replace('dashboard.html');
     } else {
-      window.location.replace('/');
+      window.location.replace('login.html');
     }
     return;
   }
