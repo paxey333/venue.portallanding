@@ -1,4 +1,7 @@
-const CACHE = 'vp-shell-v1';
+// BUMP THIS VERSION on every commit that changes a shell file
+// (dashboard.html, manifest.json, icons) — otherwise the SW serves
+// stale cached HTML and deployed fixes never reach users.
+const CACHE = 'vp-shell-v2';
 const SHELL = [
   '/dashboard.html',
   '/manifest.json',
@@ -21,6 +24,16 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
   if (url.pathname.startsWith('/api/') || url.hostname !== location.hostname) return;
+  if (url.pathname.endsWith('.html')) {
+    e.respondWith(
+      fetch(e.request).then(res => {
+        const clone = res.clone();
+        caches.open(CACHE).then(c => c.put(e.request, clone));
+        return res;
+      }).catch(() => caches.match(e.request))
+    );
+    return;
+  }
   e.respondWith(
     caches.match(e.request).then(cached => cached || fetch(e.request))
   );
