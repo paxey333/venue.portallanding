@@ -2045,6 +2045,11 @@ const EFFECTIVE_VENUE_ID = IS_ADMIN_PREVIEW
   ? (new URLSearchParams(window.location.search).get('venue_id') || VENUE_ID)
   : VENUE_ID;
 
+if (IS_ADMIN_PREVIEW && !EFFECTIVE_VENUE_ID) {
+  window.location.replace('admin.html');
+  throw new Error('admin-redirect');
+}
+
 async function loadStripeStatus() {
   const el = document.getElementById('stripe-block');
   if (IS_ADMIN_PREVIEW) { el.style.display = 'none'; return; }
