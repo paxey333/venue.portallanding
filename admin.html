@@ -34,6 +34,18 @@ a{color:inherit;text-decoration:none}
 button{font-family:inherit;cursor:pointer;border:none;background:transparent;color:inherit}
 img,svg{display:block;max-width:100%}
 
+/* ── AMBIENT CHEVRON BG ──────────────────────── */
+.vp-ambient{--amb-opacity:0.03;--amb-speed:50s;position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.vp-ambient svg{position:absolute;opacity:var(--amb-opacity);will-change:transform,opacity;animation:amb-drift var(--amb-speed) ease-in-out infinite alternate}
+.vp-ambient svg:nth-child(1){width:120px;top:8%;left:5%;animation-delay:0s}
+.vp-ambient svg:nth-child(2){width:80px;top:55%;right:8%;animation-delay:-8s;animation-duration:calc(var(--amb-speed) * 1.2)}
+.vp-ambient svg:nth-child(3){width:180px;bottom:10%;left:50%;animation-delay:-20s;animation-duration:calc(var(--amb-speed) * 0.9)}
+.vp-ambient svg:nth-child(4){width:60px;top:25%;right:25%;animation-delay:-14s;animation-duration:calc(var(--amb-speed) * 1.4)}
+.vp-ambient svg:nth-child(5){width:100px;bottom:30%;left:15%;animation-delay:-6s;animation-duration:calc(var(--amb-speed) * 1.1)}
+.vp-ambient svg:nth-child(6){width:140px;top:70%;right:40%;animation-delay:-18s}
+@keyframes amb-drift{0%{transform:translateY(0) rotate(0deg);opacity:var(--amb-opacity)}50%{opacity:calc(var(--amb-opacity) * 1.5)}100%{transform:translateY(-30px) rotate(8deg);opacity:var(--amb-opacity)}}
+@media(prefers-reduced-motion:reduce){.vp-ambient svg{animation:none}}
+
 /* ── Top nav (shared style with index.html / venue.html / dashboard.html) ── */
 .topnav{position:sticky;top:0;z-index:50;background:rgba(0,0,0,0.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
 .topnav-inner{max-width:1280px;margin:0 auto;padding:0 24px;height:60px;display:flex;align-items:center;gap:24px}
@@ -153,7 +165,7 @@ table tbody tr:hover td{color:var(--text)}
 </style>
 </head>
 <body>
-
+<div class="vp-ambient"><svg viewBox="0 0 24 18" xmlns="http://www.w3.org/2000/svg"><path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#fff"/><path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#fff"/></svg><svg viewBox="0 0 24 18" xmlns="http://www.w3.org/2000/svg"><path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#fff"/><path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#fff"/></svg><svg viewBox="0 0 24 18" xmlns="http://www.w3.org/2000/svg"><path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#fff"/><path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#fff"/></svg><svg viewBox="0 0 24 18" xmlns="http://www.w3.org/2000/svg"><path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#fff"/><path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#fff"/></svg><svg viewBox="0 0 24 18" xmlns="http://www.w3.org/2000/svg"><path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#fff"/><path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#fff"/></svg><svg viewBox="0 0 24 18" xmlns="http://www.w3.org/2000/svg"><path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#fff"/><path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#fff"/></svg></div>
 <!-- Session-expired banner (preserved IIFE handles display) -->
 <div id="session-expired-banner">Your session expired. Please sign in again.</div>
 
