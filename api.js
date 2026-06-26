@@ -13,7 +13,7 @@ const ALLOWED_ORIGINS = [
   "https://venueportal.us",
   "https://thevenueportal.paxey333.workers.dev"
 ];
-const TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
+const TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 const INQUIRY_EXPIRY_DAYS = 7;
 
 // ── CORS ─────────────────────────────────────────────────────────────────────
@@ -449,9 +449,9 @@ export default {
           if (!["admin", "venue_owner", "promoter", "superadmin"].includes(role)) {
             return jsonResponse({ error: "invalid role" }, 400, request);
           }
-          // Only superadmin can create admin or superadmin accounts.
-          if ((role === "admin" || role === "superadmin") && !isSuperAdmin(session)) {
-            return jsonResponse({ error: "Only superadmin can create admin or superadmin accounts" }, 403, request);
+          // Only platform admins can create admin or superadmin accounts.
+          if ((role === "admin" || role === "superadmin") && !isAdminOrAbove(session)) {
+            return jsonResponse({ error: "Only admins can create admin or superadmin accounts" }, 403, request);
           }
           if (role === "venue_owner" && !venueId) {
             return jsonResponse({ error: "venue_id is required for venue_owner role" }, 400, request);
@@ -533,9 +533,9 @@ export default {
           if (session.email && target.email && target.email.toLowerCase() === String(session.email).toLowerCase()) {
             return jsonResponse({ error: "You cannot delete your own account" }, 403, request);
           }
-          // Admin cannot delete admin or superadmin — only superadmin can.
-          if ((target.role === "admin" || target.role === "superadmin") && !isSuperAdmin(session)) {
-            return jsonResponse({ error: "Only superadmin can delete admin or superadmin accounts" }, 403, request);
+          // Only platform admins can delete admin or superadmin accounts.
+          if ((target.role === "admin" || target.role === "superadmin") && !isAdminOrAbove(session)) {
+            return jsonResponse({ error: "Only admins can delete admin or superadmin accounts" }, 403, request);
           }
           const res = await env.DB.prepare("DELETE FROM users WHERE id = ?").bind(id).run();
           if (!res.meta.changes) return jsonResponse({ error: "User not found" }, 404, request);
@@ -556,9 +556,9 @@ export default {
           if (session.email && target.email && target.email.toLowerCase() === String(session.email).toLowerCase()) {
             return jsonResponse({ error: "You cannot reset your own password from here" }, 403, request);
           }
-          // Admin cannot reset admin or superadmin — only superadmin can.
-          if ((target.role === "admin" || target.role === "superadmin") && !isSuperAdmin(session)) {
-            return jsonResponse({ error: "Only superadmin can reset admin or superadmin passwords" }, 403, request);
+          // Only platform admins can reset admin or superadmin passwords.
+          if ((target.role === "admin" || target.role === "superadmin") && !isAdminOrAbove(session)) {
+            return jsonResponse({ error: "Only admins can reset admin or superadmin passwords" }, 403, request);
           }
           const plainPassword = generatePassword();
           const hashedPassword = await hashPassword(plainPassword, env.TOKEN_SECRET);
@@ -703,7 +703,7 @@ export default {
       if (venueByIdMatch && request.method === "DELETE") {
         try {
           const session = await getSession(request, env);
-          if (!isSuperAdmin(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
+          if (!isAdminOrAbove(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
           const id = Number(venueByIdMatch[1]);
           const res = await env.DB.prepare("DELETE FROM venues WHERE id = ?").bind(id).run();
           if (!res.meta.changes) return jsonResponse({ error: "Venue not found" }, 404, request);
