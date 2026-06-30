@@ -1354,6 +1354,47 @@ export default {
                     b.event_date, b.guests, b.message, b.status, b.created_at, b.payment_method, b.paid_at, b.payment_note
              FROM bookings b LEFT JOIN venues v ON v.id = b.venue_id WHERE b.id = ?`
           ).bind(id).first();
+
+          if (updated && updated.client_email && env.RESEND_API_KEY) {
+            try {
+              const paymentLabel = payment_method === 'zelle' ? 'Received via Zelle'
+                : payment_method === 'cash' ? 'Received in person'
+                : 'Confirmed by venue';
+              const dateFormatted = updated.event_date ? new Date(updated.event_date + 'T00:00:00').toLocaleDateString('en-US', {weekday:'long',month:'long',day:'numeric',year:'numeric'}) : updated.event_date;
+              await fetch("https://api.resend.com/emails", {
+                method: "POST",
+                headers: {
+                  "Authorization": "Bearer " + env.RESEND_API_KEY,
+                  "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                  from: "Venue Portal <noreply@venueportal.us>",
+                  to: [updated.client_email],
+                  subject: "Booking confirmed — " + (updated.venue_name || "your venue"),
+                  html: `<div style="font-family:sans-serif;max-width:520px;margin:0 auto;background:#fff;color:#111;padding:32px 28px;border-radius:8px">
+          <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#888;margin-bottom:20px">Venue.Portal</div>
+          <h1 style="font-size:24px;font-weight:800;margin:0 0 6px;letter-spacing:-.3px">You're confirmed.</h1>
+          <p style="color:#555;font-size:14px;margin:0 0 28px;line-height:1.6">Hi ${updated.client_name} — your payment has been received and your booking is locked in.</p>
+          <div style="background:#f7f7f7;border-radius:8px;padding:20px 22px;margin-bottom:28px">
+            <table style="width:100%;border-collapse:collapse">
+              <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:6px 0 2px">Venue</td></tr>
+              <tr><td style="font-size:15px;font-weight:600;padding-bottom:14px;border-bottom:1px solid #eee">${updated.venue_name || ''}</td></tr>
+              <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:14px 0 2px">Event Date</td></tr>
+              <tr><td style="font-size:15px;font-weight:600;padding-bottom:14px;border-bottom:1px solid #eee">${dateFormatted}</td></tr>
+              <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:14px 0 2px">Payment</td></tr>
+              <tr><td style="font-size:15px;font-weight:700;color:#111">${paymentLabel}</td></tr>
+            </table>
+          </div>
+          <p style="color:#888;font-size:12px;line-height:1.6;margin:0">Questions? Reply to this email or contact us at hello@venueportal.us</p>
+          <div style="margin-top:24px;padding-top:16px;border-top:1px solid #eee;font-family:monospace;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#bbb">Venue.Portal &middot; Flat fee. No cuts.</div>
+        </div>`
+                })
+              });
+            } catch (emailErr) {
+              console.log("[bookings/mark-paid-offline] email failed (non-fatal):", emailErr.message);
+            }
+          }
+
           return jsonResponse(updated, 200, request);
         } catch (err) {
           console.log("[bookings/mark-paid-offline] error:", err.message);
