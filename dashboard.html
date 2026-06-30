@@ -1284,7 +1284,11 @@ async function renderInquiries() {
     if (!Array.isArray(data)) console.log('[renderInquiries] unexpected response shape:', data);
     // Keep allBookings in sync so the quick-pill counts also work if this fetch resolves first.
     if (Array.isArray(data)) { allBookings = data; updateQuickPillCounts(); }
-    const inquiries = Array.isArray(data) ? data.filter(q => q.status === 'pending' || q.status === 'declined' || q.status === 'expired') : [];
+    const inquiries = Array.isArray(data) ? data.filter(q => q.status === 'pending' || q.status === 'accepted' || q.status === 'declined' || q.status === 'expired')
+      .sort((a, b) => {
+        const order = { accepted: 0, pending: 1, declined: 2, expired: 3 };
+        return (order[a.status] ?? 9) - (order[b.status] ?? 9);
+      }) : [];
     if (inquiries.length === 0) {
       list.innerHTML = `
         <div class="inquiries-empty-slim">
@@ -1305,6 +1309,9 @@ async function renderInquiries() {
           ${q.status === 'pending' ? `
             <button class="btn-accept"  onclick="acceptInquiry(${q.id})">Accept</button>
             <button class="btn-decline" onclick="declineInquiry(${q.id})">Decline</button>
+            <button class="btn-mark-paid" onclick="showMarkPaidForm(${q.id})">Mark Paid</button>
+          ` : q.status === 'accepted' ? `
+            <span style="font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.06em;padding:3px 8px;border-radius:4px;background:rgba(245,158,11,0.1);color:#f59e0b;border:1px solid rgba(245,158,11,0.2);margin-right:8px">Accepted — awaiting payment</span>
             <button class="btn-mark-paid" onclick="showMarkPaidForm(${q.id})">Mark Paid</button>
           ` : q.status === 'expired' ? `
             <span style="font-family:var(--mono);font-size:11px;color:var(--cal-blocked)">Expired</span>
@@ -1354,7 +1361,14 @@ async function acceptInquiry(id) {
       showInlineErr(msg);
       return;
     }
-    act.outerHTML = '<span style="font-family:var(--mono);font-size:10px;color:var(--accent)">Payment link sent</span>';
+    let flow = 'stripe';
+    try { const d = await res.json(); flow = d.flow || 'stripe'; } catch {}
+    if (flow === 'offline') {
+      act.outerHTML = '<span style="font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.06em;padding:3px 8px;border-radius:4px;background:rgba(245,158,11,0.1);color:#f59e0b;border:1px solid rgba(245,158,11,0.2)">Accepted — payment instructions sent to renter</span>';
+    } else {
+      act.outerHTML = '<span style="font-family:var(--mono);font-size:10px;color:var(--accent)">Payment link sent</span>';
+    }
+    renderBookings();
   } catch {
     if (btn) { btn.disabled = false; btn.textContent = 'Accept'; }
     showInlineErr('Connection issue. Check your internet.');

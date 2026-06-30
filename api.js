@@ -1185,14 +1185,68 @@ export default {
           if (status === "accepted") {
             const booking = await env.DB.prepare(
               `SELECT b.id, b.venue_id, b.client_name, b.client_email, b.event_date,
-                      v.name AS venue_name, v.price_per_day, v.stripe_account_id, v.stripe_connected
+                      v.name AS venue_name, v.price_per_day, v.stripe_account_id, v.stripe_connected, v.payment_instructions
                FROM bookings b JOIN venues v ON v.id = b.venue_id WHERE b.id = ?`
             ).bind(id).first();
             console.log("[bookings/accept] booking lookup:", JSON.stringify(booking));
             if (!booking) return jsonResponse({ error: "Booking not found" }, 404, request);
             console.log("[bookings/accept] venue stripe_account_id:", booking.stripe_account_id, "stripe_connected:", booking.stripe_connected);
             if (!booking.stripe_connected) {
-              return jsonResponse({ error: "Connect Stripe before accepting bookings." }, 400, request);
+              if (!booking.payment_instructions) {
+                return jsonResponse({ error: "Set payment instructions in venue settings before accepting bookings without Stripe." }, 400, request);
+              }
+              await env.DB.prepare(
+                "UPDATE bookings SET status = 'accepted', expires_at = NULL WHERE id = ? AND status = 'pending'"
+              ).bind(id).run();
+
+              if (env.RESEND_API_KEY && booking.client_email) {
+                try {
+                  const dateFormatted = booking.event_date ? new Date(booking.event_date + 'T00:00:00').toLocaleDateString('en-US', {weekday:'long',month:'long',day:'numeric',year:'numeric'}) : booking.event_date;
+                  const escapedInstructions = String(booking.payment_instructions).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/\n/g,'<br>');
+                  await fetch("https://api.resend.com/emails", {
+                    method: "POST",
+                    headers: {
+                      "Authorization": "Bearer " + env.RESEND_API_KEY,
+                      "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                      from: "Venue Portal <noreply@venueportal.us>",
+                      to: [booking.client_email],
+                      subject: "Booking accepted — " + (booking.venue_name || "your venue"),
+                      html: `<div style="font-family:sans-serif;max-width:520px;margin:0 auto;background:#fff;color:#111;padding:32px 28px;border-radius:8px">
+          <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#888;margin-bottom:20px">Venue.Portal</div>
+          <h1 style="font-size:24px;font-weight:800;margin:0 0 6px;letter-spacing:-.3px">Your booking has been accepted.</h1>
+          <p style="color:#555;font-size:14px;margin:0 0 28px;line-height:1.6">Hi ${booking.client_name} — your inquiry has been accepted. To lock in your booking, send payment using the instructions below.</p>
+          <div style="background:#f7f7f7;border-radius:8px;padding:20px 22px;margin-bottom:28px">
+            <table style="width:100%;border-collapse:collapse">
+              <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:6px 0 2px">Venue</td></tr>
+              <tr><td style="font-size:15px;font-weight:600;padding-bottom:14px;border-bottom:1px solid #eee">${booking.venue_name || ''}</td></tr>
+              <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:14px 0 2px">Event Date</td></tr>
+              <tr><td style="font-size:15px;font-weight:600;padding-bottom:14px;border-bottom:1px solid #eee">${dateFormatted}</td></tr>
+              <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:14px 0 2px">Payment</td></tr>
+              <tr><td style="font-size:15px;font-weight:700;color:#111">See instructions below</td></tr>
+            </table>
+          </div>
+          <div style="margin-bottom:24px">
+            <div style="font-family:monospace;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#555;font-weight:700;margin-bottom:10px">How to pay</div>
+            <div style="background:#f7f7f7;border-radius:8px;padding:16px 20px;font-size:14px;color:#333;line-height:1.7">${escapedInstructions}</div>
+          </div>
+          <p style="color:#555;font-size:13px;line-height:1.6;margin:0 0 20px">Once payment is received, you'll get a confirmation email and your booking is locked. Questions? Reply to this email.</p>
+          <div style="margin-top:24px;padding-top:16px;border-top:1px solid #eee;font-family:monospace;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#bbb">Venue.Portal &middot; Flat fee. No cuts.</div>
+        </div>`
+                    })
+                  });
+                } catch (emailErr) {
+                  console.log("[bookings/accept-offline] email failed (non-fatal):", emailErr.message);
+                }
+              }
+
+              const accepted = await env.DB.prepare(
+                `SELECT b.id, b.venue_id, v.name AS venue_name, b.client_name, b.client_email,
+                        b.event_date, b.guests, b.message, b.status, b.created_at, b.payment_link
+                 FROM bookings b LEFT JOIN venues v ON v.id = b.venue_id WHERE b.id = ?`
+              ).bind(id).first();
+              return jsonResponse({ ...accepted, flow: 'offline' }, 200, request);
             }
 
             const venueName = booking.venue_name;
@@ -1260,6 +1314,13 @@ export default {
               const resendBody = await resendRes.json();
               console.log("[bookings/accept] resend response status:", resendRes.status, "body:", JSON.stringify(resendBody));
             }
+
+            const stripeUpdated = await env.DB.prepare(
+              `SELECT b.id, b.venue_id, v.name AS venue_name, b.client_name, b.client_email,
+                      b.event_date, b.guests, b.message, b.status, b.created_at, b.payment_link
+               FROM bookings b LEFT JOIN venues v ON v.id = b.venue_id WHERE b.id = ?`
+            ).bind(id).first();
+            return jsonResponse({ ...stripeUpdated, flow: 'stripe' }, 200, request);
 
           } else if (status === "declined") {
             const declineRow = await env.DB.prepare(
@@ -1340,8 +1401,8 @@ export default {
             return jsonResponse({ error: "Unauthorized" }, 403, request);
           }
 
-          if (booking.status !== "pending") {
-            return jsonResponse({ error: "Only pending bookings can be marked as paid" }, 400, request);
+          if (booking.status !== "pending" && booking.status !== "accepted") {
+            return jsonResponse({ error: "Only pending or accepted bookings can be marked as paid" }, 400, request);
           }
 
           const body = await parseJson(request);
@@ -1352,7 +1413,7 @@ export default {
           const payment_note = body.note ? String(body.note).trim().slice(0, 500) : null;
 
           await env.DB.prepare(
-            "UPDATE bookings SET status = 'confirmed', payment_method = ?, paid_at = datetime('now'), payment_note = ?, expires_at = NULL WHERE id = ? AND status = 'pending'"
+            "UPDATE bookings SET status = 'confirmed', payment_method = ?, paid_at = datetime('now'), payment_note = ?, expires_at = NULL WHERE id = ? AND status IN ('pending', 'accepted')"
           ).bind(payment_method, payment_note, id).run();
 
           const updated = await env.DB.prepare(
