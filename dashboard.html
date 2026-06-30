@@ -161,6 +161,12 @@ section{display:flex;flex-direction:column;gap:14px}
 .btn-decline:hover{color:var(--alert);border-color:rgba(255,68,68,0.3)}
 .btn-draft{background:transparent;border:1px solid var(--border2);color:var(--text2);font-weight:600;font-size:12px;padding:8px 16px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
 .btn-draft:hover{color:var(--accent);border-color:rgba(255,107,26,0.3)}
+.btn-mark-paid{background:transparent;border:1px solid rgba(74,222,128,0.3);color:var(--green);font-weight:600;font-size:12px;padding:8px 16px;border-radius:8px;cursor:pointer}
+.btn-mark-paid:hover{background:rgba(74,222,128,0.08);border-color:rgba(74,222,128,0.5)}
+.mark-paid-form{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.mark-paid-form select,.mark-paid-form input{font-family:var(--mono);font-size:12px;background:var(--surface2);color:var(--text);border:1px solid var(--border2);border-radius:6px;padding:6px 10px}
+.mark-paid-form input{flex:1;min-width:120px}
+.badge-paid-offline{font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.06em;padding:3px 8px;border-radius:4px;background:rgba(74,222,128,0.1);color:var(--green);border:1px solid rgba(74,222,128,0.2)}
 .inq-status-declined{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;font-weight:600}
 
 /* ── ARTIST WORKFLOW PREVIEW ─────────────────── */
@@ -1231,7 +1237,7 @@ async function renderBookings() {
           <div class="booking-event">${esc(b.client_name)}</div>
           <div class="booking-meta">${esc(b.client_email)}<br>${esc(fmtDate(b.event_date))}${b.guests ? ' &middot; ' + b.guests + ' guests' : ''}</div>
         </div>
-        <span class="badge badge-confirmed">CONFIRMED</span>
+        ${b.payment_method ? `<span class="badge-paid-offline">Paid via ${esc(b.payment_method)}</span>` : `<span class="badge badge-confirmed">CONFIRMED</span>`}
       </div>`).join('');
   } catch (e) {
     console.log('[renderBookings] fetch error (' + API_BASE + '/api/bookings):', e.message);
@@ -1323,6 +1329,7 @@ async function renderInquiries() {
             <button class="btn-draft"   onclick="draftReply(${q.id})">Draft Reply</button>
             <button class="btn-accept"  onclick="acceptInquiry(${q.id})">Accept</button>
             <button class="btn-decline" onclick="declineInquiry(${q.id})">Decline</button>
+            <button class="btn-mark-paid" onclick="showMarkPaidForm(${q.id})">Mark Paid</button>
           ` : q.status === 'expired' ? `
             <span style="font-family:var(--mono);font-size:11px;color:var(--cal-blocked)">Expired</span>
           ` : `
@@ -1409,6 +1416,50 @@ async function declineInquiry(id) {
   }
   el.classList.add('fading');
   setTimeout(() => el.remove(), 350);
+}
+
+function showMarkPaidForm(id) {
+  const existing = document.getElementById('mark-paid-form-' + id);
+  if (existing) { existing.remove(); return; }
+  const container = document.getElementById('inq-draft-' + id);
+  if (!container) return;
+  container.innerHTML = `<div class="mark-paid-form" id="mark-paid-form-${id}">
+    <select id="mp-method-${id}"><option value="zelle">Zelle</option><option value="cash">Cash</option><option value="other">Other</option></select>
+    <input id="mp-note-${id}" type="text" placeholder="Note (optional)" maxlength="500"/>
+    <button class="btn-accept" style="padding:6px 14px;font-size:11px" onclick="submitMarkPaid(${id})">Confirm</button>
+    <button class="btn-decline" style="padding:6px 14px;font-size:11px" onclick="document.getElementById('mark-paid-form-${id}').remove()">Cancel</button>
+  </div>`;
+}
+
+async function submitMarkPaid(id) {
+  const method = document.getElementById('mp-method-' + id);
+  const note = document.getElementById('mp-note-' + id);
+  const form = document.getElementById('mark-paid-form-' + id);
+  const confirmBtn = form ? form.querySelector('.btn-accept') : null;
+  if (confirmBtn) { confirmBtn.disabled = true; confirmBtn.textContent = 'Saving...'; }
+  try {
+    const res = await fetch(API_BASE + '/api/bookings/' + id + '/mark-paid-offline', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ payment_method: method.value, note: note.value || null })
+    });
+    if (handleAuth(res)) return;
+    if (!res.ok) {
+      const d = await res.json().catch(() => ({}));
+      const errEl = document.createElement('div');
+      errEl.style.cssText = 'font-family:var(--mono);font-size:10px;color:#f87171;margin-top:5px';
+      errEl.textContent = d.error || 'Could not mark as paid';
+      form.after(errEl);
+      if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = 'Confirm'; }
+      return;
+    }
+    const act = document.getElementById('inq-act-' + id);
+    if (act) act.innerHTML = '<span class="badge-paid-offline">Paid via ' + esc(method.value) + '</span>';
+    if (form) form.remove();
+    renderBookings();
+  } catch {
+    if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = 'Confirm'; }
+  }
 }
 
 /* ─── REVENUE CHART (E.5 rebuild) ───────────────────────

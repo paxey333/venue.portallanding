@@ -1,7 +1,7 @@
 // BUMP THIS VERSION on every commit that changes a shell file
 // (dashboard.html, manifest.json, icons) — otherwise the SW serves
 // stale cached HTML and deployed fixes never reach users.
-const CACHE = 'vp-shell-v4';
+const CACHE = 'vp-shell-v5';
 const SHELL = [
   '/dashboard.html',
   '/login.html',

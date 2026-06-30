@@ -1123,14 +1123,14 @@ export default {
           if (filterVenueId === "ALL") {
             rows = await env.DB.prepare(
               `SELECT b.id, b.venue_id, v.name AS venue_name, b.client_name, b.client_email,
-                      b.event_date, b.guests, b.message, b.status, b.created_at, b.expires_at
+                      b.event_date, b.guests, b.message, b.status, b.created_at, b.expires_at, b.payment_method, b.paid_at, b.payment_note
                FROM bookings b LEFT JOIN venues v ON v.id = b.venue_id
                ORDER BY b.id DESC`
             ).all();
           } else {
             rows = await env.DB.prepare(
               `SELECT b.id, b.venue_id, v.name AS venue_name, b.client_name, b.client_email,
-                      b.event_date, b.guests, b.message, b.status, b.created_at
+                      b.event_date, b.guests, b.message, b.status, b.created_at, b.payment_method, b.paid_at, b.payment_note
                FROM bookings b LEFT JOIN venues v ON v.id = b.venue_id
                WHERE b.venue_id = ?
                ORDER BY b.id DESC`
@@ -1313,6 +1313,50 @@ export default {
           return jsonResponse(updated, 200, request);
         } catch (err) {
           console.log("[bookings/status] caught error:", err.message, JSON.stringify(err));
+          return jsonResponse({ error: err.message }, 500, request);
+        }
+      }
+
+      // ── BOOKINGS: MARK PAID OFFLINE ─────────────────────────────
+      const markPaidMatch = path.match(/^\/api\/bookings\/(\d+)\/mark-paid-offline$/);
+      if (markPaidMatch && request.method === "POST") {
+        try {
+          const session = await getSession(request, env);
+          if (!isAnyRole(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
+          const id = Number(markPaidMatch[1]);
+
+          const booking = await env.DB.prepare(
+            "SELECT id, venue_id, status FROM bookings WHERE id = ?"
+          ).bind(id).first();
+          if (!booking) return jsonResponse({ error: "Booking not found" }, 404, request);
+
+          if (session.role === "venue_owner" && booking.venue_id !== session.venue_id) {
+            return jsonResponse({ error: "Unauthorized" }, 403, request);
+          }
+
+          if (booking.status !== "pending") {
+            return jsonResponse({ error: "Only pending bookings can be marked as paid" }, 400, request);
+          }
+
+          const body = await parseJson(request);
+          const payment_method = String(body.payment_method || "").trim().toLowerCase();
+          if (!["zelle", "cash", "other"].includes(payment_method)) {
+            return jsonResponse({ error: "Invalid payment_method (zelle, cash, other)" }, 400, request);
+          }
+          const payment_note = body.note ? String(body.note).trim().slice(0, 500) : null;
+
+          await env.DB.prepare(
+            "UPDATE bookings SET status = 'confirmed', payment_method = ?, paid_at = datetime('now'), payment_note = ?, expires_at = NULL WHERE id = ? AND status = 'pending'"
+          ).bind(payment_method, payment_note, id).run();
+
+          const updated = await env.DB.prepare(
+            `SELECT b.id, b.venue_id, v.name AS venue_name, b.client_name, b.client_email,
+                    b.event_date, b.guests, b.message, b.status, b.created_at, b.payment_method, b.paid_at, b.payment_note
+             FROM bookings b LEFT JOIN venues v ON v.id = b.venue_id WHERE b.id = ?`
+          ).bind(id).first();
+          return jsonResponse(updated, 200, request);
+        } catch (err) {
+          console.log("[bookings/mark-paid-offline] error:", err.message);
           return jsonResponse({ error: err.message }, 500, request);
         }
       }
