@@ -159,8 +159,6 @@ section{display:flex;flex-direction:column;gap:14px}
 .btn-accept{background:var(--green);color:#000;border:none;font-weight:700;font-size:12px;padding:8px 16px;border-radius:8px;cursor:pointer}
 .btn-decline{background:var(--surface2);border:1px solid var(--border2);color:var(--text2);font-weight:600;font-size:12px;padding:8px 16px;border-radius:8px;cursor:pointer}
 .btn-decline:hover{color:var(--alert);border-color:rgba(255,68,68,0.3)}
-.btn-draft{background:transparent;border:1px solid var(--border2);color:var(--text2);font-weight:600;font-size:12px;padding:8px 16px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
-.btn-draft:hover{color:var(--accent);border-color:rgba(255,107,26,0.3)}
 .btn-mark-paid{background:transparent;border:1px solid rgba(74,222,128,0.3);color:var(--green);font-weight:600;font-size:12px;padding:8px 16px;border-radius:8px;cursor:pointer}
 .btn-mark-paid:hover{background:rgba(74,222,128,0.08);border-color:rgba(74,222,128,0.5)}
 .mark-paid-form{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
@@ -170,15 +168,6 @@ section{display:flex;flex-direction:column;gap:14px}
 .inq-status-declined{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;font-weight:600}
 
 /* ── ARTIST WORKFLOW PREVIEW ─────────────────── */
-.feature-preview{background:linear-gradient(135deg,#0d0d0d 0%,#1a1410 100%);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:24px 26px;position:relative;overflow:hidden}
-.feature-preview::before{content:'';position:absolute;top:-60px;right:-60px;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(255,107,26,0.06) 0%,transparent 70%)}
-.fp-tag{display:inline-block;font-size:10px;font-weight:700;color:var(--accent);background:var(--accent-soft);border:1px solid rgba(255,107,26,0.3);padding:4px 9px;border-radius:5px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;position:relative;z-index:1}
-.fp-title{font-size:20px;font-weight:800;letter-spacing:-.4px;margin-bottom:8px;position:relative;z-index:1}
-.fp-sub{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:16px;max-width:580px;position:relative;z-index:1}
-.fp-checklist{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 24px;position:relative;z-index:1}
-.fp-item{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--text2);font-weight:500}
-.fp-item svg{color:var(--accent);flex-shrink:0}
-
 /* ── CALENDAR + STRIPE ───────────────────────── */
 .cal-stripe-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .cal-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px}
@@ -478,7 +467,6 @@ section{display:flex;flex-direction:column;gap:14px}
   .achievements{grid-template-columns:1fr}
   .cal-stripe-row{grid-template-columns:1fr}
   .profile-grid{grid-template-columns:repeat(2,1fr)}
-  .fp-checklist{grid-template-columns:1fr}
   .dashboard-hero{grid-template-columns:1fr;padding:28px}
   .hero-right{align-items:flex-start}
   .hero-flyer-art{display:none}
@@ -662,7 +650,6 @@ section{display:flex;flex-direction:column;gap:14px}
           <div class="inq-actions">
             <button class="btn-accept" id="inq-act-101">Accept &amp; send payment link</button>
             <button class="btn-decline">Decline</button>
-            <button class="btn-draft" id="inq-draft-101">✦ Draft reply</button>
           </div>
         </div>
       </div>
@@ -683,7 +670,6 @@ section{display:flex;flex-direction:column;gap:14px}
           <div class="inq-actions">
             <button class="btn-accept" id="inq-act-102">Accept &amp; send payment link</button>
             <button class="btn-decline">Decline</button>
-            <button class="btn-draft" id="inq-draft-102">✦ Draft reply</button>
           </div>
         </div>
       </div>
@@ -705,19 +691,6 @@ section{display:flex;flex-direction:column;gap:14px}
 
     </div>
   </section>
-
-  <!-- ARTIST WORKFLOW PREVIEW -->
-  <div id="artist-workflow-preview" class="feature-preview">
-    <span class="fp-tag">Coming soon</span>
-    <h2 class="fp-title">Artist Booking Agreements + Arrival Packets</h2>
-    <p class="fp-sub">Every confirmed booking will auto-generate a signed agreement and an artist arrival packet — load-in time, parking, stage plot, contacts — so promoters and artists walk in already aligned.</p>
-    <div class="fp-checklist">
-      <div class="fp-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Auto-generated booking agreement (e-signable)</div>
-      <div class="fp-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Day-of arrival packet emailed 48h before</div>
-      <div class="fp-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Venue load-in time, parking, stage plot</div>
-      <div class="fp-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Direct artist + venue contact handoff</div>
-    </div>
-  </div>
 
   <!-- CALENDAR + STRIPE -->
   <section id="cal-card-section">
@@ -1326,7 +1299,6 @@ async function renderInquiries() {
         <div class="inquiry-note">${q.message ? '"' + esc(q.message) + '"' : ''}</div>
         <div class="inquiry-actions" id="inq-act-${q.id}">
           ${q.status === 'pending' ? `
-            <button class="btn-draft"   onclick="draftReply(${q.id})">Draft Reply</button>
             <button class="btn-accept"  onclick="acceptInquiry(${q.id})">Accept</button>
             <button class="btn-decline" onclick="declineInquiry(${q.id})">Decline</button>
             <button class="btn-mark-paid" onclick="showMarkPaidForm(${q.id})">Mark Paid</button>
@@ -1336,7 +1308,7 @@ async function renderInquiries() {
             <span style="font-family:var(--mono);font-size:11px;color:var(--text3)">Declined</span>
           `}
         </div>
-        <div id="inq-draft-${q.id}"></div>
+        <div id="inq-actions-${q.id}"></div>
       </div>`).join('');
   } catch (e) {
     console.log('[renderInquiries] fetch error (' + API_BASE + '/api/bookings):', e.message);
@@ -1421,7 +1393,7 @@ async function declineInquiry(id) {
 function showMarkPaidForm(id) {
   const existing = document.getElementById('mark-paid-form-' + id);
   if (existing) { existing.remove(); return; }
-  const container = document.getElementById('inq-draft-' + id);
+  const container = document.getElementById('inq-actions-' + id);
   if (!container) return;
   container.innerHTML = `<div class="mark-paid-form" id="mark-paid-form-${id}">
     <select id="mp-method-${id}"><option value="zelle">Zelle</option><option value="cash">Cash</option><option value="other">Other</option></select>
@@ -2729,105 +2701,6 @@ async function revokeIcalToken() {
 }
 
 loadIcalToken();
-
-/* ─── AI DRAFT REPLY ────────────────────────────────── */
-let activeDraftId = null;
-
-function closeDraftPanel() {
-  if (activeDraftId !== null) {
-    const panel = document.getElementById('inq-draft-' + activeDraftId);
-    if (panel) panel.innerHTML = '';
-    activeDraftId = null;
-  }
-}
-
-async function draftReply(id) {
-  closeDraftPanel();
-  const inquiry = allBookings.find(b => b.id === id);
-  if (!inquiry) return;
-  activeDraftId = id;
-  const panel = document.getElementById('inq-draft-' + id);
-  if (!panel) return;
-  showDraftLoading(panel);
-  await callDraftAPI(id, inquiry);
-}
-
-function showDraftLoading(panel) {
-  panel.innerHTML = `<div style="background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:16px;margin-top:8px"><div class="draft-loading" style="font-family:var(--mono);font-size:11px;color:var(--text3)">Drafting reply...</div></div>`;
-}
-
-async function callDraftAPI(id, inquiry) {
-  const panel = document.getElementById('inq-draft-' + id);
-  if (!panel) return;
-  try {
-    const res = await fetch(API_BASE + '/api/draft-reply', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + TOKEN,
-      },
-      body: JSON.stringify({
-        venue: {
-          name:         MOCK.venue.name,
-          location:     MOCK.venue.location,
-          capacity:     MOCK.venue.capacity,
-          price_per_day: MOCK.venue.price_per_day,
-          amenities:    MOCK.venue.amenities,
-          hours:        MOCK.venue.hours,
-        },
-        inquiry: {
-          client_name:  inquiry.client_name,
-          client_email: inquiry.client_email,
-          event_date:   inquiry.event_date,
-          guests:       inquiry.guests,
-          message:      inquiry.message,
-        },
-      })
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'API error');
-    const draft = data.draft;
-    const taId  = 'draft-ta-' + id;
-    panel.innerHTML = `
-      <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:16px;margin-top:8px">
-        <textarea id="${taId}" style="width:100%;min-height:140px;background:var(--bg);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:var(--sans);font-size:13px;line-height:1.6;padding:12px;resize:vertical;outline:none">${esc(draft)}</textarea>
-        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
-          <button id="draft-copy-${id}" onclick="copyDraft('${taId}',${id})" style="background:var(--accent);color:#111;font-family:var(--display);font-size:12px;font-weight:700;padding:7px 14px;border-radius:var(--radius);border:none;cursor:pointer">Copy Reply</button>
-          <button onclick="regenerateDraft(${id})" style="background:none;border:1px solid var(--border2);color:var(--text2);font-family:var(--mono);font-size:9px;text-transform:uppercase;padding:7px 14px;border-radius:var(--radius);cursor:pointer">Regenerate</button>
-          <button onclick="closeDraftPanel()" style="background:none;border:1px solid var(--border2);color:var(--text2);font-family:var(--mono);font-size:9px;text-transform:uppercase;padding:7px 14px;border-radius:var(--radius);cursor:pointer">Close</button>
-        </div>
-      </div>`;
-  } catch(e) {
-    panel.innerHTML = `
-      <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:16px;margin-top:8px">
-        <div style="font-family:var(--mono);font-size:11px;color:#f87171;margin-bottom:10px">Could not generate draft. Try again.</div>
-        <button onclick="regenerateDraft(${id})" style="background:none;border:1px solid var(--border2);color:var(--text2);font-family:var(--mono);font-size:9px;text-transform:uppercase;padding:7px 14px;border-radius:var(--radius);cursor:pointer">Retry</button>
-      </div>`;
-  }
-}
-
-async function regenerateDraft(id) {
-  const inquiry = allBookings.find(b => b.id === id);
-  if (!inquiry) return;
-  activeDraftId = id;
-  const panel = document.getElementById('inq-draft-' + id);
-  if (!panel) return;
-  showDraftLoading(panel);
-  await callDraftAPI(id, inquiry);
-}
-
-function copyDraft(taId, id) {
-  const ta  = document.getElementById(taId);
-  const btn = document.getElementById('draft-copy-' + id);
-  if (!ta || !btn) return;
-  const revert = () => { if (btn) btn.textContent = 'Copy Reply'; };
-  navigator.clipboard.writeText(ta.value).then(() => {
-    btn.textContent = 'Copied'; setTimeout(revert, 2000);
-  }).catch(() => {
-    ta.select(); document.execCommand('copy');
-    btn.textContent = 'Copied'; setTimeout(revert, 2000);
-  });
-}
 
 /* ─── MOBILE NAV ────────────────────────────────────── */
 function scrollToSection(id) {

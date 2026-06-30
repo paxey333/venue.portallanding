@@ -1622,6 +1622,10 @@ export default {
       }
 
       // ── AI DRAFT REPLY ───────────────────────────────────────────────────────
+      // DORMANT — UI removed in Commit S (Path B declutter).
+      // AI-drafted reply feature deferred. May return in Phase 2B (promoter accounts)
+      // when multi-party negotiation makes drafted replies more valuable.
+      // Endpoint kept intact; calls Anthropic. Safe to delete if not revived by 2026.
       if (path === "/api/draft-reply" && request.method === "POST") {
         console.log("[draft-reply] route hit");
         try {
