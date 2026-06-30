@@ -875,6 +875,10 @@ section{display:flex;flex-direction:column;gap:14px}
         <div class="hours-grid" id="hours-grid"></div>
         <label style="display:block;font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Description</label>
         <textarea id="edit-description"></textarea>
+        <label style="display:block;font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Payment Instructions</label>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:6px;line-height:1.5">Used for venues accepting payment outside of Stripe (Zelle, Venmo, etc.). Stripe-connected venues can leave this blank.</div>
+        <textarea id="edit-payment-instructions" maxlength="1000" style="min-height:80px" placeholder="e.g. Zelle to sal@chillroom.com — include your event date in the memo."></textarea>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:4px;margin-bottom:8px">Do NOT include full bank account or routing numbers.</div>
         <label style="display:block;font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Video URL (optional)</label>
         <input id="edit-video" type="text"/>
         <label style="display:block;font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">Photos</label>
@@ -1642,6 +1646,7 @@ function startProfileEdit() {
   document.getElementById('edit-price').value       = currentVenue.price_per_day || '';
   document.getElementById('edit-hours').value       = currentVenue.hours || '';
   document.getElementById('edit-description').value = currentVenue.description || '';
+  document.getElementById('edit-payment-instructions').value = currentVenue.payment_instructions || '';
   document.getElementById('edit-video').value       = currentVenue.video_url || '';
   // Photo manager (Commit E) — handles its own state from currentVenue.gallery
   initPhotoManager();
@@ -1672,6 +1677,7 @@ async function saveProfileEdit() {
     price_per_day: parseFloat(document.getElementById('edit-price').value) || null,
     hours:         document.getElementById('edit-hours').value.trim(),
     video_url:     document.getElementById('edit-video').value.trim() || null,
+    payment_instructions: document.getElementById('edit-payment-instructions').value.trim() || null,
     amenities:     getSelectedAmenities(),
     address:       document.getElementById('edit-address').value.trim() || null,
     city:          document.getElementById('edit-city').value.trim() || null,

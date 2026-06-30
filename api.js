@@ -632,9 +632,12 @@ export default {
           // headers don't affect a no-auth endpoint. Operator-approved change.
           const session = await getSession(request, env).catch(() => null);
           console.log("[GET /api/venues/:id]", id, "session:", session ? session.role : "public");
+          const isOwnerOrAdmin = session && (isAdminOrAbove(session) || (session.role === "venue_owner" && session.venue_id === id));
+          const cols = isOwnerOrAdmin
+            ? 'id, name, description, capacity, price_per_day, image_url, hours, amenities, gallery, video_url, address, city, state, payment_instructions, created_at'
+            : 'id, name, description, capacity, price_per_day, image_url, hours, amenities, gallery, video_url, address, city, state, created_at';
           const row = await env.DB.prepare(
-            `SELECT id, name, description, capacity, price_per_day, image_url, hours, amenities, gallery, video_url, address, city, state, created_at
-             FROM venues WHERE id = ?`
+            `SELECT ${cols} FROM venues WHERE id = ?`
           ).bind(id).first();
           if (!row) return jsonResponse({ error: "Venue not found" }, 404, request);
           let amenities = [];
@@ -676,6 +679,9 @@ export default {
           if ('address' in body)       { fields.push('address=?');       values.push(body.address ? String(body.address) : null); }
           if ('city' in body)          { fields.push('city=?');          values.push(body.city ? String(body.city) : null); }
           if ('state' in body)         { fields.push('state=?');         values.push(body.state ? String(body.state) : null); }
+          // Path B: payment_instructions on venues today; generalize as party_payment_instructions
+          // in Phase 2/3 when promoter/artist accounts ship and parties beyond venues receive funds.
+          if ('payment_instructions' in body) { fields.push('payment_instructions=?'); values.push(body.payment_instructions ? String(body.payment_instructions).slice(0, 1000) : null); }
 
           if (!fields.length) return jsonResponse({ error: "No fields to update" }, 400, request);
 
@@ -688,7 +694,7 @@ export default {
           ).bind(...values).run();
 
           const updated = await env.DB.prepare(
-            `SELECT id, name, description, capacity, price_per_day, image_url, hours, amenities, gallery, video_url, address, city, state, created_at FROM venues WHERE id=?`
+            `SELECT id, name, description, capacity, price_per_day, image_url, hours, amenities, gallery, video_url, address, city, state, payment_instructions, created_at FROM venues WHERE id=?`
           ).bind(id).first();
           let amenities = [];
           try { const a = updated.amenities ? JSON.parse(updated.amenities) : []; amenities = Array.isArray(a) ? a : []; } catch(e) { amenities = []; }

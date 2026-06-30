@@ -439,6 +439,12 @@ async function renderAdminPanel() {
         <div class="form-field"><label>City</label><input type="text" id="av-city" placeholder="Tempe"/></div>
         <div class="form-field"><label>State</label><input type="text" id="av-state" placeholder="AZ"/></div>
         <div class="form-field full"><label>Description</label><textarea id="av-desc" placeholder="Tell bookers about the space…"></textarea></div>
+        <div class="form-field full">
+          <label>Payment Instructions</label>
+          <div style="font-size:10px;color:var(--text3);margin-bottom:4px">Used for venues accepting payment outside of Stripe (Zelle, Venmo, etc.). Stripe-connected venues can leave this blank.</div>
+          <textarea id="av-payment-instructions" maxlength="1000" placeholder="e.g. Zelle to sal@chillroom.com — include your event date in the memo."></textarea>
+          <div style="font-size:9px;color:var(--text3);margin-top:3px">Do NOT include full bank account or routing numbers.</div>
+        </div>
       </div>
       <div id="av-owner-section">
         <div style="margin:18px 0 12px;border-top:1px solid var(--border);padding-top:14px">
@@ -530,6 +536,7 @@ function startEditVenue(id) {
   document.getElementById('av-city').value     = v.city          || '';
   document.getElementById('av-state').value    = v.state         || '';
   document.getElementById('av-desc').value     = v.description   || '';
+  document.getElementById('av-payment-instructions').value = v.payment_instructions || '';
   document.getElementById('av-owner-section').style.display = 'none';
   document.getElementById('add-venue-form').classList.add('open');
   document.getElementById('add-venue-form').scrollIntoView({ behavior:'smooth', block:'start' });
@@ -547,6 +554,7 @@ async function saveVenue() {
     address:       document.getElementById('av-address').value.trim() || null,
     city:          document.getElementById('av-city').value.trim() || null,
     state:         document.getElementById('av-state').value.trim() || null,
+    payment_instructions: document.getElementById('av-payment-instructions').value.trim() || null,
   };
   if (!body.name) { errEl.style.display=''; errEl.textContent='Venue name is required.'; return; }
   try {
