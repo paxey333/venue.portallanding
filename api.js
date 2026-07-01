@@ -1191,6 +1191,16 @@ export default {
             console.log("[bookings/accept] booking lookup:", JSON.stringify(booking));
             if (!booking) return jsonResponse({ error: "Booking not found" }, 404, request);
             console.log("[bookings/accept] venue stripe_account_id:", booking.stripe_account_id, "stripe_connected:", booking.stripe_connected);
+            // PLATFORM FEE COLLECTION (interim, manual):
+            // For non-Stripe venues, the platform fee is collected manually via Zelle
+            // from the venue owner to Pax/Mark, separate from the renter->venue payment.
+            // This is the bridge until Aeropay (or another cannabis-friendly rail) is live
+            // and can support automated split payments for non-Stripe venues.
+            // See strategy doc for fee % and cadence terms.
+            //
+            // Path B Phase 2/3: when promoter/artist accounts ship, this becomes
+            // multi-party split routing (venue cut + promoter cut + artist cut + platform cut)
+            // -- not a venue-only fee. Refactor anticipated, not surprising.
             if (!booking.stripe_connected) {
               if (!booking.payment_instructions) {
                 return jsonResponse({ error: "Set payment instructions in venue settings before accepting bookings without Stripe." }, 400, request);
