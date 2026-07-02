@@ -575,9 +575,10 @@ export default {
       // ── VENUES: GET ALL (public) ─────────────────────────────────
       if (path === "/api/venues" && request.method === "GET") {
         try {
+          // Path B: 'hidden' generalizes to draft/published visibility states when venue self-serve onboarding ships
           const rows = await env.DB.prepare(
             `SELECT id, name, description, capacity, price_per_day, image_url, address, city, state, created_at
-             FROM venues ORDER BY id DESC`
+             FROM venues WHERE hidden IS NOT 1 ORDER BY id DESC`
           ).all();
           return jsonResponse(rows.results || [], 200, request);
         } catch (err) {
@@ -634,12 +635,13 @@ export default {
           console.log("[GET /api/venues/:id]", id, "session:", session ? session.role : "public");
           const isOwnerOrAdmin = session && (isAdminOrAbove(session) || (session.role === "venue_owner" && session.venue_id === id));
           const cols = isOwnerOrAdmin
-            ? 'id, name, description, capacity, price_per_day, image_url, hours, amenities, gallery, video_url, address, city, state, payment_instructions, created_at'
-            : 'id, name, description, capacity, price_per_day, image_url, hours, amenities, gallery, video_url, address, city, state, created_at';
+            ? 'id, name, description, capacity, price_per_day, image_url, hours, amenities, gallery, video_url, address, city, state, payment_instructions, hidden, created_at'
+            : 'id, name, description, capacity, price_per_day, image_url, hours, amenities, gallery, video_url, address, city, state, hidden, created_at';
           const row = await env.DB.prepare(
             `SELECT ${cols} FROM venues WHERE id = ?`
           ).bind(id).first();
           if (!row) return jsonResponse({ error: "Venue not found" }, 404, request);
+          if (row.hidden === 1 && !isOwnerOrAdmin) return jsonResponse({ error: "Venue not found" }, 404, request);
           let amenities = [];
           try { const a = row.amenities ? JSON.parse(row.amenities) : []; amenities = Array.isArray(a) ? a : []; } catch(e) { amenities = []; }
           let gallery = [];

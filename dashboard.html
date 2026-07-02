@@ -748,9 +748,9 @@ section{display:flex;flex-direction:column;gap:14px}
 
         <!-- STATE B · DISCONNECTED (production renders one or the other; both shown for review) -->
         <div class="stripe-card" data-state="disconnected" style="background:linear-gradient(135deg,#1a0a00 0%,#0a0a0a 100%);border-color:rgba(255,107,26,0.25);margin-top:14px">
-          <div class="stripe-eyebrow" style="color:var(--accent)">Payouts · Action needed</div>
-          <div class="stripe-title">Connect Stripe to receive bookings <span style="display:inline-flex;align-items:center;gap:4px;background:var(--accent-soft);border:1px solid rgba(255,107,26,0.3);color:var(--accent);font-size:9px;font-weight:700;padding:3px 8px;border-radius:12px;letter-spacing:.08em;text-transform:uppercase"><span style="width:5px;height:5px;border-radius:50%;background:var(--accent)"></span>Required</span></div>
-          <div class="stripe-sub">Promoters can't pay deposits until your payout account is connected. Takes ~3 minutes.</div>
+          <div class="stripe-eyebrow" style="color:var(--accent)">Payments · Setup</div>
+          <div class="stripe-title">Connect Stripe (optional) <span style="display:inline-flex;align-items:center;gap:4px;background:var(--accent-soft);border:1px solid rgba(255,107,26,0.3);color:var(--accent);font-size:9px;font-weight:700;padding:3px 8px;border-radius:12px;letter-spacing:.08em;text-transform:uppercase"><span style="width:5px;height:5px;border-radius:50%;background:var(--accent)"></span>Optional</span></div>
+          <div class="stripe-sub">Accept card payments directly, or add Zelle/offline instructions in Venue Settings.</div>
           <button class="btn-stripe" id="btn-stripe-connect" style="background:var(--accent);border-color:var(--accent);color:#000">Connect Stripe →</button>
         </div>
 
@@ -946,7 +946,7 @@ section{display:flex;flex-direction:column;gap:14px}
     </div>
     <div class="modal-success" id="pw-success">
       <div class="pw-success-label">Password updated</div>
-      <div class="pw-success-sub">Redirecting to your dashboard…</div>
+      <div class="pw-success-sub">Next: head to Venue Settings to set up how you get paid — connect Stripe or add payment instructions for Zelle and other offline methods.</div>
     </div>
   </div>
 </div>
@@ -2091,12 +2091,12 @@ function renderStripeConnected(acctId) {
 
 function renderStripeDisconnected(errorMsg) {
   return `
-    <div class="stripe-action-banner">ACTION REQUIRED &mdash; connect your bank to enable payouts</div>
+    <div class="stripe-action-banner">Set up payments &mdash; connect Stripe or add payment instructions in Venue Settings</div>
     <div class="stripe-card stripe-disconnected">
       <div class="stripe-left">
-        <div class="stripe-eyebrow">/ Stripe Connect</div>
-        <div class="stripe-heading">Connect your Stripe account</div>
-        <div class="stripe-sub">Receive payouts directly to your bank. Setup takes 2 minutes.</div>
+        <div class="stripe-eyebrow">/ Payments</div>
+        <div class="stripe-heading">Connect Stripe (optional)</div>
+        <div class="stripe-sub">Accept card payments and receive payouts directly to your bank. Or add Zelle/offline instructions in Venue Settings.</div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
         <button class="btn-stripe" id="btn-stripe-connect">Connect Stripe &#8594;</button>
