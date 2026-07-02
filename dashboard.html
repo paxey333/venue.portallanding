@@ -155,7 +155,7 @@ section{display:flex;flex-direction:column;gap:14px}
 .inq-meta{font-size:12px;color:var(--text2);font-weight:500;margin-bottom:10px;display:flex;flex-wrap:wrap;gap:10px}
 .inq-meta .sep{color:var(--text3)}
 .inq-msg{font-size:13px;color:var(--text2);line-height:1.55;margin-bottom:14px;background:var(--surface2);border-radius:8px;padding:11px 13px;border-left:2px solid var(--border2)}
-.inq-actions{display:flex;gap:8px;flex-wrap:wrap}
+.inquiry-actions{display:flex;gap:8px;flex-wrap:wrap}
 .btn-accept{background:var(--green);color:#000;border:none;font-weight:700;font-size:12px;padding:8px 16px;border-radius:8px;cursor:pointer}
 .btn-decline{background:var(--surface2);border:1px solid var(--border2);color:var(--text2);font-weight:600;font-size:12px;padding:8px 16px;border-radius:8px;cursor:pointer}
 .btn-decline:hover{color:var(--alert);border-color:rgba(255,68,68,0.3)}
@@ -488,6 +488,10 @@ section{display:flex;flex-direction:column;gap:14px}
   select,
   textarea{font-size:16px}
 }
+@media(max-width:480px){
+  .inquiry-actions{flex-direction:column}
+  .inquiry-actions>*{width:100%;box-sizing:border-box;text-align:center}
+}
 </style>
 </head>
 <body>
@@ -647,7 +651,7 @@ section{display:flex;flex-direction:column;gap:14px}
             <span>120 guests</span>
           </div>
           <div class="inq-msg">Looking to host a launch party for our new EP — DJ set, light bar service, capacity around 120. Open to your standard terms.</div>
-          <div class="inq-actions">
+          <div class="inquiry-actions">
             <button class="btn-accept" id="inq-act-101">Accept &amp; send payment link</button>
             <button class="btn-decline">Decline</button>
           </div>
@@ -667,7 +671,7 @@ section{display:flex;flex-direction:column;gap:14px}
             <span>200 guests</span>
           </div>
           <div class="inq-msg">Hosting a showcase night for three of our artists. Need full PA + lights. Any chance you can do the door?</div>
-          <div class="inq-actions">
+          <div class="inquiry-actions">
             <button class="btn-accept" id="inq-act-102">Accept &amp; send payment link</button>
             <button class="btn-decline">Decline</button>
           </div>
@@ -1205,7 +1209,7 @@ async function renderBookings() {
     document.getElementById('st-bookings-sub').textContent = nextDate ? 'Next: ' + nextDate : 'None scheduled';
 
     if (confirmed.length === 0) {
-      listEl.innerHTML = '<div style="text-align:center;padding:24px 0"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><div style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-top:10px">No upcoming bookings</div></div>';
+      listEl.innerHTML = '<div style="text-align:center;padding:24px 0"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><div style="font-family:var(--mono);font-size:11px;color:var(--text3);margin-top:10px">No upcoming bookings</div><div style="font-family:var(--sans);font-size:11px;color:var(--text3);margin-top:4px;opacity:0.7">Accept an inquiry and confirm payment — bookings appear here once locked in.</div></div>';
       return;
     }
     listEl.innerHTML = confirmed.map(b => `
@@ -1723,8 +1727,14 @@ async function saveProfileEdit() {
     if ('price_per_day' in body) { setText('pf-price', body.price_per_day ? '$' + body.price_per_day + ' / night' : '—'); }
     if ('hours' in body) { setText('pf-hours', body.hours || '—'); setText('pf-hours-display', body.hours || '—'); }
     await saveAvailabilityRules();
-    cancelProfileEdit();
-    loadVenueProfile();
+    const saveBtn = document.querySelector('.profile-edit-form .btn-primary');
+    if (saveBtn) {
+      saveBtn.textContent = 'Saved ✓';
+      saveBtn.style.background = 'var(--green)';
+      saveBtn.style.color = '#000';
+      saveBtn.disabled = true;
+    }
+    setTimeout(() => { cancelProfileEdit(); loadVenueProfile(); }, 1500);
   } catch(e) {
     errEl.style.display = '';
     errEl.textContent = 'Save failed: ' + e.message;
