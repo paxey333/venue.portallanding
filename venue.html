@@ -396,7 +396,7 @@ footer{padding:48px 0 36px 0;border-top:1px solid var(--border);margin-top:48px}
         <div class="how-steps">
           <div class="how-step"><div class="how-step-num">1</div><div class="how-step-title">Send an inquiry</div><div class="how-step-body">Pick a date and tell the venue about your event. No commitment yet.</div></div>
           <div class="how-step"><div class="how-step-num">2</div><div class="how-step-title">Get accepted</div><div class="how-step-body">The venue owner reviews and accepts within 24 hours. You'll get an email.</div></div>
-          <div class="how-step"><div class="how-step-num">3</div><div class="how-step-title">Confirm with deposit</div><div class="how-step-body">Pay a small Stripe-secured deposit to lock your date. Keep 100% of door revenue.</div></div>
+          <div class="how-step"><div class="how-step-num">3</div><div class="how-step-title">Confirm with deposit</div><div class="how-step-body">Lock your date with a deposit. Keep 100% of door revenue.</div></div>
         </div>
       </section>
 
@@ -404,9 +404,9 @@ footer{padding:48px 0 36px 0;border-top:1px solid var(--border);margin-top:48px}
         <div class="v-section-label">House rules</div>
         <h2 class="v-section-title">Things to know.</h2>
         <ul class="rules-list">
-          <li class="rule">Confirmed bookings are locked once Stripe deposit clears.</li>
+          <li class="rule">Bookings are locked in once payment clears.</li>
           <li class="rule">Cancellation requires 5+ days notice for partial refund.</li>
-          <li class="rule">Promoter responsible for any damages beyond normal wear.</li>
+          <li class="rule">Renter responsible for any damages beyond normal wear.</li>
           <li class="rule">Specific house rules (noise curfew, age restrictions, parking) shared by the venue owner after acceptance.</li>
         </ul>
       </section>
@@ -427,7 +427,7 @@ footer{padding:48px 0 36px 0;border-top:1px solid var(--border);margin-top:48px}
           <div class="book-perks">
             <span class="book-perk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Keep 100% of door</span>
             <span class="book-perk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Confirmed within 24hrs</span>
-            <span class="book-perk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Stripe-secured deposit</span>
+            <span class="book-perk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Secure deposit to lock date</span>
           </div>
         </div>
         <div class="book-cal-section">
@@ -448,7 +448,7 @@ footer{padding:48px 0 36px 0;border-top:1px solid var(--border);margin-top:48px}
           <button class="btn-book" id="sidebar-cta" disabled onclick="openBookingModal()">Select a date above</button>
           <div class="book-footnote">
             <svg width="9" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-            Secured by Stripe
+            Secure payments
           </div>
         </div>
       </div>
@@ -474,6 +474,7 @@ footer{padding:48px 0 36px 0;border-top:1px solid var(--border);margin-top:48px}
       <div>
         <div class="modal-eyebrow" id="modal-eyebrow">Send inquiry</div>
         <div class="modal-title" id="modal-title">Booking inquiry</div>
+        <div style="font-size:11px;color:var(--text3);display:flex;align-items:center;gap:6px;margin-top:2px"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0"></span>Typically responds within 24 hours</div>
       </div>
       <button class="modal-close" onclick="closeBookingModal()" aria-label="Close">×</button>
     </div>
@@ -526,6 +527,7 @@ footer{padding:48px 0 36px 0;border-top:1px solid var(--border);margin-top:48px}
         <button class="btn-submit" id="modal-submit" onclick="submitInquiry()">Send inquiry →</button>
         <button class="btn-cancel" onclick="closeBookingModal()">Cancel</button>
       </div>
+      <div style="font-size:11px;color:var(--text3);text-align:center;margin-top:10px;line-height:1.5">No payment is due now. After acceptance, payment details are sent to your email.</div>
     </div>
   </div>
 </div>
@@ -722,7 +724,7 @@ function renderVenue() {
     if (deposit < 50) deposit = Math.max(25, Math.round(price * 0.33));
     $('deal-card').innerHTML = `
       <div class="deal-item"><div class="lbl">Booking fee</div><div class="val accent">${fmtPrice(price)}</div><div class="sub">Flat per night · No commission</div></div>
-      <div class="deal-item"><div class="lbl">Deposit</div><div class="val">${fmtPrice(deposit)}</div><div class="sub">Held via Stripe to confirm date</div></div>
+      <div class="deal-item"><div class="lbl">Deposit</div><div class="val">${fmtPrice(deposit)}</div><div class="sub">Confirms and locks your date</div></div>
       <div class="deal-item"><div class="lbl">Door</div><div class="val">100%</div><div class="sub">Keep everything from ticket sales</div></div>
     `;
     $('section-deal').style.display = '';
