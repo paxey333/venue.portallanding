@@ -729,6 +729,17 @@ export default {
       if (venueBookedDatesMatch && request.method === "GET") {
         try {
           const id = Number(venueBookedDatesMatch[1]);
+
+          // Hidden-venue gating (Commit V pattern)
+          const venueRow = await env.DB.prepare("SELECT id, hidden FROM venues WHERE id = ?").bind(id).first();
+          if (!venueRow) return jsonResponse({ error: "Venue not found" }, 404, request);
+          if (venueRow.hidden === 1) {
+            const sess = await getSession(request, env);
+            const isPriv = sess && (isAdminOrAbove(sess) || sess.venue_id === id);
+            if (!isPriv) return jsonResponse({ error: "Venue not found" }, 404, request);
+          }
+
+          const todayStr = new Date().toISOString().slice(0, 10);
           const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 30);
           const cutoffStr = cutoff.toISOString().slice(0, 10);
           const bookingRows = await env.DB.prepare(
@@ -741,8 +752,9 @@ export default {
           ).bind(id, cutoffStr).all();
           const blockRows = await env.DB.prepare(
             `SELECT id, block_date AS date, time_start, time_end, reason
-             FROM venue_blocks WHERE venue_id = ? ORDER BY block_date ASC`
-          ).bind(id).all();
+             FROM venue_blocks WHERE venue_id = ? AND block_date >= ?
+             ORDER BY block_date ASC`
+          ).bind(id, todayStr).all();
           const events = (bookingRows.results || []).map(r => ({
             id: r.id,
             date: r.event_date,
@@ -1031,6 +1043,16 @@ export default {
           const venue = await env.DB.prepare("SELECT id FROM venues WHERE id = ?").bind(venueId).first();
           if (!venue) return jsonResponse({ error: "Venue not found" }, 404, request);
 
+          // Date-collision guard: reject inquiries on unavailable dates
+          const dateConflict = await env.DB.prepare(
+            `SELECT id FROM bookings WHERE venue_id = ? AND event_date = ? AND status IN ('accepted','confirmed') LIMIT 1`
+          ).bind(venueId, eventDate).first();
+          if (dateConflict) return jsonResponse({ error: "That date is no longer available. Please choose another date." }, 400, request);
+          const blockConflict = await env.DB.prepare(
+            `SELECT id FROM venue_blocks WHERE venue_id = ? AND block_date = ? LIMIT 1`
+          ).bind(venueId, eventDate).first();
+          if (blockConflict) return jsonResponse({ error: "That date is no longer available. Please choose another date." }, 400, request);
+
           const result = await env.DB.prepare(
             `INSERT INTO bookings (venue_id, client_name, client_email, event_date, guests, message, status, expires_at)
              VALUES (?, ?, ?, ?, ?, ?, 'pending', datetime('now', '+${INQUIRY_EXPIRY_DAYS} days'))`
@@ -1192,6 +1214,16 @@ export default {
             ).bind(id).first();
             console.log("[bookings/accept] booking lookup:", JSON.stringify(booking));
             if (!booking) return jsonResponse({ error: "Booking not found" }, 404, request);
+
+            // Date-collision guard: another accepted/confirmed booking or a block on this date
+            const otherBooking = await env.DB.prepare(
+              `SELECT id FROM bookings WHERE venue_id = ? AND event_date = ? AND status IN ('accepted','confirmed') AND id != ? LIMIT 1`
+            ).bind(booking.venue_id, booking.event_date, id).first();
+            if (otherBooking) return jsonResponse({ error: "Another booking already holds this date." }, 400, request);
+            const blockHit = await env.DB.prepare(
+              `SELECT id FROM venue_blocks WHERE venue_id = ? AND block_date = ? LIMIT 1`
+            ).bind(booking.venue_id, booking.event_date).first();
+            if (blockHit) return jsonResponse({ error: "Another booking already holds this date." }, 400, request);
             console.log("[bookings/accept] venue stripe_account_id:", booking.stripe_account_id, "stripe_connected:", booking.stripe_connected);
             // PLATFORM FEE COLLECTION (interim, manual):
             // For non-Stripe venues, the platform fee is collected manually via Zelle
@@ -1415,6 +1447,21 @@ export default {
 
           if (booking.status !== "pending" && booking.status !== "accepted") {
             return jsonResponse({ error: "Only pending or accepted bookings can be marked as paid" }, 400, request);
+          }
+
+          // Date-collision guard on pending -> confirmed only (accepted already validated at accept time)
+          if (booking.status === "pending") {
+            const fullBooking = await env.DB.prepare(
+              "SELECT event_date, venue_id FROM bookings WHERE id = ?"
+            ).bind(id).first();
+            const otherHold = await env.DB.prepare(
+              `SELECT id FROM bookings WHERE venue_id = ? AND event_date = ? AND status IN ('accepted','confirmed') AND id != ? LIMIT 1`
+            ).bind(fullBooking.venue_id, fullBooking.event_date, id).first();
+            if (otherHold) return jsonResponse({ error: "Another booking already holds this date." }, 400, request);
+            const blockHold = await env.DB.prepare(
+              `SELECT id FROM venue_blocks WHERE venue_id = ? AND block_date = ? LIMIT 1`
+            ).bind(fullBooking.venue_id, fullBooking.event_date).first();
+            if (blockHold) return jsonResponse({ error: "Another booking already holds this date." }, 400, request);
           }
 
           const body = await parseJson(request);
