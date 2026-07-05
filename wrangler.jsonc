@@ -8,7 +8,7 @@
     "FRONTEND_URL": "https://venueportal.us"
   },
   "routes": [
-    { "pattern": "api.venueportal.us/*", "zone_name": "venueportal.us" }
+    { "pattern": "api.venueportal.us", "custom_domain": true }
   ],
   "d1_databases": [
     {

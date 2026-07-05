@@ -11,6 +11,7 @@
 
 const ALLOWED_ORIGINS = [
   "https://venueportal.us",
+  "https://api.venueportal.us",
   "https://thevenueportal.paxey333.workers.dev"
 ];
 const TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
