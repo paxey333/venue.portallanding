@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="theme-color" content="#000000"/>
+<title>Event — Venue.Portal</title>
+<meta property="og:title" content="Venue.Portal — Events"/>
+<meta property="og:description" content="Discover events at independent venues."/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://venueportal.us"/>
+<!-- Z.1 intent: share previews are static because Pages serves one HTML shell for all slugs.
+     Per-event OG tags require a Pages Function or Worker-rendered meta — same class of problem
+     as Helios's broken share previews. Deferred; revisit before first real promoted event. -->
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#000000;--surface:#0a0a0a;--surface2:#141414;
+  --border:#1f1f1f;--border2:#2a2a2a;
+  --text:#ffffff;--text2:#a8a8a8;--text3:#666666;
+  --accent:#ff6b1a;--accent-soft:rgba(255,107,26,0.12);
+  --event:#ff6b1a;
+  --event-dim:rgba(255,107,26,.08);
+  --event-border:rgba(255,107,26,.28);
+  --event-glow:rgba(255,107,26,.35);
+  --font:'Inter',sans-serif;
+}
+html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+
+.topnav{position:sticky;top:0;z-index:100;background:rgba(0,0,0,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center}
+.topnav-inner{max-width:1100px;width:100%;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:800;letter-spacing:-.3px}
+.brand .dot{color:var(--accent)}
+
+.loading{display:flex;align-items:center;justify-content:center;min-height:60vh;font-size:28px;color:var(--accent);animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}
+
+.hero{position:relative;padding:80px 24px 60px;max-width:800px;margin:0 auto;text-align:center}
+.hero-bg{position:fixed;top:0;left:0;width:100%;height:100vh;z-index:-1;overflow:hidden}
+.hero-bg img{width:100%;height:100%;object-fit:cover;opacity:.25}
+.hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.4) 0%,#000 85%)}
+.hero-presenter{font-size:13px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:16px}
+.hero-title{font-size:48px;font-weight:900;letter-spacing:-2px;line-height:1;margin-bottom:20px}
+.hero-title-accent{display:inline;background-image:linear-gradient(transparent 60%,var(--event-glow) 60%);background-size:100% 100%;padding:0 4px}
+.hero-meta{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;font-size:13px;font-weight:600;color:var(--text2);margin-bottom:24px}
+.hero-meta .sep{color:var(--text3)}
+.hero-desc{font-size:15px;line-height:1.7;color:var(--text2);max-width:600px;margin:0 auto}
+
+.section-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.15em;color:var(--accent);margin-bottom:24px;text-align:center}
+
+.performers{padding:60px 24px;max-width:900px;margin:0 auto}
+.perf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
+.perf-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color .2s}
+.perf-card:hover{border-color:var(--event-border)}
+.perf-photo{width:100%;aspect-ratio:1;object-fit:cover;background:var(--surface2)}
+.perf-info{padding:14px 16px}
+.perf-name{font-size:15px;font-weight:800;letter-spacing:-.3px;margin-bottom:2px}
+.perf-ig{font-size:12px;color:var(--event);font-weight:600}
+.perf-followers{font-size:11px;color:var(--text3);margin-top:2px}
+
+.team-section{padding:40px 24px 60px;max-width:900px;margin:0 auto}
+.team-grid{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.team-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px 20px;display:flex;align-items:center;gap:12px;min-width:200px;transition:border-color .2s}
+.team-card:hover{border-color:var(--event-border)}
+.team-name{font-size:14px;font-weight:800;letter-spacing:-.2px}
+.team-role{font-size:12px;color:var(--text3)}
+.team-ig{font-size:11px;color:var(--event);font-weight:600}
+
+.venue-section{padding:60px 24px;max-width:600px;margin:0 auto;text-align:center}
+.venue-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:32px 28px}
+.venue-name{font-size:22px;font-weight:900;letter-spacing:-.5px;margin-bottom:4px}
+.venue-city{font-size:14px;color:var(--text2);margin-bottom:16px}
+.venue-gated{display:flex;align-items:center;justify-content:center;gap:8px;font-size:12px;color:var(--text3);line-height:1.5}
+.lock-icon{color:var(--event);font-size:16px}
+@media(prefers-reduced-motion:no-preference){
+  .lock-icon{animation:lockPulse 2.4s ease-in-out infinite}
+}
+@keyframes lockPulse{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:1;transform:scale(1.15)}}
+
+.tickets-section{padding:60px 24px;max-width:700px;margin:0 auto;text-align:center}
+.ticket-cta{display:inline-block;background:var(--event);color:#000;font-size:15px;font-weight:800;padding:16px 40px;border-radius:8px;letter-spacing:-.2px;transition:transform .15s,box-shadow .15s;min-width:220px;text-align:center}
+.ticket-cta:hover{transform:translateY(-1px);box-shadow:0 4px 20px var(--event-glow)}
+.ticket-iframe-wrap{margin-top:24px;border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+.ticket-iframe-wrap iframe{width:100%;border:none;background:var(--surface)}
+.ticket-fallback{font-size:12px;color:var(--text3);margin-top:12px}
+.ticket-fallback a{color:var(--event);text-decoration:underline}
+.ticket-soon{display:inline-block;background:var(--surface);border:1px solid var(--border);padding:10px 24px;border-radius:20px;font-size:13px;font-weight:600;color:var(--text2)}
+
+footer{border-top:1px solid var(--border);padding:32px 24px;text-align:center}
+.footer-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.footer-brand{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:800}
+.footer-brand .dot{color:var(--accent)}
+.footer-link{font-size:12px;color:var(--text3)}
+.footer-link a{color:var(--text2);text-decoration:underline}
+
+.not-found{min-height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 24px}
+.not-found h1{font-size:36px;font-weight:900;letter-spacing:-1.5px;margin-bottom:8px}
+.not-found p{color:var(--text2);margin-bottom:28px;font-size:14px}
+.not-found a{background:var(--accent);color:#000;font-weight:800;padding:14px 32px;border-radius:8px;font-size:14px}
+
+@media(max-width:640px){
+  .hero{padding:60px 20px 40px}
+  .hero-title{font-size:34px;letter-spacing:-1.2px}
+  .perf-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .perf-info{padding:10px 12px}
+  .perf-name{font-size:13px}
+  .team-card{min-width:160px;padding:12px 14px}
+  .venue-block{padding:24px 20px}
+  .ticket-cta{width:100%;padding:16px 24px}
+  .footer-inner{flex-direction:column;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<header class="topnav">
+  <div class="topnav-inner">
+    <a href="/" class="brand">
+      <svg width="22" height="16" viewBox="0 0 24 18" fill="none"><path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#ffffff"/><path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#ffffff" opacity="0.4"/></svg>
+      <span>Venue<span class="dot">.</span>Portal</span>
+    </a>
+  </div>
+</header>
+
+<main id="app">
+  <div class="loading" id="loader">&raquo;</div>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <svg width="18" height="13" viewBox="0 0 24 18" fill="none"><path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#ffffff"/><path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#ffffff" opacity="0.4"/></svg>
+      <span>Venue<span class="dot">.</span>Portal</span>
+    </div>
+    <div class="footer-link"><a href="https://venueportal.us">venueportal.us</a></div>
+  </div>
+</footer>
+
+<script>
+const API_BASE = 'https://thevenueportal.paxey333.workers.dev';
+
+function esc(s) {
+  if (!s) return '';
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function hexToRgb(hex) {
+  hex = hex.replace('#', '');
+  if (hex.length === 3) hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+  const n = parseInt(hex, 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+
+function setEventAccent(hex) {
+  const [r, g, b] = hexToRgb(hex);
+  const root = document.documentElement.style;
+  root.setProperty('--event', hex);
+  root.setProperty('--event-dim', `rgba(${r},${g},${b},.08)`);
+  root.setProperty('--event-border', `rgba(${r},${g},${b},.28)`);
+  root.setProperty('--event-glow', `rgba(${r},${g},${b},.35)`);
+}
+
+function formatDate(dateStr) {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const dt = new Date(y, m - 1, d);
+  return dt.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+}
+
+function renderNotFound() {
+  document.title = 'Event Not Found — Venue.Portal';
+  document.getElementById('app').innerHTML = `
+    <div class="not-found">
+      <h1>Event not found</h1>
+      <p>This event may have ended or moved.</p>
+      <a href="/">Browse Venues</a>
+    </div>`;
+}
+
+function renderEvent(e) {
+  document.title = esc(e.title) + ' — Venue.Portal';
+  if (e.accent_color && e.accent_color !== '#ff6b1a') setEventAccent(e.accent_color);
+
+  const performers = Array.isArray(e.performers) ? e.performers : [];
+  const team = Array.isArray(e.team) ? e.team : [];
+
+  let html = '';
+
+  // Hero background
+  if (e.hero_image_url) {
+    html += `<div class="hero-bg"><img src="${esc(e.hero_image_url)}" alt=""/></div>`;
+  }
+
+  // Hero
+  html += '<div class="hero">';
+  if (e.presenter) {
+    html += `<div class="hero-presenter">— ${esc(e.presenter)} presents</div>`;
+  }
+  html += `<h1 class="hero-title"><span class="hero-title-accent">${esc(e.title)}</span></h1>`;
+
+  // Meta row
+  const meta = [];
+  if (e.city) meta.push(esc(e.city));
+  if (e.event_date) meta.push(formatDate(e.event_date));
+  if (e.doors_time) meta.push('Doors ' + esc(e.doors_time));
+  if (meta.length) {
+    html += '<div class="hero-meta">' + meta.join('<span class="sep">&middot;</span>') + '</div>';
+  }
+
+  if (e.description) {
+    html += `<div class="hero-desc">${esc(e.description)}</div>`;
+  }
+  html += '</div>';
+
+  // Performers
+  if (performers.length > 0) {
+    html += '<section class="performers"><div class="section-label">Performers</div><div class="perf-grid">';
+    for (const p of performers) {
+      const link = p.ig ? `https://instagram.com/${esc(p.ig)}` : '#';
+      const target = p.ig ? ' target="_blank" rel="noopener"' : '';
+      html += `<a href="${link}"${target} class="perf-card">`;
+      if (p.photo_url) {
+        html += `<img class="perf-photo" src="${esc(p.photo_url)}" alt="${esc(p.name)}"/>`;
+      } else {
+        html += '<div class="perf-photo"></div>';
+      }
+      html += '<div class="perf-info">';
+      html += `<div class="perf-name">${esc(p.name)}</div>`;
+      if (p.ig) html += `<div class="perf-ig">@${esc(p.ig)}</div>`;
+      if (p.followers) html += `<div class="perf-followers">${esc(String(p.followers))} followers</div>`;
+      html += '</div></a>';
+    }
+    html += '</div></section>';
+  }
+
+  // Team
+  if (team.length > 0) {
+    html += '<section class="team-section"><div class="section-label">Team</div><div class="team-grid">';
+    for (const t of team) {
+      const link = t.ig ? `https://instagram.com/${esc(t.ig)}` : '#';
+      const target = t.ig ? ' target="_blank" rel="noopener"' : '';
+      html += `<a href="${link}"${target} class="team-card"><div>`;
+      html += `<div class="team-name">${esc(t.name)}</div>`;
+      if (t.role) html += `<div class="team-role">${esc(t.role)}</div>`;
+      if (t.ig) html += `<div class="team-ig">@${esc(t.ig)}</div>`;
+      html += '</div></a>';
+    }
+    html += '</div></section>';
+  }
+
+  // Venue
+  const venueName = e.venue_name_public || null;
+  html += '<section class="venue-section"><div class="section-label">Venue</div><div class="venue-block">';
+  if (venueName) {
+    html += `<div class="venue-name">${esc(venueName)}</div>`;
+    if (e.city) html += `<div class="venue-city">${esc(e.city)}</div>`;
+    html += '<div class="venue-gated"><span class="lock-icon">&#x1F512;</span> Full address sent via email upon ticket purchase.</div>';
+  } else {
+    html += '<div class="venue-name">Venue TBA</div>';
+    if (e.city) html += `<div class="venue-city">${esc(e.city)}</div>`;
+    html += '<div class="venue-gated"><span class="lock-icon">&#x1F512;</span> Venue announced to ticket holders before doors.</div>';
+  }
+  html += '</div></section>';
+
+  // Tickets
+  html += '<section class="tickets-section"><div class="section-label">Tickets</div>';
+  if (e.ticketing_url) {
+    html += `<a href="${esc(e.ticketing_url)}" target="_blank" rel="noopener" class="ticket-cta">Get Tickets</a>`;
+    if (e.ticketing_provider === 'hi_events') {
+      html += `<div class="ticket-iframe-wrap"><iframe src="${esc(e.ticketing_url)}" height="700" loading="lazy" title="Tickets"></iframe></div>`;
+      html += `<div class="ticket-fallback">Trouble loading? <a href="${esc(e.ticketing_url)}" target="_blank" rel="noopener">Open in new tab &rarr;</a></div>`;
+    }
+  } else {
+    html += '<div class="ticket-soon">Tickets coming soon</div>';
+  }
+  html += '</section>';
+
+  document.getElementById('app').innerHTML = html;
+}
+
+(async function init() {
+  const m = location.pathname.match(/^\/events\/([A-Za-z0-9-]+)/);
+  const slug = m ? m[1] : new URLSearchParams(location.search).get('slug');
+  if (!slug) { renderNotFound(); return; }
+
+  try {
+    const res = await fetch(`${API_BASE}/api/events/public/${encodeURIComponent(slug)}`);
+    if (!res.ok) { renderNotFound(); return; }
+    const data = await res.json();
+    renderEvent(data);
+  } catch (err) {
+    console.error('[event] fetch error:', err);
+    renderNotFound();
+  }
+})();
+</script>
+</body>
+</html>
