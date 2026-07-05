@@ -287,20 +287,16 @@ function renderEvent(e) {
 (async function init() {
   const m = location.pathname.match(/^\/events\/([A-Za-z0-9-]+)/);
   const slug = m ? m[1] : new URLSearchParams(location.search).get('slug');
-  document.getElementById('loader').textContent = 'slug: ' + (slug || 'null');
   if (!slug) { renderNotFound(); return; }
 
   try {
-    const url = `${API_BASE}/api/events/public/${encodeURIComponent(slug)}`;
-    document.getElementById('loader').textContent = 'fetching: ' + url;
-    const res = await fetch(url);
-    document.getElementById('loader').textContent = 'status: ' + res.status;
+    const res = await fetch(`${API_BASE}/api/events/public/${encodeURIComponent(slug)}`);
     if (!res.ok) { renderNotFound(); return; }
     const data = await res.json();
     renderEvent(data);
   } catch (err) {
-    document.getElementById('loader').textContent = 'ERROR: ' + err.message;
     console.error('[event] fetch error:', err);
+    renderNotFound();
   }
 })();
 </script>
