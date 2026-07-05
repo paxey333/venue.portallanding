@@ -2224,6 +2224,202 @@ export default {
         }
       }
 
+      // ── EVENTS: CREATE ─────────────────────────────────────────
+      if (path === "/api/events" && request.method === "POST") {
+        try {
+          const session = await getSession(request, env);
+          if (!isAdminOrAbove(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
+          const body = await request.json();
+          const { title, event_date } = body;
+          if (!title || !event_date) return jsonResponse({ error: "title and event_date are required" }, 400, request);
+
+          const hostType = body.host_type || "platform";
+          if (!["platform", "venue", "promoter"].includes(hostType)) {
+            return jsonResponse({ error: "Invalid host_type" }, 400, request);
+          }
+          const ticketingProvider = body.ticketing_provider || "hi_events";
+          if (!["hi_events", "external", "native"].includes(ticketingProvider)) {
+            return jsonResponse({ error: "Invalid ticketing_provider" }, 400, request);
+          }
+
+          const venueId = body.venue_id ? Number(body.venue_id) : null;
+          if (venueId) {
+            const bookingHit = await env.DB.prepare(
+              "SELECT id FROM bookings WHERE venue_id = ? AND event_date = ? AND status IN ('accepted','confirmed') LIMIT 1"
+            ).bind(venueId, event_date).first();
+            if (bookingHit) return jsonResponse({ error: "That date is not available at this venue." }, 400, request);
+            const blockHit = await env.DB.prepare(
+              "SELECT id FROM venue_blocks WHERE venue_id = ? AND block_date = ? LIMIT 1"
+            ).bind(venueId, event_date).first();
+            if (blockHit) return jsonResponse({ error: "That date is not available at this venue." }, 400, request);
+            const eventHit = await env.DB.prepare(
+              "SELECT id FROM events WHERE venue_id = ? AND event_date = ? AND status IN ('draft','published') LIMIT 1"
+            ).bind(venueId, event_date).first();
+            if (eventHit) return jsonResponse({ error: "That date is not available at this venue." }, 400, request);
+          }
+
+          let baseSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+          if (!baseSlug) baseSlug = "event";
+          let slug = baseSlug;
+          let created = null;
+          for (let attempt = 0; attempt < 10; attempt++) {
+            const candidate = attempt === 0 ? baseSlug : baseSlug + "-" + (attempt + 1);
+            try {
+              const result = await env.DB.prepare(
+                `INSERT INTO events (slug, title, presenter, host_type, host_id, venue_id, venue_name_public, city, address_private, event_date, doors_time, description, performers, team, accent_color, hero_image_url, ticketing_provider, ticketing_url, status, hidden)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+              ).bind(
+                candidate,
+                title,
+                body.presenter || null,
+                hostType,
+                body.host_id ? Number(body.host_id) : null,
+                venueId,
+                body.venue_name_public || null,
+                body.city || null,
+                body.address_private || null,
+                event_date,
+                body.doors_time || null,
+                body.description || null,
+                body.performers ? JSON.stringify(body.performers) : null,
+                body.team ? JSON.stringify(body.team) : null,
+                body.accent_color || "#ff6b1a",
+                body.hero_image_url || null,
+                ticketingProvider,
+                body.ticketing_url || null,
+                body.status || "draft",
+                body.hidden ? 1 : 0
+              ).run();
+              slug = candidate;
+              created = await env.DB.prepare("SELECT * FROM events WHERE slug = ?").bind(slug).first();
+              break;
+            } catch (e) {
+              if (e.message && e.message.includes("UNIQUE") && attempt < 9) continue;
+              throw e;
+            }
+          }
+          if (!created) return jsonResponse({ error: "Could not generate unique slug" }, 500, request);
+          if (created.performers) try { created.performers = JSON.parse(created.performers); } catch {}
+          if (created.team) try { created.team = JSON.parse(created.team); } catch {}
+          console.log("[events/create]", created.id, slug);
+          return jsonResponse(created, 201, request);
+        } catch (err) {
+          console.error("[events/create] error:", err);
+          return jsonResponse({ error: err.message }, 500, request);
+        }
+      }
+
+      // ── EVENTS: LIST (dashboard) ────────────────────────────────
+      if (path === "/api/events" && request.method === "GET") {
+        try {
+          const session = await getSession(request, env);
+          if (!isAnyRole(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
+          let rows;
+          if (isAdminOrAbove(session)) {
+            rows = await env.DB.prepare("SELECT * FROM events ORDER BY event_date DESC").all();
+          } else {
+            rows = await env.DB.prepare(
+              "SELECT * FROM events WHERE venue_id = ? OR (host_type = 'venue' AND host_id = ?) ORDER BY event_date DESC"
+            ).bind(session.venue_id, session.venue_id).all();
+          }
+          const events = (rows.results || []).map(e => {
+            if (e.performers) try { e.performers = JSON.parse(e.performers); } catch {}
+            if (e.team) try { e.team = JSON.parse(e.team); } catch {}
+            return e;
+          });
+          return jsonResponse({ events }, 200, request);
+        } catch (err) {
+          console.error("[events/list] error:", err);
+          return jsonResponse({ error: err.message }, 500, request);
+        }
+      }
+
+      // ── EVENTS: PUBLIC by slug ──────────────────────────────────
+      const eventPublicMatch = path.match(/^\/api\/events\/public\/([A-Za-z0-9-]+)$/);
+      if (eventPublicMatch && request.method === "GET") {
+        try {
+          const slug = eventPublicMatch[1];
+          const row = await env.DB.prepare(
+            `SELECT id, slug, title, presenter, host_type, venue_id, venue_name_public, city,
+                    event_date, doors_time, description, performers, team, accent_color,
+                    hero_image_url, ticketing_provider, ticketing_url, status, created_at
+             FROM events WHERE slug = ? AND status = 'published' AND hidden = 0`
+          ).bind(slug).first();
+          if (!row) return jsonResponse({ error: "Event not found" }, 404, request);
+          if (row.performers) try { row.performers = JSON.parse(row.performers); } catch {}
+          if (row.team) try { row.team = JSON.parse(row.team); } catch {}
+          return jsonResponse(row, 200, request);
+        } catch (err) {
+          console.error("[events/public] error:", err);
+          return jsonResponse({ error: err.message }, 500, request);
+        }
+      }
+
+      // ── EVENTS: UPDATE ──────────────────────────────────────────
+      const eventUpdateMatch = path.match(/^\/api\/events\/(\d+)$/);
+      if (eventUpdateMatch && request.method === "PATCH") {
+        try {
+          const session = await getSession(request, env);
+          if (!isAdminOrAbove(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
+          const id = Number(eventUpdateMatch[1]);
+          const existing = await env.DB.prepare("SELECT * FROM events WHERE id = ?").bind(id).first();
+          if (!existing) return jsonResponse({ error: "Event not found" }, 404, request);
+          const body = await request.json();
+          const allowed = ["title","presenter","venue_id","venue_name_public","city","address_private","event_date","doors_time","description","performers","team","accent_color","hero_image_url","ticketing_provider","ticketing_url","status","hidden"];
+          const fields = [];
+          const values = [];
+          for (const key of allowed) {
+            if (body[key] !== undefined) {
+              if (key === "performers" || key === "team") {
+                fields.push(key + " = ?");
+                values.push(Array.isArray(body[key]) ? JSON.stringify(body[key]) : body[key]);
+              } else {
+                fields.push(key + " = ?");
+                values.push(body[key]);
+              }
+            }
+          }
+          if (fields.length === 0) return jsonResponse({ error: "No fields to update" }, 400, request);
+
+          if (body.host_type && !["platform", "venue", "promoter"].includes(body.host_type)) {
+            return jsonResponse({ error: "Invalid host_type" }, 400, request);
+          }
+          if (body.ticketing_provider && !["hi_events", "external", "native"].includes(body.ticketing_provider)) {
+            return jsonResponse({ error: "Invalid ticketing_provider" }, 400, request);
+          }
+
+          const newVenueId = body.venue_id !== undefined ? (body.venue_id ? Number(body.venue_id) : null) : existing.venue_id;
+          const newDate = body.event_date || existing.event_date;
+          const dateOrVenueChanged = (body.event_date && body.event_date !== existing.event_date) ||
+                                     (body.venue_id !== undefined && body.venue_id !== existing.venue_id);
+          if (newVenueId && dateOrVenueChanged) {
+            const bookingHit = await env.DB.prepare(
+              "SELECT id FROM bookings WHERE venue_id = ? AND event_date = ? AND status IN ('accepted','confirmed') LIMIT 1"
+            ).bind(newVenueId, newDate).first();
+            if (bookingHit) return jsonResponse({ error: "That date is not available at this venue." }, 400, request);
+            const blockHit = await env.DB.prepare(
+              "SELECT id FROM venue_blocks WHERE venue_id = ? AND block_date = ? LIMIT 1"
+            ).bind(newVenueId, newDate).first();
+            if (blockHit) return jsonResponse({ error: "That date is not available at this venue." }, 400, request);
+            const eventHit = await env.DB.prepare(
+              "SELECT id FROM events WHERE venue_id = ? AND event_date = ? AND status IN ('draft','published') AND id != ? LIMIT 1"
+            ).bind(newVenueId, newDate, id).first();
+            if (eventHit) return jsonResponse({ error: "That date is not available at this venue." }, 400, request);
+          }
+
+          values.push(id);
+          await env.DB.prepare("UPDATE events SET " + fields.join(", ") + " WHERE id = ?").bind(...values).run();
+          const updated = await env.DB.prepare("SELECT * FROM events WHERE id = ?").bind(id).first();
+          if (updated.performers) try { updated.performers = JSON.parse(updated.performers); } catch {}
+          if (updated.team) try { updated.team = JSON.parse(updated.team); } catch {}
+          console.log("[events/update]", id);
+          return jsonResponse(updated, 200, request);
+        } catch (err) {
+          console.error("[events/update] error:", err);
+          return jsonResponse({ error: err.message }, 500, request);
+        }
+      }
+
       return textResponse("Not found", 404, request);
 
     } catch (err) {

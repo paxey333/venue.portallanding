@@ -94,3 +94,43 @@ CREATE TABLE IF NOT EXISTS users (
   name        TEXT    NOT NULL DEFAULT '',
   created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
 );
+
+-- Commit Z: events table (applied via migration)
+CREATE TABLE IF NOT EXISTS events (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  slug TEXT NOT NULL UNIQUE,
+  title TEXT NOT NULL,
+  presenter TEXT,
+  host_type TEXT NOT NULL DEFAULT 'platform'
+    CHECK(host_type IN ('platform','venue','promoter')),
+  host_id INTEGER,
+  venue_id INTEGER REFERENCES venues(id) ON DELETE SET NULL,
+  venue_name_public TEXT,
+  city TEXT,
+  address_private TEXT,
+  event_date TEXT NOT NULL,
+  doors_time TEXT,
+  description TEXT,
+  performers TEXT,
+  team TEXT,
+  accent_color TEXT DEFAULT '#ff6b1a',
+  hero_image_url TEXT,
+  ticketing_provider TEXT NOT NULL DEFAULT 'hi_events'
+    CHECK(ticketing_provider IN ('hi_events','external','native')),
+  ticketing_url TEXT,
+  status TEXT NOT NULL DEFAULT 'draft'
+    CHECK(status IN ('draft','published','past','cancelled')),
+  hidden INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_events_slug ON events(slug);
+CREATE INDEX IF NOT EXISTS idx_events_venue_date ON events(venue_id, event_date);
+CREATE INDEX IF NOT EXISTS idx_events_status ON events(status);
+
+-- Commit Z intent note -- NOT applied. Native ticketing tables, built when
+-- ticketing_provider='native' is real (i.e. when Hi.Events stops being enough):
+-- ticket_types (id, event_id FK, name, price_cents, quantity, sales_end)
+-- tickets (id, event_id FK, ticket_type_id FK, buyer_name, buyer_email,
+--          payment_provider CHECK IN ('stripe','aeropay'), payment_ref,
+--          status, created_at)
+-- Tickets reference events, never venues -- locked by design.
