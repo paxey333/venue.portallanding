@@ -20,7 +20,7 @@
 :root{
   --bg:#000000;--surface:#0a0a0a;--surface2:#141414;
   --border:#1f1f1f;--border2:#2a2a2a;
-  --text:#ffffff;--text2:#a8a8a8;--text3:#666666;
+  --text:#f0f0f0;--text2:#a8a8a8;--text3:#666666;
   --accent:#ff6b1a;--accent-soft:rgba(255,107,26,0.12);
   --event:#ff6b1a;
   --event-dim:rgba(255,107,26,.08);
@@ -32,63 +32,96 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-si
 a{color:inherit;text-decoration:none}
 img{max-width:100%;display:block}
 
+/* glow orbs — event-tinted ambient light */
+.splatter{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.splatter span{position:absolute;display:block;border-radius:50%;filter:blur(80px)}
+.splatter span:nth-child(1){width:480px;height:480px;top:-120px;right:-100px;background:var(--event-dim)}
+.splatter span:nth-child(2){width:360px;height:360px;top:40%;left:-120px;background:var(--event-dim);opacity:0.7}
+.splatter span:nth-child(3){width:280px;height:280px;bottom:-80px;right:25%;background:rgba(255,107,26,0.06)}
+
+.page{position:relative;z-index:1}
+
 .topnav{position:sticky;top:0;z-index:100;background:rgba(0,0,0,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center}
 .topnav-inner{max-width:1100px;width:100%;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
 .brand{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:800;letter-spacing:-.3px}
 .brand .dot{color:var(--accent)}
 
-.loading{display:flex;align-items:center;justify-content:center;min-height:60vh;font-size:28px;color:var(--accent);animation:pulse 1.2s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}
+.loading{display:flex;align-items:center;justify-content:center;min-height:60vh;font-size:28px;color:var(--accent);animation:loadPulse 1.2s ease-in-out infinite}
+@keyframes loadPulse{0%,100%{opacity:.3}50%{opacity:1}}
 
-.hero{position:relative;padding:80px 24px 60px;max-width:800px;margin:0 auto;text-align:center}
+/* hero */
+.hero{position:relative;padding:80px 28px 60px;max-width:900px;margin:0 auto}
 .hero-bg{position:fixed;top:0;left:0;width:100%;height:100vh;z-index:-1;overflow:hidden}
 .hero-bg img{width:100%;height:100%;object-fit:cover;opacity:.25}
 .hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.4) 0%,#000 85%)}
-.hero-presenter{font-size:13px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:16px}
-.hero-title{font-size:48px;font-weight:900;letter-spacing:-2px;line-height:1;margin-bottom:20px}
-.hero-title-accent{display:inline;background-image:linear-gradient(transparent 60%,var(--event-glow) 60%);background-size:100% 100%;padding:0 4px}
-.hero-meta{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;font-size:13px;font-weight:600;color:var(--text2);margin-bottom:24px}
-.hero-meta .sep{color:var(--text3)}
-.hero-desc{font-size:15px;line-height:1.7;color:var(--text2);max-width:600px;margin:0 auto}
+.hero-presenter{font-size:12px;font-weight:600;color:var(--event);text-transform:uppercase;letter-spacing:.22em;margin-bottom:18px}
+.hero-title{font-size:clamp(54px, 8vw, 96px);font-weight:900;letter-spacing:-0.04em;line-height:0.92;text-transform:uppercase;margin-bottom:26px}
+.hero-meta{font-size:13px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.14em;margin-bottom:32px}
+.hero-meta .sep{color:var(--text3);margin:0 8px}
+.hero-desc{font-size:15px;font-weight:400;color:var(--text2);line-height:1.6;max-width:640px;font-style:italic}
 
-.section-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.15em;color:var(--accent);margin-bottom:24px;text-align:center}
+/* section labels with gradient rule */
+.section-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.22em;color:var(--event);margin-bottom:22px;display:flex;align-items:center;gap:12px}
+.section-label::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--event-border),transparent)}
 
-.performers{padding:60px 24px;max-width:900px;margin:0 auto}
-.perf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
-.perf-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color .2s}
-.perf-card:hover{border-color:var(--event-border)}
-.perf-photo{width:100%;aspect-ratio:1;object-fit:cover;background:var(--surface2)}
-.perf-info{padding:14px 16px}
-.perf-name{font-size:15px;font-weight:800;letter-spacing:-.3px;margin-bottom:2px}
-.perf-ig{font-size:12px;color:var(--event);font-weight:600}
-.perf-followers{font-size:11px;color:var(--text3);margin-top:2px}
+/* performers — portrait cards with scrim overlay */
+.performers{padding:80px 28px;max-width:1100px;margin:0 auto}
+.perf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:24px}
+.perf-card{position:relative;aspect-ratio:4/5;border:1px solid var(--event-border);border-radius:6px;overflow:hidden;background:var(--surface);display:block;transition:transform .2s,border-color .2s,box-shadow .2s}
+.perf-card:hover{transform:translateY(-2px);border-color:var(--event);box-shadow:0 8px 24px var(--event-glow)}
+.perf-img-wrap{position:absolute;inset:0;background:linear-gradient(135deg,var(--surface2),var(--surface));display:flex;align-items:center;justify-content:center}
+.perf-img-wrap img{width:100%;height:100%;object-fit:cover;display:block}
+.perf-img-wrap .initial{font-weight:900;font-size:88px;color:var(--event);opacity:0.4;letter-spacing:-0.04em;display:none}
+.perf-card::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.95) 0%,rgba(0,0,0,0.5) 35%,transparent 65%);pointer-events:none}
+.perf-meta{position:absolute;left:22px;right:22px;bottom:22px;z-index:2}
+.perf-name{font-weight:800;font-size:32px;letter-spacing:-0.02em;text-transform:uppercase;margin-bottom:6px}
+.perf-handle{font-size:12px;color:var(--event);letter-spacing:.06em}
+.perf-handle .followers{color:var(--text2);margin-left:8px}
 
-.team-section{padding:40px 24px 60px;max-width:900px;margin:0 auto}
-.team-grid{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
-.team-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px 20px;display:flex;align-items:center;gap:12px;min-width:200px;transition:border-color .2s}
-.team-card:hover{border-color:var(--event-border)}
-.team-name{font-size:14px;font-weight:800;letter-spacing:-.2px}
-.team-role{font-size:12px;color:var(--text3)}
-.team-ig{font-size:11px;color:var(--event);font-weight:600}
+/* team — centered cards with circular pfp */
+.team-section{padding:0 28px 80px;max-width:1100px;margin:0 auto}
+.team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.team-card{border:1px solid var(--event-border);border-radius:6px;padding:28px 20px 24px;background:var(--event-dim);text-align:center;display:block;transition:transform .2s,border-color .2s,box-shadow .2s,background .2s}
+.team-card:hover{border-color:var(--event);background:rgba(var(--event-r,255),var(--event-g,107),var(--event-b,26),0.05);transform:translateY(-2px);box-shadow:0 8px 24px var(--event-glow)}
+.team-pfp{width:64px;height:64px;margin:0 auto 14px;border-radius:50%;border:1px solid var(--event-border);background:var(--surface2);overflow:hidden;display:flex;align-items:center;justify-content:center}
+.team-pfp img{width:100%;height:100%;object-fit:cover}
+.team-pfp .initial{font-weight:900;font-size:26px;color:var(--event);opacity:0.5;display:none}
+.team-name{font-weight:700;font-size:22px;text-transform:uppercase;letter-spacing:-0.01em;margin-bottom:4px}
+.team-handle{font-size:11px;color:var(--event);letter-spacing:.04em;margin-bottom:8px}
+.team-role{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.2em}
 
-.venue-section{padding:60px 24px;max-width:600px;margin:0 auto;text-align:center}
-.venue-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:32px 28px}
-.venue-name{font-size:22px;font-weight:900;letter-spacing:-.5px;margin-bottom:4px}
-.venue-city{font-size:14px;color:var(--text2);margin-bottom:16px}
-.venue-gated{display:flex;align-items:center;justify-content:center;gap:8px;font-size:12px;color:var(--text3);line-height:1.5}
-.lock-icon{color:var(--event);font-size:16px}
+/* venue — horizontal card with lock icon circle */
+.venue-section{padding:0 28px 80px;max-width:1100px;margin:0 auto}
+.venue-block{border:1px solid var(--border2);border-radius:6px;padding:36px 32px;background:linear-gradient(135deg,rgba(255,107,26,0.04),var(--event-dim));display:flex;align-items:center;gap:24px}
+.venue-icon{flex:0 0 56px;width:56px;height:56px;border-radius:50%;background:var(--event-dim);border:1px solid var(--event-border);display:flex;align-items:center;justify-content:center;color:var(--event)}
+.venue-icon svg{width:26px;height:26px}
+.venue-name{font-weight:800;font-size:28px;text-transform:uppercase;letter-spacing:-0.01em;margin-bottom:6px}
+.venue-meta{font-size:12px;color:var(--event);text-transform:uppercase;letter-spacing:.16em;margin-bottom:10px}
+.venue-note{font-size:13px;font-weight:400;color:var(--text2);line-height:1.55}
+
 @media(prefers-reduced-motion:no-preference){
-  .lock-icon{animation:lockPulse 2.4s ease-in-out infinite}
+  .venue-icon{animation:lockPulse 3.6s ease-in-out infinite}
 }
-@keyframes lockPulse{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:1;transform:scale(1.15)}}
+@keyframes lockPulse{
+  0%,100%{box-shadow:0 0 0 0 var(--event-glow),inset 0 0 0 0 var(--event-dim)}
+  50%{box-shadow:0 0 0 8px transparent,inset 0 0 0 1px var(--event-border)}
+}
 
-.tickets-section{padding:60px 24px;max-width:700px;margin:0 auto;text-align:center}
-.ticket-cta{display:inline-block;background:var(--event);color:#000;font-size:15px;font-weight:800;padding:16px 40px;border-radius:8px;letter-spacing:-.2px;transition:transform .15s,box-shadow .15s;min-width:220px;text-align:center}
-.ticket-cta:hover{transform:translateY(-1px);box-shadow:0 4px 20px var(--event-glow)}
-.ticket-iframe-wrap{margin-top:24px;border-radius:10px;overflow:hidden;border:1px solid var(--border)}
-.ticket-iframe-wrap iframe{width:100%;border:none;background:var(--surface)}
-.ticket-fallback{font-size:12px;color:var(--text3);margin-top:12px}
-.ticket-fallback a{color:var(--event);text-decoration:underline}
+/* tickets */
+.tickets-section{padding:0 28px 80px;max-width:1100px;margin:0 auto}
+.tickets-status{display:inline-flex;align-items:center;gap:10px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.16em;color:var(--event);padding:8px 14px;border:1px solid var(--event-border);background:var(--event-dim);border-radius:4px;margin-bottom:22px}
+.tickets-status::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--event);box-shadow:0 0 10px var(--event-glow);animation:statusPulse 2s ease-in-out infinite}
+@keyframes statusPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.2)}}
+.ticket-cta-row{display:flex;align-items:center;gap:18px;margin-bottom:28px;flex-wrap:wrap}
+.ticket-cta{display:inline-flex;align-items:center;gap:14px;background:var(--event);color:#000;font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.12em;padding:18px 30px;border-radius:4px;transition:filter .18s,transform .18s,box-shadow .18s;box-shadow:0 0 0 var(--event-glow)}
+.ticket-cta:hover{filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 8px 28px var(--event-glow)}
+.ticket-cta svg{width:16px;height:16px;stroke:currentColor;stroke-width:2.5;fill:none}
+.ticket-note{font-size:11px;text-transform:uppercase;letter-spacing:.16em;color:var(--text3)}
+.ticket-iframe-wrap{border:1px solid var(--event-border);border-radius:6px;overflow:hidden;background:var(--surface)}
+.ticket-iframe-wrap iframe{width:100%;height:820px;border:none;display:block}
+.ticket-embed-note{text-align:center;font-size:10px;text-transform:uppercase;letter-spacing:.18em;color:var(--text3);padding:12px;background:var(--bg);border-top:1px solid var(--border)}
+.ticket-embed-note a{color:var(--event);text-decoration:none}
+.ticket-embed-note a:hover{text-decoration:underline}
 .ticket-soon{display:inline-block;background:var(--surface);border:1px solid var(--border);padding:10px 24px;border-radius:20px;font-size:13px;font-weight:600;color:var(--text2)}
 
 footer{border-top:1px solid var(--border);padding:32px 24px;text-align:center}
@@ -105,18 +138,34 @@ footer{border-top:1px solid var(--border);padding:32px 24px;text-align:center}
 
 @media(max-width:640px){
   .hero{padding:60px 20px 40px}
-  .hero-title{font-size:34px;letter-spacing:-1.2px}
-  .perf-grid{grid-template-columns:repeat(2,1fr);gap:10px}
-  .perf-info{padding:10px 12px}
-  .perf-name{font-size:13px}
-  .team-card{min-width:160px;padding:12px 14px}
-  .venue-block{padding:24px 20px}
-  .ticket-cta{width:100%;padding:16px 24px}
+  .hero-title{line-height:0.95}
+  .perf-grid{grid-template-columns:repeat(2,1fr);gap:12px}
+  .perf-meta{left:14px;right:14px;bottom:14px}
+  .perf-name{font-size:20px}
+  .perf-handle{font-size:10px}
+  .perf-handle .followers{display:block;margin-left:0;margin-top:2px}
+  .team-grid{grid-template-columns:1fr;gap:10px}
+  .team-card{display:flex;align-items:center;gap:16px;text-align:left;padding:18px 20px}
+  .team-pfp{width:48px;height:48px;flex:0 0 48px;margin:0}
+  .team-pfp .initial{font-size:20px}
+  .team-name{font-size:18px;margin-bottom:2px}
+  .team-handle{font-size:11px;margin-bottom:3px}
+  .team-role{font-size:10px}
+  .venue-block{flex-direction:column;align-items:flex-start;padding:26px}
+  .ticket-iframe-wrap iframe{height:600px}
+  .ticket-cta-row{gap:12px}
   .footer-inner{flex-direction:column;text-align:center}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .perf-card,.team-card{transition:none}
+  .perf-card:hover,.team-card:hover{transform:none}
 }
 </style>
 </head>
 <body>
+
+<div class="splatter" aria-hidden="true"><span></span><span></span><span></span></div>
 
 <header class="topnav">
   <div class="topnav-inner">
@@ -127,9 +176,11 @@ footer{border-top:1px solid var(--border);padding:32px 24px;text-align:center}
   </div>
 </header>
 
+<div class="page">
 <main id="app">
   <div class="loading" id="loader">&raquo;</div>
 </main>
+</div>
 
 <footer>
   <div class="footer-inner">
@@ -165,12 +216,23 @@ function setEventAccent(hex) {
   root.setProperty('--event-dim', `rgba(${r},${g},${b},.08)`);
   root.setProperty('--event-border', `rgba(${r},${g},${b},.28)`);
   root.setProperty('--event-glow', `rgba(${r},${g},${b},.35)`);
+  root.setProperty('--event-r', r);
+  root.setProperty('--event-g', g);
+  root.setProperty('--event-b', b);
+  const sp = document.querySelector('.splatter');
+  if (sp) sp.children[2].style.background = `rgba(255,107,26,0.06)`;
 }
 
 function formatDate(dateStr) {
   const [y, m, d] = dateStr.split('-').map(Number);
   const dt = new Date(y, m - 1, d);
   return dt.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+}
+
+function imgFallback(img) {
+  img.style.display = 'none';
+  const sib = img.nextElementSibling;
+  if (sib) sib.style.display = 'flex';
 }
 
 function renderNotFound() {
@@ -198,11 +260,11 @@ function renderEvent(e) {
   }
 
   // Hero
-  html += '<div class="hero">';
+  html += '<section class="hero">';
   if (e.presenter) {
-    html += `<div class="hero-presenter">— ${esc(e.presenter)} presents</div>`;
+    html += `<div class="hero-presenter">&mdash; ${esc(e.presenter)} presents</div>`;
   }
-  html += `<h1 class="hero-title"><span class="hero-title-accent">${esc(e.title)}</span></h1>`;
+  html += `<h1 class="hero-title">${esc(e.title)}</h1>`;
 
   // Meta row
   const meta = [];
@@ -216,7 +278,7 @@ function renderEvent(e) {
   if (e.description) {
     html += `<div class="hero-desc">${esc(e.description)}</div>`;
   }
-  html += '</div>';
+  html += '</section>';
 
   // Performers
   if (performers.length > 0) {
@@ -224,16 +286,20 @@ function renderEvent(e) {
     for (const p of performers) {
       const link = p.ig ? `https://instagram.com/${esc(p.ig)}` : '#';
       const target = p.ig ? ' target="_blank" rel="noopener"' : '';
-      html += `<a href="${link}"${target} class="perf-card">`;
+      const objPos = p.photo_position ? ` style="object-position:${esc(p.photo_position)}"` : '';
+      const initial = (p.name || '?')[0].toUpperCase();
+      html += `<a href="${link}"${target} class="perf-card"><div class="perf-img-wrap">`;
       if (p.photo_url) {
-        html += `<img class="perf-photo" src="${esc(p.photo_url)}" alt="${esc(p.name)}"/>`;
-      } else {
-        html += '<div class="perf-photo"></div>';
+        html += `<img src="${esc(p.photo_url)}" alt="${esc(p.name)}"${objPos} onerror="imgFallback(this)"/>`;
       }
-      html += '<div class="perf-info">';
+      html += `<div class="initial" style="${p.photo_url ? 'display:none' : 'display:flex'}">${esc(initial)}</div>`;
+      html += '</div><div class="perf-meta">';
       html += `<div class="perf-name">${esc(p.name)}</div>`;
-      if (p.ig) html += `<div class="perf-ig">@${esc(p.ig)}</div>`;
-      if (p.followers) html += `<div class="perf-followers">${esc(String(p.followers))} followers</div>`;
+      if (p.ig) {
+        html += `<div class="perf-handle">@${esc(p.ig)}`;
+        if (p.followers) html += `<span class="followers">${esc(String(p.followers))} followers</span>`;
+        html += '</div>';
+      }
       html += '</div></a>';
     }
     html += '</div></section>';
@@ -245,10 +311,21 @@ function renderEvent(e) {
     for (const t of team) {
       const link = t.ig ? `https://instagram.com/${esc(t.ig)}` : '#';
       const target = t.ig ? ' target="_blank" rel="noopener"' : '';
-      html += `<a href="${link}"${target} class="team-card"><div>`;
-      html += `<div class="team-name">${esc(t.name)}</div>`;
-      if (t.role) html += `<div class="team-role">${esc(t.role)}</div>`;
-      if (t.ig) html += `<div class="team-ig">@${esc(t.ig)}</div>`;
+      const initial = (t.name || '?')[0].toUpperCase();
+      html += `<a href="${link}"${target} class="team-card">`;
+      html += '<div class="team-pfp">';
+      if (t.photo_url) {
+        html += `<img src="${esc(t.photo_url)}" alt="${esc(t.name)}" onerror="imgFallback(this)"/>`;
+      }
+      html += `<div class="initial" style="${t.photo_url ? 'display:none' : 'display:flex'}">${esc(initial)}</div>`;
+      html += '</div>';
+      html += `<div><div class="team-name">${esc(t.name)}</div>`;
+      if (t.ig) html += `<div class="team-handle">@${esc(t.ig)}</div>`;
+      if (t.role) {
+        let roleText = esc(t.role);
+        if (t.followers) roleText += ` &middot; ${esc(String(t.followers))}`;
+        html += `<div class="team-role">${roleText}</div>`;
+      }
       html += '</div></a>';
     }
     html += '</div></section>';
@@ -257,24 +334,34 @@ function renderEvent(e) {
   // Venue
   const venueName = e.venue_name_public || null;
   html += '<section class="venue-section"><div class="section-label">Venue</div><div class="venue-block">';
+  html += '<div class="venue-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></div>';
+  html += '<div>';
   if (venueName) {
     html += `<div class="venue-name">${esc(venueName)}</div>`;
-    if (e.city) html += `<div class="venue-city">${esc(e.city)}</div>`;
-    html += '<div class="venue-gated"><span class="lock-icon">&#x1F512;</span> Full address sent via email upon ticket purchase.</div>';
+    if (e.city) html += `<div class="venue-meta">${esc(e.city)}</div>`;
+    html += '<div class="venue-note">Full address sent via email upon ticket purchase.';
+    if (e.doors_time) html += ` Doors at ${esc(e.doors_time)}.`;
+    html += '</div>';
   } else {
     html += '<div class="venue-name">Venue TBA</div>';
-    if (e.city) html += `<div class="venue-city">${esc(e.city)}</div>`;
-    html += '<div class="venue-gated"><span class="lock-icon">&#x1F512;</span> Venue announced to ticket holders before doors.</div>';
+    if (e.city) html += `<div class="venue-meta">${esc(e.city)}</div>`;
+    html += '<div class="venue-note">Venue announced to ticket holders before doors.</div>';
   }
-  html += '</div></section>';
+  html += '</div></div></section>';
 
   // Tickets
-  html += '<section class="tickets-section"><div class="section-label">Tickets</div>';
+  html += '<section class="tickets-section"><div class="section-label">';
+  html += e.ticketing_url ? 'Live Ticketing' : 'Tickets';
+  html += '</div>';
   if (e.ticketing_url) {
-    html += `<a href="${esc(e.ticketing_url)}" target="_blank" rel="noopener" class="ticket-cta">Get Tickets</a>`;
+    html += `<div class="tickets-status">Tickets Live &middot; ${esc(e.title)}</div>`;
+    html += '<div class="ticket-cta-row">';
+    html += `<a href="${esc(e.ticketing_url)}" target="_blank" rel="noopener" class="ticket-cta">Get Tickets <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>`;
+    html += '<span class="ticket-note">Instant confirmation</span>';
+    html += '</div>';
     if (e.ticketing_provider === 'hi_events') {
-      html += `<div class="ticket-iframe-wrap"><iframe src="${esc(e.ticketing_url)}" height="700" loading="lazy" title="Tickets"></iframe></div>`;
-      html += `<div class="ticket-fallback">Trouble loading? <a href="${esc(e.ticketing_url)}" target="_blank" rel="noopener">Open in new tab &rarr;</a></div>`;
+      html += `<div class="ticket-iframe-wrap"><iframe src="${esc(e.ticketing_url)}" title="Get tickets" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>`;
+      html += `<div class="ticket-embed-note">Trouble loading? <a href="${esc(e.ticketing_url)}" target="_blank" rel="noopener">Open in new tab &rarr;</a></div>`;
     }
   } else {
     html += '<div class="ticket-soon">Tickets coming soon</div>';
