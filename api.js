@@ -2229,12 +2229,22 @@ export default {
       if (path === "/api/events" && request.method === "POST") {
         try {
           const session = await getSession(request, env);
-          if (!isAdminOrAbove(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
+          if (!isAnyRole(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
           const body = await request.json();
           const { title, event_date } = body;
           if (!title || !event_date) return jsonResponse({ error: "title and event_date are required" }, 400, request);
 
-          const hostType = body.host_type || "platform";
+          // AA: venue owners get host fields forced to their venue
+          let hostType, hostId, venueIdRaw;
+          if (session.role === "venue_owner") {
+            hostType = "venue";
+            hostId = session.venue_id;
+            venueIdRaw = session.venue_id;
+          } else {
+            hostType = body.host_type || "platform";
+            hostId = body.host_id ? Number(body.host_id) : null;
+            venueIdRaw = body.venue_id;
+          }
           if (!["platform", "venue", "promoter"].includes(hostType)) {
             return jsonResponse({ error: "Invalid host_type" }, 400, request);
           }
@@ -2243,7 +2253,7 @@ export default {
             return jsonResponse({ error: "Invalid ticketing_provider" }, 400, request);
           }
 
-          const venueId = body.venue_id ? Number(body.venue_id) : null;
+          const venueId = venueIdRaw ? Number(venueIdRaw) : null;
           if (venueId) {
             const bookingHit = await env.DB.prepare(
               "SELECT id FROM bookings WHERE venue_id = ? AND event_date = ? AND status IN ('accepted','confirmed') LIMIT 1"
@@ -2274,7 +2284,7 @@ export default {
                 title,
                 body.presenter || null,
                 hostType,
-                body.host_id ? Number(body.host_id) : null,
+                hostId,
                 venueId,
                 body.venue_name_public || null,
                 body.city || null,
@@ -2361,11 +2371,17 @@ export default {
       if (eventUpdateMatch && request.method === "PATCH") {
         try {
           const session = await getSession(request, env);
-          if (!isAdminOrAbove(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
+          if (!isAnyRole(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
           const id = Number(eventUpdateMatch[1]);
           const existing = await env.DB.prepare("SELECT * FROM events WHERE id = ?").bind(id).first();
           if (!existing) return jsonResponse({ error: "Event not found" }, 404, request);
+          if (session.role === "venue_owner" && existing.venue_id !== session.venue_id) {
+            return jsonResponse({ error: "Event not found" }, 404, request);
+          }
           const body = await request.json();
+          if (session.role === "venue_owner") {
+            delete body.host_type; delete body.host_id; delete body.venue_id;
+          }
           const allowed = ["title","presenter","venue_id","venue_name_public","city","address_private","event_date","doors_time","description","performers","team","accent_color","hero_image_url","ticketing_provider","ticketing_url","status","hidden"];
           const fields = [];
           const values = [];
@@ -2418,6 +2434,66 @@ export default {
         } catch (err) {
           console.error("[events/update] error:", err);
           return jsonResponse({ error: err.message }, 500, request);
+        }
+      }
+
+      // ── EVENT PHOTOS: UPLOAD ──────────────────────────────────
+      const eventPhotoMatch = path.match(/^\/api\/events\/(\d+)\/photos$/);
+      if (eventPhotoMatch && request.method === "POST") {
+        try {
+          const session = await getSession(request, env);
+          if (!isAnyRole(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
+          const id = Number(eventPhotoMatch[1]);
+          const evt = await env.DB.prepare("SELECT id, slug, venue_id FROM events WHERE id = ?").bind(id).first();
+          if (!evt) return jsonResponse({ error: "Event not found" }, 404, request);
+          if (session.role === "venue_owner" && evt.venue_id !== session.venue_id) {
+            return jsonResponse({ error: "Event not found" }, 404, request);
+          }
+          if (!env.VENUE_PHOTOS) return jsonResponse({ error: "R2 bucket not bound" }, 500, request);
+          let form;
+          try { form = await request.formData(); }
+          catch (e) { return jsonResponse({ error: "Invalid multipart body" }, 400, request); }
+          const file = form.get("file");
+          if (!file || typeof file === "string") return jsonResponse({ error: "Missing 'file' field" }, 400, request);
+          const ext = ALLOWED_MIME[file.type];
+          if (!ext) return jsonResponse({ error: "Unsupported file type. Allowed: image/jpeg, image/png, image/webp." }, 400, request);
+          const size = typeof file.size === "number" ? file.size : (await file.arrayBuffer()).byteLength;
+          if (size < 1 || size > MAX_BYTES) return jsonResponse({ error: "File must be under 5MB." }, 400, request);
+          const safeName = (file.name || "photo").replace(/[^a-zA-Z0-9._-]/g, "").slice(0, 80) || "photo";
+          const key = `events/${evt.slug}/${Date.now()}-${safeName}`;
+          await env.VENUE_PHOTOS.put(key, file.stream(), { httpMetadata: { contentType: file.type } });
+          const url = `${R2_PUBLIC_BASE}/${key}`;
+          console.log("[EVENT PHOTO UPLOAD]", "event_id:", id, "key:", key, "size:", size);
+          return jsonResponse({ success: true, url }, 200, request);
+        } catch (err) {
+          console.error("[EVENT PHOTO UPLOAD ERROR]", err && err.message);
+          return jsonResponse({ error: err.message || "Upload failed" }, 500, request);
+        }
+      }
+
+      // ── EVENT PHOTOS: DELETE ──────────────────────────────────
+      if (eventPhotoMatch && request.method === "DELETE") {
+        try {
+          const session = await getSession(request, env);
+          if (!isAnyRole(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
+          const id = Number(eventPhotoMatch[1]);
+          const evt = await env.DB.prepare("SELECT id, slug, venue_id FROM events WHERE id = ?").bind(id).first();
+          if (!evt) return jsonResponse({ error: "Event not found" }, 404, request);
+          if (session.role === "venue_owner" && evt.venue_id !== session.venue_id) {
+            return jsonResponse({ error: "Event not found" }, 404, request);
+          }
+          if (!env.VENUE_PHOTOS) return jsonResponse({ error: "R2 bucket not bound" }, 500, request);
+          const body = await parseJson(request);
+          const url = String(body.url || "").trim();
+          if (!url || !url.startsWith(R2_PUBLIC_BASE + "/")) return jsonResponse({ error: "Invalid URL" }, 400, request);
+          const key = url.slice(R2_PUBLIC_BASE.length + 1);
+          if (!key.startsWith(`events/${evt.slug}/`)) return jsonResponse({ error: "URL does not belong to this event" }, 400, request);
+          await env.VENUE_PHOTOS.delete(key);
+          console.log("[EVENT PHOTO DELETE]", "event_id:", id, "key:", key);
+          return jsonResponse({ success: true }, 200, request);
+        } catch (err) {
+          console.error("[EVENT PHOTO DELETE ERROR]", err && err.message);
+          return jsonResponse({ error: err.message || "Delete failed" }, 500, request);
         }
       }
 

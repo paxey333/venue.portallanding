@@ -492,6 +492,72 @@ section{display:flex;flex-direction:column;gap:14px}
   .inquiry-actions{flex-direction:column}
   .inquiry-actions>*{width:100%;box-sizing:border-box;text-align:center}
 }
+
+/* ── EVENTS SECTION (Commit AA) ────────────────── */
+.evt-list{display:flex;flex-direction:column;gap:10px}
+.evt-card{display:grid;grid-template-columns:64px 1fr auto;gap:0 16px;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 20px;transition:border-color .15s}
+.evt-card:hover{border-color:var(--border2)}
+.evt-flyer{width:56px;height:56px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;background:linear-gradient(135deg,var(--accent),#cc3300);color:#000;text-transform:uppercase}
+.evt-flyer .mo{font-size:9px;letter-spacing:.08em;line-height:1}
+.evt-flyer .day{font-size:22px;line-height:1.1}
+.evt-body{min-width:0}
+.evt-name{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.evt-meta{font-size:12px;color:var(--text2);margin-top:2px;display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.evt-meta .sep{color:var(--text3)}
+.evt-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.evt-pill{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:4px 10px;border-radius:12px;white-space:nowrap}
+.evt-pill.draft{background:rgba(168,168,168,0.12);color:var(--text2);border:1px solid rgba(168,168,168,0.2)}
+.evt-pill.published{background:var(--accent-soft);color:var(--accent);border:1px solid rgba(255,107,26,0.3)}
+.evt-pill.past{background:rgba(100,100,100,0.12);color:var(--text3);border:1px solid rgba(100,100,100,0.2)}
+.evt-pill.cancelled{background:var(--alert-soft);color:var(--alert);border:1px solid rgba(255,68,68,0.25)}
+.evt-actions{display:flex;gap:6px;flex-wrap:wrap}
+.evt-btn{font-size:11px;font-weight:600;padding:6px 12px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap}
+.evt-btn:hover{color:var(--text);border-color:var(--text3)}
+.evt-btn.primary{background:var(--accent);color:#000;border-color:var(--accent)}
+.evt-btn.primary:hover{background:#ff7a30}
+.evt-empty{text-align:center;padding:48px 20px;color:var(--text2);font-size:14px;font-weight:500}
+.evt-empty-cta{display:inline-flex;align-items:center;gap:8px;margin-top:16px;background:var(--accent);color:#000;font-weight:700;font-size:13px;padding:12px 24px;border:none;border-radius:8px;cursor:pointer;transition:opacity .15s}
+.evt-empty-cta:hover{opacity:.88}
+@media(max-width:900px){
+  .evt-card{grid-template-columns:48px 1fr;grid-template-rows:auto auto}
+  .evt-right{grid-column:1/-1;justify-content:flex-start;padding-top:10px}
+  .evt-flyer{width:48px;height:48px}
+  .evt-flyer .day{font-size:18px}
+}
+
+/* ── EVENT MODAL ──────────────────────────────── */
+.evt-modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto}
+.evt-modal-overlay.open{display:flex}
+.evt-modal{width:100%;max-width:640px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:32px 28px;position:relative}
+.evt-modal-title{font-size:22px;font-weight:800;letter-spacing:-.3px;margin-bottom:20px}
+.evt-modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--text2);cursor:pointer;font-size:20px;line-height:1;padding:4px}
+.evt-modal-close:hover{color:var(--text)}
+.evt-field{display:flex;flex-direction:column;gap:5px;margin-bottom:16px}
+.evt-field label{font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.08em}
+.evt-field input,.evt-field textarea,.evt-field select{width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);font-family:var(--sans);font-size:14px;padding:10px 12px;border-radius:6px;outline:none;transition:border-color .15s;min-height:44px}
+.evt-field input:focus,.evt-field textarea:focus,.evt-field select:focus{border-color:var(--accent)}
+.evt-field textarea{min-height:80px;resize:vertical}
+.evt-field .helper{font-size:11px;color:var(--text3);margin-top:2px}
+.evt-field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:480px){.evt-field-row{grid-template-columns:1fr}}
+.evt-color-preview{display:flex;align-items:center;gap:10px}
+.evt-color-swatch{width:32px;height:32px;border-radius:6px;border:1px solid var(--border2);flex-shrink:0}
+.evt-repeater{border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:16px;background:var(--surface2)}
+.evt-repeater-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text2);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.evt-repeater-item{border:1px solid var(--border);border-radius:6px;padding:14px;margin-bottom:10px;background:var(--surface);position:relative}
+.evt-repeater-item:last-child{margin-bottom:0}
+.evt-repeater-rm{position:absolute;top:8px;right:8px;background:none;border:none;color:var(--alert);cursor:pointer;font-size:16px;padding:2px 6px}
+.evt-repeater-add{background:transparent;border:1px dashed var(--border2);color:var(--text2);font-size:12px;font-weight:600;padding:10px;border-radius:6px;width:100%;cursor:pointer;margin-top:8px;transition:border-color .15s}
+.evt-repeater-add:hover{border-color:var(--text3);color:var(--text)}
+.evt-photo-thumb{width:48px;height:48px;border-radius:6px;object-fit:cover;border:1px solid var(--border)}
+.evt-photo-upload-btn{font-size:11px;padding:6px 12px;border-radius:4px;border:1px solid var(--border2);background:var(--surface2);color:var(--text2);cursor:pointer}
+.evt-photo-upload-btn:hover{color:var(--text);border-color:var(--text3)}
+.evt-reorder{display:flex;flex-direction:column;gap:2px}
+.evt-reorder button{background:none;border:1px solid var(--border);border-radius:3px;color:var(--text3);cursor:pointer;font-size:10px;padding:2px 6px;line-height:1}
+.evt-reorder button:hover{color:var(--text);border-color:var(--text3)}
+.evt-modal-actions{display:flex;gap:8px;margin-top:20px;flex-wrap:wrap}
+.evt-modal-err{font-size:12px;color:var(--alert);background:var(--alert-soft);border:1px solid rgba(255,68,68,0.25);border-radius:6px;padding:8px 12px;margin-top:12px;display:none}
+.evt-modal-err.show{display:block}
 </style>
 </head>
 <body>
@@ -559,6 +625,7 @@ section{display:flex;flex-direction:column;gap:14px}
     <button type="button" class="pill" data-target="booking-section">Upcoming <span class="pill-count green" id="qp-upcoming">0</span></button>
     <button type="button" class="pill" data-target="inquiry-section">Action needed <span class="pill-count red" id="qp-action">0</span></button>
     <button type="button" class="pill" data-target="cal-card-section">This month <span class="pill-count orange" id="qp-month">0</span></button>
+    <button type="button" class="pill" data-target="events-section">Events <span class="pill-count orange" id="qp-events">0</span></button>
   </div>
 
   <!-- STATS -->
@@ -913,6 +980,78 @@ section{display:flex;flex-direction:column;gap:14px}
     </div>
   </section>
 
+  <!-- EVENTS (Commit AA) -->
+  <section id="events-section">
+    <div class="section-hd">
+      <div><span class="section-title">Events</span><span class="section-count" id="evt-count">0</span></div>
+      <button class="btn btn-primary" onclick="openEventModal()">+ Create Event</button>
+    </div>
+    <div class="evt-list" id="evt-list">
+      <div class="evt-empty" id="evt-empty">No events yet. Create your first event page.<br><button class="evt-empty-cta" onclick="openEventModal()">Create Event</button></div>
+    </div>
+  </section>
+
+  <!-- EVENT MODAL -->
+  <div class="evt-modal-overlay" id="evt-modal">
+    <div class="evt-modal">
+      <button class="evt-modal-close" onclick="closeEventModal()">&times;</button>
+      <div class="evt-modal-title" id="evt-modal-title">Create Event</div>
+
+      <div class="evt-field"><label>Title *</label><input id="evt-title" type="text" placeholder="e.g. Summer Smash"/></div>
+      <div class="evt-field"><label>Presenter</label><input id="evt-presenter" type="text" placeholder="e.g. Echo Projects"/></div>
+      <div class="evt-field-row">
+        <div class="evt-field"><label>Date *</label><input id="evt-date" type="date"/></div>
+        <div class="evt-field"><label>Doors time</label><input id="evt-doors" type="text" placeholder="e.g. 8:00 PM"/></div>
+      </div>
+      <div class="evt-field"><label>Description</label><textarea id="evt-desc" placeholder="Short description for the event page"></textarea></div>
+
+      <div class="evt-field-row">
+        <div class="evt-field">
+          <label>Public venue name</label>
+          <input id="evt-venue-name" type="text" placeholder="Leave blank for Venue TBA"/>
+          <div class="helper">Shown on the event page. Leave blank for "Venue TBA".</div>
+        </div>
+        <div class="evt-field"><label>City</label><input id="evt-city" type="text"/></div>
+      </div>
+
+      <div class="evt-field-row">
+        <div class="evt-field">
+          <label>Accent color</label>
+          <div class="evt-color-preview">
+            <input id="evt-color" type="color" value="#ff6b1a" style="width:44px;height:44px;padding:2px;border:1px solid var(--border2);border-radius:6px;background:var(--bg);cursor:pointer"/>
+            <input id="evt-color-hex" type="text" value="#ff6b1a" maxlength="7" style="width:90px" oninput="syncColorFromHex()"/>
+            <div class="evt-color-swatch" id="evt-color-swatch" style="background:#ff6b1a"></div>
+          </div>
+        </div>
+        <div class="evt-field">
+          <label>Ticketing URL</label>
+          <input id="evt-ticket-url" type="url" placeholder="Paste Hi.Events link"/>
+          <div class="helper">Hi.Events embed + CTA shown on event page</div>
+        </div>
+      </div>
+
+      <!-- Performers repeater -->
+      <div class="evt-repeater">
+        <div class="evt-repeater-title">Performers <button class="evt-repeater-add" onclick="addPerformerRow()" style="width:auto;padding:4px 12px;margin:0;border-style:solid;font-size:11px">+ Add</button></div>
+        <div id="evt-performers"></div>
+      </div>
+
+      <!-- Team repeater -->
+      <div class="evt-repeater">
+        <div class="evt-repeater-title">Team <button class="evt-repeater-add" onclick="addTeamRow()" style="width:auto;padding:4px 12px;margin:0;border-style:solid;font-size:11px">+ Add</button></div>
+        <div id="evt-team"></div>
+      </div>
+
+      <div class="evt-modal-err" id="evt-modal-err"></div>
+      <input type="hidden" id="evt-edit-id" value=""/>
+      <div class="evt-modal-actions">
+        <button class="btn btn-primary" id="evt-save-draft" onclick="saveEvent('draft')">Save Draft</button>
+        <button class="btn btn-primary" id="evt-save-pub" onclick="saveEvent('published')" style="background:var(--green);border-color:var(--green)">Save &amp; Publish</button>
+        <button class="btn" onclick="closeEventModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <!-- MEDIA -->
   <section id="media-section">
     <div class="section-hd"><span class="section-title">Photos &amp; video</span></div>
@@ -965,6 +1104,10 @@ section{display:flex;flex-direction:column;gap:14px}
     <button class="mobile-nav-item" id="mnav-bookings" onclick="scrollToSection('booking-section')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
       <span>Bookings</span>
+    </button>
+    <button class="mobile-nav-item" id="mnav-events" onclick="scrollToSection('events-section')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5v2"/><path d="M9 5v2"/><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18"/><path d="M9 16l2 2 4-4"/></svg>
+      <span>Events</span>
     </button>
     <button class="mobile-nav-item" id="mnav-profile" onclick="scrollToSection('profile-section')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -2787,6 +2930,7 @@ function updateQuickPillCounts() {
     { secId: 'inquiry-section',  navId: 'mnav-inquiries' },
     { secId: 'cal-card-section', navId: 'mnav-calendar' },
     { secId: 'booking-section',  navId: 'mnav-bookings' },
+    { secId: 'events-section',   navId: 'mnav-events' },
     { secId: 'profile-section',  navId: 'mnav-profile' },
   ];
   const setActive = (navId) => {
@@ -2836,6 +2980,383 @@ async function submitPassword() {
     err.textContent = 'Network error. Try again.'; err.style.display = '';
   }
 }
+/* ─── EVENTS (Commit AA) ───────────────────────────────── */
+let evtList = [];
+let evtEditId = null;
+
+async function loadEvents() {
+  try {
+    const res = await fetch(API_BASE + '/api/events', { headers: { 'Authorization': 'Bearer ' + TOKEN } });
+    if (handleAuth(res)) return;
+    if (!res.ok) return;
+    const data = await res.json();
+    evtList = data.events || [];
+    renderEventList();
+  } catch (e) { console.error('[events] load error:', e); }
+}
+
+function evtStatus(evt) {
+  if (evt.status === 'cancelled') return 'cancelled';
+  if (evt.status === 'draft') return 'draft';
+  if (evt.event_date) {
+    const d = new Date(evt.event_date + 'T23:59:59');
+    if (d < new Date()) return 'past';
+  }
+  return evt.status === 'published' ? 'published' : 'draft';
+}
+
+function renderEventList() {
+  const wrap = document.getElementById('evt-list');
+  const empty = document.getElementById('evt-empty');
+  const count = document.getElementById('evt-count');
+  const qp = document.getElementById('qp-events');
+  if (!evtList.length) {
+    empty.style.display = '';
+    count.textContent = '0';
+    if (qp) qp.textContent = '0';
+    wrap.querySelectorAll('.evt-card').forEach(c => c.remove());
+    return;
+  }
+  empty.style.display = 'none';
+  count.textContent = String(evtList.length);
+  if (qp) qp.textContent = String(evtList.length);
+
+  let html = '';
+  for (const evt of evtList) {
+    const st = evtStatus(evt);
+    const dt = evt.event_date ? new Date(evt.event_date + 'T00:00:00') : null;
+    const mo = dt ? dt.toLocaleDateString('en-US', { month: 'short' }) : '';
+    const day = dt ? dt.getDate() : '';
+    const dateStr = dt ? fmtDate(evt.event_date) : '';
+    const slug = esc(evt.slug || '');
+    const flyerUrl = 'https://venueportal.us/events/' + slug;
+
+    html += '<div class="evt-card">';
+    html += '<div class="evt-flyer"><span class="mo">' + esc(mo) + '</span><span class="day">' + esc(String(day)) + '</span></div>';
+    html += '<div class="evt-body"><div class="evt-name">' + esc(evt.title) + '</div>';
+    html += '<div class="evt-meta">';
+    if (dateStr) html += '<span>' + esc(dateStr) + '</span>';
+    if (evt.city) html += '<span class="sep">&middot;</span><span>' + esc(evt.city) + '</span>';
+    html += '</div></div>';
+
+    html += '<div class="evt-right">';
+    html += '<span class="evt-pill ' + st + '">' + esc(st) + '</span>';
+    html += '<div class="evt-actions">';
+    html += '<button class="evt-btn" onclick="copyEventLink(\'' + slug + '\')">Copy link</button>';
+    html += '<a class="evt-btn" href="' + esc(flyerUrl) + '" target="_blank" rel="noopener">View</a>';
+    html += '<button class="evt-btn" onclick="editEvent(' + evt.id + ')">Edit</button>';
+    if (st === 'draft') {
+      html += '<button class="evt-btn primary" onclick="toggleEventStatus(' + evt.id + ',\'published\')">Publish</button>';
+    } else if (st === 'published') {
+      html += '<button class="evt-btn" onclick="toggleEventStatus(' + evt.id + ',\'draft\')">Unpublish</button>';
+    }
+    html += '</div></div></div>';
+  }
+  // Keep empty element but hidden, replace cards
+  wrap.querySelectorAll('.evt-card').forEach(c => c.remove());
+  empty.insertAdjacentHTML('afterend', html);
+}
+
+function copyEventLink(slug) {
+  const url = 'https://venueportal.us/events/' + slug;
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = 'Copied';
+    setTimeout(() => { btn.textContent = orig; }, 1500);
+  }).catch(() => {});
+}
+
+async function toggleEventStatus(id, newStatus) {
+  try {
+    const res = await fetch(API_BASE + '/api/events/' + id, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
+      body: JSON.stringify({ status: newStatus })
+    });
+    if (handleAuth(res)) return;
+    if (!res.ok) { const d = await res.json().catch(() => ({})); alert(d.error || 'Failed'); return; }
+    await loadEvents();
+  } catch (e) { alert(friendlyError(e)); }
+}
+
+/* ── Event modal ── */
+function openEventModal(editData) {
+  evtEditId = null;
+  document.getElementById('evt-modal-title').textContent = 'Create Event';
+  document.getElementById('evt-title').value = '';
+  document.getElementById('evt-presenter').value = '';
+  document.getElementById('evt-date').value = '';
+  document.getElementById('evt-doors').value = '';
+  document.getElementById('evt-desc').value = '';
+  document.getElementById('evt-venue-name').value = currentVenue.name || '';
+  document.getElementById('evt-city').value = currentVenue.city ? (currentVenue.city + (currentVenue.state ? ', ' + currentVenue.state : '')) : '';
+  document.getElementById('evt-color').value = '#ff6b1a';
+  document.getElementById('evt-color-hex').value = '#ff6b1a';
+  document.getElementById('evt-color-swatch').style.background = '#ff6b1a';
+  document.getElementById('evt-ticket-url').value = '';
+  document.getElementById('evt-edit-id').value = '';
+  document.getElementById('evt-performers').innerHTML = '';
+  document.getElementById('evt-team').innerHTML = '';
+  hideEvtErr();
+
+  if (editData) {
+    evtEditId = editData.id;
+    document.getElementById('evt-modal-title').textContent = 'Edit Event';
+    document.getElementById('evt-edit-id').value = editData.id;
+    document.getElementById('evt-title').value = editData.title || '';
+    document.getElementById('evt-presenter').value = editData.presenter || '';
+    document.getElementById('evt-date').value = editData.event_date || '';
+    document.getElementById('evt-doors').value = editData.doors_time || '';
+    document.getElementById('evt-desc').value = editData.description || '';
+    document.getElementById('evt-venue-name').value = editData.venue_name_public || '';
+    document.getElementById('evt-city').value = editData.city || '';
+    const color = editData.accent_color || '#ff6b1a';
+    document.getElementById('evt-color').value = color;
+    document.getElementById('evt-color-hex').value = color;
+    document.getElementById('evt-color-swatch').style.background = color;
+    document.getElementById('evt-ticket-url').value = editData.ticketing_url || '';
+
+    const perfs = Array.isArray(editData.performers) ? editData.performers : [];
+    perfs.forEach(p => addPerformerRow(p));
+    const team = Array.isArray(editData.team) ? editData.team : [];
+    team.forEach(t => addTeamRow(t));
+  }
+  document.getElementById('evt-modal').classList.add('open');
+}
+
+function closeEventModal() {
+  document.getElementById('evt-modal').classList.remove('open');
+  evtEditId = null;
+}
+
+function editEvent(id) {
+  const evt = evtList.find(e => e.id === id);
+  if (evt) openEventModal(evt);
+}
+
+function hideEvtErr() {
+  const el = document.getElementById('evt-modal-err');
+  el.classList.remove('show');
+  el.textContent = '';
+}
+function showEvtErr(msg) {
+  const el = document.getElementById('evt-modal-err');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+
+/* color sync */
+document.getElementById('evt-color').addEventListener('input', function() {
+  document.getElementById('evt-color-hex').value = this.value;
+  document.getElementById('evt-color-swatch').style.background = this.value;
+});
+function syncColorFromHex() {
+  const hex = document.getElementById('evt-color-hex').value;
+  if (/^#[0-9a-fA-F]{6}$/.test(hex)) {
+    document.getElementById('evt-color').value = hex;
+    document.getElementById('evt-color-swatch').style.background = hex;
+  }
+}
+
+/* performer repeater */
+let perfIdx = 0;
+function addPerformerRow(data) {
+  const i = perfIdx++;
+  const wrap = document.getElementById('evt-performers');
+  const photoUrl = (data && data.photo_url) || '';
+  const photoPos = (data && data.photo_position) || '';
+  const thumbHtml = photoUrl ? '<img class="evt-photo-thumb" src="' + esc(photoUrl) + '" id="perf-thumb-' + i + '"/>' : '<div class="evt-photo-thumb" id="perf-thumb-' + i + '" style="background:var(--surface2);display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:18px;font-weight:800">' + esc(((data && data.name) || '?')[0].toUpperCase()) + '</div>';
+  const html = '<div class="evt-repeater-item" id="perf-row-' + i + '">' +
+    '<button class="evt-repeater-rm" onclick="this.parentElement.remove()">&times;</button>' +
+    '<div style="display:flex;gap:10px;align-items:center;margin-bottom:10px">' +
+    thumbHtml +
+    '<input type="file" accept="image/jpeg,image/png,image/webp" style="display:none" id="perf-file-' + i + '" onchange="uploadPerformerPhoto(' + i + ')"/>' +
+    '<button class="evt-photo-upload-btn" onclick="document.getElementById(\'perf-file-' + i + '\').click()">Upload photo</button>' +
+    '<input type="hidden" id="perf-photo-url-' + i + '" value="' + esc(photoUrl) + '"/>' +
+    '</div>' +
+    '<div class="evt-field-row">' +
+    '<div class="evt-field"><label>Name</label><input id="perf-name-' + i + '" value="' + esc((data && data.name) || '') + '"/></div>' +
+    '<div class="evt-field"><label>IG handle</label><input id="perf-ig-' + i + '" value="' + esc((data && data.ig) || '') + '" placeholder="ladeftw"/></div>' +
+    '</div>' +
+    '<div class="evt-field-row">' +
+    '<div class="evt-field"><label>Followers</label><input id="perf-followers-' + i + '" value="' + esc((data && data.followers) || '') + '" placeholder="16.2k"/></div>' +
+    '<div class="evt-field"><label>Photo crop</label><select id="perf-pos-' + i + '"><option value="">Center (default)</option><option value="center 25%"' + (photoPos === 'center 25%' ? ' selected' : '') + '>Top</option><option value="center 50%"' + (photoPos === 'center 50%' ? ' selected' : '') + '>Middle</option><option value="center 75%"' + (photoPos === 'center 75%' ? ' selected' : '') + '>Lower third</option></select></div>' +
+    '</div></div>';
+  wrap.insertAdjacentHTML('beforeend', html);
+}
+
+/* team repeater */
+let teamIdx = 0;
+function addTeamRow(data) {
+  const i = teamIdx++;
+  const wrap = document.getElementById('evt-team');
+  const photoUrl = (data && data.photo_url) || '';
+  const thumbHtml = photoUrl ? '<img class="evt-photo-thumb" src="' + esc(photoUrl) + '" id="team-thumb-' + i + '" style="border-radius:50%"/>' : '<div class="evt-photo-thumb" id="team-thumb-' + i + '" style="border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:18px;font-weight:800">' + esc(((data && data.name) || '?')[0].toUpperCase()) + '</div>';
+  const html = '<div class="evt-repeater-item" id="team-row-' + i + '">' +
+    '<button class="evt-repeater-rm" onclick="this.parentElement.remove()">&times;</button>' +
+    '<div style="display:flex;gap:10px;align-items:center;margin-bottom:10px">' +
+    thumbHtml +
+    '<input type="file" accept="image/jpeg,image/png,image/webp" style="display:none" id="team-file-' + i + '" onchange="uploadTeamPhoto(' + i + ')"/>' +
+    '<button class="evt-photo-upload-btn" onclick="document.getElementById(\'team-file-' + i + '\').click()">Upload photo</button>' +
+    '<input type="hidden" id="team-photo-url-' + i + '" value="' + esc(photoUrl) + '"/>' +
+    '</div>' +
+    '<div class="evt-field-row">' +
+    '<div class="evt-field"><label>Name</label><input id="team-name-' + i + '" value="' + esc((data && data.name) || '') + '"/></div>' +
+    '<div class="evt-field"><label>IG handle</label><input id="team-ig-' + i + '" value="' + esc((data && data.ig) || '') + '"/></div>' +
+    '</div>' +
+    '<div class="evt-field-row">' +
+    '<div class="evt-field"><label>Role</label><input id="team-role-' + i + '" value="' + esc((data && data.role) || '') + '" placeholder="Promoter"/></div>' +
+    '<div class="evt-field"><label>Followers</label><input id="team-followers-' + i + '" value="' + esc((data && data.followers) || '') + '" placeholder="1k"/></div>' +
+    '</div></div>';
+  wrap.insertAdjacentHTML('beforeend', html);
+}
+
+/* photo uploads */
+async function uploadPerformerPhoto(idx) {
+  await uploadEventPhoto('perf', idx);
+}
+async function uploadTeamPhoto(idx) {
+  await uploadEventPhoto('team', idx);
+}
+async function uploadEventPhoto(prefix, idx) {
+  const fileInput = document.getElementById(prefix + '-file-' + idx);
+  const file = fileInput && fileInput.files[0];
+  if (!file) return;
+  const evtId = evtEditId;
+  if (!evtId) {
+    showEvtErr('Save the event first, then upload photos.');
+    return;
+  }
+  const form = new FormData();
+  form.append('file', file);
+  try {
+    const res = await fetch(API_BASE + '/api/events/' + evtId + '/photos', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + TOKEN },
+      body: form
+    });
+    if (handleAuth(res)) return;
+    const data = await res.json();
+    if (!res.ok) { showEvtErr(data.error || 'Upload failed'); return; }
+    document.getElementById(prefix + '-photo-url-' + idx).value = data.url;
+    const thumb = document.getElementById(prefix + '-thumb-' + idx);
+    if (thumb) {
+      const img = document.createElement('img');
+      img.className = 'evt-photo-thumb';
+      if (prefix === 'team') img.style.borderRadius = '50%';
+      img.src = data.url;
+      thumb.replaceWith(img);
+      img.id = prefix + '-thumb-' + idx;
+    }
+  } catch (e) { showEvtErr(friendlyError(e)); }
+}
+
+function gatherPerformers() {
+  const items = document.querySelectorAll('#evt-performers .evt-repeater-item');
+  const result = [];
+  items.forEach(item => {
+    const id = item.id.replace('perf-row-', '');
+    const name = (document.getElementById('perf-name-' + id) || {}).value || '';
+    if (!name.trim()) return;
+    const ig = ((document.getElementById('perf-ig-' + id) || {}).value || '').replace(/^@/, '');
+    const entry = { name: name.trim(), ig: ig || undefined };
+    const followers = (document.getElementById('perf-followers-' + id) || {}).value || '';
+    if (followers) entry.followers = followers;
+    const photoUrl = (document.getElementById('perf-photo-url-' + id) || {}).value || '';
+    if (photoUrl) entry.photo_url = photoUrl;
+    const pos = (document.getElementById('perf-pos-' + id) || {}).value || '';
+    if (pos) entry.photo_position = pos;
+    result.push(entry);
+  });
+  return result;
+}
+
+function gatherTeam() {
+  const items = document.querySelectorAll('#evt-team .evt-repeater-item');
+  const result = [];
+  items.forEach(item => {
+    const id = item.id.replace('team-row-', '');
+    const name = (document.getElementById('team-name-' + id) || {}).value || '';
+    if (!name.trim()) return;
+    const ig = ((document.getElementById('team-ig-' + id) || {}).value || '').replace(/^@/, '');
+    const entry = { name: name.trim(), ig: ig || undefined };
+    const role = (document.getElementById('team-role-' + id) || {}).value || '';
+    if (role) entry.role = role;
+    const followers = (document.getElementById('team-followers-' + id) || {}).value || '';
+    if (followers) entry.followers = followers;
+    const photoUrl = (document.getElementById('team-photo-url-' + id) || {}).value || '';
+    if (photoUrl) entry.photo_url = photoUrl;
+    result.push(entry);
+  });
+  return result;
+}
+
+// AA intent: self-serve events are free at launch. Flat per-event fee TBD — wire billing here (mirror the booking platform-fee pattern) once pricing is decided. Done-for-you tier is a separate service (see AB).
+async function saveEvent(status) {
+  hideEvtErr();
+  const title = document.getElementById('evt-title').value.trim();
+  const eventDate = document.getElementById('evt-date').value;
+  if (!title) { showEvtErr('Title is required.'); return; }
+  if (!eventDate) { showEvtErr('Date is required.'); return; }
+
+  const payload = {
+    title,
+    event_date: eventDate,
+    presenter: document.getElementById('evt-presenter').value.trim() || null,
+    doors_time: document.getElementById('evt-doors').value.trim() || null,
+    description: document.getElementById('evt-desc').value.trim() || null,
+    venue_name_public: document.getElementById('evt-venue-name').value.trim() || null,
+    city: document.getElementById('evt-city').value.trim() || null,
+    accent_color: document.getElementById('evt-color-hex').value || '#ff6b1a',
+    ticketing_url: document.getElementById('evt-ticket-url').value.trim() || null,
+    ticketing_provider: 'hi_events',
+    performers: gatherPerformers(),
+    team: gatherTeam(),
+    status
+  };
+
+  const isEdit = !!evtEditId;
+  const url = isEdit ? API_BASE + '/api/events/' + evtEditId : API_BASE + '/api/events';
+  const method = isEdit ? 'PATCH' : 'POST';
+
+  try {
+    const draftBtn = document.getElementById('evt-save-draft');
+    const pubBtn = document.getElementById('evt-save-pub');
+    draftBtn.disabled = true; pubBtn.disabled = true;
+    draftBtn.textContent = 'Saving...'; pubBtn.textContent = 'Saving...';
+
+    const res = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
+      body: JSON.stringify(payload)
+    });
+    if (handleAuth(res)) return;
+    const data = await res.json();
+    if (!res.ok) {
+      showEvtErr(data.error || 'Save failed.');
+      draftBtn.disabled = false; pubBtn.disabled = false;
+      draftBtn.textContent = 'Save Draft'; pubBtn.textContent = 'Save & Publish';
+      return;
+    }
+    if (!isEdit) {
+      evtEditId = data.id;
+      document.getElementById('evt-edit-id').value = data.id;
+      document.getElementById('evt-modal-title').textContent = 'Edit Event';
+    }
+    closeEventModal();
+    await loadEvents();
+  } catch (e) {
+    showEvtErr(friendlyError(e));
+    document.getElementById('evt-save-draft').disabled = false;
+    document.getElementById('evt-save-pub').disabled = false;
+    document.getElementById('evt-save-draft').textContent = 'Save Draft';
+    document.getElementById('evt-save-pub').textContent = 'Save & Publish';
+  }
+}
+
+loadEvents();
+
 if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(() => {}); }
 </script>
 <!-- Hidden file picker for the photo manager (Commit E). Outside any container that might submit. -->
