@@ -1023,10 +1023,17 @@ section{display:flex;flex-direction:column;gap:14px}
             <div class="evt-color-swatch" id="evt-color-swatch" style="background:#ff6b1a"></div>
           </div>
         </div>
-        <div class="evt-field">
+        <div class="evt-field" id="evt-ticketing-admin" style="display:none">
           <label>Ticketing URL</label>
           <input id="evt-ticket-url" type="url" placeholder="Paste Hi.Events link"/>
           <div class="helper">Hi.Events embed + CTA shown on event page</div>
+        </div>
+        <div class="evt-field" id="evt-ticketing-owner" style="display:none">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+            <input type="checkbox" id="evt-ticket-toggle" class="hours-toggle"/>
+            Sell tickets for this event
+          </label>
+          <div class="helper" id="evt-ticket-status"></div>
         </div>
       </div>
 
@@ -3095,6 +3102,10 @@ function openEventModal(editData) {
   document.getElementById('evt-color-hex').value = '#ff6b1a';
   document.getElementById('evt-color-swatch').style.background = '#ff6b1a';
   document.getElementById('evt-ticket-url').value = '';
+  document.getElementById('evt-ticket-toggle').checked = false;
+  document.getElementById('evt-ticketing-admin').style.display = IS_ADMIN_PREVIEW ? '' : 'none';
+  document.getElementById('evt-ticketing-owner').style.display = IS_ADMIN_PREVIEW ? 'none' : '';
+  updateTicketStatus(null);
   document.getElementById('evt-edit-id').value = '';
   document.getElementById('evt-performers').innerHTML = '';
   document.getElementById('evt-team').innerHTML = '';
@@ -3116,6 +3127,8 @@ function openEventModal(editData) {
     document.getElementById('evt-color-hex').value = color;
     document.getElementById('evt-color-swatch').style.background = color;
     document.getElementById('evt-ticket-url').value = editData.ticketing_url || '';
+    document.getElementById('evt-ticket-toggle').checked = !!editData.ticketing_requested;
+    updateTicketStatus(editData);
 
     const perfs = Array.isArray(editData.performers) ? editData.performers : [];
     perfs.forEach(p => addPerformerRow(p));
@@ -3292,6 +3305,14 @@ function gatherTeam() {
   return result;
 }
 
+function updateTicketStatus(evt) {
+  const el = document.getElementById('evt-ticket-status');
+  if (!evt) { el.textContent = ''; return; }
+  if (evt.ticketing_url) { el.innerHTML = '<span style="color:var(--cal-confirmed)">Tickets live</span>'; }
+  else if (evt.ticketing_requested) { el.textContent = 'Setting up — we will notify you when tickets are live'; }
+  else { el.textContent = ''; }
+}
+
 // AA intent: self-serve events are free at launch. Flat per-event fee TBD — wire billing here (mirror the booking platform-fee pattern) once pricing is decided. Done-for-you tier is a separate service (see AB).
 async function saveEvent(status) {
   hideEvtErr();
@@ -3309,8 +3330,9 @@ async function saveEvent(status) {
     venue_name_public: document.getElementById('evt-venue-name').value.trim() || null,
     city: document.getElementById('evt-city').value.trim() || null,
     accent_color: document.getElementById('evt-color-hex').value || '#ff6b1a',
-    ticketing_url: document.getElementById('evt-ticket-url').value.trim() || null,
-    ticketing_provider: 'hi_events',
+    ...(IS_ADMIN_PREVIEW
+      ? { ticketing_url: document.getElementById('evt-ticket-url').value.trim() || null, ticketing_provider: 'hi_events' }
+      : { ticketing_requested: document.getElementById('evt-ticket-toggle').checked ? 1 : 0 }),
     performers: gatherPerformers(),
     team: gatherTeam(),
     status

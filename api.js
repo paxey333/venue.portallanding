@@ -2248,10 +2248,19 @@ export default {
           if (!["platform", "venue", "promoter"].includes(hostType)) {
             return jsonResponse({ error: "Invalid host_type" }, 400, request);
           }
-          const ticketingProvider = body.ticketing_provider || "hi_events";
+          // AA.1: owners cannot set ticketing_url/ticketing_provider directly
+          let ticketingProvider, ticketingUrl;
+          if (session.role === "venue_owner") {
+            ticketingProvider = "hi_events";
+            ticketingUrl = null;
+          } else {
+            ticketingProvider = body.ticketing_provider || "hi_events";
+            ticketingUrl = body.ticketing_url || null;
+          }
           if (!["hi_events", "external", "native"].includes(ticketingProvider)) {
             return jsonResponse({ error: "Invalid ticketing_provider" }, 400, request);
           }
+          const ticketingRequested = body.ticketing_requested ? 1 : 0;
 
           const venueId = venueIdRaw ? Number(venueIdRaw) : null;
           if (venueId) {
@@ -2277,8 +2286,8 @@ export default {
             const candidate = attempt === 0 ? baseSlug : baseSlug + "-" + (attempt + 1);
             try {
               const result = await env.DB.prepare(
-                `INSERT INTO events (slug, title, presenter, host_type, host_id, venue_id, venue_name_public, city, address_private, event_date, doors_time, description, performers, team, accent_color, hero_image_url, ticketing_provider, ticketing_url, status, hidden)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+                `INSERT INTO events (slug, title, presenter, host_type, host_id, venue_id, venue_name_public, city, address_private, event_date, doors_time, description, performers, team, accent_color, hero_image_url, ticketing_provider, ticketing_url, ticketing_requested, status, hidden)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
               ).bind(
                 candidate,
                 title,
@@ -2297,7 +2306,8 @@ export default {
                 body.accent_color || "#ff6b1a",
                 body.hero_image_url || null,
                 ticketingProvider,
-                body.ticketing_url || null,
+                ticketingUrl,
+                ticketingRequested,
                 body.status || "draft",
                 body.hidden ? 1 : 0
               ).run();
@@ -2312,6 +2322,50 @@ export default {
           if (!created) return jsonResponse({ error: "Could not generate unique slug" }, 500, request);
           if (created.performers) try { created.performers = JSON.parse(created.performers); } catch {}
           if (created.team) try { created.team = JSON.parse(created.team); } catch {}
+
+          // AA.1: notify Pax + Mark on ticketing_requested 0→1
+          if (ticketingRequested && env.RESEND_API_KEY) {
+            const flyerUrl = "https://venueportal.us/events/" + slug;
+            const ownerEmail = session.email || "unknown";
+            const evtTitle = String(title).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+            const evtDate = String(event_date);
+            const vName = String(body.venue_name_public || "TBA").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+            const vCity = String(body.city || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+            const notifyHtml = `<div style="font-family:sans-serif;max-width:520px;margin:0 auto;background:#fff;color:#111;padding:32px 28px;border-radius:8px">
+  <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#888;margin-bottom:20px">Venue.Portal</div>
+  <h1 style="font-size:22px;font-weight:800;margin:0 0 6px">Ticketing requested.</h1>
+  <p style="color:#555;font-size:14px;margin:0 0 24px;line-height:1.6">A venue owner wants ticket sales set up for their event.</p>
+  <div style="background:#f7f7f7;border-radius:8px;padding:20px 22px;margin-bottom:24px">
+    <table style="width:100%;border-collapse:collapse">
+      <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:6px 0 2px">Event</td></tr>
+      <tr><td style="font-size:14px;font-weight:600;padding-bottom:12px;border-bottom:1px solid #eee">${evtTitle}</td></tr>
+      <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:12px 0 2px">Date</td></tr>
+      <tr><td style="font-size:14px;font-weight:600;padding-bottom:12px;border-bottom:1px solid #eee">${evtDate}</td></tr>
+      <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:12px 0 2px">Venue</td></tr>
+      <tr><td style="font-size:14px;font-weight:600;padding-bottom:12px;border-bottom:1px solid #eee">${vName} · ${vCity}</td></tr>
+      <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:12px 0 2px">Owner</td></tr>
+      <tr><td style="font-size:14px;font-weight:600;padding-bottom:12px;border-bottom:1px solid #eee">${ownerEmail}</td></tr>
+      <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:12px 0 2px">Flyer</td></tr>
+      <tr><td style="font-size:13px"><a href="${flyerUrl}" style="color:#ff6b1a">${flyerUrl}</a></td></tr>
+    </table>
+  </div>
+  <p style="font-size:12px;color:#999;line-height:1.5">Wire it: <code>PATCH /api/events/${created.id}</code> with <code>ticketing_url</code></p>
+  <div style="margin-top:24px;padding-top:16px;border-top:1px solid #eee;font-family:monospace;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#bbb">Venue.Portal · Flat fee. No cuts.</div>
+</div>`;
+            try {
+              await fetch("https://api.resend.com/emails", {
+                method: "POST",
+                headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  from: "Venue Portal <noreply@venueportal.us>",
+                  to: ["paxey333@gmail.com", "mossjr1126@gmail.com"],
+                  subject: "Ticketing requested: " + title,
+                  html: notifyHtml
+                })
+              });
+            } catch (emailErr) { console.error("[events/create] ticketing email error:", emailErr); }
+          }
+
           console.log("[events/create]", created.id, slug);
           return jsonResponse(created, 201, request);
         } catch (err) {
@@ -2381,8 +2435,9 @@ export default {
           const body = await request.json();
           if (session.role === "venue_owner") {
             delete body.host_type; delete body.host_id; delete body.venue_id;
+            delete body.ticketing_url; delete body.ticketing_provider;
           }
-          const allowed = ["title","presenter","venue_id","venue_name_public","city","address_private","event_date","doors_time","description","performers","team","accent_color","hero_image_url","ticketing_provider","ticketing_url","status","hidden"];
+          const allowed = ["title","presenter","venue_id","venue_name_public","city","address_private","event_date","doors_time","description","performers","team","accent_color","hero_image_url","ticketing_provider","ticketing_url","ticketing_requested","status","hidden"];
           const fields = [];
           const values = [];
           for (const key of allowed) {
@@ -2429,6 +2484,49 @@ export default {
           const updated = await env.DB.prepare("SELECT * FROM events WHERE id = ?").bind(id).first();
           if (updated.performers) try { updated.performers = JSON.parse(updated.performers); } catch {}
           if (updated.team) try { updated.team = JSON.parse(updated.team); } catch {}
+
+          if (existing.ticketing_requested === 0 && updated.ticketing_requested === 1 && env.RESEND_API_KEY) {
+            const flyerUrl = "https://venueportal.us/events/" + updated.slug;
+            const ownerEmail = session.email || "unknown";
+            const evtTitle = String(updated.title).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+            const evtDate = String(updated.event_date);
+            const vName = String(updated.venue_name_public || "TBA").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+            const vCity = String(updated.city || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+            const notifyHtml = `<div style="font-family:sans-serif;max-width:520px;margin:0 auto;background:#fff;color:#111;padding:32px 28px;border-radius:8px">
+  <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#888;margin-bottom:20px">Venue.Portal</div>
+  <h1 style="font-size:22px;font-weight:800;margin:0 0 6px">Ticketing requested.</h1>
+  <p style="color:#555;font-size:14px;margin:0 0 24px;line-height:1.6">A venue owner wants ticket sales set up for their event.</p>
+  <div style="background:#f7f7f7;border-radius:8px;padding:20px 22px;margin-bottom:24px">
+    <table style="width:100%;border-collapse:collapse">
+      <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:6px 0 2px">Event</td></tr>
+      <tr><td style="font-size:14px;font-weight:600;padding-bottom:12px;border-bottom:1px solid #eee">${evtTitle}</td></tr>
+      <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:12px 0 2px">Date</td></tr>
+      <tr><td style="font-size:14px;font-weight:600;padding-bottom:12px;border-bottom:1px solid #eee">${evtDate}</td></tr>
+      <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:12px 0 2px">Venue</td></tr>
+      <tr><td style="font-size:14px;font-weight:600;padding-bottom:12px;border-bottom:1px solid #eee">${vName} · ${vCity}</td></tr>
+      <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:12px 0 2px">Owner</td></tr>
+      <tr><td style="font-size:14px;font-weight:600;padding-bottom:12px;border-bottom:1px solid #eee">${ownerEmail}</td></tr>
+      <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:12px 0 2px">Flyer</td></tr>
+      <tr><td style="font-size:13px"><a href="${flyerUrl}" style="color:#ff6b1a">${flyerUrl}</a></td></tr>
+    </table>
+  </div>
+  <p style="font-size:12px;color:#999;line-height:1.5">Wire it: <code>PATCH /api/events/${updated.id}</code> with <code>ticketing_url</code></p>
+  <div style="margin-top:24px;padding-top:16px;border-top:1px solid #eee;font-family:monospace;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#bbb">Venue.Portal · Flat fee. No cuts.</div>
+</div>`;
+            try {
+              await fetch("https://api.resend.com/emails", {
+                method: "POST",
+                headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  from: "Venue Portal <noreply@venueportal.us>",
+                  to: ["paxey333@gmail.com", "mossjr1126@gmail.com"],
+                  subject: "Ticketing requested: " + updated.title,
+                  html: notifyHtml
+                })
+              });
+            } catch (emailErr) { console.error("[events/update] ticketing email error:", emailErr); }
+          }
+
           console.log("[events/update]", id);
           return jsonResponse(updated, 200, request);
         } catch (err) {
