@@ -2229,7 +2229,8 @@ export default {
       if (path === "/api/events" && request.method === "POST") {
         try {
           const session = await getSession(request, env);
-          if (!isAnyRole(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
+          // AA.3: owner self-serve paused at concierge stage. Owner binding/ownership logic below is tested and live-ready — re-open by relaxing this gate when self-serve launches.
+          if (!isAdminOrAbove(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
           const body = await request.json();
           const { title, event_date } = body;
           if (!title || !event_date) return jsonResponse({ error: "title and event_date are required" }, 400, request);
@@ -2399,6 +2400,47 @@ export default {
         }
       }
 
+      // ── EVENTS: REQUEST (owner teaser lead-gen) ─────────────────
+      if (path === "/api/events/request" && request.method === "POST") {
+        try {
+          const session = await getSession(request, env);
+          if (!isAnyRole(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
+          if (!env.RESEND_API_KEY) return jsonResponse({ error: "Email not configured" }, 500, request);
+          const body = await parseJson(request);
+          const ownerEmail = session.email || "unknown";
+          const vName = String(body.venue_name || "unknown").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+          const notifyHtml = `<div style="font-family:sans-serif;max-width:520px;margin:0 auto;background:#fff;color:#111;padding:32px 28px;border-radius:8px">
+  <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#888;margin-bottom:20px">Venue.Portal</div>
+  <h1 style="font-size:22px;font-weight:800;margin:0 0 6px">Event page requested.</h1>
+  <p style="color:#555;font-size:14px;margin:0 0 24px;line-height:1.6">A venue owner wants an event page built.</p>
+  <div style="background:#f7f7f7;border-radius:8px;padding:20px 22px;margin-bottom:24px">
+    <table style="width:100%;border-collapse:collapse">
+      <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:6px 0 2px">Venue</td></tr>
+      <tr><td style="font-size:14px;font-weight:600;padding-bottom:12px;border-bottom:1px solid #eee">${vName}</td></tr>
+      <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:12px 0 2px">Owner</td></tr>
+      <tr><td style="font-size:14px;font-weight:600">${ownerEmail}</td></tr>
+    </table>
+  </div>
+  <div style="margin-top:24px;padding-top:16px;border-top:1px solid #eee;font-family:monospace;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#bbb">Venue.Portal &middot; Flat fee. No cuts.</div>
+</div>`;
+          await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
+            body: JSON.stringify({
+              from: "Venue Portal <noreply@venueportal.us>",
+              to: ["paxey333@gmail.com", "mossjr1126@gmail.com"],
+              subject: "Event page requested: " + (body.venue_name || "unknown venue"),
+              html: notifyHtml
+            })
+          });
+          console.log("[events/request]", ownerEmail, body.venue_name);
+          return jsonResponse({ success: true }, 200, request);
+        } catch (err) {
+          console.error("[events/request] error:", err);
+          return jsonResponse({ error: err.message }, 500, request);
+        }
+      }
+
       // ── EVENTS: PUBLIC by slug ──────────────────────────────────
       const eventPublicMatch = path.match(/^\/api\/events\/public\/([A-Za-z0-9-]+)$/);
       if (eventPublicMatch && request.method === "GET") {
@@ -2425,7 +2467,8 @@ export default {
       if (eventUpdateMatch && request.method === "PATCH") {
         try {
           const session = await getSession(request, env);
-          if (!isAnyRole(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
+          // AA.3: owner self-serve paused at concierge stage. Owner binding/ownership logic below is tested and live-ready — re-open by relaxing this gate when self-serve launches.
+          if (!isAdminOrAbove(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
           const id = Number(eventUpdateMatch[1]);
           const existing = await env.DB.prepare("SELECT * FROM events WHERE id = ?").bind(id).first();
           if (!existing) return jsonResponse({ error: "Event not found" }, 404, request);
@@ -2540,7 +2583,8 @@ export default {
       if (eventPhotoMatch && request.method === "POST") {
         try {
           const session = await getSession(request, env);
-          if (!isAnyRole(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
+          // AA.3: owner self-serve paused at concierge stage. Owner binding/ownership logic below is tested and live-ready — re-open by relaxing this gate when self-serve launches.
+          if (!isAdminOrAbove(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
           const id = Number(eventPhotoMatch[1]);
           const evt = await env.DB.prepare("SELECT id, slug, venue_id FROM events WHERE id = ?").bind(id).first();
           if (!evt) return jsonResponse({ error: "Event not found" }, 404, request);
@@ -2573,7 +2617,8 @@ export default {
       if (eventPhotoMatch && request.method === "DELETE") {
         try {
           const session = await getSession(request, env);
-          if (!isAnyRole(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
+          // AA.3: owner self-serve paused at concierge stage. Owner binding/ownership logic below is tested and live-ready — re-open by relaxing this gate when self-serve launches.
+          if (!isAdminOrAbove(session)) return jsonResponse({ error: "Unauthorized" }, 401, request);
           const id = Number(eventPhotoMatch[1]);
           const evt = await env.DB.prepare("SELECT id, slug, venue_id FROM events WHERE id = ?").bind(id).first();
           if (!evt) return jsonResponse({ error: "Event not found" }, 404, request);

@@ -982,12 +982,22 @@ section{display:flex;flex-direction:column;gap:14px}
 
   <!-- EVENTS (Commit AA) -->
   <section id="events-section">
-    <div class="section-hd">
-      <div><span class="section-title">Events</span><span class="section-count" id="evt-count">0</span></div>
-      <button class="btn btn-primary" onclick="openEventModal()">+ Create Event</button>
+    <div id="events-admin" style="display:none">
+      <div class="section-hd">
+        <div><span class="section-title">Events</span><span class="section-count" id="evt-count">0</span></div>
+        <button class="btn btn-primary" onclick="openEventModal()">+ Create Event</button>
+      </div>
+      <div class="evt-list" id="evt-list">
+        <div class="evt-empty" id="evt-empty">No events yet. Create your first event page.<br><button class="evt-empty-cta" onclick="openEventModal()">Create Event</button></div>
+      </div>
     </div>
-    <div class="evt-list" id="evt-list">
-      <div class="evt-empty" id="evt-empty">No events yet. Create your first event page.<br><button class="evt-empty-cta" onclick="openEventModal()">Create Event</button></div>
+    <div id="events-owner-teaser" style="display:none">
+      <div class="section-hd"><span class="section-title">Events</span></div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:28px 24px;max-width:480px">
+        <div style="font-family:var(--display);font-size:17px;font-weight:700;color:var(--text);margin-bottom:8px">Event pages &amp; ticketing</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:20px">We build your event page, set up ticket sales, you keep 100% of the door.</div>
+        <button class="btn btn-primary" id="evt-request-btn" onclick="requestEventPage()">Request an event page</button>
+      </div>
     </div>
   </section>
 
@@ -2991,7 +3001,39 @@ async function submitPassword() {
 let evtList = [];
 let evtEditId = null;
 
+if (IS_ADMIN_PREVIEW) {
+  document.getElementById('events-admin').style.display = '';
+} else {
+  document.getElementById('events-owner-teaser').style.display = '';
+}
+
+let evtRequestSent = false;
+async function requestEventPage() {
+  if (evtRequestSent) return;
+  const btn = document.getElementById('evt-request-btn');
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+  try {
+    const res = await fetch(API_BASE + '/api/events/request', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
+      body: JSON.stringify({ venue_name: currentVenue.name || 'Unknown venue' })
+    });
+    if (handleAuth(res)) return;
+    if (!res.ok) { const d = await res.json().catch(() => ({})); btn.textContent = d.error || 'Failed'; btn.disabled = false; return; }
+    evtRequestSent = true;
+    btn.textContent = 'Request sent — we’ll reach out within 24 hours';
+    btn.style.background = 'var(--surface2)';
+    btn.style.borderColor = 'var(--border2)';
+    btn.style.color = 'var(--text2)';
+  } catch (e) {
+    btn.textContent = 'Connection issue. Try again.';
+    btn.disabled = false;
+  }
+}
+
 async function loadEvents() {
+  if (!IS_ADMIN_PREVIEW) return;
   try {
     const res = await fetch(API_BASE + '/api/events', { headers: { 'Authorization': 'Bearer ' + TOKEN } });
     if (handleAuth(res)) return;
@@ -3044,6 +3086,8 @@ function renderEventList() {
     html += '<div class="evt-meta">';
     if (dateStr) html += '<span>' + esc(dateStr) + '</span>';
     if (evt.city) html += '<span class="sep">&middot;</span><span>' + esc(evt.city) + '</span>';
+    const venueLabel = evt.venue_name_public || (evt.venue_id ? 'Venue #' + evt.venue_id : 'Platform');
+    html += '<span class="sep">&middot;</span><span style="color:var(--text3);font-style:italic">' + esc(venueLabel) + '</span>';
     html += '</div></div>';
 
     html += '<div class="evt-right">';
@@ -3360,6 +3404,7 @@ async function saveEvent(status) {
       ...(IS_ADMIN_PREVIEW
         ? { ticketing_url: document.getElementById('evt-ticket-url').value.trim() || null, ticketing_provider: 'hi_events' }
         : { ticketing_requested: document.getElementById('evt-ticket-toggle').checked ? 1 : 0 }),
+      ...(IS_ADMIN_PREVIEW && EFFECTIVE_VENUE_ID && !isEdit ? { venue_id: EFFECTIVE_VENUE_ID, host_type: 'venue', host_id: EFFECTIVE_VENUE_ID } : {}),
       performers: gatherPerformers(),
       team: gatherTeam(),
       status
