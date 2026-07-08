@@ -3090,6 +3090,7 @@ async function toggleEventStatus(id, newStatus) {
 /* ── Event modal ── */
 function openEventModal(editData) {
   evtEditId = null;
+  resetSaveBtns();
   document.getElementById('evt-modal-title').textContent = 'Create Event';
   document.getElementById('evt-title').value = '';
   document.getElementById('evt-presenter').value = '';
@@ -3238,7 +3239,15 @@ async function uploadEventPhoto(prefix, idx) {
   if (!file) return;
   const evtId = evtEditId;
   if (!evtId) {
-    showEvtErr('Save the event first, then upload photos.');
+    const thumb = document.getElementById(prefix + '-thumb-' + idx);
+    if (thumb) {
+      const img = document.createElement('img');
+      img.className = 'evt-photo-thumb';
+      if (prefix === 'team') img.style.borderRadius = '50%';
+      img.src = URL.createObjectURL(file);
+      img.id = prefix + '-thumb-' + idx;
+      thumb.replaceWith(img);
+    }
     return;
   }
   const form = new FormData();
@@ -3314,67 +3323,125 @@ function updateTicketStatus(evt) {
 }
 
 // AA intent: self-serve events are free at launch. Flat per-event fee TBD — wire billing here (mirror the booking platform-fee pattern) once pricing is decided. Done-for-you tier is a separate service (see AB).
+let evtSaving = false;
+function resetSaveBtns() {
+  const d = document.getElementById('evt-save-draft');
+  const p = document.getElementById('evt-save-pub');
+  d.disabled = false; p.disabled = false;
+  d.textContent = 'Save Draft'; p.textContent = 'Save & Publish';
+  evtSaving = false;
+}
+
 async function saveEvent(status) {
+  if (evtSaving) return;
   hideEvtErr();
   const title = document.getElementById('evt-title').value.trim();
   const eventDate = document.getElementById('evt-date').value;
   if (!title) { showEvtErr('Title is required.'); return; }
   if (!eventDate) { showEvtErr('Date is required.'); return; }
 
-  const payload = {
-    title,
-    event_date: eventDate,
-    presenter: document.getElementById('evt-presenter').value.trim() || null,
-    doors_time: document.getElementById('evt-doors').value.trim() || null,
-    description: document.getElementById('evt-desc').value.trim() || null,
-    venue_name_public: document.getElementById('evt-venue-name').value.trim() || null,
-    city: document.getElementById('evt-city').value.trim() || null,
-    accent_color: document.getElementById('evt-color-hex').value || '#ff6b1a',
-    ...(IS_ADMIN_PREVIEW
-      ? { ticketing_url: document.getElementById('evt-ticket-url').value.trim() || null, ticketing_provider: 'hi_events' }
-      : { ticketing_requested: document.getElementById('evt-ticket-toggle').checked ? 1 : 0 }),
-    performers: gatherPerformers(),
-    team: gatherTeam(),
-    status
-  };
-
-  const isEdit = !!evtEditId;
-  const url = isEdit ? API_BASE + '/api/events/' + evtEditId : API_BASE + '/api/events';
-  const method = isEdit ? 'PATCH' : 'POST';
+  evtSaving = true;
+  const draftBtn = document.getElementById('evt-save-draft');
+  const pubBtn = document.getElementById('evt-save-pub');
+  draftBtn.disabled = true; pubBtn.disabled = true;
+  draftBtn.textContent = 'Saving...'; pubBtn.textContent = 'Saving...';
 
   try {
-    const draftBtn = document.getElementById('evt-save-draft');
-    const pubBtn = document.getElementById('evt-save-pub');
-    draftBtn.disabled = true; pubBtn.disabled = true;
-    draftBtn.textContent = 'Saving...'; pubBtn.textContent = 'Saving...';
+    const isEdit = !!evtEditId;
+    const basePayload = {
+      title,
+      event_date: eventDate,
+      presenter: document.getElementById('evt-presenter').value.trim() || null,
+      doors_time: document.getElementById('evt-doors').value.trim() || null,
+      description: document.getElementById('evt-desc').value.trim() || null,
+      venue_name_public: document.getElementById('evt-venue-name').value.trim() || null,
+      city: document.getElementById('evt-city').value.trim() || null,
+      accent_color: document.getElementById('evt-color-hex').value || '#ff6b1a',
+      ...(IS_ADMIN_PREVIEW
+        ? { ticketing_url: document.getElementById('evt-ticket-url').value.trim() || null, ticketing_provider: 'hi_events' }
+        : { ticketing_requested: document.getElementById('evt-ticket-toggle').checked ? 1 : 0 }),
+      performers: gatherPerformers(),
+      team: gatherTeam(),
+      status
+    };
 
+    const url = isEdit ? API_BASE + '/api/events/' + evtEditId : API_BASE + '/api/events';
+    const method = isEdit ? 'PATCH' : 'POST';
     const res = await fetch(url, {
       method,
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(basePayload)
     });
     if (handleAuth(res)) return;
     const data = await res.json();
-    if (!res.ok) {
-      showEvtErr(data.error || 'Save failed.');
-      draftBtn.disabled = false; pubBtn.disabled = false;
-      draftBtn.textContent = 'Save Draft'; pubBtn.textContent = 'Save & Publish';
-      return;
-    }
+    if (!res.ok) { showEvtErr(data.error || 'Save failed.'); return; }
+
+    const eventId = data.id;
     if (!isEdit) {
-      evtEditId = data.id;
-      document.getElementById('evt-edit-id').value = data.id;
-      document.getElementById('evt-modal-title').textContent = 'Edit Event';
+      evtEditId = eventId;
+      document.getElementById('evt-edit-id').value = eventId;
     }
+
+    const stagedFiles = collectStagedPhotos();
+    if (stagedFiles.length > 0) {
+      for (const sf of stagedFiles) {
+        const form = new FormData();
+        form.append('file', sf.file);
+        const upRes = await fetch(API_BASE + '/api/events/' + eventId + '/photos', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + TOKEN },
+          body: form
+        });
+        if (handleAuth(upRes)) return;
+        const upData = await upRes.json();
+        if (!upRes.ok) { showEvtErr(upData.error || 'Photo upload failed.'); return; }
+        sf.urlInput.value = upData.url;
+        const thumb = document.getElementById(sf.thumbId);
+        if (thumb) {
+          const img = document.createElement('img');
+          img.className = 'evt-photo-thumb';
+          if (sf.prefix === 'team') img.style.borderRadius = '50%';
+          img.src = upData.url;
+          img.id = sf.thumbId;
+          thumb.replaceWith(img);
+        }
+      }
+      const patchPayload = { performers: gatherPerformers(), team: gatherTeam() };
+      const pRes = await fetch(API_BASE + '/api/events/' + eventId, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
+        body: JSON.stringify(patchPayload)
+      });
+      if (handleAuth(pRes)) return;
+      if (!pRes.ok) { const pd = await pRes.json().catch(() => ({})); showEvtErr(pd.error || 'Failed to save photos.'); return; }
+    }
+
     closeEventModal();
     await loadEvents();
   } catch (e) {
     showEvtErr(friendlyError(e));
-    document.getElementById('evt-save-draft').disabled = false;
-    document.getElementById('evt-save-pub').disabled = false;
-    document.getElementById('evt-save-draft').textContent = 'Save Draft';
-    document.getElementById('evt-save-pub').textContent = 'Save & Publish';
+  } finally {
+    resetSaveBtns();
   }
+}
+
+function collectStagedPhotos() {
+  const staged = [];
+  document.querySelectorAll('#evt-performers .evt-repeater-item').forEach(item => {
+    const id = item.id.replace('perf-row-', '');
+    const fi = document.getElementById('perf-file-' + id);
+    if (fi && fi.files[0]) {
+      staged.push({ prefix: 'perf', idx: id, file: fi.files[0], urlInput: document.getElementById('perf-photo-url-' + id), thumbId: 'perf-thumb-' + id });
+    }
+  });
+  document.querySelectorAll('#evt-team .evt-repeater-item').forEach(item => {
+    const id = item.id.replace('team-row-', '');
+    const fi = document.getElementById('team-file-' + id);
+    if (fi && fi.files[0]) {
+      staged.push({ prefix: 'team', idx: id, file: fi.files[0], urlInput: document.getElementById('team-photo-url-' + id), thumbId: 'team-thumb-' + id });
+    }
+  });
+  return staged;
 }
 
 loadEvents();
