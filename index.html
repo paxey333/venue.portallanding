@@ -147,6 +147,24 @@ img,svg{display:block;max-width:100%}
 .spotlight-stat .val{font-size:14px;font-weight:800;letter-spacing:-.2px}
 .spotlight-cta{flex-shrink:0}
 
+/* ── TICKETING OPS ─────────────────────────────────── */
+.ticketing{max-width:1280px;margin:80px auto 0;padding:0 24px}
+.ticketing-grid{display:grid;grid-template-columns:1fr;gap:40px;margin-top:36px}
+@media(min-width:760px){.ticketing-grid{grid-template-columns:1fr 1fr;gap:48px}}
+.ticketing-price{font-size:36px;font-weight:900;letter-spacing:-1.2px;color:var(--accent);line-height:1;margin-bottom:4px}
+@media(min-width:760px){.ticketing-price{font-size:44px}}
+.ticketing-price-sub{font-size:14px;color:var(--text2);margin-bottom:24px}
+.ticketing-example{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--accent);font-weight:600;margin-top:18px;transition:opacity .15s}
+.ticketing-example:hover{opacity:.8}
+.tkt-field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.tkt-field label{font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.1em}
+.tkt-field input{width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);font-size:14px;padding:11px 12px;border-radius:8px;outline:none;transition:border-color .15s;min-height:44px;font-family:var(--font)}
+.tkt-field input:focus{border-color:var(--accent)}
+.tkt-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tkt-form-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px 24px}
+.tkt-err{font-size:12px;color:var(--alert);margin-bottom:8px;display:none}
+.tkt-success{font-size:14px;color:var(--green);font-weight:600;line-height:1.6}
+
 /* ── OWNER CTA ──────────────────────────────────────── */
 .owner-cta{margin:80px 0 0;background:linear-gradient(135deg,#1a0a00 0%,#2a1505 40%,#0a0a0a 100%);border-top:1px solid var(--border2);border-bottom:1px solid var(--border2);position:relative;overflow:hidden}
 .owner-cta::before{content:'';position:absolute;top:-100px;right:-100px;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle,rgba(255,107,26,0.16) 0%,transparent 70%);pointer-events:none}
@@ -237,6 +255,7 @@ footer{padding:64px 0 calc(96px + env(safe-area-inset-bottom,0px)) 0;border-top:
         <a href="#carousel">Find Venues</a>
         <a href="/onboard.html">For Owners</a>
         <a href="#how">How it works</a>
+        <a href="#ticketing">Ticketing</a>
         <a href="/onboard.html" class="nav-onboard">Get Onboarded</a>
       </div>
       <div class="nav-actions">
@@ -350,6 +369,54 @@ footer{padding:64px 0 calc(96px + env(safe-area-inset-bottom,0px)) 0;border-top:
       </div>
     </section>
 
+    <!-- TICKETING OPS -->
+    <section class="ticketing anim-fade-up anim-d5" id="ticketing">
+      <div class="section-label">Ticketing ops</div>
+      <h2 class="section-title-landing">Event pages &amp; ticket sales<br>for independent venues.</h2>
+      <div class="ticketing-grid">
+        <div>
+          <p style="font-size:15px;color:var(--text2);line-height:1.65;margin-bottom:28px">We build your event page, set up ticket sales, and hand you the link. <strong style="color:var(--text)">You keep 100% of the door.</strong></p>
+          <div class="steps" style="grid-template-columns:1fr;gap:16px">
+            <div class="step">
+              <div class="step-num">01</div>
+              <div class="step-title">One 15-minute call</div>
+              <div class="step-desc">We take your event details — lineup, date, venue, branding.</div>
+            </div>
+            <div class="step">
+              <div class="step-num">02</div>
+              <div class="step-title">We build your page &amp; ticketing</div>
+              <div class="step-desc">Custom event page with ticket sales, ready to share.</div>
+            </div>
+            <div class="step">
+              <div class="step-num">03</div>
+              <div class="step-title">Live within 24 hours</div>
+              <div class="step-desc">We send you the link. You share it. Tickets sell.</div>
+            </div>
+          </div>
+          <div style="margin-top:32px">
+            <div class="ticketing-price">$150</div>
+            <div class="ticketing-price-sub">Flat per event. No commission. No percentage of your door.</div>
+          </div>
+          <a href="https://venueportal.us/events/la-underground-summer-smash" target="_blank" rel="noopener" class="ticketing-example">See a live example →</a>
+        </div>
+        <div>
+          <div class="tkt-form-card" id="tkt-form-wrap">
+            <div style="font-size:18px;font-weight:800;letter-spacing:-.3px;margin-bottom:18px">Book your call</div>
+            <div class="tkt-err" id="tkt-err"></div>
+            <div class="tkt-field"><label>Name *</label><input id="tkt-name" type="text" placeholder="Your name"/></div>
+            <div class="tkt-field"><label>Venue / Org</label><input id="tkt-org" type="text" placeholder="Venue or organization name"/></div>
+            <div class="tkt-field"><label>Email *</label><input id="tkt-email" type="email" placeholder="you@example.com"/></div>
+            <div class="tkt-row">
+              <div class="tkt-field"><label>Phone</label><input id="tkt-phone" type="tel" placeholder="Optional"/></div>
+              <div class="tkt-field"><label>Event date</label><input id="tkt-date" type="date"/></div>
+            </div>
+            <input type="text" name="_hp" id="tkt-hp" style="display:none" tabindex="-1" autocomplete="off"/>
+            <button class="btn-primary" id="tkt-submit" onclick="submitTicketingInquiry()" style="width:100%;justify-content:center;margin-top:6px;padding:13px 0;font-size:14px">Book your call →</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <footer class="anim-fade-up anim-d6">
@@ -369,6 +436,7 @@ footer{padding:64px 0 calc(96px + env(safe-area-inset-bottom,0px)) 0;border-top:
         <div class="footer-links">
           <a href="#carousel">All venues</a>
           <a href="#how">How it works</a>
+          <a href="#ticketing">Ticketing</a>
           <a href="/onboard.html">For owners</a>
         </div>
       </div>
@@ -398,6 +466,10 @@ footer{padding:64px 0 calc(96px + env(safe-area-inset-bottom,0px)) 0;border-top:
       <a href="#how" class="bt-item">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
         <span>How it works</span>
+      </a>
+      <a href="#ticketing" class="bt-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a3 3 0 013-3h14a3 3 0 013 3v0a3 3 0 01-3 3v0a3 3 0 013 3v0a3 3 0 01-3 3H5a3 3 0 01-3-3v0a3 3 0 013-3v0a3 3 0 01-3-3z"/></svg>
+        <span>Ticketing</span>
       </a>
       <a href="/onboard.html" class="bt-item">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
@@ -771,6 +843,57 @@ renderCarousel();
     return;
   }
 })();
+
+/* ─────────────────────────────────────────────
+   TICKETING INQUIRY
+───────────────────────────────────────────── */
+let tktSubmitting = false;
+async function submitTicketingInquiry() {
+  if (tktSubmitting) return;
+  const errEl = document.getElementById('tkt-err');
+  errEl.style.display = 'none';
+  const name = document.getElementById('tkt-name').value.trim();
+  const email = document.getElementById('tkt-email').value.trim();
+  if (!name) { errEl.textContent = 'Name is required.'; errEl.style.display = ''; return; }
+  if (!email) { errEl.textContent = 'Email is required.'; errEl.style.display = ''; return; }
+
+  tktSubmitting = true;
+  const btn = document.getElementById('tkt-submit');
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+
+  try {
+    const res = await fetch(API_BASE + '/api/ticketing/inquiry', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name,
+        org: document.getElementById('tkt-org').value.trim(),
+        email,
+        phone: document.getElementById('tkt-phone').value.trim(),
+        event_date: document.getElementById('tkt-date').value,
+        _hp: document.getElementById('tkt-hp').value
+      })
+    });
+    if (!res.ok) {
+      const d = await res.json().catch(() => ({}));
+      errEl.textContent = d.error || 'Something went wrong. Try again.';
+      errEl.style.display = '';
+      btn.disabled = false;
+      btn.textContent = 'Book your call →';
+      tktSubmitting = false;
+      return;
+    }
+    document.getElementById('tkt-form-wrap').innerHTML =
+      '<div class="tkt-success">Request received — we’ll reach out within 24 hours to schedule your call.</div>';
+  } catch (e) {
+    errEl.textContent = 'Connection issue. Try again.';
+    errEl.style.display = '';
+    btn.disabled = false;
+    btn.textContent = 'Book your call →';
+    tktSubmitting = false;
+  }
+}
 </script>
 
 </body>

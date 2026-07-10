@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#000000"/>
+<meta name="color-scheme" content="dark"/>
+<title>Payment received — Venue.Portal Ticketing</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 18'%3E%3Cpath d='M0 0L6 9L0 18H4L10 9L4 0H0Z' fill='%23ffffff'/%3E%3Cpath d='M9 0L15 9L9 18H13L19 9L13 0H9Z' fill='%23555555'/%3E%3Crect x='19.5' y='7' width='4' height='4' rx='1' fill='%23ffffff'/%3E%3C/svg%3E"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#000;color:#fff;font-family:'Inter',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;-webkit-font-smoothing:antialiased}
+.card{max-width:520px;width:100%;text-align:center}
+.brand{display:flex;align-items:center;justify-content:center;gap:9px;font-weight:800;font-size:15px;letter-spacing:-.3px;margin-bottom:48px}
+.brand .dot{color:#ff6b1a}
+.check{width:56px;height:56px;border-radius:50%;background:rgba(61,220,132,0.12);border:2px solid #3ddc84;display:flex;align-items:center;justify-content:center;margin:0 auto 24px}
+.check svg{width:28px;height:28px;color:#3ddc84}
+h1{font-size:28px;font-weight:900;letter-spacing:-1px;line-height:1.1;margin-bottom:12px}
+.sub{font-size:15px;color:#a8a8a8;line-height:1.65;margin-bottom:36px}
+.steps{text-align:left;background:#0a0a0a;border:1px solid #1f1f1f;border-radius:12px;padding:24px 22px;margin-bottom:36px}
+.step-item{display:flex;gap:14px;align-items:flex-start}
+.step-item+.step-item{margin-top:18px;padding-top:18px;border-top:1px solid #1f1f1f}
+.step-num{flex-shrink:0;width:28px;height:28px;border-radius:50%;background:rgba(255,107,26,0.12);color:#ff6b1a;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.step-text{font-size:14px;color:#a8a8a8;line-height:1.55}
+.contact{font-size:13px;color:#666;line-height:1.6}
+.contact a{color:#ff6b1a;text-decoration:none}
+.contact a:hover{opacity:.8}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="brand">
+    <svg width="22" height="16" viewBox="0 0 24 18" fill="none">
+      <path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#ffffff"/>
+      <path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#ffffff" opacity="0.4"/>
+    </svg>
+    <span>Venue<span class="dot">.</span>Portal</span>
+  </div>
+  <div class="check">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+  </div>
+  <h1>Payment received.</h1>
+  <p class="sub">You're on the build queue. We already have your event details from the call — here's what happens next.</p>
+  <div class="steps">
+    <div class="step-item">
+      <div class="step-num">1</div>
+      <div class="step-text">We build your event page and set up ticket sales.</div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">2</div>
+      <div class="step-text">Your page and ticketing go live within 24 hours.</div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">3</div>
+      <div class="step-text">We send you the link — share it, sell tickets, keep 100% of the door.</div>
+    </div>
+  </div>
+  <p class="contact">Questions? Reach us at <a href="mailto:hello@venueportal.us">hello@venueportal.us</a></p>
+</div>
+</body>
+</html>

@@ -1934,6 +1934,77 @@ export default {
         }
       }
 
+      // ── TICKETING INQUIRY (public, unauthenticated) ──────────────────
+      if (path === "/api/ticketing/inquiry" && request.method === "POST") {
+        try {
+          const body = await parseJson(request);
+          if (body._hp) return jsonResponse({ ok: true }, 200, request);
+          const raw = JSON.stringify(body);
+          if (raw.length > 4000) return jsonResponse({ error: "Request too large" }, 400, request);
+
+          const name  = String(body.name || "").trim().slice(0, 200);
+          const org   = String(body.org || "").trim().slice(0, 200);
+          const email = String(body.email || "").trim().slice(0, 200);
+          const phone = String(body.phone || "").trim().slice(0, 50);
+          const eventDate = String(body.event_date || "").trim().slice(0, 50);
+          if (!name)  return jsonResponse({ error: "name is required" }, 400, request);
+          if (!email) return jsonResponse({ error: "email is required" }, 400, request);
+
+          const esc = (s) => String(s == null ? "" : s)
+            .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+          const row = (label, val) => {
+            const v = esc(val);
+            return `<tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:12px 0 2px">${esc(label)}</td></tr>
+                    <tr><td style="font-size:14px;font-weight:600;color:#111;padding-bottom:12px;border-bottom:1px solid #eee">${v || '<span style="color:#bbb;font-weight:400">—</span>'}</td></tr>`;
+          };
+
+          const html = `<div style="font-family:sans-serif;max-width:560px;margin:0 auto;background:#fff;color:#111;padding:32px 28px;border-radius:8px">
+            <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#888;margin-bottom:20px">Venue.Portal</div>
+            <h1 style="font-size:22px;font-weight:800;margin:0 0 6px">Ticketing inquiry.</h1>
+            <p style="color:#555;font-size:14px;margin:0 0 24px;line-height:1.6"><strong>${esc(name)}</strong> wants ticketing ops for their event. Schedule the call.</p>
+            <div style="background:#f7f7f7;border-radius:8px;padding:20px 22px;margin-bottom:24px">
+              <table style="width:100%;border-collapse:collapse">
+                ${row('Name', name)}
+                ${row('Venue / Org', org)}
+                ${row('Email', email)}
+                ${row('Phone', phone)}
+                ${row('Event date', eventDate)}
+                ${row('Submitted', new Date().toISOString().replace('T', ' ').slice(0, 19) + ' UTC')}
+              </table>
+            </div>
+            <div style="margin-top:24px;padding-top:16px;border-top:1px solid #eee;font-family:monospace;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#bbb">Venue.Portal &middot; Ticketing Ops</div>
+          </div>`;
+
+          if (!env.RESEND_API_KEY) {
+            console.log("[ticketing/inquiry] no RESEND_API_KEY; logged:", name, email);
+            return jsonResponse({ ok: true }, 200, request);
+          }
+
+          const resendRes = await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: { "Authorization": "Bearer " + env.RESEND_API_KEY, "Content-Type": "application/json" },
+            body: JSON.stringify({
+              from: "Venue Portal <noreply@venueportal.us>",
+              to: ["paxey333@gmail.com", "mossjr1126@gmail.com"],
+              reply_to: email,
+              subject: "Ticketing inquiry: " + (org || name),
+              html
+            })
+          });
+          if (!resendRes.ok) {
+            const errText = await resendRes.text();
+            console.log("[ticketing/inquiry] resend error:", resendRes.status, errText);
+            return jsonResponse({ error: "Email delivery failed" }, 502, request);
+          }
+          console.log("[ticketing/inquiry]", name, email, org);
+          return jsonResponse({ ok: true }, 200, request);
+        } catch (err) {
+          console.log("[ticketing/inquiry] error:", err.message);
+          return jsonResponse({ error: err.message }, 500, request);
+        }
+      }
+
       // ── TEST EMAIL (superadmin only) ─────────────────────────────────
       if (path === "/api/test-email" && request.method === "POST") {
         try {
