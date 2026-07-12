@@ -2521,7 +2521,7 @@ export default {
           const row = await env.DB.prepare(
             `SELECT id, slug, title, presenter, host_type, venue_id, venue_name_public, city,
                     event_date, doors_time, description, performers, team, accent_color,
-                    hero_image_url, ticketing_provider, ticketing_url, status, created_at
+                    hero_image_url, ticketing_provider, ticketing_url, status, backdrop, created_at
              FROM events WHERE slug = ? AND status = 'published' AND hidden = 0`
           ).bind(slug).first();
           if (!row) return jsonResponse({ error: "Event not found" }, 404, request);
