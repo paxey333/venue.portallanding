@@ -1037,6 +1037,10 @@ section{display:flex;flex-direction:column;gap:14px}
             <div class="evt-color-swatch" id="evt-color-swatch" style="background:#ff6b1a"></div>
           </div>
         </div>
+        <div class="evt-field">
+          <label>Backdrop</label>
+          <select id="evt-backdrop"><option value="glow">Glow (default)</option><option value="particles">Particles</option></select>
+        </div>
         <div class="evt-field" id="evt-ticketing-admin" style="display:none">
           <label>Ticketing URL</label>
           <input id="evt-ticket-url" type="url" placeholder="Paste Hi.Events link"/>
@@ -3150,6 +3154,7 @@ function openEventModal(editData) {
   document.getElementById('evt-color').value = '#ff6b1a';
   document.getElementById('evt-color-hex').value = '#ff6b1a';
   document.getElementById('evt-color-swatch').style.background = '#ff6b1a';
+  document.getElementById('evt-backdrop').value = 'glow';
   document.getElementById('evt-ticket-url').value = '';
   document.getElementById('evt-ticket-toggle').checked = false;
   document.getElementById('evt-ticketing-admin').style.display = IS_ADMIN_PREVIEW ? '' : 'none';
@@ -3175,6 +3180,7 @@ function openEventModal(editData) {
     document.getElementById('evt-color').value = color;
     document.getElementById('evt-color-hex').value = color;
     document.getElementById('evt-color-swatch').style.background = color;
+    document.getElementById('evt-backdrop').value = editData.backdrop || 'glow';
     document.getElementById('evt-ticket-url').value = editData.ticketing_url || '';
     document.getElementById('evt-ticket-toggle').checked = !!editData.ticketing_requested;
     updateTicketStatus(editData);
@@ -3244,7 +3250,18 @@ function addPerformerRow(data) {
     '<div class="evt-field-row">' +
     '<div class="evt-field"><label>Followers</label><input id="perf-followers-' + i + '" value="' + esc((data && data.followers) || '') + '" placeholder="16.2k"/></div>' +
     '<div class="evt-field"><label>Photo crop</label><select id="perf-pos-' + i + '"><option value="">Center (default)</option><option value="center 25%"' + (photoPos === 'center 25%' ? ' selected' : '') + '>Top</option><option value="center 50%"' + (photoPos === 'center 50%' ? ' selected' : '') + '>Middle</option><option value="center 75%"' + (photoPos === 'center 75%' ? ' selected' : '') + '>Lower third</option></select></div>' +
-    '</div></div>';
+    '</div>' +
+    '<div style="margin-top:6px"><button type="button" onclick="toggleMusicLinks(\'perf\',' + i + ')" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:4px 0">+ Music links</button></div>' +
+    '<div id="perf-music-' + i + '" style="display:' + ((data && (data.spotify || data.soundcloud || data.youtube)) ? 'block' : 'none') + '">' +
+    '<div class="evt-field-row" style="margin-top:6px">' +
+    '<div class="evt-field"><label>Spotify</label><input id="perf-spotify-' + i + '" value="' + esc((data && data.spotify) || '') + '" placeholder="https://open.spotify.com/artist/..."/></div>' +
+    '</div>' +
+    '<div class="evt-field-row">' +
+    '<div class="evt-field"><label>SoundCloud</label><input id="perf-soundcloud-' + i + '" value="' + esc((data && data.soundcloud) || '') + '" placeholder="https://soundcloud.com/..."/></div>' +
+    '</div>' +
+    '<div class="evt-field-row">' +
+    '<div class="evt-field"><label>YouTube</label><input id="perf-youtube-' + i + '" value="' + esc((data && data.youtube) || '') + '" placeholder="https://youtube.com/@..."/></div>' +
+    '</div></div></div>';
   wrap.insertAdjacentHTML('beforeend', html);
 }
 
@@ -3270,8 +3287,24 @@ function addTeamRow(data) {
     '<div class="evt-field-row">' +
     '<div class="evt-field"><label>Role</label><input id="team-role-' + i + '" value="' + esc((data && data.role) || '') + '" placeholder="Promoter"/></div>' +
     '<div class="evt-field"><label>Followers</label><input id="team-followers-' + i + '" value="' + esc((data && data.followers) || '') + '" placeholder="1k"/></div>' +
-    '</div></div>';
+    '</div>' +
+    '<div style="margin-top:6px"><button type="button" onclick="toggleMusicLinks(\'team\',' + i + ')" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:4px 0">+ Music links</button></div>' +
+    '<div id="team-music-' + i + '" style="display:' + ((data && (data.spotify || data.soundcloud || data.youtube)) ? 'block' : 'none') + '">' +
+    '<div class="evt-field-row" style="margin-top:6px">' +
+    '<div class="evt-field"><label>Spotify</label><input id="team-spotify-' + i + '" value="' + esc((data && data.spotify) || '') + '" placeholder="https://open.spotify.com/artist/..."/></div>' +
+    '</div>' +
+    '<div class="evt-field-row">' +
+    '<div class="evt-field"><label>SoundCloud</label><input id="team-soundcloud-' + i + '" value="' + esc((data && data.soundcloud) || '') + '" placeholder="https://soundcloud.com/..."/></div>' +
+    '</div>' +
+    '<div class="evt-field-row">' +
+    '<div class="evt-field"><label>YouTube</label><input id="team-youtube-' + i + '" value="' + esc((data && data.youtube) || '') + '" placeholder="https://youtube.com/@..."/></div>' +
+    '</div></div></div>';
   wrap.insertAdjacentHTML('beforeend', html);
+}
+
+function toggleMusicLinks(prefix, idx) {
+  const el = document.getElementById(prefix + '-music-' + idx);
+  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
 
 /* photo uploads */
@@ -3337,6 +3370,12 @@ function gatherPerformers() {
     if (photoUrl) entry.photo_url = photoUrl;
     const pos = (document.getElementById('perf-pos-' + id) || {}).value || '';
     if (pos) entry.photo_position = pos;
+    const spotify = (document.getElementById('perf-spotify-' + id) || {}).value || '';
+    if (spotify) entry.spotify = spotify;
+    const soundcloud = (document.getElementById('perf-soundcloud-' + id) || {}).value || '';
+    if (soundcloud) entry.soundcloud = soundcloud;
+    const youtube = (document.getElementById('perf-youtube-' + id) || {}).value || '';
+    if (youtube) entry.youtube = youtube;
     result.push(entry);
   });
   return result;
@@ -3357,6 +3396,12 @@ function gatherTeam() {
     if (followers) entry.followers = followers;
     const photoUrl = (document.getElementById('team-photo-url-' + id) || {}).value || '';
     if (photoUrl) entry.photo_url = photoUrl;
+    const spotify = (document.getElementById('team-spotify-' + id) || {}).value || '';
+    if (spotify) entry.spotify = spotify;
+    const soundcloud = (document.getElementById('team-soundcloud-' + id) || {}).value || '';
+    if (soundcloud) entry.soundcloud = soundcloud;
+    const youtube = (document.getElementById('team-youtube-' + id) || {}).value || '';
+    if (youtube) entry.youtube = youtube;
     result.push(entry);
   });
   return result;
@@ -3409,6 +3454,7 @@ async function saveEvent(status) {
         ? { ticketing_url: document.getElementById('evt-ticket-url').value.trim() || null, ticketing_provider: 'hi_events' }
         : { ticketing_requested: document.getElementById('evt-ticket-toggle').checked ? 1 : 0 }),
       ...(IS_ADMIN_PREVIEW && EFFECTIVE_VENUE_ID && !isEdit ? { venue_id: EFFECTIVE_VENUE_ID, host_type: 'venue', host_id: EFFECTIVE_VENUE_ID } : {}),
+      backdrop: document.getElementById('evt-backdrop').value || 'glow',
       performers: gatherPerformers(),
       team: gatherTeam(),
       status

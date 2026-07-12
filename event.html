@@ -39,6 +39,9 @@ img{max-width:100%;display:block}
 .splatter span:nth-child(2){width:360px;height:360px;top:40%;left:-120px;background:var(--event-dim);opacity:0.7}
 .splatter span:nth-child(3){width:280px;height:280px;bottom:-80px;right:25%;background:rgba(255,107,26,0.06)}
 
+/* particles backdrop */
+.particles-canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+
 .page{position:relative;z-index:1}
 
 .topnav{position:sticky;top:0;z-index:100;background:rgba(0,0,0,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center}
@@ -56,9 +59,14 @@ img{max-width:100%;display:block}
 .hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.4) 0%,#000 85%)}
 .hero-presenter{font-size:12px;font-weight:600;color:var(--event);text-transform:uppercase;letter-spacing:.22em;margin-bottom:18px}
 .hero-title{font-size:clamp(54px, 8vw, 96px);font-weight:900;letter-spacing:-0.04em;line-height:0.92;text-transform:uppercase;margin-bottom:26px}
-.hero-meta{font-size:13px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.14em;margin-bottom:32px}
+.hero-meta{font-size:13px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.14em;margin-bottom:32px;display:flex;align-items:center;flex-wrap:wrap;gap:4px}
 .hero-meta .sep{color:var(--text3);margin:0 8px}
 .hero-desc{font-size:15px;font-weight:400;color:var(--text2);line-height:1.6;max-width:640px;font-style:italic}
+
+/* copy-link chip */
+.copy-link{display:inline-flex;align-items:center;gap:6px;margin-left:12px;padding:4px 10px;border:1px solid var(--border2);border-radius:4px;font-size:11px;font-weight:600;color:var(--text3);cursor:pointer;text-transform:uppercase;letter-spacing:.1em;transition:color .2s,border-color .2s;background:none;font-family:var(--font)}
+.copy-link:hover{color:var(--text2);border-color:var(--text3)}
+.copy-link svg{width:13px;height:13px;stroke:currentColor;stroke-width:2;fill:none}
 
 /* section labels with gradient rule */
 .section-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.22em;color:var(--event);margin-bottom:22px;display:flex;align-items:center;gap:12px}
@@ -67,7 +75,7 @@ img{max-width:100%;display:block}
 /* performers — portrait cards with scrim overlay */
 .performers{padding:80px 28px;max-width:1100px;margin:0 auto}
 .perf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:24px}
-.perf-card{position:relative;aspect-ratio:4/5;border:1px solid var(--event-border);border-radius:6px;overflow:hidden;background:var(--surface);display:block;transition:transform .2s,border-color .2s,box-shadow .2s}
+.perf-card{position:relative;aspect-ratio:4/5;border:1px solid var(--event-border);border-radius:6px;overflow:hidden;background:var(--surface);display:flex;flex-direction:column;transition:transform .2s,border-color .2s,box-shadow .2s}
 .perf-card:hover{transform:translateY(-2px);border-color:var(--event);box-shadow:0 8px 24px var(--event-glow)}
 .perf-img-wrap{position:absolute;inset:0;background:linear-gradient(135deg,var(--surface2),var(--surface));display:flex;align-items:center;justify-content:center}
 .perf-img-wrap img{width:100%;height:100%;object-fit:cover;display:block}
@@ -77,6 +85,13 @@ img{max-width:100%;display:block}
 .perf-name{font-weight:800;font-size:32px;letter-spacing:-0.02em;text-transform:uppercase;margin-bottom:6px}
 .perf-handle{font-size:12px;color:var(--event);letter-spacing:.06em}
 .perf-handle .followers{color:var(--text2);margin-left:8px}
+.perf-ig-link{display:block;text-decoration:none;color:inherit}
+
+/* music chips */
+.music-chips{display:flex;gap:8px;margin-top:10px;position:relative;z-index:3}
+.music-chip{display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);transition:background .2s,border-color .2s,transform .2s;color:#fff}
+.music-chip:hover{background:var(--event-dim);border-color:var(--event);transform:scale(1.1)}
+.music-chip svg{width:18px;height:18px}
 
 /* team — centered cards with circular pfp */
 .team-section{padding:0 28px 80px;max-width:1100px;margin:0 auto}
@@ -89,6 +104,9 @@ img{max-width:100%;display:block}
 .team-name{font-weight:700;font-size:22px;text-transform:uppercase;letter-spacing:-0.01em;margin-bottom:4px}
 .team-handle{font-size:11px;color:var(--event);letter-spacing:.04em;margin-bottom:8px}
 .team-role{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.2em}
+.team-music-chips{display:flex;gap:6px;justify-content:center;margin-top:10px}
+.team-music-chips .music-chip{width:34px;height:34px}
+.team-music-chips .music-chip svg{width:15px;height:15px}
 
 /* venue — horizontal card with lock icon circle */
 .venue-section{padding:0 28px 80px;max-width:1100px;margin:0 auto}
@@ -124,6 +142,21 @@ img{max-width:100%;display:block}
 .ticket-embed-note a:hover{text-decoration:underline}
 .ticket-soon{display:inline-block;background:var(--surface);border:1px solid var(--border);padding:10px 24px;border-radius:20px;font-size:13px;font-weight:600;color:var(--text2)}
 
+/* past-event recap line */
+.past-recap{font-size:14px;color:var(--text2);line-height:1.6;padding:18px 0}
+.past-recap a{color:var(--event);text-decoration:none}
+.past-recap a:hover{text-decoration:underline}
+
+/* sticky CTA bar */
+.sticky-cta{position:fixed;bottom:0;left:0;right:0;z-index:99;background:rgba(0,0,0,.92);backdrop-filter:blur(12px);border-top:1px solid var(--border);padding:8px 20px;display:flex;justify-content:center;transform:translateY(100%);transition:transform .3s ease}
+.sticky-cta.visible{transform:translateY(0)}
+.sticky-cta a{display:inline-flex;align-items:center;gap:10px;background:var(--event);color:#000;font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:.1em;padding:14px 32px;border-radius:4px;text-decoration:none}
+.sticky-cta a svg{width:14px;height:14px;stroke:currentColor;stroke-width:2.5;fill:none}
+
+/* copy toast */
+.copy-toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-size:12px;font-weight:600;padding:8px 18px;border-radius:6px;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;z-index:200;font-family:var(--font);letter-spacing:.06em}
+.copy-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
 footer{border-top:1px solid var(--border);padding:32px 24px;text-align:center}
 .footer-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
 .footer-brand{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:800}
@@ -140,10 +173,14 @@ footer{border-top:1px solid var(--border);padding:32px 24px;text-align:center}
   .hero{padding:60px 20px 40px}
   .hero-title{line-height:0.95}
   .perf-grid{grid-template-columns:repeat(2,1fr);gap:12px}
+  .perf-grid .perf-card:last-child:nth-child(odd){grid-column:1 / -1;max-width:calc(50% - 6px)}
   .perf-meta{left:14px;right:14px;bottom:14px}
   .perf-name{font-size:20px}
   .perf-handle{font-size:10px}
   .perf-handle .followers{display:block;margin-left:0;margin-top:2px}
+  .music-chips{gap:6px;margin-top:8px}
+  .music-chip{width:36px;height:36px}
+  .music-chip svg{width:16px;height:16px}
   .team-grid{grid-template-columns:1fr;gap:10px}
   .team-card{display:flex;align-items:center;gap:16px;text-align:left;padding:18px 20px}
   .team-pfp{width:48px;height:48px;flex:0 0 48px;margin:0}
@@ -151,21 +188,25 @@ footer{border-top:1px solid var(--border);padding:32px 24px;text-align:center}
   .team-name{font-size:18px;margin-bottom:2px}
   .team-handle{font-size:11px;margin-bottom:3px}
   .team-role{font-size:10px}
+  .team-music-chips{justify-content:flex-start}
   .venue-block{flex-direction:column;align-items:flex-start;padding:26px}
   .ticket-iframe-wrap iframe{height:600px}
   .ticket-cta-row{gap:12px}
   .footer-inner{flex-direction:column;text-align:center}
+  .copy-link{margin-left:0;margin-top:6px}
 }
 
 @media(prefers-reduced-motion:reduce){
   .perf-card,.team-card{transition:none}
   .perf-card:hover,.team-card:hover{transform:none}
+  .sticky-cta{transition:none}
 }
 </style>
 </head>
 <body>
 
-<div class="splatter" aria-hidden="true"><span></span><span></span><span></span></div>
+<div class="splatter" id="backdrop-glow" aria-hidden="true"><span></span><span></span><span></span></div>
+<canvas class="particles-canvas" id="backdrop-particles" style="display:none" aria-hidden="true"></canvas>
 
 <header class="topnav">
   <div class="topnav-inner">
@@ -181,6 +222,12 @@ footer{border-top:1px solid var(--border);padding:32px 24px;text-align:center}
   <div class="loading" id="loader">&raquo;</div>
 </main>
 </div>
+
+<div class="sticky-cta" id="sticky-cta" style="display:none">
+  <a id="sticky-cta-link" href="#" target="_blank" rel="noopener">Get Tickets <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+</div>
+
+<div class="copy-toast" id="copy-toast">Copied</div>
 
 <footer>
   <div class="footer-inner">
@@ -219,8 +266,6 @@ function setEventAccent(hex) {
   root.setProperty('--event-r', r);
   root.setProperty('--event-g', g);
   root.setProperty('--event-b', b);
-  const sp = document.querySelector('.splatter');
-  if (sp) sp.children[2].style.background = `rgba(255,107,26,0.06)`;
 }
 
 function formatDate(dateStr) {
@@ -235,22 +280,144 @@ function imgFallback(img) {
   if (sib) sib.style.display = 'flex';
 }
 
-function renderNotFound() {
+function isValidUrl(s) {
+  try { return new URL(s).protocol === 'https:'; } catch { return false; }
+}
+
+function musicChipSvg(type) {
+  if (type === 'spotify') return '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.56 14.46a.62.62 0 01-.86.21c-2.35-1.44-5.31-1.76-8.8-.96a.62.62 0 11-.28-1.21c3.81-.87 7.08-.5 9.72 1.1a.62.62 0 01.22.86zm1.22-2.72a.78.78 0 01-1.07.26c-2.69-1.65-6.79-2.13-9.97-1.17a.78.78 0 11-.45-1.5c3.63-1.1 8.13-.57 11.23 1.33a.78.78 0 01.26 1.08zm.1-2.84c-3.22-1.91-8.54-2.09-11.62-1.16a.94.94 0 11-.54-1.8c3.53-1.07 9.4-.86 13.11 1.34a.94.94 0 01-.95 1.62z"/></svg>';
+  if (type === 'soundcloud') return '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M1.5 14.25c-.28 0-.5-.22-.5-.5v-3.5c0-.28.22-.5.5-.5s.5.22.5.5v3.5c0 .28-.22.5-.5.5zm2-1c-.28 0-.5-.22-.5-.5v-1.5c0-.28.22-.5.5-.5s.5.22.5.5v1.5c0 .28-.22.5-.5.5zm2 1.5c-.28 0-.5-.22-.5-.5v-4.5c0-.28.22-.5.5-.5s.5.22.5.5v4.5c0 .28-.22.5-.5.5zm2 .5c-.28 0-.5-.22-.5-.5v-5.5c0-.28.22-.5.5-.5s.5.22.5.5v5.5c0 .28-.22.5-.5.5zm2-.5c-.28 0-.5-.22-.5-.5V8.75c0-.28.22-.5.5-.5s.5.22.5.5v5.5c0 .28-.22.5-.5.5zm3.5.5h-1c-.28 0-.5-.22-.5-.5V7.25c0-.28.22-.5.5-.5.92 0 1.76.34 2.42.89A4.5 4.5 0 0122 11.75c0 1.8-1.34 3.28-3.07 3.48-.13.02-.27.02-.43.02z"/></svg>';
+  if (type === 'youtube') return '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.19a3.02 3.02 0 00-2.12-2.14C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.38.55A3.02 3.02 0 00.5 6.19 31.56 31.56 0 000 12a31.56 31.56 0 00.5 5.81 3.02 3.02 0 002.12 2.14c1.88.55 9.38.55 9.38.55s7.5 0 9.38-.55a3.02 3.02 0 002.12-2.14A31.56 31.56 0 0024 12a31.56 31.56 0 00-.5-5.81zM9.75 15.02V8.98L15.5 12l-5.75 3.02z"/></svg>';
+  return '';
+}
+
+function renderMusicChips(person, cssClass) {
+  const types = ['spotify', 'soundcloud', 'youtube'];
+  const chips = types.filter(t => person[t] && isValidUrl(person[t]))
+    .map(t => `<a href="${esc(person[t])}" target="_blank" rel="noopener" class="music-chip" title="${t[0].toUpperCase() + t.slice(1)}">${musicChipSvg(t)}</a>`);
+  if (!chips.length) return '';
+  return `<div class="${cssClass || 'music-chips'}">${chips.join('')}</div>`;
+}
+
+function isPast(dateStr) {
+  if (!dateStr) return false;
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const evtDate = new Date(y, m - 1, d, 23, 59, 59);
+  return evtDate < new Date();
+}
+
+function copyLink() {
+  navigator.clipboard.writeText(location.href).then(() => {
+    const toast = document.getElementById('copy-toast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 1800);
+  });
+}
+
+function renderNotFound(reason) {
   document.title = 'Event Not Found — Venue.Portal';
+  let heading = 'Event not found';
+  let message = 'This event may have ended or moved.';
+  if (reason === 'no-slug') {
+    heading = 'No event specified';
+    message = 'Use a link like /events/event-name to find an event.';
+  } else if (reason === 'network') {
+    heading = 'Connection error';
+    message = 'Couldn’t reach the server. Check your connection and try again.';
+  }
   document.getElementById('app').innerHTML = `
     <div class="not-found">
-      <h1>Event not found</h1>
-      <p>This event may have ended or moved.</p>
+      <h1>${heading}</h1>
+      <p>${message}</p>
       <a href="/">Browse Venues</a>
     </div>`;
+}
+
+/* particles backdrop */
+function initParticles(hex) {
+  const canvas = document.getElementById('backdrop-particles');
+  if (!canvas) return;
+  document.getElementById('backdrop-glow').style.display = 'none';
+  canvas.style.display = 'block';
+
+  const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (mq.matches) { canvas.style.display = 'none'; return; }
+
+  const ctx = canvas.getContext('2d');
+  const [r, g, b] = hexToRgb(hex || '#ff6b1a');
+  const dots = [];
+  const COUNT = 24;
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  for (let i = 0; i < COUNT; i++) {
+    const x = Math.random() * canvas.width;
+    const y = Math.random() * canvas.height;
+    const centerThird = x > canvas.width * 0.33 && x < canvas.width * 0.67;
+    if (centerThird && Math.random() > 0.3) { i--; continue; }
+    dots.push({
+      x, y,
+      size: 1.5 + Math.random() * 4,
+      blur: 2 + Math.random() * 6,
+      vx: (Math.random() - 0.5) * 0.15,
+      vy: (Math.random() - 0.5) * 0.12,
+      alpha: 0.15 + Math.random() * 0.3,
+      alphaDir: (Math.random() - 0.5) * 0.003
+    });
+  }
+
+  let running = true;
+  const observer = new IntersectionObserver(entries => {
+    running = entries[0].isIntersecting;
+  }, { threshold: 0 });
+  observer.observe(canvas);
+
+  function draw() {
+    if (!running) { requestAnimationFrame(draw); return; }
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (const d of dots) {
+      d.x += d.vx;
+      d.y += d.vy;
+      d.alpha += d.alphaDir;
+      if (d.alpha > 0.45 || d.alpha < 0.1) d.alphaDir *= -1;
+      if (d.x < -20) d.x = canvas.width + 20;
+      if (d.x > canvas.width + 20) d.x = -20;
+      if (d.y < -20) d.y = canvas.height + 20;
+      if (d.y > canvas.height + 20) d.y = -20;
+      ctx.beginPath();
+      ctx.arc(d.x, d.y, d.size, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${r},${g},${b},${d.alpha})`;
+      ctx.shadowBlur = d.blur;
+      ctx.shadowColor = `rgba(${r},${g},${b},${d.alpha * 0.6})`;
+      ctx.fill();
+    }
+    ctx.shadowBlur = 0;
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+
+  mq.addEventListener('change', e => {
+    if (e.matches) { running = false; canvas.style.display = 'none'; }
+    else { running = true; canvas.style.display = 'block'; }
+  });
 }
 
 function renderEvent(e) {
   document.title = esc(e.title) + ' — Venue.Portal';
   if (e.accent_color && e.accent_color !== '#ff6b1a') setEventAccent(e.accent_color);
 
+  const eventIsPast = isPast(e.event_date);
   const performers = Array.isArray(e.performers) ? e.performers : [];
   const team = Array.isArray(e.team) ? e.team : [];
+
+  if (e.backdrop === 'particles') {
+    initParticles(e.accent_color || '#ff6b1a');
+  }
 
   let html = '';
 
@@ -266,13 +433,15 @@ function renderEvent(e) {
   }
   html += `<h1 class="hero-title">${esc(e.title)}</h1>`;
 
-  // Meta row
+  // Meta row with copy-link chip
   const meta = [];
   if (e.city) meta.push(esc(e.city));
   if (e.event_date) meta.push(formatDate(e.event_date));
   if (e.doors_time) meta.push('Doors ' + esc(e.doors_time));
   if (meta.length) {
-    html += '<div class="hero-meta">' + meta.join('<span class="sep">&middot;</span>') + '</div>';
+    html += '<div class="hero-meta">' + meta.join('<span class="sep">&middot;</span>');
+    html += '<button class="copy-link" onclick="copyLink()" title="Copy link"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke-linecap="round" stroke-linejoin="round"/></svg>Copy link</button>';
+    html += '</div>';
   }
 
   if (e.description) {
@@ -284,23 +453,31 @@ function renderEvent(e) {
   if (performers.length > 0) {
     html += '<section class="performers"><div class="section-label">Performers</div><div class="perf-grid">';
     for (const p of performers) {
-      const link = p.ig ? `https://instagram.com/${esc(p.ig)}` : '#';
-      const target = p.ig ? ' target="_blank" rel="noopener"' : '';
+      const hasIg = !!p.ig;
+      const igUrl = hasIg ? `https://instagram.com/${esc(p.ig)}` : '';
       const objPos = p.photo_position ? ` style="object-position:${esc(p.photo_position)}"` : '';
       const initial = (p.name || '?')[0].toUpperCase();
-      html += `<a href="${link}"${target} class="perf-card"><div class="perf-img-wrap">`;
+
+      html += '<div class="perf-card">';
+      const imgLink = hasIg ? `<a href="${igUrl}" target="_blank" rel="noopener" class="perf-ig-link">` : '';
+      const imgLinkClose = hasIg ? '</a>' : '';
+      html += `${imgLink}<div class="perf-img-wrap">`;
       if (p.photo_url) {
         html += `<img src="${esc(p.photo_url)}" alt="${esc(p.name)}"${objPos} onerror="imgFallback(this)"/>`;
       }
       html += `<div class="initial" style="${p.photo_url ? 'display:none' : 'display:flex'}">${esc(initial)}</div>`;
-      html += '</div><div class="perf-meta">';
-      html += `<div class="perf-name">${esc(p.name)}</div>`;
-      if (p.ig) {
+      html += `</div>${imgLinkClose}`;
+      html += '<div class="perf-meta">';
+      if (hasIg) {
+        html += `<a href="${igUrl}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><div class="perf-name">${esc(p.name)}</div>`;
         html += `<div class="perf-handle">@${esc(p.ig)}`;
         if (p.followers) html += `<span class="followers">${esc(String(p.followers))} followers</span>`;
-        html += '</div>';
+        html += '</div></a>';
+      } else {
+        html += `<div class="perf-name">${esc(p.name)}</div>`;
       }
-      html += '</div></a>';
+      html += renderMusicChips(p, 'music-chips');
+      html += '</div></div>';
     }
     html += '</div></section>';
   }
@@ -327,6 +504,11 @@ function renderEvent(e) {
         html += `<div class="team-role">${roleText}</div>`;
       }
       html += '</div></a>';
+      // team music chips rendered outside the <a> to keep tap targets separate
+      const teamMusic = renderMusicChips(t, 'team-music-chips');
+      if (teamMusic) {
+        html += teamMusic;
+      }
     }
     html += '</div></section>';
   }
@@ -349,41 +531,68 @@ function renderEvent(e) {
   }
   html += '</div></div></section>';
 
-  // Tickets
-  html += '<section class="tickets-section"><div class="section-label">';
-  html += e.ticketing_url ? 'Live Ticketing' : 'Tickets';
-  html += '</div>';
-  if (e.ticketing_url) {
-    html += `<div class="tickets-status">Tickets Live &middot; ${esc(e.title)}</div>`;
-    html += '<div class="ticket-cta-row">';
-    html += `<a href="${esc(e.ticketing_url)}" target="_blank" rel="noopener" class="ticket-cta">Get Tickets <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>`;
-    html += '<span class="ticket-note">Instant confirmation</span>';
-    html += '</div>';
-    if (e.ticketing_provider === 'hi_events') {
-      html += `<div class="ticket-iframe-wrap"><iframe src="${esc(e.ticketing_url)}" title="Get tickets" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>`;
-      html += `<div class="ticket-embed-note">Trouble loading? <a href="${esc(e.ticketing_url)}" target="_blank" rel="noopener">Open in new tab &rarr;</a></div>`;
+  // Tickets / past-event logic
+  if (eventIsPast) {
+    html += '<section class="tickets-section"><div class="section-label">Event Recap</div>';
+    const handle = e.presenter ? esc(e.presenter) : null;
+    if (handle) {
+      html += `<div class="past-recap">This night happened. Catch the next one &rarr; <a href="https://instagram.com/${handle}" target="_blank" rel="noopener">@${handle}</a></div>`;
+    } else {
+      html += '<div class="past-recap">This night happened. Stay tuned for the next one.</div>';
     }
+    html += '</section>';
   } else {
-    html += '<div class="ticket-soon">Tickets coming soon</div>';
+    html += '<section class="tickets-section"><div class="section-label">';
+    html += e.ticketing_url ? 'Live Ticketing' : 'Tickets';
+    html += '</div>';
+    if (e.ticketing_url) {
+      html += `<div class="tickets-status">Tickets Live &middot; ${esc(e.title)}</div>`;
+      html += '<div class="ticket-cta-row">';
+      html += `<a href="${esc(e.ticketing_url)}" target="_blank" rel="noopener" class="ticket-cta">Get Tickets <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>`;
+      html += '<span class="ticket-note">Instant confirmation</span>';
+      html += '</div>';
+      if (e.ticketing_provider === 'hi_events') {
+        html += `<div class="ticket-iframe-wrap"><iframe src="${esc(e.ticketing_url)}" title="Get tickets" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>`;
+        html += `<div class="ticket-embed-note">Trouble loading? <a href="${esc(e.ticketing_url)}" target="_blank" rel="noopener">Open in new tab &rarr;</a></div>`;
+      }
+    } else {
+      html += '<div class="ticket-soon">Tickets coming soon</div>';
+    }
+    html += '</section>';
   }
-  html += '</section>';
 
   document.getElementById('app').innerHTML = html;
+
+  // Sticky CTA for future events with ticketing_url
+  if (!eventIsPast && e.ticketing_url) {
+    const stickyEl = document.getElementById('sticky-cta');
+    const stickyLink = document.getElementById('sticky-cta-link');
+    stickyLink.href = e.ticketing_url;
+    stickyEl.style.display = '';
+
+    const hero = document.querySelector('.hero');
+    if (hero) {
+      const obs = new IntersectionObserver(entries => {
+        stickyEl.classList.toggle('visible', !entries[0].isIntersecting);
+      }, { threshold: 0 });
+      obs.observe(hero);
+    }
+  }
 }
 
 (async function init() {
   const m = location.pathname.match(/^\/events\/([A-Za-z0-9-]+)/);
   const slug = m ? m[1] : new URLSearchParams(location.search).get('slug');
-  if (!slug) { renderNotFound(); return; }
+  if (!slug) { renderNotFound('no-slug'); return; }
 
   try {
     const res = await fetch(`${API_BASE}/api/events/public/${encodeURIComponent(slug)}`);
-    if (!res.ok) { renderNotFound(); return; }
+    if (!res.ok) { renderNotFound('not-found'); return; }
     const data = await res.json();
     renderEvent(data);
   } catch (err) {
     console.error('[event] fetch error:', err);
-    renderNotFound();
+    renderNotFound('network');
   }
 })();
 </script>

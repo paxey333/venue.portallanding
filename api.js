@@ -2358,8 +2358,8 @@ export default {
             const candidate = attempt === 0 ? baseSlug : baseSlug + "-" + (attempt + 1);
             try {
               const result = await env.DB.prepare(
-                `INSERT INTO events (slug, title, presenter, host_type, host_id, venue_id, venue_name_public, city, address_private, event_date, doors_time, description, performers, team, accent_color, hero_image_url, ticketing_provider, ticketing_url, ticketing_requested, status, hidden)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+                `INSERT INTO events (slug, title, presenter, host_type, host_id, venue_id, venue_name_public, city, address_private, event_date, doors_time, description, performers, team, accent_color, hero_image_url, ticketing_provider, ticketing_url, ticketing_requested, status, hidden, backdrop)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
               ).bind(
                 candidate,
                 title,
@@ -2381,7 +2381,8 @@ export default {
                 ticketingUrl,
                 ticketingRequested,
                 body.status || "draft",
-                body.hidden ? 1 : 0
+                body.hidden ? 1 : 0,
+                body.backdrop || 'glow'
               ).run();
               slug = candidate;
               created = await env.DB.prepare("SELECT * FROM events WHERE slug = ?").bind(slug).first();
@@ -2551,7 +2552,7 @@ export default {
             delete body.host_type; delete body.host_id; delete body.venue_id;
             delete body.ticketing_url; delete body.ticketing_provider;
           }
-          const allowed = ["title","presenter","venue_id","venue_name_public","city","address_private","event_date","doors_time","description","performers","team","accent_color","hero_image_url","ticketing_provider","ticketing_url","ticketing_requested","status","hidden"];
+          const allowed = ["title","presenter","venue_id","venue_name_public","city","address_private","event_date","doors_time","description","performers","team","accent_color","hero_image_url","ticketing_provider","ticketing_url","ticketing_requested","status","hidden","backdrop"];
           const fields = [];
           const values = [];
           for (const key of allowed) {
