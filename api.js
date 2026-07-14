@@ -2350,6 +2350,10 @@ export default {
             if (eventHit) return jsonResponse({ error: "That date is not available at this venue." }, 400, request);
           }
 
+          if (body.backdrop !== undefined && !["glow", "glyphs"].includes(body.backdrop)) {
+            return jsonResponse({ error: "Invalid backdrop value" }, 400, request);
+          }
+
           let baseSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
           if (!baseSlug) baseSlug = "event";
           let slug = baseSlug;
@@ -2551,6 +2555,9 @@ export default {
           if (session.role === "venue_owner") {
             delete body.host_type; delete body.host_id; delete body.venue_id;
             delete body.ticketing_url; delete body.ticketing_provider;
+          }
+          if (body.backdrop !== undefined && !["glow", "glyphs"].includes(body.backdrop)) {
+            return jsonResponse({ error: "Invalid backdrop value" }, 400, request);
           }
           const allowed = ["title","presenter","venue_id","venue_name_public","city","address_private","event_date","doors_time","description","performers","team","accent_color","hero_image_url","ticketing_provider","ticketing_url","ticketing_requested","status","hidden","backdrop"];
           const fields = [];
