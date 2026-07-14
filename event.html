@@ -40,18 +40,16 @@ img{max-width:100%;display:block}
 .splatter span:nth-child(2){width:360px;height:360px;top:40%;left:-120px;background:var(--event-dim);opacity:0.7}
 .splatter span:nth-child(3){width:280px;height:280px;bottom:-80px;right:25%;background:rgba(255,107,26,0.06)}
 
-/* glyphs backdrop */
-.glyphs-layer{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
-.glyphs-layer::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,rgba(70,80,160,.10),transparent 70%)}
-.glyph{position:absolute;opacity:0;fill:var(--event);transition:none}
+/* lights backdrop */
+.lights-layer{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.light-pool{position:absolute;border-radius:50%;opacity:0.05}
 
 @media(prefers-reduced-motion:no-preference){
-  @keyframes glyphDrift{
-    0%{transform:translate(0,0) rotate(0deg);opacity:var(--g-a)}
-    50%{transform:translate(var(--g-dx),var(--g-dy)) rotate(var(--g-rot));opacity:calc(var(--g-a) * 1.3)}
-    100%{transform:translate(0,0) rotate(0deg);opacity:var(--g-a)}
+  @keyframes lightBreathe{
+    0%,100%{opacity:var(--lp-lo)}
+    50%{opacity:var(--lp-hi)}
   }
-  .glyph{animation:glyphDrift var(--g-dur) ease-in-out infinite;animation-delay:var(--g-delay);opacity:var(--g-a)}
+  .light-pool{animation:lightBreathe var(--lp-dur) ease-in-out infinite;animation-delay:var(--lp-delay)}
 }
 
 .page{position:relative;z-index:1}
@@ -90,15 +88,17 @@ img{max-width:100%;display:block}
 .headliner-grid[data-count="1"]{grid-template-columns:1fr}
 .headliner-grid[data-count="2"]{grid-template-columns:repeat(2,1fr)}
 .headliner-grid[data-count="3"]{grid-template-columns:repeat(3,1fr)}
-.headliner-card{position:relative;aspect-ratio:16/9;border:1px solid var(--event-border);border-radius:6px;overflow:hidden;background:var(--surface);display:flex;flex-direction:column;transition:transform .2s,border-color .2s,box-shadow .2s}
-.headliner-card:hover{transform:translateY(-2px);border-color:var(--event);box-shadow:0 12px 36px var(--event-glow)}
-.headliner-grid[data-count="1"] .headliner-card{aspect-ratio:21/9}
+.headliner-card{position:relative;aspect-ratio:16/10;border:1px solid var(--event-border);border-radius:6px;overflow:hidden;background:var(--surface);display:flex;flex-direction:column;transition:border-color .2s,box-shadow .2s}
+.headliner-card:hover{border-color:var(--event);box-shadow:0 12px 36px var(--event-glow)}
+.headliner-grid[data-count="1"] .headliner-card{aspect-ratio:16/10}
 .headliner-card .perf-img-wrap{position:absolute;inset:0;background:linear-gradient(135deg,var(--surface2),var(--surface));display:flex;align-items:center;justify-content:center}
-.headliner-card .perf-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;aspect-ratio:16/9}
+.headliner-card .perf-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;backface-visibility:hidden}
+.headliner-card .perf-img-wrap .img-backfill{position:absolute;inset:0;background-size:cover;background-position:center;filter:blur(28px) brightness(.5);z-index:0;display:none}
+.headliner-card .perf-img-wrap img.contain{object-fit:contain;z-index:1;position:relative}
 .headliner-card .perf-img-wrap .initial{font-weight:900;font-size:120px;color:var(--event);opacity:0.4;letter-spacing:-0.04em;display:none}
-.headliner-card::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.95) 0%,rgba(0,0,0,0.45) 40%,transparent 70%);pointer-events:none}
+.headliner-card::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.85) 0%,rgba(0,0,0,0.3) 40%,transparent 70%);pointer-events:none}
 .headliner-card .perf-meta{position:absolute;left:28px;right:28px;bottom:28px;z-index:2}
-.headliner-card .perf-name{font-size:clamp(28px,4vw,48px);font-weight:900;letter-spacing:-0.03em;text-transform:uppercase;margin-bottom:8px}
+.headliner-card .perf-name{font-size:clamp(32px,5vw,44px);font-weight:900;letter-spacing:-0.03em;text-transform:uppercase;margin-bottom:8px}
 .headliner-card .perf-handle{font-size:13px;color:var(--event);letter-spacing:.06em}
 .headliner-card .perf-handle .followers{color:var(--text2);margin-left:8px}
 .headliner-card .music-chips{margin-top:12px}
@@ -106,13 +106,13 @@ img{max-width:100%;display:block}
 /* support / performer cards */
 .performers{padding:48px 28px 80px;max-width:1100px;margin:0 auto}
 .performers.no-headliners{padding-top:80px}
-.perf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:24px}
-.perf-card{position:relative;aspect-ratio:4/5;border:1px solid var(--event-border);border-radius:6px;overflow:hidden;background:var(--surface);display:flex;flex-direction:column;transition:transform .2s,border-color .2s,box-shadow .2s}
-.perf-card:hover{transform:translateY(-2px);border-color:var(--event);box-shadow:0 8px 24px var(--event-glow)}
+.perf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:24px}
+.perf-card{position:relative;aspect-ratio:4/5;border:1px solid var(--event-border);border-radius:6px;overflow:hidden;background:var(--surface);display:flex;flex-direction:column;transition:border-color .2s,box-shadow .2s}
+.perf-card:hover{border-color:var(--event);box-shadow:0 8px 24px var(--event-glow)}
 .perf-img-wrap{position:absolute;inset:0;background:linear-gradient(135deg,var(--surface2),var(--surface));display:flex;align-items:center;justify-content:center}
-.perf-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;aspect-ratio:4/5;decoding:async}
+.perf-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;aspect-ratio:4/5;decoding:async;backface-visibility:hidden}
 .perf-img-wrap .initial{font-weight:900;font-size:88px;color:var(--event);opacity:0.4;letter-spacing:-0.04em;display:none}
-.perf-card::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.95) 0%,rgba(0,0,0,0.5) 35%,transparent 65%);pointer-events:none}
+.perf-card::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.85) 0%,rgba(0,0,0,0.35) 35%,transparent 65%);pointer-events:none}
 .perf-meta{position:absolute;left:22px;right:22px;bottom:22px;z-index:2}
 .perf-name{font-weight:800;font-size:32px;letter-spacing:-0.02em;text-transform:uppercase;margin-bottom:6px}
 .perf-handle{font-size:12px;color:var(--event);letter-spacing:.06em}
@@ -204,7 +204,7 @@ footer{border-top:1px solid var(--border);padding:32px 24px;text-align:center}
   .hero-title{line-height:0.95}
   .headliner-grid[data-count="2"]{grid-template-columns:1fr}
   .headliner-grid[data-count="3"]{grid-template-columns:1fr}
-  .headliner-card{aspect-ratio:16/9 !important}
+  .headliner-card{aspect-ratio:4/5 !important}
   .headliner-card .perf-meta{left:18px;right:18px;bottom:18px}
   .headliner-card .perf-name{font-size:24px}
   .perf-grid{grid-template-columns:repeat(2,1fr);gap:12px}
@@ -236,14 +236,14 @@ footer{border-top:1px solid var(--border);padding:32px 24px;text-align:center}
   .perf-card:hover,.team-card:hover,.headliner-card:hover{transform:none}
   .sticky-cta{transition:none}
   .page-wrap{transition:none}
-  .glyph{animation:none !important;opacity:var(--g-a) !important}
+  .lights-layer .light-pool{animation:none !important}
 }
 </style>
 </head>
 <body>
 
 <div class="splatter" id="backdrop-glow" aria-hidden="true"><span></span><span></span><span></span></div>
-<div class="glyphs-layer" id="backdrop-glyphs" style="display:none" aria-hidden="true"></div>
+<div class="lights-layer" id="backdrop-lights" style="display:none" aria-hidden="true"></div>
 
 <header class="topnav">
   <div class="topnav-inner">
@@ -381,66 +381,52 @@ function revealPage() {
   });
 }
 
-/* glyph SVG shapes — music notes, plain hearts, custom angular heart */
-const GLYPH_PATHS = [
-  // eighth note
-  '<path d="M9 3v12.5A3.5 3.5 0 105.5 12H7V3h2z" fill="currentColor"/>',
-  // beamed eighth notes
-  '<path d="M4 3v11.5a3 3 0 103-3V6h6v5.5a3 3 0 103-3V3H4z" fill="currentColor"/>',
-  // plain heart
-  '<path d="M12 21C12 21 4 14.5 4 9a4 4 0 018 0 4 4 0 018 0c0 5.5-8 12-8 12z" fill="currentColor"/>',
-  // custom angular heart — sharp shoulders, pointed lobes, original design
-  '<path d="M12 20L3.5 11.5C1.5 9.5 1.5 6 3.5 4.5C5.5 3 8 3.5 10 5.5L12 7.5L14 5.5C16 3.5 18.5 3 20.5 4.5C22.5 6 22.5 9.5 20.5 11.5L12 20Z" fill="currentColor"/>',
-];
-
-function initGlyphs(hex) {
-  const layer = document.getElementById('backdrop-glyphs');
+function initLights(hex) {
+  const layer = document.getElementById('backdrop-lights');
   if (!layer) return;
   document.getElementById('backdrop-glow').style.display = 'none';
   layer.style.display = '';
 
-  const COUNT = window.innerWidth < 480 ? 10 : 16;
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
-  let svgs = '';
+  const [r, g, b] = hexToRgb(hex);
+  const isMobile = window.innerWidth < 480;
+  const COUNT = isMobile ? 4 : 6;
+  const durations = [2.8, 3.2, 3.6, 4.0, 4.3, 4.5];
+  const positions = [
+    { x: '10%', y: '-5%' }, { x: '50%', y: '-8%' }, { x: '85%', y: '-5%' },
+    { x: '5%', y: '10%' }, { x: '70%', y: '5%' }, { x: '40%', y: '12%' }
+  ];
+  const sizes = isMobile
+    ? [280, 240, 260, 220]
+    : [360, 320, 340, 300, 280, 260];
 
+  let html = '';
   for (let i = 0; i < COUNT; i++) {
-    let x, y;
-    do {
-      x = Math.random() * vw;
-      y = Math.random() * vh * 2;
-    } while (x > vw * 0.33 && x < vw * 0.67 && Math.random() > 0.25);
-
-    const size = 16 + Math.random() * 14;
-    const alpha = 0.12 + Math.random() * 0.08;
-    const dur = 12 + Math.random() * 18;
-    const delay = Math.random() * -20;
-    const dx = (Math.random() - 0.5) * 40;
-    const dy = (Math.random() - 0.5) * 30;
-    const rot = (Math.random() - 0.5) * 30;
-    const pathIdx = Math.floor(Math.random() * GLYPH_PATHS.length);
-
-    svgs += `<svg class="glyph" viewBox="0 0 24 24" width="${size}" height="${size}" style="left:${x}px;top:${y}px;--g-a:${alpha};--g-dur:${dur}s;--g-delay:${delay}s;--g-dx:${dx}px;--g-dy:${dy}px;--g-rot:${rot}deg">${GLYPH_PATHS[pathIdx]}</svg>`;
+    const isAccent = i % 2 === 0;
+    const color = isAccent ? `rgba(${r},${g},${b},1)` : 'rgba(220,220,230,1)';
+    const blur = 60 + Math.round(i * 6);
+    const sz = sizes[i];
+    const pos = positions[i];
+    const dur = durations[i];
+    const delay = -(i * 0.7);
+    html += `<div class="light-pool" style="left:${pos.x};top:${pos.y};width:${sz}px;height:${sz}px;background:${color};filter:blur(${blur}px);--lp-lo:0.05;--lp-hi:0.18;--lp-dur:${dur}s;--lp-delay:${delay}s"></div>`;
   }
-  layer.innerHTML = svgs;
+  layer.innerHTML = html;
 
   const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-  if (mq.matches) {
-    layer.querySelectorAll('.glyph').forEach(g => { g.style.animation = 'none'; g.style.opacity = g.style.getPropertyValue('--g-a'); });
-  }
-  mq.addEventListener('change', e => {
-    layer.querySelectorAll('.glyph').forEach(g => {
-      if (e.matches) { g.style.animation = 'none'; g.style.opacity = g.style.getPropertyValue('--g-a'); }
-      else { g.style.animation = ''; g.style.opacity = ''; }
+  function applyMotion(reduced) {
+    layer.querySelectorAll('.light-pool').forEach(p => {
+      p.style.animation = reduced ? 'none' : '';
+      if (reduced) p.style.opacity = '0.1';
+      else p.style.opacity = '';
     });
-  });
+  }
+  applyMotion(mq.matches);
+  mq.addEventListener('change', e => applyMotion(e.matches));
 
-  let glyphsVisible = true;
   const obs = new IntersectionObserver(entries => {
-    glyphsVisible = entries[0].isIntersecting;
-    layer.style.animationPlayState = glyphsVisible ? 'running' : 'paused';
-    layer.querySelectorAll('.glyph').forEach(g => {
-      g.style.animationPlayState = glyphsVisible ? 'running' : 'paused';
+    const state = entries[0].isIntersecting ? 'running' : 'paused';
+    layer.querySelectorAll('.light-pool').forEach(p => {
+      p.style.animationPlayState = state;
     });
   }, { threshold: 0 });
   obs.observe(layer);
@@ -485,8 +471,8 @@ function renderEvent(e) {
   const performers = Array.isArray(e.performers) ? e.performers : [];
   const team = Array.isArray(e.team) ? e.team : [];
 
-  if (e.backdrop === 'glyphs') {
-    initGlyphs(e.accent_color || '#ff6b1a');
+  if (e.backdrop === 'lights') {
+    initLights(e.accent_color || '#ff6b1a');
   }
 
   const headliners = performers.filter(p => p.tier === 'headliner');
