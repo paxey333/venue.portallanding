@@ -9,9 +9,6 @@
 <meta property="og:description" content="Discover events at independent venues."/>
 <meta property="og:type" content="website"/>
 <meta property="og:url" content="https://venueportal.us"/>
-<!-- Z.1 intent: share previews are static because Pages serves one HTML shell for all slugs.
-     Per-event OG tags require a Pages Function or Worker-rendered meta — same class of problem
-     as Helios's broken share previews. Deferred; revisit before first real promoted event. -->
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet"/>
@@ -32,15 +29,30 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-si
 a{color:inherit;text-decoration:none}
 img{max-width:100%;display:block}
 
-/* glow orbs — event-tinted ambient light */
+/* page-level curtain fade */
+.page-wrap{opacity:0;transition:opacity .45s ease}
+.page-wrap.revealed{opacity:1}
+
+/* glow orbs */
 .splatter{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
 .splatter span{position:absolute;display:block;border-radius:50%;filter:blur(80px)}
 .splatter span:nth-child(1){width:480px;height:480px;top:-120px;right:-100px;background:var(--event-dim)}
 .splatter span:nth-child(2){width:360px;height:360px;top:40%;left:-120px;background:var(--event-dim);opacity:0.7}
 .splatter span:nth-child(3){width:280px;height:280px;bottom:-80px;right:25%;background:rgba(255,107,26,0.06)}
 
-/* particles backdrop */
-.particles-canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+/* glyphs backdrop */
+.glyphs-layer{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.glyphs-layer::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,rgba(70,80,160,.10),transparent 70%)}
+.glyph{position:absolute;opacity:0;fill:var(--event);transition:none}
+
+@media(prefers-reduced-motion:no-preference){
+  @keyframes glyphDrift{
+    0%{transform:translate(0,0) rotate(0deg);opacity:var(--g-a)}
+    50%{transform:translate(var(--g-dx),var(--g-dy)) rotate(var(--g-rot));opacity:calc(var(--g-a) * 1.3)}
+    100%{transform:translate(0,0) rotate(0deg);opacity:var(--g-a)}
+  }
+  .glyph{animation:glyphDrift var(--g-dur) ease-in-out infinite;animation-delay:var(--g-delay);opacity:var(--g-a)}
+}
 
 .page{position:relative;z-index:1}
 
@@ -55,7 +67,7 @@ img{max-width:100%;display:block}
 /* hero */
 .hero{position:relative;padding:80px 28px 60px;max-width:900px;margin:0 auto}
 .hero-bg{position:fixed;top:0;left:0;width:100%;height:100vh;z-index:-1;overflow:hidden}
-.hero-bg img{width:100%;height:100%;object-fit:cover;opacity:.25}
+.hero-bg img{width:100%;height:100%;object-fit:cover;opacity:.25;aspect-ratio:16/9}
 .hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.4) 0%,#000 85%)}
 .hero-presenter{font-size:12px;font-weight:600;color:var(--event);text-transform:uppercase;letter-spacing:.22em;margin-bottom:18px}
 .hero-title{font-size:clamp(54px, 8vw, 96px);font-weight:900;letter-spacing:-0.04em;line-height:0.92;text-transform:uppercase;margin-bottom:26px}
@@ -68,17 +80,37 @@ img{max-width:100%;display:block}
 .copy-link:hover{color:var(--text2);border-color:var(--text3)}
 .copy-link svg{width:13px;height:13px;stroke:currentColor;stroke-width:2;fill:none}
 
-/* section labels with gradient rule */
+/* section labels */
 .section-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.22em;color:var(--event);margin-bottom:22px;display:flex;align-items:center;gap:12px}
 .section-label::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--event-border),transparent)}
 
-/* performers — portrait cards with scrim overlay */
-.performers{padding:80px 28px;max-width:1100px;margin:0 auto}
+/* headliner cards */
+.headliner-section{padding:80px 28px 0;max-width:1100px;margin:0 auto}
+.headliner-grid{display:grid;gap:24px}
+.headliner-grid[data-count="1"]{grid-template-columns:1fr}
+.headliner-grid[data-count="2"]{grid-template-columns:repeat(2,1fr)}
+.headliner-grid[data-count="3"]{grid-template-columns:repeat(3,1fr)}
+.headliner-card{position:relative;aspect-ratio:16/9;border:1px solid var(--event-border);border-radius:6px;overflow:hidden;background:var(--surface);display:flex;flex-direction:column;transition:transform .2s,border-color .2s,box-shadow .2s}
+.headliner-card:hover{transform:translateY(-2px);border-color:var(--event);box-shadow:0 12px 36px var(--event-glow)}
+.headliner-grid[data-count="1"] .headliner-card{aspect-ratio:21/9}
+.headliner-card .perf-img-wrap{position:absolute;inset:0;background:linear-gradient(135deg,var(--surface2),var(--surface));display:flex;align-items:center;justify-content:center}
+.headliner-card .perf-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;aspect-ratio:16/9}
+.headliner-card .perf-img-wrap .initial{font-weight:900;font-size:120px;color:var(--event);opacity:0.4;letter-spacing:-0.04em;display:none}
+.headliner-card::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.95) 0%,rgba(0,0,0,0.45) 40%,transparent 70%);pointer-events:none}
+.headliner-card .perf-meta{position:absolute;left:28px;right:28px;bottom:28px;z-index:2}
+.headliner-card .perf-name{font-size:clamp(28px,4vw,48px);font-weight:900;letter-spacing:-0.03em;text-transform:uppercase;margin-bottom:8px}
+.headliner-card .perf-handle{font-size:13px;color:var(--event);letter-spacing:.06em}
+.headliner-card .perf-handle .followers{color:var(--text2);margin-left:8px}
+.headliner-card .music-chips{margin-top:12px}
+
+/* support / performer cards */
+.performers{padding:48px 28px 80px;max-width:1100px;margin:0 auto}
+.performers.no-headliners{padding-top:80px}
 .perf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:24px}
 .perf-card{position:relative;aspect-ratio:4/5;border:1px solid var(--event-border);border-radius:6px;overflow:hidden;background:var(--surface);display:flex;flex-direction:column;transition:transform .2s,border-color .2s,box-shadow .2s}
 .perf-card:hover{transform:translateY(-2px);border-color:var(--event);box-shadow:0 8px 24px var(--event-glow)}
 .perf-img-wrap{position:absolute;inset:0;background:linear-gradient(135deg,var(--surface2),var(--surface));display:flex;align-items:center;justify-content:center}
-.perf-img-wrap img{width:100%;height:100%;object-fit:cover;display:block}
+.perf-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;aspect-ratio:4/5;decoding:async}
 .perf-img-wrap .initial{font-weight:900;font-size:88px;color:var(--event);opacity:0.4;letter-spacing:-0.04em;display:none}
 .perf-card::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.95) 0%,rgba(0,0,0,0.5) 35%,transparent 65%);pointer-events:none}
 .perf-meta{position:absolute;left:22px;right:22px;bottom:22px;z-index:2}
@@ -93,13 +125,13 @@ img{max-width:100%;display:block}
 .music-chip:hover{background:var(--event-dim);border-color:var(--event);transform:scale(1.1)}
 .music-chip svg{width:18px;height:18px}
 
-/* team — centered cards with circular pfp */
+/* team */
 .team-section{padding:0 28px 80px;max-width:1100px;margin:0 auto}
 .team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
 .team-card{border:1px solid var(--event-border);border-radius:6px;padding:28px 20px 24px;background:var(--event-dim);text-align:center;display:block;transition:transform .2s,border-color .2s,box-shadow .2s,background .2s}
 .team-card:hover{border-color:var(--event);background:rgba(var(--event-r,255),var(--event-g,107),var(--event-b,26),0.05);transform:translateY(-2px);box-shadow:0 8px 24px var(--event-glow)}
 .team-pfp{width:64px;height:64px;margin:0 auto 14px;border-radius:50%;border:1px solid var(--event-border);background:var(--surface2);overflow:hidden;display:flex;align-items:center;justify-content:center}
-.team-pfp img{width:100%;height:100%;object-fit:cover}
+.team-pfp img{width:100%;height:100%;object-fit:cover;aspect-ratio:1/1;decoding:async}
 .team-pfp .initial{font-weight:900;font-size:26px;color:var(--event);opacity:0.5;display:none}
 .team-name{font-weight:700;font-size:22px;text-transform:uppercase;letter-spacing:-0.01em;margin-bottom:4px}
 .team-handle{font-size:11px;color:var(--event);letter-spacing:.04em;margin-bottom:8px}
@@ -108,7 +140,7 @@ img{max-width:100%;display:block}
 .team-music-chips .music-chip{width:34px;height:34px}
 .team-music-chips .music-chip svg{width:15px;height:15px}
 
-/* venue — horizontal card with lock icon circle */
+/* venue */
 .venue-section{padding:0 28px 80px;max-width:1100px;margin:0 auto}
 .venue-block{border:1px solid var(--border2);border-radius:6px;padding:36px 32px;background:linear-gradient(135deg,rgba(255,107,26,0.04),var(--event-dim));display:flex;align-items:center;gap:24px}
 .venue-icon{flex:0 0 56px;width:56px;height:56px;border-radius:50%;background:var(--event-dim);border:1px solid var(--event-border);display:flex;align-items:center;justify-content:center;color:var(--event)}
@@ -142,18 +174,16 @@ img{max-width:100%;display:block}
 .ticket-embed-note a:hover{text-decoration:underline}
 .ticket-soon{display:inline-block;background:var(--surface);border:1px solid var(--border);padding:10px 24px;border-radius:20px;font-size:13px;font-weight:600;color:var(--text2)}
 
-/* past-event recap line */
 .past-recap{font-size:14px;color:var(--text2);line-height:1.6;padding:18px 0}
 .past-recap a{color:var(--event);text-decoration:none}
 .past-recap a:hover{text-decoration:underline}
 
 /* sticky CTA bar */
-.sticky-cta{position:fixed;bottom:0;left:0;right:0;z-index:99;background:rgba(0,0,0,.92);backdrop-filter:blur(12px);border-top:1px solid var(--border);padding:8px 20px;display:flex;justify-content:center;transform:translateY(100%);transition:transform .3s ease}
+.sticky-cta{position:fixed;bottom:0;left:0;right:0;z-index:99;background:rgba(0,0,0,.92);backdrop-filter:blur(12px);border-top:1px solid var(--border);padding:8px 20px;display:flex;justify-content:center;transform:translateY(100%);transition:transform .2s ease}
 .sticky-cta.visible{transform:translateY(0)}
 .sticky-cta a{display:inline-flex;align-items:center;gap:10px;background:var(--event);color:#000;font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:.1em;padding:14px 32px;border-radius:4px;text-decoration:none}
 .sticky-cta a svg{width:14px;height:14px;stroke:currentColor;stroke-width:2.5;fill:none}
 
-/* copy toast */
 .copy-toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-size:12px;font-weight:600;padding:8px 18px;border-radius:6px;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;z-index:200;font-family:var(--font);letter-spacing:.06em}
 .copy-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
@@ -172,6 +202,11 @@ footer{border-top:1px solid var(--border);padding:32px 24px;text-align:center}
 @media(max-width:640px){
   .hero{padding:60px 20px 40px}
   .hero-title{line-height:0.95}
+  .headliner-grid[data-count="2"]{grid-template-columns:1fr}
+  .headliner-grid[data-count="3"]{grid-template-columns:1fr}
+  .headliner-card{aspect-ratio:16/9 !important}
+  .headliner-card .perf-meta{left:18px;right:18px;bottom:18px}
+  .headliner-card .perf-name{font-size:24px}
   .perf-grid{grid-template-columns:repeat(2,1fr);gap:12px}
   .perf-grid .perf-card:last-child:nth-child(odd){grid-column:1 / -1;max-width:calc(50% - 6px)}
   .perf-meta{left:14px;right:14px;bottom:14px}
@@ -197,16 +232,18 @@ footer{border-top:1px solid var(--border);padding:32px 24px;text-align:center}
 }
 
 @media(prefers-reduced-motion:reduce){
-  .perf-card,.team-card{transition:none}
-  .perf-card:hover,.team-card:hover{transform:none}
+  .perf-card,.team-card,.headliner-card{transition:none}
+  .perf-card:hover,.team-card:hover,.headliner-card:hover{transform:none}
   .sticky-cta{transition:none}
+  .page-wrap{transition:none}
+  .glyph{animation:none !important;opacity:var(--g-a) !important}
 }
 </style>
 </head>
 <body>
 
 <div class="splatter" id="backdrop-glow" aria-hidden="true"><span></span><span></span><span></span></div>
-<canvas class="particles-canvas" id="backdrop-particles" style="display:none" aria-hidden="true"></canvas>
+<div class="glyphs-layer" id="backdrop-glyphs" style="display:none" aria-hidden="true"></div>
 
 <header class="topnav">
   <div class="topnav-inner">
@@ -217,10 +254,12 @@ footer{border-top:1px solid var(--border);padding:32px 24px;text-align:center}
   </div>
 </header>
 
+<div class="page-wrap" id="page-wrap">
 <div class="page">
 <main id="app">
   <div class="loading" id="loader">&raquo;</div>
 </main>
+</div>
 </div>
 
 <div class="sticky-cta" id="sticky-cta" style="display:none">
@@ -331,80 +370,111 @@ function renderNotFound(reason) {
       <p>${message}</p>
       <a href="/">Browse Venues</a>
     </div>`;
+  revealPage();
 }
 
-/* particles backdrop */
-function initParticles(hex) {
-  const canvas = document.getElementById('backdrop-particles');
-  if (!canvas) return;
+function revealPage() {
+  document.fonts.ready.then(() => {
+    requestAnimationFrame(() => {
+      document.getElementById('page-wrap').classList.add('revealed');
+    });
+  });
+}
+
+/* glyph SVG shapes — music notes, plain hearts, custom angular heart */
+const GLYPH_PATHS = [
+  // eighth note
+  '<path d="M9 3v12.5A3.5 3.5 0 105.5 12H7V3h2z" fill="currentColor"/>',
+  // beamed eighth notes
+  '<path d="M4 3v11.5a3 3 0 103-3V6h6v5.5a3 3 0 103-3V3H4z" fill="currentColor"/>',
+  // plain heart
+  '<path d="M12 21C12 21 4 14.5 4 9a4 4 0 018 0 4 4 0 018 0c0 5.5-8 12-8 12z" fill="currentColor"/>',
+  // custom angular heart — sharp shoulders, pointed lobes, original design
+  '<path d="M12 20L3.5 11.5C1.5 9.5 1.5 6 3.5 4.5C5.5 3 8 3.5 10 5.5L12 7.5L14 5.5C16 3.5 18.5 3 20.5 4.5C22.5 6 22.5 9.5 20.5 11.5L12 20Z" fill="currentColor"/>',
+];
+
+function initGlyphs(hex) {
+  const layer = document.getElementById('backdrop-glyphs');
+  if (!layer) return;
   document.getElementById('backdrop-glow').style.display = 'none';
-  canvas.style.display = 'block';
+  layer.style.display = '';
 
-  const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-  if (mq.matches) { canvas.style.display = 'none'; return; }
-
-  const ctx = canvas.getContext('2d');
-  const [r, g, b] = hexToRgb(hex || '#ff6b1a');
-  const dots = [];
-  const COUNT = 24;
-
-  function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
-  resize();
-  window.addEventListener('resize', resize);
+  const COUNT = window.innerWidth < 480 ? 10 : 16;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  let svgs = '';
 
   for (let i = 0; i < COUNT; i++) {
-    const x = Math.random() * canvas.width;
-    const y = Math.random() * canvas.height;
-    const centerThird = x > canvas.width * 0.33 && x < canvas.width * 0.67;
-    if (centerThird && Math.random() > 0.3) { i--; continue; }
-    dots.push({
-      x, y,
-      size: 1.5 + Math.random() * 4,
-      blur: 2 + Math.random() * 6,
-      vx: (Math.random() - 0.5) * 0.15,
-      vy: (Math.random() - 0.5) * 0.12,
-      alpha: 0.15 + Math.random() * 0.3,
-      alphaDir: (Math.random() - 0.5) * 0.003
-    });
+    let x, y;
+    do {
+      x = Math.random() * vw;
+      y = Math.random() * vh * 2;
+    } while (x > vw * 0.33 && x < vw * 0.67 && Math.random() > 0.25);
+
+    const size = 16 + Math.random() * 14;
+    const alpha = 0.12 + Math.random() * 0.08;
+    const dur = 12 + Math.random() * 18;
+    const delay = Math.random() * -20;
+    const dx = (Math.random() - 0.5) * 40;
+    const dy = (Math.random() - 0.5) * 30;
+    const rot = (Math.random() - 0.5) * 30;
+    const pathIdx = Math.floor(Math.random() * GLYPH_PATHS.length);
+
+    svgs += `<svg class="glyph" viewBox="0 0 24 24" width="${size}" height="${size}" style="left:${x}px;top:${y}px;--g-a:${alpha};--g-dur:${dur}s;--g-delay:${delay}s;--g-dx:${dx}px;--g-dy:${dy}px;--g-rot:${rot}deg">${GLYPH_PATHS[pathIdx]}</svg>`;
   }
+  layer.innerHTML = svgs;
 
-  let running = true;
-  const observer = new IntersectionObserver(entries => {
-    running = entries[0].isIntersecting;
-  }, { threshold: 0 });
-  observer.observe(canvas);
-
-  function draw() {
-    if (!running) { requestAnimationFrame(draw); return; }
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    for (const d of dots) {
-      d.x += d.vx;
-      d.y += d.vy;
-      d.alpha += d.alphaDir;
-      if (d.alpha > 0.45 || d.alpha < 0.1) d.alphaDir *= -1;
-      if (d.x < -20) d.x = canvas.width + 20;
-      if (d.x > canvas.width + 20) d.x = -20;
-      if (d.y < -20) d.y = canvas.height + 20;
-      if (d.y > canvas.height + 20) d.y = -20;
-      ctx.beginPath();
-      ctx.arc(d.x, d.y, d.size, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(${r},${g},${b},${d.alpha})`;
-      ctx.shadowBlur = d.blur;
-      ctx.shadowColor = `rgba(${r},${g},${b},${d.alpha * 0.6})`;
-      ctx.fill();
-    }
-    ctx.shadowBlur = 0;
-    requestAnimationFrame(draw);
+  const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (mq.matches) {
+    layer.querySelectorAll('.glyph').forEach(g => { g.style.animation = 'none'; g.style.opacity = g.style.getPropertyValue('--g-a'); });
   }
-  requestAnimationFrame(draw);
-
   mq.addEventListener('change', e => {
-    if (e.matches) { running = false; canvas.style.display = 'none'; }
-    else { running = true; canvas.style.display = 'block'; }
+    layer.querySelectorAll('.glyph').forEach(g => {
+      if (e.matches) { g.style.animation = 'none'; g.style.opacity = g.style.getPropertyValue('--g-a'); }
+      else { g.style.animation = ''; g.style.opacity = ''; }
+    });
   });
+
+  let glyphsVisible = true;
+  const obs = new IntersectionObserver(entries => {
+    glyphsVisible = entries[0].isIntersecting;
+    layer.style.animationPlayState = glyphsVisible ? 'running' : 'paused';
+    layer.querySelectorAll('.glyph').forEach(g => {
+      g.style.animationPlayState = glyphsVisible ? 'running' : 'paused';
+    });
+  }, { threshold: 0 });
+  obs.observe(layer);
+}
+
+function renderPerfCard(p, isHeadliner) {
+  const hasIg = !!p.ig;
+  const igUrl = hasIg ? `https://instagram.com/${esc(p.ig)}` : '';
+  const objPos = p.photo_position ? ` style="object-position:${esc(p.photo_position)}"` : '';
+  const initial = (p.name || '?')[0].toUpperCase();
+  const cardClass = isHeadliner ? 'headliner-card' : 'perf-card';
+  const lazyAttr = isHeadliner ? '' : ' loading="lazy"';
+
+  let html = `<div class="${cardClass}">`;
+  const imgLink = hasIg ? `<a href="${igUrl}" target="_blank" rel="noopener" class="perf-ig-link">` : '';
+  const imgLinkClose = hasIg ? '</a>' : '';
+  html += `${imgLink}<div class="perf-img-wrap">`;
+  if (p.photo_url) {
+    html += `<img src="${esc(p.photo_url)}" alt="${esc(p.name)}"${objPos} decoding="async"${lazyAttr} onerror="imgFallback(this)"/>`;
+  }
+  html += `<div class="initial" style="${p.photo_url ? 'display:none' : 'display:flex'}">${esc(initial)}</div>`;
+  html += `</div>${imgLinkClose}`;
+  html += '<div class="perf-meta">';
+  if (hasIg) {
+    html += `<a href="${igUrl}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><div class="perf-name">${esc(p.name)}</div>`;
+    html += `<div class="perf-handle">@${esc(p.ig)}`;
+    if (p.followers) html += `<span class="followers">${esc(String(p.followers))} followers</span>`;
+    html += '</div></a>';
+  } else {
+    html += `<div class="perf-name">${esc(p.name)}</div>`;
+  }
+  html += renderMusicChips(p, 'music-chips');
+  html += '</div></div>';
+  return html;
 }
 
 function renderEvent(e) {
@@ -415,25 +485,26 @@ function renderEvent(e) {
   const performers = Array.isArray(e.performers) ? e.performers : [];
   const team = Array.isArray(e.team) ? e.team : [];
 
-  if (e.backdrop === 'particles') {
-    initParticles(e.accent_color || '#ff6b1a');
+  if (e.backdrop === 'glyphs') {
+    initGlyphs(e.accent_color || '#ff6b1a');
   }
+
+  const headliners = performers.filter(p => p.tier === 'headliner');
+  const support = performers.filter(p => p.tier !== 'headliner');
+  const hasHeadliners = headliners.length > 0;
 
   let html = '';
 
-  // Hero background
   if (e.hero_image_url) {
-    html += `<div class="hero-bg"><img src="${esc(e.hero_image_url)}" alt=""/></div>`;
+    html += `<div class="hero-bg"><img src="${esc(e.hero_image_url)}" alt="" decoding="async"/></div>`;
   }
 
-  // Hero
   html += '<section class="hero">';
   if (e.presenter) {
     html += `<div class="hero-presenter">&mdash; ${esc(e.presenter)} presents</div>`;
   }
   html += `<h1 class="hero-title">${esc(e.title)}</h1>`;
 
-  // Meta row with copy-link chip
   const meta = [];
   if (e.city) meta.push(esc(e.city));
   if (e.event_date) meta.push(formatDate(e.event_date));
@@ -449,35 +520,26 @@ function renderEvent(e) {
   }
   html += '</section>';
 
-  // Performers
-  if (performers.length > 0) {
-    html += '<section class="performers"><div class="section-label">Performers</div><div class="perf-grid">';
-    for (const p of performers) {
-      const hasIg = !!p.ig;
-      const igUrl = hasIg ? `https://instagram.com/${esc(p.ig)}` : '';
-      const objPos = p.photo_position ? ` style="object-position:${esc(p.photo_position)}"` : '';
-      const initial = (p.name || '?')[0].toUpperCase();
+  // Headliners
+  if (hasHeadliners) {
+    const label = headliners.length === 1 ? 'Headliner' : 'Headliners';
+    html += `<section class="headliner-section"><div class="section-label">${label}</div>`;
+    html += `<div class="headliner-grid" data-count="${Math.min(headliners.length, 3)}">`;
+    for (const p of headliners) {
+      html += renderPerfCard(p, true);
+    }
+    html += '</div></section>';
+  }
 
-      html += '<div class="perf-card">';
-      const imgLink = hasIg ? `<a href="${igUrl}" target="_blank" rel="noopener" class="perf-ig-link">` : '';
-      const imgLinkClose = hasIg ? '</a>' : '';
-      html += `${imgLink}<div class="perf-img-wrap">`;
-      if (p.photo_url) {
-        html += `<img src="${esc(p.photo_url)}" alt="${esc(p.name)}"${objPos} onerror="imgFallback(this)"/>`;
-      }
-      html += `<div class="initial" style="${p.photo_url ? 'display:none' : 'display:flex'}">${esc(initial)}</div>`;
-      html += `</div>${imgLinkClose}`;
-      html += '<div class="perf-meta">';
-      if (hasIg) {
-        html += `<a href="${igUrl}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><div class="perf-name">${esc(p.name)}</div>`;
-        html += `<div class="perf-handle">@${esc(p.ig)}`;
-        if (p.followers) html += `<span class="followers">${esc(String(p.followers))} followers</span>`;
-        html += '</div></a>';
-      } else {
-        html += `<div class="perf-name">${esc(p.name)}</div>`;
-      }
-      html += renderMusicChips(p, 'music-chips');
-      html += '</div></div>';
+  // Support / Performers
+  const showSupport = hasHeadliners ? support.length > 0 : performers.length > 0;
+  if (showSupport) {
+    const sectionLabel = hasHeadliners ? 'Support' : 'Performers';
+    const extraClass = hasHeadliners ? '' : ' no-headliners';
+    html += `<section class="performers${extraClass}"><div class="section-label">${sectionLabel}</div><div class="perf-grid">`;
+    const cards = hasHeadliners ? support : performers;
+    for (const p of cards) {
+      html += renderPerfCard(p, false);
     }
     html += '</div></section>';
   }
@@ -492,7 +554,7 @@ function renderEvent(e) {
       html += `<a href="${link}"${target} class="team-card">`;
       html += '<div class="team-pfp">';
       if (t.photo_url) {
-        html += `<img src="${esc(t.photo_url)}" alt="${esc(t.name)}" onerror="imgFallback(this)"/>`;
+        html += `<img src="${esc(t.photo_url)}" alt="${esc(t.name)}" decoding="async" loading="lazy" onerror="imgFallback(this)"/>`;
       }
       html += `<div class="initial" style="${t.photo_url ? 'display:none' : 'display:flex'}">${esc(initial)}</div>`;
       html += '</div>';
@@ -504,11 +566,8 @@ function renderEvent(e) {
         html += `<div class="team-role">${roleText}</div>`;
       }
       html += '</div></a>';
-      // team music chips rendered outside the <a> to keep tap targets separate
       const teamMusic = renderMusicChips(t, 'team-music-chips');
-      if (teamMusic) {
-        html += teamMusic;
-      }
+      if (teamMusic) html += teamMusic;
     }
     html += '</div></section>';
   }
@@ -531,7 +590,7 @@ function renderEvent(e) {
   }
   html += '</div></div></section>';
 
-  // Tickets / past-event logic
+  // Tickets / past-event
   if (eventIsPast) {
     html += '<section class="tickets-section"><div class="section-label">Event Recap</div>';
     const handle = e.presenter ? esc(e.presenter) : null;
@@ -562,8 +621,9 @@ function renderEvent(e) {
   }
 
   document.getElementById('app').innerHTML = html;
+  revealPage();
 
-  // Sticky CTA for future events with ticketing_url
+  // Sticky CTA — triggers at 45% of hero height
   if (!eventIsPast && e.ticketing_url) {
     const stickyEl = document.getElementById('sticky-cta');
     const stickyLink = document.getElementById('sticky-cta-link');
@@ -574,7 +634,7 @@ function renderEvent(e) {
     if (hero) {
       const obs = new IntersectionObserver(entries => {
         stickyEl.classList.toggle('visible', !entries[0].isIntersecting);
-      }, { threshold: 0 });
+      }, { threshold: 0.55, rootMargin: '0px' });
       obs.observe(hero);
     }
   }

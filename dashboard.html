@@ -1039,7 +1039,7 @@ section{display:flex;flex-direction:column;gap:14px}
         </div>
         <div class="evt-field">
           <label>Backdrop</label>
-          <select id="evt-backdrop"><option value="glow">Glow (default)</option><option value="particles">Particles</option></select>
+          <select id="evt-backdrop"><option value="glow">Glow (default)</option><option value="glyphs">Floating glyphs</option></select>
         </div>
         <div class="evt-field" id="evt-ticketing-admin" style="display:none">
           <label>Ticketing URL</label>
@@ -3251,6 +3251,7 @@ function addPerformerRow(data) {
     '<div class="evt-field"><label>Followers</label><input id="perf-followers-' + i + '" value="' + esc((data && data.followers) || '') + '" placeholder="16.2k"/></div>' +
     '<div class="evt-field"><label>Photo crop</label><select id="perf-pos-' + i + '"><option value="">Center (default)</option><option value="center 25%"' + (photoPos === 'center 25%' ? ' selected' : '') + '>Top</option><option value="center 50%"' + (photoPos === 'center 50%' ? ' selected' : '') + '>Middle</option><option value="center 75%"' + (photoPos === 'center 75%' ? ' selected' : '') + '>Lower third</option></select></div>' +
     '</div>' +
+    '<div style="margin-top:8px;display:flex;align-items:center;gap:8px"><label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text2)"><input type="checkbox" id="perf-headliner-' + i + '"' + ((data && data.tier === 'headliner') ? ' checked' : '') + ' style="accent-color:var(--accent)"/> Headliner</label></div>' +
     '<div style="margin-top:6px"><button type="button" onclick="toggleMusicLinks(\'perf\',' + i + ')" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:4px 0">+ Music links</button></div>' +
     '<div id="perf-music-' + i + '" style="display:' + ((data && (data.spotify || data.soundcloud || data.youtube)) ? 'block' : 'none') + '">' +
     '<div class="evt-field-row" style="margin-top:6px">' +
@@ -3376,6 +3377,8 @@ function gatherPerformers() {
     if (soundcloud) entry.soundcloud = soundcloud;
     const youtube = (document.getElementById('perf-youtube-' + id) || {}).value || '';
     if (youtube) entry.youtube = youtube;
+    const headliner = (document.getElementById('perf-headliner-' + id) || {}).checked;
+    if (headliner) entry.tier = 'headliner';
     result.push(entry);
   });
   return result;
