@@ -134,3 +134,15 @@ CREATE INDEX IF NOT EXISTS idx_events_status ON events(status);
 --          payment_provider CHECK IN ('stripe','aeropay'), payment_ref,
 --          status, created_at)
 -- Tickets reference events, never venues -- locked by design.
+
+-- Commit AE: API tokens for automation auth (applied via migration)
+-- CREATE TABLE IF NOT EXISTS api_tokens (
+--   id INTEGER PRIMARY KEY AUTOINCREMENT,
+--   token_hash TEXT NOT NULL UNIQUE,
+--   name TEXT NOT NULL,
+--   role TEXT NOT NULL CHECK(role IN ('admin','superadmin')),
+--   created_by INTEGER,
+--   created_at TEXT NOT NULL DEFAULT (datetime('now')),
+--   last_used_at TEXT,
+--   revoked INTEGER NOT NULL DEFAULT 0
+-- );

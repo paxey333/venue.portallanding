@@ -85,6 +85,11 @@ async function hashPassword(password, secret) {
   return hmacSign(password, secret);
 }
 
+async function sha256hex(data) {
+  const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(data));
+  return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
 // ── TOKEN ─────────────────────────────────────────────────────────────────────
 // Format: base64(json_payload).hmac_signature
 // Payload: { email, role, venue_id, name, expiry }
@@ -125,6 +130,17 @@ function parseBearerToken(request) {
 async function getSession(request, env) {
   const token = parseBearerToken(request);
   if (!token) return null;
+  if (token.startsWith("vpt_")) {
+    const hash = await sha256hex(token);
+    const row = await env.DB.prepare(
+      "SELECT id, role, created_by FROM api_tokens WHERE token_hash = ? AND revoked = 0"
+    ).bind(hash).first();
+    if (!row) return null;
+    env._ctx.waitUntil(
+      env.DB.prepare("UPDATE api_tokens SET last_used_at = datetime('now') WHERE id = ?").bind(row.id).run()
+    );
+    return { role: row.role, venue_id: null, email: null, user_id: row.created_by, token_auth: true };
+  }
   return verifyToken(token, env.TOKEN_SECRET);
 }
 
@@ -170,7 +186,8 @@ function generatePassword(length = 12) {
 // ── MAIN HANDLER ──────────────────────────────────────────────────────────────
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
+    env._ctx = ctx;
     const url = new URL(request.url);
     const path = url.pathname;
 
@@ -431,6 +448,46 @@ export default {
         } catch (err) {
           return jsonResponse({ error: err.message }, 500, request);
         }
+      }
+
+      // ── API TOKENS: MINT (superadmin only) ─────────────────────
+      if (path === "/api/tokens" && request.method === "POST") {
+        const session = await getSession(request, env);
+        if (!isSuperAdmin(session)) return jsonResponse({ error: "Forbidden" }, 403, request);
+        const body = await parseJson(request);
+        const name = String(body.name || "").trim();
+        if (!name) return jsonResponse({ error: "name is required" }, 400, request);
+        const role = body.role || "admin";
+        if (!["admin", "superadmin"].includes(role)) return jsonResponse({ error: "invalid role" }, 400, request);
+        if (role === "superadmin" && !isSuperAdmin(session)) return jsonResponse({ error: "Forbidden" }, 403, request);
+        const buf = new Uint8Array(32);
+        crypto.getRandomValues(buf);
+        const raw = "vpt_" + Array.from(buf).map(b => b.toString(16).padStart(2, "0")).join("");
+        const hash = await sha256hex(raw);
+        await env.DB.prepare(
+          "INSERT INTO api_tokens (token_hash, name, role, created_by) VALUES (?, ?, ?, ?)"
+        ).bind(hash, name, role, session.user_id || null).run();
+        return jsonResponse({ token: raw, name, role, note: "Store this now - it is not retrievable." }, 201, request);
+      }
+
+      // ── API TOKENS: LIST (superadmin only) ──────────────────────
+      if (path === "/api/tokens" && request.method === "GET") {
+        const session = await getSession(request, env);
+        if (!isSuperAdmin(session)) return jsonResponse({ error: "Forbidden" }, 403, request);
+        const { results } = await env.DB.prepare(
+          "SELECT id, name, role, created_at, last_used_at, revoked FROM api_tokens ORDER BY created_at DESC"
+        ).all();
+        return jsonResponse(results, 200, request);
+      }
+
+      // ── API TOKENS: REVOKE (superadmin only) ────────────────────
+      if (path.startsWith("/api/tokens/") && request.method === "DELETE") {
+        const session = await getSession(request, env);
+        if (!isSuperAdmin(session)) return jsonResponse({ error: "Forbidden" }, 403, request);
+        const tokenId = parseInt(path.split("/").pop(), 10);
+        if (!tokenId) return jsonResponse({ error: "invalid token id" }, 400, request);
+        await env.DB.prepare("UPDATE api_tokens SET revoked = 1 WHERE id = ?").bind(tokenId).run();
+        return jsonResponse({ ok: true }, 200, request);
       }
 
       // ── USERS: CREATE (superadmin only) ─────────────────────────
