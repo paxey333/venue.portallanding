@@ -319,6 +319,18 @@ function imgFallback(img) {
   if (sib) sib.style.display = 'flex';
 }
 
+function headlinerFit(img) {
+  const wrap = img.parentElement;
+  if (!wrap) return;
+  const cardW = wrap.offsetWidth;
+  const cardH = wrap.offsetHeight;
+  if (img.naturalWidth < cardW * 0.9 || img.naturalHeight < cardH * 0.9) {
+    img.classList.add('contain');
+    const bf = wrap.querySelector('.img-backfill');
+    if (bf) bf.style.display = '';
+  }
+}
+
 function isValidUrl(s) {
   try { return new URL(s).protocol === 'https:'; } catch { return false; }
 }
@@ -445,7 +457,9 @@ function renderPerfCard(p, isHeadliner) {
   const imgLinkClose = hasIg ? '</a>' : '';
   html += `${imgLink}<div class="perf-img-wrap">`;
   if (p.photo_url) {
-    html += `<img src="${esc(p.photo_url)}" alt="${esc(p.name)}"${objPos} decoding="async"${lazyAttr} onerror="imgFallback(this)"/>`;
+    const onloadAttr = isHeadliner ? ' onload="headlinerFit(this)"' : '';
+    html += `<img src="${esc(p.photo_url)}" alt="${esc(p.name)}"${objPos} decoding="async"${lazyAttr} onerror="imgFallback(this)"${onloadAttr}/>`;
+    if (isHeadliner) html += `<div class="img-backfill" style="background-image:url('${esc(p.photo_url)}')"></div>`;
   }
   html += `<div class="initial" style="${p.photo_url ? 'display:none' : 'display:flex'}">${esc(initial)}</div>`;
   html += `</div>${imgLinkClose}`;
