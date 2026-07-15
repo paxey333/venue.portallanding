@@ -2,3 +2,5 @@
 Thumbs.db
 .wrangler/
 node_modules/
+.env
+.dev.vars
