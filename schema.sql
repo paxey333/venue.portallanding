@@ -146,3 +146,6 @@ CREATE INDEX IF NOT EXISTS idx_events_status ON events(status);
 --   last_used_at TEXT,
 --   revoked INTEGER NOT NULL DEFAULT 0
 -- );
+
+-- Commit AD.3: compact layout option (applied via migration)
+-- ALTER TABLE events ADD COLUMN layout TEXT DEFAULT 'classic';

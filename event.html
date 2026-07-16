@@ -231,6 +231,55 @@ footer{border-top:1px solid var(--border);padding:32px 24px;text-align:center}
   .copy-link{margin-left:0;margin-top:6px}
 }
 
+/* ── compact layout overrides ── */
+.layout-compact .splatter{display:none}
+.layout-compact .hero{padding:16px 20px 10px}
+.layout-compact .hero-presenter{margin-bottom:6px;font-size:11px}
+.layout-compact .hero-title{font-size:clamp(26px,7vw,38px);margin-bottom:8px;line-height:0.95}
+.layout-compact .hero-meta{margin-bottom:0;font-size:11px;gap:2px}
+.layout-compact .hero-desc{display:none}
+.layout-compact .compact-venue-line{font-size:11px;font-weight:600;color:var(--event);text-transform:uppercase;letter-spacing:.14em;margin-top:6px}
+.layout-compact .headliner-section{padding:14px 20px 0}
+.layout-compact .section-label{margin-bottom:10px;font-size:10px}
+.layout-compact .headliner-grid{gap:10px}
+.layout-compact .headliner-grid[data-count="2"]{grid-template-columns:repeat(2,1fr) !important}
+.layout-compact .headliner-card{aspect-ratio:3/4}
+.layout-compact .headliner-card .perf-meta{left:12px;right:12px;bottom:12px}
+.layout-compact .headliner-card .perf-name{font-size:clamp(16px,4.5vw,22px);margin-bottom:4px}
+.layout-compact .headliner-card .perf-handle{font-size:10px}
+.layout-compact .headliner-card .perf-handle .followers{display:none}
+.layout-compact .headliner-card .music-chips{margin-top:6px;gap:5px}
+.layout-compact .headliner-card .music-chip{width:30px;height:30px}
+.layout-compact .headliner-card .music-chip svg{width:14px;height:14px}
+.layout-compact .compact-cta{padding:14px 20px 10px;max-width:1100px;margin:0 auto}
+.layout-compact .compact-cta .ticket-cta{width:100%;justify-content:center;padding:14px 24px;font-size:12px}
+.layout-compact .compact-cta .ticket-soon{width:100%;text-align:center;display:block}
+.layout-compact .compact-cta .past-line{font-size:12px;color:var(--text2);text-align:center}
+.layout-compact .compact-cta .past-line a{color:var(--event)}
+
+/* compact support rows */
+.compact-support{padding:14px 20px 0;max-width:1100px;margin:0 auto}
+.compact-support-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.compact-support-row:last-child{border-bottom:none}
+.compact-support-thumb{width:40px;height:40px;border-radius:50%;overflow:hidden;flex:0 0 40px;background:var(--surface2);display:flex;align-items:center;justify-content:center}
+.compact-support-thumb img{width:100%;height:100%;object-fit:cover}
+.compact-support-thumb .initial{font-weight:900;font-size:16px;color:var(--event);opacity:0.4}
+.compact-support-info{flex:1;min-width:0}
+.compact-support-name{font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:-0.01em}
+.compact-support-handle{font-size:10px;color:var(--event);letter-spacing:.04em}
+.compact-support-chips{display:flex;gap:5px;flex:0 0 auto}
+.compact-support-chips .music-chip{width:30px;height:30px}
+.compact-support-chips .music-chip svg{width:14px;height:14px}
+
+/* compact below-fold sections */
+.layout-compact .below-fold{padding-top:24px}
+.layout-compact .below-fold .hero-desc-block{padding:0 20px 20px;max-width:1100px;margin:0 auto;font-size:14px;color:var(--text2);line-height:1.6;font-style:italic}
+.layout-compact .performers{display:none}
+.layout-compact .venue-section{padding:0 20px 40px}
+.layout-compact .venue-block{padding:20px}
+.layout-compact .tickets-section{padding:0 20px 40px}
+.layout-compact .team-section{padding:0 20px 40px}
+
 @media(prefers-reduced-motion:reduce){
   .perf-card,.team-card,.headliner-card{transition:none}
   .perf-card:hover,.team-card:hover,.headliner-card:hover{transform:none}
@@ -477,9 +526,37 @@ function renderPerfCard(p, isHeadliner) {
   return html;
 }
 
+function renderCompactSupportRow(p) {
+  const hasIg = !!p.ig;
+  const igUrl = hasIg ? `https://instagram.com/${esc(p.ig)}` : '';
+  const initial = (p.name || '?')[0].toUpperCase();
+  const linkOpen = hasIg ? `<a href="${igUrl}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:10px;flex:1;min-width:0">` : '<div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">';
+  const linkClose = hasIg ? '</a>' : '</div>';
+  let html = '<div class="compact-support-row">';
+  html += linkOpen;
+  html += '<div class="compact-support-thumb">';
+  if (p.photo_url) {
+    const objPos = p.photo_position ? ` style="object-position:${esc(p.photo_position)}"` : '';
+    html += `<img src="${esc(p.photo_url)}" alt="${esc(p.name)}"${objPos} decoding="async" loading="lazy" onerror="imgFallback(this)"/>`;
+  }
+  html += `<div class="initial" style="${p.photo_url ? 'display:none' : 'display:flex'}">${esc(initial)}</div>`;
+  html += '</div>';
+  html += '<div class="compact-support-info">';
+  html += `<div class="compact-support-name">${esc(p.name)}</div>`;
+  if (hasIg) html += `<div class="compact-support-handle">@${esc(p.ig)}</div>`;
+  html += '</div>';
+  html += linkClose;
+  html += `<div class="compact-support-chips">${renderMusicChips(p, 'compact-support-chips')}</div>`;
+  html += '</div>';
+  return html;
+}
+
 function renderEvent(e) {
   document.title = esc(e.title) + ' — Venue.Portal';
   if (e.accent_color && e.accent_color !== '#ff6b1a') setEventAccent(e.accent_color);
+
+  const isCompact = e.layout === 'compact';
+  if (isCompact) document.body.classList.add('layout-compact');
 
   const eventIsPast = isPast(e.event_date);
   const performers = Array.isArray(e.performers) ? e.performers : [];
@@ -492,6 +569,7 @@ function renderEvent(e) {
   const headliners = performers.filter(p => p.tier === 'headliner');
   const support = performers.filter(p => p.tier !== 'headliner');
   const hasHeadliners = headliners.length > 0;
+  const venueName = e.venue_name_public || null;
 
   let html = '';
 
@@ -511,8 +589,11 @@ function renderEvent(e) {
   if (e.doors_time) meta.push('Doors ' + esc(e.doors_time));
   if (meta.length) {
     html += '<div class="hero-meta">' + meta.join('<span class="sep">&middot;</span>');
-    html += '<button class="copy-link" onclick="copyLink()" title="Copy link"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke-linecap="round" stroke-linejoin="round"/></svg>Copy link</button>';
+    if (!isCompact) html += '<button class="copy-link" onclick="copyLink()" title="Copy link"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke-linecap="round" stroke-linejoin="round"/></svg>Copy link</button>';
     html += '</div>';
+  }
+  if (isCompact && venueName) {
+    html += `<div class="compact-venue-line">${esc(venueName)}</div>`;
   }
 
   if (e.description) {
@@ -531,17 +612,53 @@ function renderEvent(e) {
     html += '</div></section>';
   }
 
-  // Support / Performers
-  const showSupport = hasHeadliners ? support.length > 0 : performers.length > 0;
-  if (showSupport) {
-    const sectionLabel = hasHeadliners ? 'Support' : 'Performers';
-    const extraClass = hasHeadliners ? '' : ' no-headliners';
-    html += `<section class="performers${extraClass}"><div class="section-label">${sectionLabel}</div><div class="perf-grid">`;
-    const cards = hasHeadliners ? support : performers;
-    for (const p of cards) {
-      html += renderPerfCard(p, false);
+  // Compact: inline CTA right after headliners
+  if (isCompact) {
+    html += '<div class="compact-cta">';
+    if (eventIsPast) {
+      const handle = e.presenter ? esc(e.presenter) : null;
+      if (handle) {
+        html += `<div class="past-line">This night happened. Next one &rarr; <a href="https://instagram.com/${handle}" target="_blank" rel="noopener">@${handle}</a></div>`;
+      } else {
+        html += '<div class="past-line">This night happened. Stay tuned for the next one.</div>';
+      }
+    } else if (e.ticketing_url) {
+      html += `<a href="${esc(e.ticketing_url)}" target="_blank" rel="noopener" class="ticket-cta">Get Tickets <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>`;
+    } else {
+      html += '<div class="ticket-soon">Tickets coming soon</div>';
     }
-    html += '</div></section>';
+    html += '</div>';
+  }
+
+  // Support / Performers
+  if (isCompact) {
+    const cards = hasHeadliners ? support : performers;
+    if (cards.length > 0) {
+      const sectionLabel = hasHeadliners ? 'Support' : 'Performers';
+      html += `<section class="compact-support"><div class="section-label">${sectionLabel}</div>`;
+      for (const p of cards) {
+        html += renderCompactSupportRow(p);
+      }
+      html += '</section>';
+    }
+  } else {
+    const showSupport = hasHeadliners ? support.length > 0 : performers.length > 0;
+    if (showSupport) {
+      const sectionLabel = hasHeadliners ? 'Support' : 'Performers';
+      const extraClass = hasHeadliners ? '' : ' no-headliners';
+      html += `<section class="performers${extraClass}"><div class="section-label">${sectionLabel}</div><div class="perf-grid">`;
+      const cards = hasHeadliners ? support : performers;
+      for (const p of cards) {
+        html += renderPerfCard(p, false);
+      }
+      html += '</div></section>';
+    }
+  }
+
+  // Below-fold wrapper for compact
+  if (isCompact) html += '<div class="below-fold">';
+  if (isCompact && e.description) {
+    html += `<div class="hero-desc-block">${esc(e.description)}</div>`;
   }
 
   // Team
@@ -573,7 +690,6 @@ function renderEvent(e) {
   }
 
   // Venue
-  const venueName = e.venue_name_public || null;
   html += '<section class="venue-section"><div class="section-label">Venue</div><div class="venue-block">';
   html += '<div class="venue-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></div>';
   html += '<div>';
@@ -590,35 +706,39 @@ function renderEvent(e) {
   }
   html += '</div></div></section>';
 
-  // Tickets / past-event
-  if (eventIsPast) {
-    html += '<section class="tickets-section"><div class="section-label">Event Recap</div>';
-    const handle = e.presenter ? esc(e.presenter) : null;
-    if (handle) {
-      html += `<div class="past-recap">This night happened. Catch the next one &rarr; <a href="https://instagram.com/${handle}" target="_blank" rel="noopener">@${handle}</a></div>`;
-    } else {
-      html += '<div class="past-recap">This night happened. Stay tuned for the next one.</div>';
-    }
-    html += '</section>';
-  } else {
-    html += '<section class="tickets-section"><div class="section-label">';
-    html += e.ticketing_url ? 'Live Ticketing' : 'Tickets';
-    html += '</div>';
-    if (e.ticketing_url) {
-      html += `<div class="tickets-status">Tickets Live &middot; ${esc(e.title)}</div>`;
-      html += '<div class="ticket-cta-row">';
-      html += `<a href="${esc(e.ticketing_url)}" target="_blank" rel="noopener" class="ticket-cta">Get Tickets <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>`;
-      html += '<span class="ticket-note">Instant confirmation</span>';
-      html += '</div>';
-      if (e.ticketing_provider === 'hi_events') {
-        html += `<div class="ticket-iframe-wrap"><iframe src="${esc(e.ticketing_url)}" title="Get tickets" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>`;
-        html += `<div class="ticket-embed-note">Trouble loading? <a href="${esc(e.ticketing_url)}" target="_blank" rel="noopener">Open in new tab &rarr;</a></div>`;
+  // Tickets / past-event (classic only — compact has inline CTA above)
+  if (!isCompact) {
+    if (eventIsPast) {
+      html += '<section class="tickets-section"><div class="section-label">Event Recap</div>';
+      const handle = e.presenter ? esc(e.presenter) : null;
+      if (handle) {
+        html += `<div class="past-recap">This night happened. Catch the next one &rarr; <a href="https://instagram.com/${handle}" target="_blank" rel="noopener">@${handle}</a></div>`;
+      } else {
+        html += '<div class="past-recap">This night happened. Stay tuned for the next one.</div>';
       }
+      html += '</section>';
     } else {
-      html += '<div class="ticket-soon">Tickets coming soon</div>';
+      html += '<section class="tickets-section"><div class="section-label">';
+      html += e.ticketing_url ? 'Live Ticketing' : 'Tickets';
+      html += '</div>';
+      if (e.ticketing_url) {
+        html += `<div class="tickets-status">Tickets Live &middot; ${esc(e.title)}</div>`;
+        html += '<div class="ticket-cta-row">';
+        html += `<a href="${esc(e.ticketing_url)}" target="_blank" rel="noopener" class="ticket-cta">Get Tickets <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>`;
+        html += '<span class="ticket-note">Instant confirmation</span>';
+        html += '</div>';
+        if (e.ticketing_provider === 'hi_events') {
+          html += `<div class="ticket-iframe-wrap"><iframe src="${esc(e.ticketing_url)}" title="Get tickets" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>`;
+          html += `<div class="ticket-embed-note">Trouble loading? <a href="${esc(e.ticketing_url)}" target="_blank" rel="noopener">Open in new tab &rarr;</a></div>`;
+        }
+      } else {
+        html += '<div class="ticket-soon">Tickets coming soon</div>';
+      }
+      html += '</section>';
     }
-    html += '</section>';
   }
+
+  if (isCompact) html += '</div>';
 
   document.getElementById('app').innerHTML = html;
   revealPage();

@@ -1041,6 +1041,10 @@ section{display:flex;flex-direction:column;gap:14px}
           <label>Backdrop</label>
           <select id="evt-backdrop"><option value="glow">Glow (default)</option><option value="lights">Stage lights</option></select>
         </div>
+        <div class="evt-field" id="evt-layout-field" style="display:none">
+          <label>Layout</label>
+          <select id="evt-layout"><option value="classic">Classic (default)</option><option value="compact">Compact (in-frame)</option></select>
+        </div>
         <div class="evt-field" id="evt-ticketing-admin" style="display:none">
           <label>Ticketing URL</label>
           <input id="evt-ticket-url" type="url" placeholder="Paste Hi.Events link"/>
@@ -3155,6 +3159,8 @@ function openEventModal(editData) {
   document.getElementById('evt-color-hex').value = '#ff6b1a';
   document.getElementById('evt-color-swatch').style.background = '#ff6b1a';
   document.getElementById('evt-backdrop').value = 'glow';
+  document.getElementById('evt-layout').value = 'classic';
+  document.getElementById('evt-layout-field').style.display = IS_ADMIN_PREVIEW ? '' : 'none';
   document.getElementById('evt-ticket-url').value = '';
   document.getElementById('evt-ticket-toggle').checked = false;
   document.getElementById('evt-ticketing-admin').style.display = IS_ADMIN_PREVIEW ? '' : 'none';
@@ -3181,6 +3187,8 @@ function openEventModal(editData) {
     document.getElementById('evt-color-hex').value = color;
     document.getElementById('evt-color-swatch').style.background = color;
     document.getElementById('evt-backdrop').value = editData.backdrop || 'glow';
+    document.getElementById('evt-layout').value = editData.layout || 'classic';
+    document.getElementById('evt-layout-field').style.display = IS_ADMIN_PREVIEW ? '' : 'none';
     document.getElementById('evt-ticket-url').value = editData.ticketing_url || '';
     document.getElementById('evt-ticket-toggle').checked = !!editData.ticketing_requested;
     updateTicketStatus(editData);
@@ -3458,6 +3466,7 @@ async function saveEvent(status) {
         : { ticketing_requested: document.getElementById('evt-ticket-toggle').checked ? 1 : 0 }),
       ...(IS_ADMIN_PREVIEW && EFFECTIVE_VENUE_ID && !isEdit ? { venue_id: EFFECTIVE_VENUE_ID, host_type: 'venue', host_id: EFFECTIVE_VENUE_ID } : {}),
       backdrop: document.getElementById('evt-backdrop').value || 'glow',
+      ...(IS_ADMIN_PREVIEW ? { layout: document.getElementById('evt-layout').value || 'classic' } : {}),
       performers: gatherPerformers(),
       team: gatherTeam(),
       status

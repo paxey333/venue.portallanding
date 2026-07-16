@@ -2410,6 +2410,9 @@ export default {
           if (body.backdrop !== undefined && !["glow", "lights"].includes(body.backdrop)) {
             return jsonResponse({ error: "Invalid backdrop value" }, 400, request);
           }
+          if (body.layout !== undefined && !["classic", "compact"].includes(body.layout)) {
+            return jsonResponse({ error: "Invalid layout value" }, 400, request);
+          }
 
           let baseSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
           if (!baseSlug) baseSlug = "event";
@@ -2419,8 +2422,8 @@ export default {
             const candidate = attempt === 0 ? baseSlug : baseSlug + "-" + (attempt + 1);
             try {
               const result = await env.DB.prepare(
-                `INSERT INTO events (slug, title, presenter, host_type, host_id, venue_id, venue_name_public, city, address_private, event_date, doors_time, description, performers, team, accent_color, hero_image_url, ticketing_provider, ticketing_url, ticketing_requested, status, hidden, backdrop)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+                `INSERT INTO events (slug, title, presenter, host_type, host_id, venue_id, venue_name_public, city, address_private, event_date, doors_time, description, performers, team, accent_color, hero_image_url, ticketing_provider, ticketing_url, ticketing_requested, status, hidden, backdrop, layout)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
               ).bind(
                 candidate,
                 title,
@@ -2443,7 +2446,8 @@ export default {
                 ticketingRequested,
                 body.status || "draft",
                 body.hidden ? 1 : 0,
-                body.backdrop || 'glow'
+                body.backdrop || 'glow',
+                body.layout || 'classic'
               ).run();
               slug = candidate;
               created = await env.DB.prepare("SELECT * FROM events WHERE slug = ?").bind(slug).first();
@@ -2582,7 +2586,7 @@ export default {
           const row = await env.DB.prepare(
             `SELECT id, slug, title, presenter, host_type, venue_id, venue_name_public, city,
                     event_date, doors_time, description, performers, team, accent_color,
-                    hero_image_url, ticketing_provider, ticketing_url, status, backdrop, created_at
+                    hero_image_url, ticketing_provider, ticketing_url, status, backdrop, layout, created_at
              FROM events WHERE slug = ? AND status = 'published' AND hidden = 0`
           ).bind(slug).first();
           if (!row) return jsonResponse({ error: "Event not found" }, 404, request);
@@ -2616,7 +2620,10 @@ export default {
           if (body.backdrop !== undefined && !["glow", "lights"].includes(body.backdrop)) {
             return jsonResponse({ error: "Invalid backdrop value" }, 400, request);
           }
-          const allowed = ["title","presenter","venue_id","venue_name_public","city","address_private","event_date","doors_time","description","performers","team","accent_color","hero_image_url","ticketing_provider","ticketing_url","ticketing_requested","status","hidden","backdrop"];
+          if (body.layout !== undefined && !["classic", "compact"].includes(body.layout)) {
+            return jsonResponse({ error: "Invalid layout value" }, 400, request);
+          }
+          const allowed = ["title","presenter","venue_id","venue_name_public","city","address_private","event_date","doors_time","description","performers","team","accent_color","hero_image_url","ticketing_provider","ticketing_url","ticketing_requested","status","hidden","backdrop","layout"];
           const fields = [];
           const values = [];
           for (const key of allowed) {
