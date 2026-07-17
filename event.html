@@ -59,8 +59,17 @@ img{max-width:100%;display:block}
 .brand{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:800;letter-spacing:-.3px}
 .brand .dot{color:var(--accent)}
 
-.loading{display:flex;align-items:center;justify-content:center;min-height:60vh;font-size:28px;color:var(--accent);animation:loadPulse 1.2s ease-in-out infinite}
-@keyframes loadPulse{0%,100%{opacity:.3}50%{opacity:1}}
+/* loading skeleton */
+.skel{max-width:900px;margin:0 auto;padding:80px 28px 60px}
+.skel-bone{background:linear-gradient(90deg,var(--surface2) 25%,var(--border) 50%,var(--surface2) 75%);background-size:200% 100%;border-radius:4px;animation:shimmer 1.6s ease-in-out infinite}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skel-title{height:52px;width:75%;margin-bottom:16px}
+.skel-meta{height:14px;width:50%;margin-bottom:40px}
+.skel-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:32px}
+.skel-card{aspect-ratio:3/4;border-radius:6px}
+.skel-cta{height:48px;width:100%;border-radius:4px}
+@media(max-width:640px){.skel{padding:60px 20px 40px}}
+@media(prefers-reduced-motion:reduce){.skel-bone{animation:none}}
 
 /* hero */
 .hero{position:relative;padding:80px 28px 60px;max-width:900px;margin:0 auto}
@@ -198,6 +207,9 @@ footer{border-top:1px solid var(--border);padding:32px 24px;text-align:center}
 .not-found h1{font-size:36px;font-weight:900;letter-spacing:-1.5px;margin-bottom:8px}
 .not-found p{color:var(--text2);margin-bottom:28px;font-size:14px}
 .not-found a{background:var(--accent);color:#000;font-weight:800;padding:14px 32px;border-radius:8px;font-size:14px}
+.not-found .err-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.not-found .retry-btn{background:none;border:1px solid var(--accent);color:var(--accent);font-weight:700;padding:14px 32px;border-radius:8px;font-size:14px;cursor:pointer;font-family:var(--font);text-transform:uppercase;letter-spacing:.08em;transition:background .2s,color .2s}
+.not-found .retry-btn:hover{background:var(--accent);color:#000}
 
 @media(max-width:640px){
   .hero{padding:60px 20px 40px}
@@ -306,7 +318,7 @@ footer{border-top:1px solid var(--border);padding:32px 24px;text-align:center}
 <div class="page-wrap" id="page-wrap">
 <div class="page">
 <main id="app">
-  <div class="loading" id="loader">&raquo;</div>
+  <div class="skel" id="loader"><div class="skel-bone skel-title"></div><div class="skel-bone skel-meta"></div><div class="skel-cards"><div class="skel-bone skel-card"></div><div class="skel-bone skel-card"></div></div><div class="skel-bone skel-cta"></div></div>
 </main>
 </div>
 </div>
@@ -415,31 +427,33 @@ function copyLink() {
 }
 
 function renderNotFound(reason) {
-  document.title = 'Event Not Found — Venue.Portal';
-  let heading = 'Event not found';
-  let message = 'This event may have ended or moved.';
-  if (reason === 'no-slug') {
-    heading = 'No event specified';
-    message = 'Use a link like /events/event-name to find an event.';
-  } else if (reason === 'network') {
-    heading = 'Connection error';
-    message = 'Couldn’t reach the server. Check your connection and try again.';
+  document.title = ‘Event Not Found — Venue.Portal’;
+  let heading = ‘Event not found’;
+  let message = ‘This event may have ended or moved.’;
+  let actions = ‘<a href="/">Browse Venues</a>’;
+  if (reason === ‘no-slug’) {
+    heading = ‘No event specified’;
+    message = ‘Use a link like /events/event-name to find an event.’;
+  } else if (reason === ‘network’) {
+    heading = ‘Connection trouble’;
+    message = ‘Could not reach the server right now.’;
+    actions = ‘<div class="err-actions"><button class="retry-btn" onclick="retryLoad()">Try again</button><a href="/">Browse Venues</a></div>’;
   }
-  document.getElementById('app').innerHTML = `
+  document.getElementById(‘app’).innerHTML = `
     <div class="not-found">
       <h1>${heading}</h1>
       <p>${message}</p>
-      <a href="/">Browse Venues</a>
+      ${actions}
     </div>`;
   revealPage();
 }
 
 function revealPage() {
-  document.fonts.ready.then(() => {
-    requestAnimationFrame(() => {
-      document.getElementById('page-wrap').classList.add('revealed');
-    });
+  const reveal = () => requestAnimationFrame(() => {
+    document.getElementById('page-wrap').classList.add('revealed');
   });
+  const timeout = setTimeout(reveal, 1500);
+  document.fonts.ready.then(() => { clearTimeout(timeout); reveal(); });
 }
 
 function initLights(hex) {
@@ -760,21 +774,47 @@ function renderEvent(e) {
   }
 }
 
-(async function init() {
+function getSlug() {
   const m = location.pathname.match(/^\/events\/([A-Za-z0-9-]+)/);
-  const slug = m ? m[1] : new URLSearchParams(location.search).get('slug');
+  return m ? m[1] : new URLSearchParams(location.search).get('slug');
+}
+
+async function fetchEvent(slug) {
+  const ac = new AbortController();
+  const timer = setTimeout(() => ac.abort(), 10000);
+  try {
+    const res = await fetch(`${API_BASE}/api/events/public/${encodeURIComponent(slug)}`, { signal: ac.signal });
+    clearTimeout(timer);
+    if (!res.ok) return { error: 'not-found' };
+    return { data: await res.json() };
+  } catch (err) {
+    clearTimeout(timer);
+    return { error: 'network' };
+  }
+}
+
+async function loadEvent(isRetry) {
+  const slug = getSlug();
   if (!slug) { renderNotFound('no-slug'); return; }
 
-  try {
-    const res = await fetch(`${API_BASE}/api/events/public/${encodeURIComponent(slug)}`);
-    if (!res.ok) { renderNotFound('not-found'); return; }
-    const data = await res.json();
-    renderEvent(data);
-  } catch (err) {
-    console.error('[event] fetch error:', err);
-    renderNotFound('network');
+  if (isRetry) {
+    document.getElementById('app').innerHTML = '<div class="skel" id="loader"><div class="skel-bone skel-title"></div><div class="skel-bone skel-meta"></div><div class="skel-cards"><div class="skel-bone skel-card"></div><div class="skel-bone skel-card"></div></div><div class="skel-bone skel-cta"></div></div>';
   }
-})();
+
+  let result = await fetchEvent(slug);
+  if (result.error === 'network' && !isRetry) {
+    await new Promise(r => setTimeout(r, 1500));
+    result = await fetchEvent(slug);
+  }
+
+  if (result.error) { renderNotFound(result.error); return; }
+  renderEvent(result.data);
+}
+
+function retryLoad() { loadEvent(true); }
+
+revealPage();
+loadEvent(false);
 </script>
 </body>
 </html>
