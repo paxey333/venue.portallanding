@@ -427,19 +427,19 @@ function copyLink() {
 }
 
 function renderNotFound(reason) {
-  document.title = ‘Event Not Found — Venue.Portal’;
-  let heading = ‘Event not found’;
-  let message = ‘This event may have ended or moved.’;
-  let actions = ‘<a href="/">Browse Venues</a>’;
-  if (reason === ‘no-slug’) {
-    heading = ‘No event specified’;
-    message = ‘Use a link like /events/event-name to find an event.’;
-  } else if (reason === ‘network’) {
-    heading = ‘Connection trouble’;
-    message = ‘Could not reach the server right now.’;
-    actions = ‘<div class="err-actions"><button class="retry-btn" onclick="retryLoad()">Try again</button><a href="/">Browse Venues</a></div>’;
+  document.title = 'Event Not Found - Venue.Portal';
+  let heading = 'Event not found';
+  let message = 'This event may have ended or moved.';
+  let actions = '<a href="/">Browse Venues</a>';
+  if (reason === 'no-slug') {
+    heading = 'No event specified';
+    message = 'Use a link like /events/event-name to find an event.';
+  } else if (reason === 'network') {
+    heading = 'Connection trouble';
+    message = 'Could not reach the server right now.';
+    actions = '<div class="err-actions"><button class="retry-btn" onclick="retryLoad()">Try again</button><a href="/">Browse Venues</a></div>';
   }
-  document.getElementById(‘app’).innerHTML = `
+  document.getElementById('app').innerHTML = `
     <div class="not-found">
       <h1>${heading}</h1>
       <p>${message}</p>
