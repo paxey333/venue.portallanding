@@ -9,9 +9,25 @@
 <meta property="og:description" content="Discover events at independent venues."/>
 <meta property="og:type" content="website"/>
 <meta property="og:url" content="https://venueportal.us"/>
+<link rel="preconnect" href="https://api.venueportal.us" crossorigin/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="preload" href="https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2" as="font" type="font/woff2" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet"/>
+<script>
+// Early fetch: kick off API request during HTML parse, before main script
+(function(){
+  var m = location.pathname.match(/^\/events\/([A-Za-z0-9-]+)/);
+  var slug = m ? m[1] : new URLSearchParams(location.search).get('slug');
+  if (slug) {
+    var ac = new AbortController();
+    var timer = setTimeout(function(){ ac.abort(); }, 10000);
+    window.__eventP = fetch('https://api.venueportal.us/api/events/public/' + encodeURIComponent(slug), { signal: ac.signal })
+      .then(function(r){ clearTimeout(timer); return r; })
+      .catch(function(e){ clearTimeout(timer); throw e; });
+  }
+})();
+</script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -101,7 +117,8 @@ img{max-width:100%;display:block}
 .headliner-card:hover{border-color:var(--event);box-shadow:0 12px 36px var(--event-glow)}
 .headliner-grid[data-count="1"] .headliner-card{aspect-ratio:16/10}
 .headliner-card .perf-img-wrap{position:absolute;inset:0;background:linear-gradient(135deg,var(--surface2),var(--surface));display:flex;align-items:center;justify-content:center}
-.headliner-card .perf-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;backface-visibility:hidden}
+.headliner-card .perf-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;backface-visibility:hidden;opacity:0;transition:opacity .3s ease}
+.headliner-card .perf-img-wrap img.loaded{opacity:1}
 .headliner-card .perf-img-wrap .img-backfill{position:absolute;inset:0;background-size:cover;background-position:center;filter:blur(28px) brightness(.5);z-index:0;display:none}
 .headliner-card .perf-img-wrap img.contain{object-fit:contain;z-index:1;position:relative}
 .headliner-card .perf-img-wrap .initial{font-weight:900;font-size:120px;color:var(--event);opacity:0.4;letter-spacing:-0.04em;display:none}
@@ -119,7 +136,8 @@ img{max-width:100%;display:block}
 .perf-card{position:relative;aspect-ratio:4/5;border:1px solid var(--event-border);border-radius:6px;overflow:hidden;background:var(--surface);display:flex;flex-direction:column;transition:border-color .2s,box-shadow .2s}
 .perf-card:hover{border-color:var(--event);box-shadow:0 8px 24px var(--event-glow)}
 .perf-img-wrap{position:absolute;inset:0;background:linear-gradient(135deg,var(--surface2),var(--surface));display:flex;align-items:center;justify-content:center}
-.perf-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;aspect-ratio:4/5;decoding:async;backface-visibility:hidden}
+.perf-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;aspect-ratio:4/5;decoding:async;backface-visibility:hidden;opacity:0;transition:opacity .3s ease}
+.perf-img-wrap img.loaded{opacity:1}
 .perf-img-wrap .initial{font-weight:900;font-size:88px;color:var(--event);opacity:0.4;letter-spacing:-0.04em;display:none}
 .perf-card::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.85) 0%,rgba(0,0,0,0.35) 35%,transparent 65%);pointer-events:none}
 .perf-meta{position:absolute;left:22px;right:22px;bottom:22px;z-index:2}
@@ -293,6 +311,7 @@ footer{border-top:1px solid var(--border);padding:32px 24px;text-align:center}
 .layout-compact .team-section{padding:0 20px 40px}
 
 @media(prefers-reduced-motion:reduce){
+  .headliner-card .perf-img-wrap img,.perf-img-wrap img{opacity:1;transition:none}
   .perf-card,.team-card,.headliner-card{transition:none}
   .perf-card:hover,.team-card:hover,.headliner-card:hover{transform:none}
   .sticky-cta{transition:none}
@@ -513,15 +532,15 @@ function renderPerfCard(p, isHeadliner) {
   const objPos = p.photo_position ? ` style="object-position:${esc(p.photo_position)}"` : '';
   const initial = (p.name || '?')[0].toUpperCase();
   const cardClass = isHeadliner ? 'headliner-card' : 'perf-card';
-  const lazyAttr = isHeadliner ? '' : ' loading="lazy"';
+  const lazyAttr = isHeadliner ? ' fetchpriority="high"' : ' loading="lazy"';
 
   let html = `<div class="${cardClass}">`;
   const imgLink = hasIg ? `<a href="${igUrl}" target="_blank" rel="noopener" class="perf-ig-link">` : '';
   const imgLinkClose = hasIg ? '</a>' : '';
   html += `${imgLink}<div class="perf-img-wrap">`;
   if (p.photo_url) {
-    const onloadAttr = isHeadliner ? ' onload="headlinerFit(this)"' : '';
-    html += `<img src="${esc(p.photo_url)}" alt="${esc(p.name)}"${objPos} decoding="async"${lazyAttr} onerror="imgFallback(this)"${onloadAttr}/>`;
+    const fitAttr = isHeadliner ? ' onload="headlinerFit(this);this.classList.add(\'loaded\')"' : ' onload="this.classList.add(\'loaded\')"';
+    html += `<img src="${esc(p.photo_url)}" alt="${esc(p.name)}"${objPos} decoding="async"${lazyAttr} onerror="imgFallback(this)"${fitAttr}/>`;
     if (isHeadliner) html += `<div class="img-backfill" style="background-image:url('${esc(p.photo_url)}')"></div>`;
   }
   html += `<div class="initial" style="${p.photo_url ? 'display:none' : 'display:flex'}">${esc(initial)}</div>`;
@@ -779,16 +798,21 @@ function getSlug() {
   return m ? m[1] : new URLSearchParams(location.search).get('slug');
 }
 
-async function fetchEvent(slug) {
-  const ac = new AbortController();
-  const timer = setTimeout(() => ac.abort(), 10000);
+async function fetchEvent(slug, usePreload) {
   try {
-    const res = await fetch(`${API_BASE}/api/events/public/${encodeURIComponent(slug)}`, { signal: ac.signal });
-    clearTimeout(timer);
+    let res;
+    if (usePreload && window.__eventP) {
+      res = await window.__eventP;
+      window.__eventP = null;
+    } else {
+      const ac = new AbortController();
+      const timer = setTimeout(() => ac.abort(), 10000);
+      res = await fetch(`${API_BASE}/api/events/public/${encodeURIComponent(slug)}`, { signal: ac.signal });
+      clearTimeout(timer);
+    }
     if (!res.ok) return { error: 'not-found' };
     return { data: await res.json() };
   } catch (err) {
-    clearTimeout(timer);
     return { error: 'network' };
   }
 }
@@ -801,10 +825,10 @@ async function loadEvent(isRetry) {
     document.getElementById('app').innerHTML = '<div class="skel" id="loader"><div class="skel-bone skel-title"></div><div class="skel-bone skel-meta"></div><div class="skel-cards"><div class="skel-bone skel-card"></div><div class="skel-bone skel-card"></div></div><div class="skel-bone skel-cta"></div></div>';
   }
 
-  let result = await fetchEvent(slug);
+  let result = await fetchEvent(slug, !isRetry);
   if (result.error === 'network' && !isRetry) {
     await new Promise(r => setTimeout(r, 1500));
-    result = await fetchEvent(slug);
+    result = await fetchEvent(slug, false);
   }
 
   if (result.error) { renderNotFound(result.error); return; }
