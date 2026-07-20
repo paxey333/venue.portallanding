@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="theme-color" content="#000000"/>
+<meta name="color-scheme" content="dark"/>
+<title>The Chill Room &mdash; Venue.Portal</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 18'%3E%3Cpath d='M0 0L6 9L0 18H4L10 9L4 0H0Z' fill='%23ffffff'/%3E%3Cpath d='M9 0L15 9L9 18H13L19 9L13 0H9Z' fill='%23555555'/%3E%3Crect x='19.5' y='7' width='4' height='4' rx='1' fill='%23ffffff'/%3E%3C/svg%3E"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#000000;--surface:#0a0a0a;--surface2:#141414;
+  --border:#1f1f1f;--border2:#2a2a2a;
+  --text:#ffffff;--text2:#a8a8a8;--text3:#666666;
+  --accent:#ff6b1a;--accent-soft:rgba(255,107,26,0.12);
+  --green:#3ddc84;--green-soft:rgba(61,220,132,0.12);
+  --red:#f87171;--red-soft:rgba(248,113,113,0.1);
+  --font:'Inter',sans-serif;
+  --radius:6px;--radius-lg:10px;
+}
+html{background:var(--bg);color:var(--text);font-family:var(--font);-webkit-font-smoothing:antialiased;scroll-behavior:smooth}
+body{background:var(--bg);min-height:100vh;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:transparent;color:inherit}
+img{display:block;max-width:100%}
+@media(max-width:640px){input:not([type=checkbox]):not([type=radio]),select,textarea{font-size:16px!important}}
+
+/* GRAIN */
+.grain{position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.035;mix-blend-mode:overlay}
+.grain::after{content:'';position:absolute;inset:-50%;width:200%;height:200%;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-repeat:repeat;background-size:128px;animation:grainShift .5s steps(3) infinite}
+@keyframes grainShift{0%{transform:translate(0)}33%{transform:translate(-2px,1px)}66%{transform:translate(1px,-1px)}100%{transform:translate(0)}}
+@media(prefers-reduced-motion:reduce){.grain::after{animation:none}}
+
+/* NAV */
+.topnav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(0,0,0,0.6);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.04)}
+.topnav-inner{max-width:1200px;margin:0 auto;padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:9px;font-weight:800;font-size:15px;letter-spacing:-.3px}
+.brand .dot{color:var(--accent)}
+.nav-back{font-size:12px;font-weight:600;color:var(--text3);display:flex;align-items:center;gap:6px;transition:color .2s}
+.nav-back:hover{color:var(--text)}
+
+/* HERO */
+.venue-hero{position:relative;width:100%;aspect-ratio:16/9;max-height:480px;overflow:hidden;background:linear-gradient(135deg,#1a1a1a,#080808)}
+.venue-hero img{width:100%;height:100%;object-fit:cover;display:block}
+.venue-hero::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,var(--bg) 0%,rgba(0,0,0,0.4) 40%,rgba(0,0,0,0.1) 100%)}
+.hero-badge{position:absolute;top:16px;left:16px;z-index:2;display:flex;gap:8px}
+.badge{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:20px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.badge-live{background:var(--green-soft);color:var(--green);border:1px solid rgba(61,220,132,0.2)}
+.badge-cap{background:rgba(255,255,255,0.08);color:var(--text2);border:1px solid rgba(255,255,255,0.06)}
+
+/* VENUE IDENTITY */
+.venue-id{max-width:900px;margin:0 auto;padding:0 24px;position:relative;margin-top:-48px;z-index:2}
+.venue-name{font-size:clamp(32px,6vw,52px);font-weight:900;letter-spacing:clamp(-1px,-0.03em,-2px);line-height:.95;margin-bottom:10px}
+.venue-loc{font-size:13px;color:var(--text2);display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.venue-tagline{font-size:14px;color:var(--text3);line-height:1.6;max-width:540px;margin-top:14px}
+
+/* MAIN LAYOUT */
+.venue-main{max-width:900px;margin:0 auto;padding:48px 24px calc(100px + env(safe-area-inset-bottom,0px))}
+
+/* SECTION DIVIDERS */
+.v-section{padding:36px 0;border-top:1px solid var(--border)}
+.v-section:first-child{border-top:none;padding-top:0}
+.v-section-label{font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--text3);margin-bottom:18px}
+
+/* QUICK STATS */
+.quick-stats{display:flex;gap:24px;flex-wrap:wrap;margin-top:20px}
+.qs{display:flex;flex-direction:column;gap:2px}
+.qs-val{font-size:22px;font-weight:800;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.qs-label{font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.08em}
+
+/* DESCRIPTION */
+.venue-desc{font-size:14px;color:var(--text2);line-height:1.75;max-width:600px}
+.venue-desc strong{color:var(--text);font-weight:700}
+
+/* AMENITIES */
+.amenities{display:flex;flex-wrap:wrap;gap:8px}
+.amenity{font-size:12px;font-weight:600;color:var(--text2);background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:7px 14px;white-space:nowrap}
+
+/* HOUSE RULES */
+.rules-list{display:flex;flex-direction:column;gap:10px}
+.rule{font-size:13px;color:var(--text2);display:flex;gap:10px;align-items:start;line-height:1.5}
+.rule-bullet{color:var(--accent);font-weight:800;flex-shrink:0;margin-top:1px}
+
+/* CALENDAR */
+.cal-wrap{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.cal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
+.cal-month{font-size:15px;font-weight:800;letter-spacing:-.3px}
+.cal-nav{display:flex;gap:4px}
+.cal-nav button{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text2);border:1px solid var(--border);transition:all .15s;background:transparent}
+.cal-nav button:hover{border-color:var(--border2);color:var(--text)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);padding:8px 12px 12px}
+.cal-dow{font-size:10px;font-weight:600;color:var(--text3);text-align:center;padding:8px 0;letter-spacing:.06em;text-transform:uppercase}
+.cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;border-radius:8px;cursor:pointer;transition:all .15s;color:var(--text2);position:relative}
+.cal-day:hover{background:var(--surface2);color:var(--text)}
+.cal-day.today{color:var(--accent);font-weight:800}
+.cal-day.today::after{content:'';position:absolute;bottom:4px;width:4px;height:4px;border-radius:50%;background:var(--accent)}
+.cal-day.past{color:var(--text3);opacity:.4;pointer-events:none}
+.cal-day.booked{color:var(--text3);opacity:.35;pointer-events:none;text-decoration:line-through}
+.cal-day.selected{background:var(--accent);color:#000}
+.cal-day.empty{pointer-events:none}
+
+/* INQUIRY FLOW */
+.inquiry{margin-top:24px}
+
+/* State machine: idle -> filling -> sending -> confirmed */
+.inq-trigger{width:100%;background:var(--accent);color:#000;font-weight:700;font-size:14px;padding:14px;border-radius:10px;transition:all .2s;letter-spacing:-.1px;display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;border:none;cursor:pointer}
+.inq-trigger:hover{opacity:.88;transform:translateY(-1px)}
+@media(prefers-reduced-motion:reduce){.inq-trigger:hover{transform:none}}
+.inq-trigger:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+.inq-form{display:none;margin-top:0}
+.inq-form.active{display:block;animation:slideUp .3s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){@keyframes slideUp{from{opacity:1;transform:none}to{opacity:1;transform:none}}}
+
+.inq-form-inner{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px 20px;position:relative;overflow:hidden}
+.inq-form-inner::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),transparent 70%)}
+.inq-title{font-size:16px;font-weight:800;letter-spacing:-.3px;margin-bottom:4px}
+.inq-subtitle{font-size:12px;color:var(--text3);margin-bottom:20px}
+.inq-field{margin-bottom:14px}
+.inq-field label{display:block;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
+.inq-field input,.inq-field textarea,.inq-field select{width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);font-size:14px;padding:12px 14px;border-radius:8px;outline:none;transition:border-color .2s;font-family:var(--font);min-height:44px}
+.inq-field textarea{resize:vertical;min-height:80px;line-height:1.5}
+.inq-field input:focus,.inq-field textarea:focus,.inq-field select:focus{border-color:var(--accent)}
+.inq-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.inq-err{display:none;font-size:12px;color:var(--red);background:var(--red-soft);border:1px solid rgba(248,113,113,0.25);border-radius:6px;padding:9px 12px;margin-bottom:10px}
+.inq-submit{width:100%;background:var(--accent);color:#000;font-weight:700;font-size:14px;padding:14px;border-radius:8px;transition:all .15s;letter-spacing:-.1px;min-height:48px;display:flex;align-items:center;justify-content:center;gap:6px;border:none;cursor:pointer}
+.inq-submit:hover{opacity:.88}
+.inq-submit:disabled{opacity:.5;cursor:not-allowed}
+
+/* Confirmed state */
+.inq-confirmed{display:none;background:var(--green-soft);border:1px solid rgba(61,220,132,0.2);border-radius:14px;padding:28px 24px;text-align:center}
+.inq-confirmed.active{display:block;animation:slideUp .3s ease}
+.inq-confirmed-icon{width:48px;height:48px;border-radius:50%;background:rgba(61,220,132,0.15);display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.inq-confirmed-title{font-size:18px;font-weight:800;color:var(--green);margin-bottom:6px}
+.inq-confirmed-body{font-size:13px;color:var(--text2);line-height:1.6}
+
+/* GALLERY */
+.gallery-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(min-width:640px){.gallery-grid{grid-template-columns:1fr 1fr 1fr;gap:10px}}
+.gallery-item{aspect-ratio:4/3;border-radius:10px;overflow:hidden;background:linear-gradient(135deg,#1a1a1a,#0a0a0a);border:1px solid var(--border);position:relative}
+.gallery-item img{width:100%;height:100%;object-fit:cover}
+.gallery-item .ph-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text3);font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+
+/* STICKY BOTTOM (mobile) */
+.sticky-bottom{position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,0.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--border);z-index:90;padding:12px 24px calc(12px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;justify-content:space-between;gap:16px}
+.sticky-price{font-size:18px;font-weight:800;letter-spacing:-.3px}
+.sticky-price .unit{font-size:12px;color:var(--text2);font-weight:500}
+.sticky-btn{background:var(--accent);color:#000;font-weight:700;font-size:13px;padding:12px 24px;border-radius:8px;white-space:nowrap;transition:opacity .15s;border:none;cursor:pointer;min-height:44px}
+.sticky-btn:hover{opacity:.88}
+@media(min-width:760px){.sticky-bottom{display:none}}
+
+/* FOOTER */
+.venue-footer{border-top:1px solid var(--border);padding:32px 0 20px;max-width:900px;margin:0 auto;padding-left:24px;padding-right:24px}
+.venue-footer-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;font-size:11px;color:var(--text3)}
+.venue-footer a{color:var(--text3);transition:color .15s}
+.venue-footer a:hover{color:var(--text)}
+
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
+.reveal.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+</style>
+</head>
+<body>
+
+<div class="grain" aria-hidden="true"></div>
+
+<!-- NAV -->
+<header class="topnav">
+<div class="topnav-inner">
+  <a href="/index-v3-mockup.html" class="brand">
+    <svg width="22" height="16" viewBox="0 0 24 18" fill="none"><path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#fff"/><path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#fff" opacity="0.4"/></svg>
+    <span>Venue<span class="dot">.</span>Portal</span>
+  </a>
+  <a href="/index-v3-mockup.html" class="nav-back">&larr; All venues</a>
+</div>
+</header>
+
+<!-- HERO IMAGE -->
+<div class="venue-hero" id="hero-img">
+  <div class="hero-badge">
+    <span class="badge badge-live">Live</span>
+    <span class="badge badge-cap" id="badge-cap">90 cap</span>
+  </div>
+</div>
+
+<!-- VENUE IDENTITY -->
+<div class="venue-id reveal">
+  <div class="venue-loc" id="venue-loc">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+    <span id="venue-city">Tempe, AZ</span>
+  </div>
+  <h1 class="venue-name" id="venue-name">The Chill Room</h1>
+  <div class="quick-stats" id="quick-stats">
+    <div class="qs"><div class="qs-val" id="qs-cap">90</div><div class="qs-label">Capacity</div></div>
+    <div class="qs"><div class="qs-val">$<span id="qs-price">200</span></div><div class="qs-label">Per day</div></div>
+  </div>
+  <p class="venue-tagline" id="venue-tagline"></p>
+</div>
+
+<main class="venue-main">
+
+  <!-- DESCRIPTION -->
+  <section class="v-section reveal" id="desc-section" style="display:none">
+    <div class="v-section-label">About this venue</div>
+    <div class="venue-desc" id="venue-desc"></div>
+  </section>
+
+  <!-- AMENITIES -->
+  <section class="v-section reveal" id="amenities-section" style="display:none">
+    <div class="v-section-label">Included</div>
+    <div class="amenities" id="amenities-list"></div>
+  </section>
+
+  <!-- AVAILABILITY + INQUIRY -->
+  <section class="v-section reveal">
+    <div class="v-section-label">Availability</div>
+    <div class="cal-wrap">
+      <div class="cal-header">
+        <span class="cal-month" id="cal-month"></span>
+        <div class="cal-nav">
+          <button onclick="calNav(-1)" aria-label="Previous month"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <button onclick="calNav(1)" aria-label="Next month"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+        </div>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+    </div>
+
+    <!-- INQUIRY FLOW -->
+    <div class="inquiry" id="inquiry-wrap">
+      <button class="inq-trigger" id="inq-trigger" onclick="openInquiry()">
+        <span id="inq-trigger-text">Select a date to inquire</span>
+      </button>
+      <div class="inq-form" id="inq-form">
+        <div class="inq-form-inner">
+          <div class="inq-title">Send your inquiry</div>
+          <div class="inq-subtitle" id="inq-date-label">Selected date will appear here</div>
+          <div class="inq-err" id="inq-err"></div>
+          <div class="inq-field"><label>Name *</label><input id="inq-name" type="text" placeholder="Your name"/></div>
+          <div class="inq-field"><label>Email *</label><input id="inq-email" type="email" placeholder="you@example.com"/></div>
+          <div class="inq-row">
+            <div class="inq-field"><label>Phone</label><input id="inq-phone" type="tel" placeholder="Optional"/></div>
+            <div class="inq-field"><label>Expected guests</label><input id="inq-guests" type="number" placeholder="e.g. 50" min="1"/></div>
+          </div>
+          <div class="inq-field"><label>Event type</label>
+            <select id="inq-type">
+              <option value="">Select...</option>
+              <option>Private party</option>
+              <option>Live music</option>
+              <option>Corporate event</option>
+              <option>Birthday / celebration</option>
+              <option>Community gathering</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="inq-field"><label>Tell us about your event</label><textarea id="inq-notes" placeholder="What are you planning?"></textarea></div>
+          <input type="text" name="_hp" id="inq-hp" style="display:none" tabindex="-1" autocomplete="off"/>
+          <button class="inq-submit" id="inq-submit" onclick="submitInquiry()">Send inquiry &rarr;</button>
+        </div>
+      </div>
+      <div class="inq-confirmed" id="inq-confirmed">
+        <div class="inq-confirmed-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3ddc84" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="inq-confirmed-title">Inquiry sent</div>
+        <div class="inq-confirmed-body">The venue owner has been notified. Expect a response within 24 hours.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOUSE RULES -->
+  <section class="v-section reveal" id="rules-section" style="display:none">
+    <div class="v-section-label">House rules</div>
+    <div class="rules-list" id="rules-list"></div>
+  </section>
+
+  <!-- GALLERY -->
+  <section class="v-section reveal" id="gallery-section" style="display:none">
+    <div class="v-section-label">Gallery</div>
+    <div class="gallery-grid" id="gallery-grid"></div>
+  </section>
+
+</main>
+
+<!-- STICKY BOTTOM (mobile) -->
+<div class="sticky-bottom" id="sticky-bottom">
+  <div class="sticky-price">$<span id="sticky-price">200</span> <span class="unit">/ day</span></div>
+  <button class="sticky-btn" onclick="document.querySelector('.inquiry').scrollIntoView({behavior:'smooth',block:'center'})">Check availability</button>
+</div>
+
+<!-- FOOTER -->
+<footer class="venue-footer">
+<div class="venue-footer-inner">
+  <span>Venue.Portal &copy; 2026</span>
+  <div style="display:flex;gap:16px">
+    <a href="/privacy.html">Privacy</a>
+    <a href="/terms.html">Terms</a>
+    <a href="mailto:hello@venueportal.us">Contact</a>
+  </div>
+</div>
+</footer>
+
+<script>
+var API_BASE = 'https://api.venueportal.us';
+var VENUE_ID = 1;
+var selectedDate = null;
+var calYear, calMonth;
+var bookedDates = [];
+
+function escHtml(s) {
+  if (s == null) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Parse venue ID from URL
+(function() {
+  var params = new URLSearchParams(window.location.search);
+  var id = params.get('id');
+  if (id) VENUE_ID = parseInt(id, 10) || 1;
+})();
+
+// Load venue data
+(function() {
+  fetch(API_BASE + '/api/venues/' + VENUE_ID)
+    .then(function(r) { return r.json(); })
+    .then(function(v) {
+      if (v.error) return;
+      document.getElementById('venue-name').textContent = v.name || 'Venue';
+      document.title = (v.name || 'Venue') + '  --  Venue.Portal';
+      if (v.city && v.state) document.getElementById('venue-city').textContent = v.city + ', ' + v.state;
+      if (v.capacity) {
+        document.getElementById('qs-cap').textContent = String(v.capacity);
+        document.getElementById('badge-cap').textContent = v.capacity + ' cap';
+      }
+      if (v.price_per_day) {
+        document.getElementById('qs-price').textContent = String(v.price_per_day);
+        document.getElementById('sticky-price').textContent = String(v.price_per_day);
+      }
+      if (v.description) {
+        document.getElementById('venue-desc').innerHTML = escHtml(v.description).replace(/\n/g, '<br>');
+        document.getElementById('desc-section').style.display = '';
+        var tag = v.description.split('\n')[0];
+        if (tag && tag.length < 120) document.getElementById('venue-tagline').textContent = tag;
+      }
+      if (v.included_amenities && v.included_amenities.length) {
+        document.getElementById('amenities-section').style.display = '';
+        var html = '';
+        for (var i = 0; i < v.included_amenities.length; i++) {
+          html += '<span class="amenity">' + escHtml(v.included_amenities[i]) + '</span>';
+        }
+        document.getElementById('amenities-list').innerHTML = html;
+      }
+      if (v.house_rules && v.house_rules.length) {
+        document.getElementById('rules-section').style.display = '';
+        var rhtml = '';
+        for (var i = 0; i < v.house_rules.length; i++) {
+          rhtml += '<div class="rule"><span class="rule-bullet">&mdash;</span><span>' + escHtml(v.house_rules[i]) + '</span></div>';
+        }
+        document.getElementById('rules-list').innerHTML = rhtml;
+      }
+      if (v.gallery && v.gallery.length) {
+        document.getElementById('gallery-section').style.display = '';
+        var ghtml = '';
+        for (var i = 0; i < v.gallery.length; i++) {
+          ghtml += '<div class="gallery-item"><img src="' + escHtml(v.gallery[i]) + '" alt="' + escHtml(v.name) + ' photo ' + (i+1) + '" loading="lazy"/></div>';
+        }
+        document.getElementById('gallery-grid').innerHTML = ghtml;
+        // Use first gallery image as hero
+        if (v.gallery[0]) {
+          document.getElementById('hero-img').innerHTML =
+            '<img src="' + escHtml(v.gallery[0]) + '" alt="' + escHtml(v.name) + '"/>' +
+            document.getElementById('hero-img').innerHTML.replace(/<img[^>]*\/?>/, '');
+        }
+      }
+    })
+    .catch(function(e) { console.error('[v3] venue load failed', e); });
+
+  // Load booked dates
+  fetch(API_BASE + '/api/venues/' + VENUE_ID + '/bookings')
+    .then(function(r) { return r.json(); })
+    .then(function(list) {
+      if (Array.isArray(list)) {
+        bookedDates = list.filter(function(b) { return b.status === 'confirmed'; }).map(function(b) { return b.date; });
+        renderCal();
+      }
+    })
+    .catch(function() {});
+})();
+
+// Calendar
+var now = new Date();
+calYear = now.getFullYear();
+calMonth = now.getMonth();
+var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+var DOWS = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+
+function renderCal() {
+  document.getElementById('cal-month').textContent = MONTHS[calMonth] + ' ' + calYear;
+  var first = new Date(calYear, calMonth, 1);
+  var startDay = first.getDay();
+  var daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  var today = new Date();
+  today.setHours(0,0,0,0);
+  var todayStr = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+
+  var html = '';
+  for (var i = 0; i < 7; i++) html += '<div class="cal-dow">' + DOWS[i] + '</div>';
+  for (var i = 0; i < startDay; i++) html += '<div class="cal-day empty"></div>';
+  for (var d = 1; d <= daysInMonth; d++) {
+    var dateStr = calYear + '-' + String(calMonth+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+    var dateObj = new Date(calYear, calMonth, d);
+    var isPast = dateObj < today;
+    var isToday = dateStr === todayStr;
+    var isBooked = bookedDates.indexOf(dateStr) !== -1;
+    var isSelected = selectedDate === dateStr;
+    var cls = 'cal-day';
+    if (isPast) cls += ' past';
+    else if (isBooked) cls += ' booked';
+    else if (isSelected) cls += ' selected';
+    if (isToday) cls += ' today';
+    html += '<div class="' + cls + '" data-date="' + dateStr + '" onclick="selectDate(\'' + dateStr + '\')">' + d + '</div>';
+  }
+  document.getElementById('cal-grid').innerHTML = html;
+}
+renderCal();
+
+function calNav(dir) {
+  calMonth += dir;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  renderCal();
+}
+
+function selectDate(dateStr) {
+  var dateObj = new Date(dateStr + 'T00:00:00');
+  var today = new Date(); today.setHours(0,0,0,0);
+  if (dateObj < today) return;
+  if (bookedDates.indexOf(dateStr) !== -1) return;
+  selectedDate = dateStr;
+  renderCal();
+  var trigger = document.getElementById('inq-trigger');
+  trigger.disabled = false;
+  document.getElementById('inq-trigger-text').textContent = 'Inquire for ' + formatDate(dateStr);
+}
+
+function formatDate(ds) {
+  var parts = ds.split('-');
+  var d = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+  return MONTHS[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+}
+
+// Inquiry flow states: idle -> filling -> sending -> confirmed
+function openInquiry() {
+  if (!selectedDate) return;
+  document.getElementById('inq-trigger').style.display = 'none';
+  document.getElementById('inq-form').classList.add('active');
+  document.getElementById('inq-date-label').textContent = formatDate(selectedDate);
+  document.getElementById('inq-name').focus();
+}
+
+function submitInquiry() {
+  var name = document.getElementById('inq-name').value.trim();
+  var email = document.getElementById('inq-email').value.trim();
+  var phone = document.getElementById('inq-phone').value.trim();
+  var guests = document.getElementById('inq-guests').value;
+  var type = document.getElementById('inq-type').value;
+  var notes = document.getElementById('inq-notes').value.trim();
+  var hp = document.getElementById('inq-hp').value;
+  var errEl = document.getElementById('inq-err');
+  var btn = document.getElementById('inq-submit');
+  if (hp) return;
+  if (!name || !email) {
+    errEl.textContent = 'Name and email are required.';
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+
+  fetch(API_BASE + '/api/venues/' + VENUE_ID + '/inquiries', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      date: selectedDate,
+      name: name,
+      email: email,
+      phone: phone || null,
+      guest_count: guests ? parseInt(guests) : null,
+      event_type: type || null,
+      notes: notes || null
+    })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function() {
+    document.getElementById('inq-form').classList.remove('active');
+    document.getElementById('inq-form').style.display = 'none';
+    document.getElementById('inq-confirmed').classList.add('active');
+  })
+  .catch(function() {
+    errEl.textContent = 'Something went wrong. Try again or email hello@venueportal.us.';
+    errEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Send inquiry --';
+  });
+}
+
+// Scroll reveal
+(function() {
+  var els = document.querySelectorAll('.reveal');
+  if (!els.length) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    for (var i = 0; i < els.length; i++) els[i].classList.add('in');
+    return;
+  }
+  var obs = new IntersectionObserver(function(entries) {
+    for (var i = 0; i < entries.length; i++) {
+      if (entries[i].isIntersecting) {
+        entries[i].target.classList.add('in');
+        obs.unobserve(entries[i].target);
+      }
+    }
+  }, { threshold: 0.12 });
+  for (var i = 0; i < els.length; i++) obs.observe(els[i]);
+})();
+</script>
+
+</body>
+</html>

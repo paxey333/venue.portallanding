@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="theme-color" content="#000000"/>
+<meta name="color-scheme" content="dark"/>
+<title>Venue.Portal &mdash; Booking Infrastructure for Independent Venues</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 18'%3E%3Cpath d='M0 0L6 9L0 18H4L10 9L4 0H0Z' fill='%23ffffff'/%3E%3Cpath d='M9 0L15 9L9 18H13L19 9L13 0H9Z' fill='%23555555'/%3E%3Crect x='19.5' y='7' width='4' height='4' rx='1' fill='%23ffffff'/%3E%3C/svg%3E"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="preload" href="https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2" as="font" type="font/woff2" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#000000;--surface:#0a0a0a;--surface2:#141414;
+  --border:#1f1f1f;--border2:#2a2a2a;
+  --text:#ffffff;--text2:#a8a8a8;--text3:#666666;
+  --accent:#ff6b1a;--accent-soft:rgba(255,107,26,0.12);
+  --green:#3ddc84;--green-soft:rgba(61,220,132,0.12);
+  --font:'Inter',sans-serif;
+  --radius:6px;--radius-lg:10px;
+}
+html{background:var(--bg);color:var(--text);font-family:var(--font);-webkit-font-smoothing:antialiased;scroll-behavior:smooth}
+body{background:var(--bg);min-height:100vh;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:transparent;color:inherit}
+img,svg{display:block;max-width:100%}
+@media(max-width:640px){input:not([type=checkbox]):not([type=radio]),select,textarea{font-size:16px!important}}
+
+/* -- FILM GRAIN -- */
+.grain{position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.035;mix-blend-mode:overlay}
+.grain::after{content:'';position:absolute;inset:-50%;width:200%;height:200%;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-repeat:repeat;background-size:128px;animation:grainShift 0.5s steps(3) infinite}
+@keyframes grainShift{0%{transform:translate(0,0)}33%{transform:translate(-2px,1px)}66%{transform:translate(1px,-1px)}100%{transform:translate(0,0)}}
+@media(prefers-reduced-motion:reduce){.grain::after{animation:none}}
+
+/* -- NAV -- */
+.topnav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(0,0,0,0.6);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.04);transition:background .3s}
+.topnav-inner{max-width:1200px;margin:0 auto;padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:9px;font-weight:800;font-size:15px;letter-spacing:-.3px}
+.brand .dot{color:var(--accent)}
+.nav-links{display:flex;align-items:center;gap:28px;font-size:12px;font-weight:500;color:var(--text3);letter-spacing:.02em}
+.nav-links a{transition:color .2s}.nav-links a:hover{color:var(--text)}
+.nav-cta{background:var(--accent);color:#000;font-weight:700;font-size:12px;padding:8px 16px;border-radius:6px;transition:opacity .15s;letter-spacing:-.1px}
+.nav-cta:hover{opacity:.88}
+@media(max-width:760px){.nav-links{display:none}}
+
+/* -- HERO -- */
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;position:relative;padding:120px 24px 80px;overflow:hidden}
+.hero::before{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:min(800px,120vw);height:min(800px,120vw);border-radius:50%;background:radial-gradient(circle,rgba(255,107,26,0.06) 0%,transparent 55%);pointer-events:none}
+.hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:180px;background:linear-gradient(to top,var(--bg),transparent);pointer-events:none}
+.hero-inner{max-width:1200px;margin:0 auto;width:100%;position:relative;z-index:1}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--text3);margin-bottom:28px}
+.hero-eyebrow .live-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px rgba(255,107,26,0.6),0 0 4px rgba(255,107,26,0.3);animation:glow 2.4s ease-in-out infinite}
+@keyframes glow{0%,100%{box-shadow:0 0 12px rgba(255,107,26,0.6),0 0 4px rgba(255,107,26,0.3)}50%{box-shadow:0 0 20px rgba(255,107,26,0.8),0 0 8px rgba(255,107,26,0.5)}}
+.hero h1{font-size:clamp(42px,8vw,88px);font-weight:900;letter-spacing:clamp(-2px,-0.04em,-3.5px);line-height:.92;margin-bottom:24px}
+.hero h1 .accent{color:var(--accent)}
+.hero .sub{font-size:clamp(15px,1.8vw,19px);color:var(--text2);max-width:520px;line-height:1.6;margin-bottom:40px;font-weight:400}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap}
+.btn-hero{background:var(--accent);color:#000;font-weight:700;font-size:14px;padding:14px 28px;border-radius:8px;transition:all .2s;letter-spacing:-.1px;display:inline-flex;align-items:center;gap:8px}
+.btn-hero:hover{opacity:.88;transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:var(--text);border:1px solid var(--border2);font-weight:600;font-size:14px;padding:14px 28px;border-radius:8px;transition:all .2s;letter-spacing:-.1px}
+.btn-ghost:hover{border-color:var(--text3);transform:translateY(-1px)}
+@media(prefers-reduced-motion:reduce){.hero-eyebrow .live-dot{animation:none}.btn-hero:hover,.btn-ghost:hover{transform:none}}
+
+/* -- SECTION GRAMMAR -- */
+.section{padding:100px 24px;max-width:1200px;margin:0 auto}
+.section + .section{border-top:1px solid var(--border)}
+.eyebrow{font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--text3);margin-bottom:16px}
+.section-title{font-size:clamp(28px,5vw,48px);font-weight:900;letter-spacing:clamp(-1px,-0.03em,-2px);line-height:1;margin-bottom:20px;max-width:640px}
+.section-sub{font-size:15px;color:var(--text2);line-height:1.65;max-width:480px;margin-bottom:48px}
+
+/* -- NUMBERED FEATURES -- */
+.features{display:flex;flex-direction:column;gap:0}
+.feature{display:grid;grid-template-columns:1fr;gap:24px;padding:48px 0;border-bottom:1px solid var(--border)}
+.feature:last-child{border-bottom:none}
+@media(min-width:760px){.feature{grid-template-columns:80px 1fr 1fr;gap:40px;align-items:start}}
+.feature-num{font-size:48px;font-weight:900;color:var(--accent);letter-spacing:-2px;line-height:1;font-variant-numeric:tabular-nums;opacity:.7}
+@media(min-width:760px){.feature-num{font-size:56px;text-align:right;padding-top:4px}}
+.feature-title{font-size:22px;font-weight:800;letter-spacing:-.5px;line-height:1.15;margin-bottom:10px}
+.feature-body{font-size:14px;color:var(--text2);line-height:1.7}
+
+/* -- STAT BLOCKS -- */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:48px}
+@media(min-width:760px){.stats{grid-template-columns:repeat(4,1fr);gap:20px}}
+.stat-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px 20px;position:relative;overflow:hidden}
+.stat-block::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,107,26,0.2),transparent)}
+.stat-val{font-size:clamp(28px,4vw,36px);font-weight:900;letter-spacing:-1.5px;line-height:1;margin-bottom:6px;font-variant-numeric:tabular-nums}
+.stat-val .unit{font-size:.5em;color:var(--text2);font-weight:600;letter-spacing:0}
+.stat-label{font-size:11px;color:var(--text3);font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+
+/* -- COMPARISON TABLE -- */
+.compare{width:100%;border-collapse:collapse;margin-top:48px;font-size:13px}
+.compare th{text-align:left;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);padding:12px 16px;border-bottom:1px solid var(--border2)}
+.compare th:first-child{color:var(--text2)}
+.compare th.vp{color:var(--accent)}
+.compare td{padding:14px 16px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+.compare td:first-child{color:var(--text);font-weight:600;font-size:14px}
+.compare td.vp{color:var(--text);font-weight:600}
+.compare .check{color:var(--accent);font-weight:700}
+.compare .cross{color:var(--text3)}
+@media(max-width:640px){.compare{font-size:12px}.compare td,.compare th{padding:10px 10px}}
+
+/* -- TICKETING OPS -- */
+.tkt-grid{display:grid;grid-template-columns:1fr;gap:48px}
+@media(min-width:760px){.tkt-grid{grid-template-columns:1fr 1fr;gap:56px;align-items:start}}
+.tkt-price{font-size:clamp(48px,8vw,72px);font-weight:900;letter-spacing:-3px;line-height:1;color:var(--accent);margin-bottom:8px}
+.tkt-price-note{font-size:14px;color:var(--text2);margin-bottom:28px;line-height:1.5}
+.tkt-steps{display:flex;flex-direction:column;gap:20px}
+.tkt-step{display:flex;gap:16px;align-items:start}
+.tkt-step-num{width:32px;height:32px;border-radius:50%;background:var(--accent-soft);border:1px solid rgba(255,107,26,0.2);color:var(--accent);font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tkt-step-text{padding-top:5px}
+.tkt-step-title{font-size:14px;font-weight:700;margin-bottom:4px}
+.tkt-step-body{font-size:13px;color:var(--text2);line-height:1.55}
+.tkt-example{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--accent);font-weight:600;margin-top:24px;transition:opacity .15s}
+.tkt-example:hover{opacity:.8}
+
+/* -- FORM CARD -- */
+.form-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px 24px;position:relative;overflow:hidden}
+.form-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),transparent 80%)}
+.form-title{font-size:18px;font-weight:800;letter-spacing:-.3px;margin-bottom:20px}
+.form-field{margin-bottom:14px}
+.form-field label{display:block;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
+.form-field input{width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);font-size:14px;padding:12px 14px;border-radius:8px;outline:none;transition:border-color .2s;min-height:44px;font-family:var(--font)}
+.form-field input:focus{border-color:var(--accent)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-err{display:none;font-size:12px;color:#f87171;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:6px;padding:9px 12px;margin-bottom:10px}
+.form-success{font-size:14px;color:var(--green);font-weight:600;line-height:1.6}
+.btn-submit{width:100%;background:var(--accent);color:#000;font-weight:700;font-size:14px;padding:14px;border-radius:8px;transition:opacity .15s;letter-spacing:-.1px;min-height:48px;display:flex;align-items:center;justify-content:center;gap:6px;border:none;cursor:pointer}
+.btn-submit:hover{opacity:.88}
+.btn-submit:disabled{opacity:.55;cursor:not-allowed}
+
+/* -- CTA BAND -- */
+.cta-band{padding:100px 24px;position:relative;overflow:hidden;text-align:center}
+.cta-band::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:min(600px,100vw);height:min(600px,100vw);border-radius:50%;background:radial-gradient(circle,rgba(255,107,26,0.08) 0%,transparent 60%);pointer-events:none}
+.cta-band .section-title{margin-left:auto;margin-right:auto;text-align:center}
+.cta-band .section-sub{margin-left:auto;margin-right:auto;text-align:center}
+.cta-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
+/* -- FOOTER -- */
+footer{border-top:1px solid var(--border);padding:64px 0 calc(40px + env(safe-area-inset-bottom,0px))}
+.footer-inner{max-width:1200px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:1fr;gap:32px}
+@media(min-width:760px){.footer-inner{grid-template-columns:2fr 1fr 1fr;gap:48px}}
+.footer-tagline{font-size:13px;color:var(--text2);max-width:280px;line-height:1.55;margin-top:10px}
+.footer-col-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.12em;font-weight:600;margin-bottom:14px}
+.footer-links{display:flex;flex-direction:column;gap:9px;font-size:13px;color:var(--text2)}
+.footer-links a{transition:color .15s}.footer-links a:hover{color:var(--text)}
+.footer-bottom{max-width:1200px;margin:36px auto 0;padding:24px 24px 0;border-top:1px solid var(--border);font-size:11px;color:var(--text3);display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px}
+
+/* -- ENTRANCE -- */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
+.reveal.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+
+/* -- VENUE CAROUSEL -- */
+.venue-strip{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 24px 12px;scroll-padding-left:24px;margin-top:48px}
+.venue-strip::-webkit-scrollbar{display:none}
+.v-card{flex:0 0 82%;scroll-snap-align:start;background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:border-color .2s}
+.v-card:hover{border-color:var(--border2)}
+@media(min-width:640px){.v-card{flex:0 0 42%}}
+@media(min-width:1024px){.v-card{flex:0 0 calc(30% - 10px)}}
+.v-card-img{aspect-ratio:16/10;width:100%;position:relative;overflow:hidden;background:linear-gradient(135deg,#1a1a1a,#0a0a0a)}
+.v-card-img::after{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 60' fill='none'%3E%3Cpath d='M30 18L40 30L30 42H36L46 30L36 18H30Z' fill='%23ffffff' opacity='0.06'/%3E%3Cpath d='M40 18L50 30L40 42H46L56 30L46 18H40Z' fill='%23ffffff' opacity='0.03'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:center;background-size:100px}
+.v-card-body{padding:16px 18px 20px}
+.v-card-loc{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.v-card-loc .dot{width:5px;height:5px;border-radius:50%;background:var(--green)}
+.v-card-name{font-size:18px;font-weight:800;letter-spacing:-.4px;line-height:1.15}
+.v-card-meta{margin-top:10px;font-size:12px;color:var(--text2);display:flex;gap:14px}
+
+/* -- MOBILE BOTTOM NAV -- */
+.mob-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,0.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--border);z-index:90;padding-bottom:env(safe-area-inset-bottom,0)}
+.mob-nav-inner{display:flex;height:56px;max-width:480px;margin:0 auto}
+.mob-nav a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--text3);font-size:10px;font-weight:600;transition:color .15s;min-height:44px}
+.mob-nav a:hover{color:var(--text)}
+.mob-nav a.active{color:var(--accent)}
+.mob-nav svg{width:20px;height:20px}
+@media(min-width:760px){.mob-nav{display:none}}
+</style>
+</head>
+<body>
+
+<div class="grain" aria-hidden="true"></div>
+
+<!-- NAV -->
+<header class="topnav">
+<div class="topnav-inner">
+  <a href="/" class="brand">
+    <svg width="22" height="16" viewBox="0 0 24 18" fill="none"><path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#ffffff"/><path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#ffffff" opacity="0.4"/></svg>
+    <span>Venue<span class="dot">.</span>Portal</span>
+  </a>
+  <nav class="nav-links">
+    <a href="#venues">Venues</a>
+    <a href="#how">How it works</a>
+    <a href="#compare">Compare</a>
+    <a href="#ticketing">Ticketing</a>
+    <a href="/onboard.html">For Owners</a>
+  </nav>
+  <a href="/onboard.html" class="nav-cta">Get Started</a>
+</div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+<div class="hero-inner">
+  <div class="hero-eyebrow"><span class="live-dot"></span> Independent venues, live now</div>
+  <h1>The hour before<br>doors <span class="accent">open.</span></h1>
+  <p class="sub">Booking infrastructure for independent venues. Real calendars, flat fees, direct payouts. No middlemen. No commission.</p>
+  <div class="hero-actions">
+    <a href="#venues" class="btn-hero">Find a venue &rarr;</a>
+    <a href="/onboard.html" class="btn-ghost">List your venue</a>
+  </div>
+</div>
+</section>
+
+<!-- LIVE VENUES -->
+<section class="section reveal" id="venues">
+  <div class="eyebrow">Live on the platform</div>
+  <h2 class="section-title">Real venues. Real calendars.</h2>
+  <p class="section-sub">Independent rooms booking direct. No dead listings, no ghosting.</p>
+  <div class="venue-strip" id="venue-strip">
+    <!-- Populated by JS from /api/venues -->
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section reveal" id="how">
+  <div class="eyebrow">How it works</div>
+  <h2 class="section-title">Three steps from idea to booked.</h2>
+  <div class="features">
+    <div class="feature">
+      <div class="feature-num">01</div>
+      <div>
+        <div class="feature-title">Find your room</div>
+        <div class="feature-body">Browse independent venues with live availability. Every listing is a real venue with a real owner reviewing inquiries in real time.</div>
+      </div>
+      <div>
+        <div class="feature-body">No aggregator fluff. No dead pages. If a venue is listed, it is open and booking.</div>
+      </div>
+    </div>
+    <div class="feature">
+      <div class="feature-num">02</div>
+      <div>
+        <div class="feature-title">Send your inquiry</div>
+        <div class="feature-body">Pick a date from the live calendar. Share your event details. The venue owner sees it in their dashboard within seconds.</div>
+      </div>
+      <div>
+        <div class="feature-body">No middleman. No sales rep. The person who runs the room reads your inquiry.</div>
+      </div>
+    </div>
+    <div class="feature">
+      <div class="feature-num">03</div>
+      <div>
+        <div class="feature-title">Lock your date</div>
+        <div class="feature-body">Owner accepts. You secure your date with a deposit that goes straight to the venue. Confirmation email hits both sides instantly.</div>
+      </div>
+      <div>
+        <div class="feature-body">No platform hold. No payout delay. The venue has your deposit the moment you confirm.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="section reveal">
+  <div class="eyebrow">By the numbers</div>
+  <h2 class="section-title">Built for operators, not investors.</h2>
+  <div class="stats" id="stats-grid">
+    <div class="stat-block">
+      <div class="stat-val">$0</div>
+      <div class="stat-label">Commission taken</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-val" id="stat-venues">3</div>
+      <div class="stat-label">Live venues</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-val">48<span class="unit">hr</span></div>
+      <div class="stat-label">Onboarding time</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-val">100<span class="unit">%</span></div>
+      <div class="stat-label">Revenue to venue</div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARE -->
+<section class="section reveal" id="compare">
+  <div class="eyebrow">Why Venue.Portal</div>
+  <h2 class="section-title">How we compare.</h2>
+  <p class="section-sub">Most platforms take a cut. We charge a flat fee and get out of the way.</p>
+  <table class="compare">
+    <thead>
+      <tr>
+        <th></th>
+        <th class="vp">Venue.Portal</th>
+        <th>Legacy platforms</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Pricing</td>
+        <td class="vp">Flat fee per event</td>
+        <td>10&ndash;20% commission per booking</td>
+      </tr>
+      <tr>
+        <td>Payouts</td>
+        <td class="vp">Direct to venue, instant</td>
+        <td>Platform holds, 7&ndash;14 day release</td>
+      </tr>
+      <tr>
+        <td>Branding</td>
+        <td class="vp">Your venue, your identity</td>
+        <td>Platform branding, generic templates</td>
+      </tr>
+      <tr>
+        <td>Calendar</td>
+        <td class="vp">Live, owner-controlled</td>
+        <td>Synced, often stale</td>
+      </tr>
+      <tr>
+        <td>Inquiry response</td>
+        <td class="vp">Direct to owner dashboard</td>
+        <td>Through platform messaging</td>
+      </tr>
+      <tr>
+        <td>Data ownership</td>
+        <td class="vp"><span class="check">Yours</span></td>
+        <td><span class="cross">Platform&rsquo;s</span></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- TICKETING OPS -->
+<section class="section reveal" id="ticketing">
+  <div class="eyebrow">Ticketing ops</div>
+  <h2 class="section-title">Event pages &amp; ticket sales for independent venues.</h2>
+  <div class="tkt-grid">
+    <div>
+      <div class="tkt-price">$150</div>
+      <div class="tkt-price-note">Flat per event. No commission. No percentage of your door.</div>
+      <div class="tkt-steps">
+        <div class="tkt-step">
+          <div class="tkt-step-num">1</div>
+          <div class="tkt-step-text">
+            <div class="tkt-step-title">One 15-minute call</div>
+            <div class="tkt-step-body">We take your event details &mdash; lineup, date, venue, branding.</div>
+          </div>
+        </div>
+        <div class="tkt-step">
+          <div class="tkt-step-num">2</div>
+          <div class="tkt-step-text">
+            <div class="tkt-step-title">We build your page &amp; ticketing</div>
+            <div class="tkt-step-body">Custom event page with ticket sales, ready to share.</div>
+          </div>
+        </div>
+        <div class="tkt-step">
+          <div class="tkt-step-num">3</div>
+          <div class="tkt-step-text">
+            <div class="tkt-step-title">Live within 24 hours</div>
+            <div class="tkt-step-body">We send you the link. You share it. Tickets sell.</div>
+          </div>
+        </div>
+      </div>
+      <a href="https://venueportal.us/events/lackvill-blackedy-live-in-los-angeles" target="_blank" rel="noopener" class="tkt-example">See a live example &rarr;</a>
+    </div>
+    <div>
+      <div class="form-card" id="tkt-form-wrap">
+        <div class="form-title">Book your call</div>
+        <div class="form-err" id="tkt-err"></div>
+        <div class="form-field"><label>Name *</label><input id="tkt-name" type="text" placeholder="Your name"/></div>
+        <div class="form-field"><label>Venue / Org</label><input id="tkt-org" type="text" placeholder="Venue or organization name"/></div>
+        <div class="form-field"><label>Email *</label><input id="tkt-email" type="email" placeholder="you@example.com"/></div>
+        <div class="form-row">
+          <div class="form-field"><label>Phone</label><input id="tkt-phone" type="tel" placeholder="Optional"/></div>
+          <div class="form-field"><label>Event date</label><input id="tkt-date" type="date"/></div>
+        </div>
+        <input type="text" name="_hp" id="tkt-hp" style="display:none" tabindex="-1" autocomplete="off"/>
+        <button class="btn-submit" id="tkt-submit" onclick="submitTicketingInquiry()">Book your call &rarr;</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="cta-band reveal">
+  <div class="eyebrow">For venue owners</div>
+  <h2 class="section-title" style="max-width:600px">Run a venue?<br>Get your portal in 48 hours.</h2>
+  <p class="section-sub" style="max-width:440px">Live calendar, direct payouts, automated confirmations. No app to install. No commission.</p>
+  <div class="cta-actions">
+    <a href="/onboard.html" class="btn-hero">Get Onboarded &rarr;</a>
+    <a href="mailto:hello@venueportal.us" class="btn-ghost">Talk to us</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+<div class="footer-inner">
+  <div>
+    <a href="/" class="brand">
+      <svg width="22" height="16" viewBox="0 0 24 18" fill="none"><path d="M0 0L6 9L0 18H4L10 9L4 0H0Z" fill="#ffffff"/><path d="M9 0L15 9L9 18H13L19 9L13 0H9Z" fill="#ffffff" opacity="0.4"/></svg>
+      <span>Venue<span class="dot">.</span>Portal</span>
+    </a>
+    <p class="footer-tagline">Booking infrastructure for independent venues. Flat fees. Real calendars. No middlemen.</p>
+  </div>
+  <div>
+    <div class="footer-col-label">Browse</div>
+    <div class="footer-links">
+      <a href="#venues">All venues</a>
+      <a href="#how">How it works</a>
+      <a href="#ticketing">Ticketing</a>
+      <a href="/onboard.html">For owners</a>
+    </div>
+  </div>
+  <div>
+    <div class="footer-col-label">Company</div>
+    <div class="footer-links">
+      <a href="/onboard.html">Get onboarded</a>
+      <a href="/privacy.html">Privacy</a>
+      <a href="/terms.html">Terms</a>
+      <a href="mailto:hello@venueportal.us">Contact</a>
+    </div>
+  </div>
+</div>
+<div class="footer-bottom">
+  <span>Venue.Portal &copy; 2026 &middot; All rights reserved</span>
+  <span>Made for independent venues</span>
+</div>
+</footer>
+
+<!-- MOBILE NAV -->
+<nav class="mob-nav" aria-label="Mobile navigation">
+<div class="mob-nav-inner">
+  <a href="#venues" class="active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+    <span>Browse</span>
+  </a>
+  <a href="#how">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <span>How</span>
+  </a>
+  <a href="#ticketing">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a3 3 0 013-3h14a3 3 0 013 3v0a3 3 0 01-3 3v0a3 3 0 013 3v0a3 3 0 01-3 3H5a3 3 0 01-3-3v0a3 3 0 013-3v0a3 3 0 01-3-3z"/></svg>
+    <span>Ticketing</span>
+  </a>
+  <a href="/onboard.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+    <span>Owners</span>
+  </a>
+</div>
+</nav>
+
+<script>
+var API_BASE = 'https://api.venueportal.us';
+
+function escHtml(s) {
+  if (s == null) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Scroll reveal
+(function() {
+  var els = document.querySelectorAll('.reveal');
+  if (!els.length) return;
+  var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reducedMotion) { for (var i = 0; i < els.length; i++) els[i].classList.add('in'); return; }
+  var obs = new IntersectionObserver(function(entries) {
+    for (var i = 0; i < entries.length; i++) {
+      if (entries[i].isIntersecting) {
+        entries[i].target.classList.add('in');
+        obs.unobserve(entries[i].target);
+      }
+    }
+  }, { threshold: 0.12 });
+  for (var i = 0; i < els.length; i++) obs.observe(els[i]);
+})();
+
+// Venue carousel
+(function() {
+  var VIBES = ['ph-warm','ph-cool','ph-purple','ph-gold','ph-grey'];
+  var strip = document.getElementById('venue-strip');
+  if (!strip) return;
+  fetch(API_BASE + '/api/venues')
+    .then(function(r) { return r.json(); })
+    .then(function(list) {
+      if (!list || !list.length) return;
+      var statEl = document.getElementById('stat-venues');
+      if (statEl) statEl.textContent = String(list.length);
+      return Promise.allSettled(list.map(function(v) { return fetch(API_BASE + '/api/venues/' + v.id).then(function(r) { return r.json(); }); }))
+        .then(function(results) {
+          var venues = list.map(function(v, i) {
+            var r = results[i];
+            return (r.status === 'fulfilled' && r.value && !r.value.error) ? r.value : v;
+          });
+          var html = '';
+          for (var i = 0; i < venues.length; i++) {
+            var v = venues[i];
+            var heroUrl = (Array.isArray(v.gallery) && v.gallery[0]) ? v.gallery[0] : null;
+            var vibe = VIBES[i % VIBES.length];
+            var loc = v.city && v.state ? v.city + ', ' + v.state : '';
+            var imgInner = heroUrl ? '<img src="' + escHtml(heroUrl) + '" alt="' + escHtml(v.name) + '" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"/>' : '';
+            html += '<a class="v-card" href="/venue.html?id=' + encodeURIComponent(v.id) + '">' +
+              '<div class="v-card-img' + (heroUrl ? '' : ' ' + vibe) + '" style="position:relative">' + imgInner + '</div>' +
+              '<div class="v-card-body">' +
+              '<div class="v-card-loc"><span class="dot"></span>' + escHtml(loc || 'Live') + '</div>' +
+              '<div class="v-card-name">' + escHtml(v.name) + '</div>' +
+              (v.capacity ? '<div class="v-card-meta"><span>' + escHtml(v.capacity) + ' cap</span>' + (v.price_per_day ? '<span>From $' + escHtml(v.price_per_day) + '/day</span>' : '') + '</div>' : '') +
+              '</div></a>';
+          }
+          strip.innerHTML = html;
+        });
+    })
+    .catch(function(e) { console.error('[v3] venue load failed', e); });
+})();
+
+// Ticketing form
+function submitTicketingInquiry() {
+  var name = document.getElementById('tkt-name').value.trim();
+  var email = document.getElementById('tkt-email').value.trim();
+  var org = document.getElementById('tkt-org').value.trim();
+  var phone = document.getElementById('tkt-phone').value.trim();
+  var date = document.getElementById('tkt-date').value;
+  var hp = document.getElementById('tkt-hp').value;
+  var errEl = document.getElementById('tkt-err');
+  var btn = document.getElementById('tkt-submit');
+  if (hp) return;
+  if (!name || !email) {
+    errEl.textContent = 'Name and email are required.';
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+  fetch(API_BASE + '/api/ticketing-inquiry', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: name, email: email, org: org, phone: phone, event_date: date })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function() {
+    document.getElementById('tkt-form-wrap').innerHTML = '<div class="form-success">Got it. We will be in touch within 24 hours to schedule your call.</div>';
+  })
+  .catch(function() {
+    errEl.textContent = 'Something went wrong. Try again or email hello@venueportal.us.';
+    errEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Book your call --';
+  });
+}
+</script>
+
+</body>
+</html>
