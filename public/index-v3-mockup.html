@@ -48,9 +48,10 @@ img,svg{display:block;max-width:100%}
 
 /* -- HERO -- */
 .hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;position:relative;padding:120px 24px 80px;overflow:hidden}
-.hero::before{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:min(800px,120vw);height:min(800px,120vw);border-radius:50%;background:radial-gradient(circle,rgba(255,107,26,0.06) 0%,transparent 55%);pointer-events:none}
-.hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:180px;background:linear-gradient(to top,var(--bg),transparent);pointer-events:none}
-.hero-inner{max-width:1200px;margin:0 auto;width:100%;position:relative;z-index:1}
+.hero-bg{position:absolute;inset:0;z-index:0;will-change:transform;background:linear-gradient(160deg,#0d0805 0%,#1a0d05 30%,#0a0808 60%,#000000 100%);background-size:cover;background-position:center}
+.hero-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(0,0,0,0.7) 0%,rgba(0,0,0,0.4) 40%,rgba(0,0,0,0.8) 80%,var(--bg) 100%);pointer-events:none}
+.hero::before{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:min(800px,120vw);height:min(800px,120vw);border-radius:50%;background:radial-gradient(circle,rgba(255,107,26,0.06) 0%,transparent 55%);pointer-events:none;z-index:2}
+.hero-inner{max-width:1200px;margin:0 auto;width:100%;position:relative;z-index:3}
 .hero-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--text3);margin-bottom:28px}
 .hero-eyebrow .live-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px rgba(255,107,26,0.6),0 0 4px rgba(255,107,26,0.3);animation:glow 2.4s ease-in-out infinite}
 @keyframes glow{0%,100%{box-shadow:0 0 12px rgba(255,107,26,0.6),0 0 4px rgba(255,107,26,0.3)}50%{box-shadow:0 0 20px rgba(255,107,26,0.8),0 0 8px rgba(255,107,26,0.5)}}
@@ -138,17 +139,26 @@ img,svg{display:block;max-width:100%}
 .cta-band .section-sub{margin-left:auto;margin-right:auto;text-align:center}
 .cta-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
 
-/* -- FOOTER -- */
-footer{border-top:1px solid var(--border);padding:64px 0 calc(40px + env(safe-area-inset-bottom,0px))}
-.footer-inner{max-width:1200px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:1fr;gap:32px}
+/* -- CURTAIN FOOTER -- */
+.page-content{position:relative;z-index:2;background:var(--bg)}
+.curtain-spacer{height:400px;position:relative;z-index:1}
+@media(max-width:760px){.curtain-spacer{height:480px}}
+footer{position:fixed;bottom:0;left:0;right:0;z-index:0;background:var(--bg);overflow:hidden}
+footer .footer-bg-text{position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:clamp(80px,14vw,160px);font-weight:900;letter-spacing:clamp(-4px,-0.04em,-8px);color:transparent;-webkit-text-stroke:1px rgba(255,255,255,0.04);pointer-events:none;user-select:none;line-height:1}
+footer .footer-grain{position:absolute;inset:0;pointer-events:none;opacity:.02;mix-blend-mode:overlay}
+footer .footer-grain::after{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-repeat:repeat;background-size:128px}
+.footer-inner{max-width:1200px;margin:0 auto;padding:64px 24px 0;display:grid;grid-template-columns:1fr;gap:32px;position:relative;z-index:1}
 @media(min-width:760px){.footer-inner{grid-template-columns:2fr 1fr 1fr;gap:48px}}
 .footer-tagline{font-size:13px;color:var(--text2);max-width:280px;line-height:1.55;margin-top:10px}
 .footer-col-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.12em;font-weight:600;margin-bottom:14px}
 .footer-links{display:flex;flex-direction:column;gap:9px;font-size:13px;color:var(--text2)}
 .footer-links a{transition:color .15s}.footer-links a:hover{color:var(--text)}
-.footer-bottom{max-width:1200px;margin:36px auto 0;padding:24px 24px 0;border-top:1px solid var(--border);font-size:11px;color:var(--text3);display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px}
+.footer-pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.footer-pill{font-size:11px;font-weight:600;color:var(--text3);background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:20px;padding:6px 14px;transition:all .25s;cursor:default}
+.footer-pill:hover{border-color:var(--accent);color:var(--accent);box-shadow:0 0 12px rgba(255,107,26,0.15)}
+.footer-bottom{max-width:1200px;margin:36px auto 0;padding:24px 24px calc(24px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--border);font-size:11px;color:var(--text3);display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;position:relative;z-index:1}
 
-/* -- ENTRANCE -- */
+/* -- ENTRANCE (CSS fallback, GSAP overrides when loaded) -- */
 .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
 .reveal.in{opacity:1;transform:none}
 @media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
@@ -182,6 +192,9 @@ footer{border-top:1px solid var(--border);padding:64px 0 calc(40px + env(safe-ar
 
 <div class="grain" aria-hidden="true"></div>
 
+<!-- PAGE CONTENT (z-index above fixed footer for curtain effect) -->
+<div class="page-content">
+
 <!-- NAV -->
 <header class="topnav">
 <div class="topnav-inner">
@@ -202,13 +215,15 @@ footer{border-top:1px solid var(--border);padding:64px 0 calc(40px + env(safe-ar
 
 <!-- HERO -->
 <section class="hero">
+<div class="hero-bg" id="hero-bg"></div>
+<div class="hero-overlay"></div>
 <div class="hero-inner">
   <div class="hero-eyebrow"><span class="live-dot"></span> Independent venues, live now</div>
   <h1>The hour before<br>doors <span class="accent">open.</span></h1>
   <p class="sub">Booking infrastructure for independent venues. Real calendars, flat fees, direct payouts. No middlemen. No commission.</p>
   <div class="hero-actions">
-    <a href="#venues" class="btn-hero">Find a venue &rarr;</a>
-    <a href="/onboard.html" class="btn-ghost">List your venue</a>
+    <a href="#venues" class="btn-hero magnetic">Find a venue &rarr;</a>
+    <a href="/onboard.html" class="btn-ghost magnetic">List your venue</a>
   </div>
 </div>
 </section>
@@ -218,9 +233,7 @@ footer{border-top:1px solid var(--border);padding:64px 0 calc(40px + env(safe-ar
   <div class="eyebrow">Live on the platform</div>
   <h2 class="section-title">Real venues. Real calendars.</h2>
   <p class="section-sub">Independent rooms booking direct. No dead listings, no ghosting.</p>
-  <div class="venue-strip" id="venue-strip">
-    <!-- Populated by JS from /api/venues -->
-  </div>
+  <div class="venue-strip" id="venue-strip"></div>
 </section>
 
 <!-- HOW IT WORKS -->
@@ -390,13 +403,20 @@ footer{border-top:1px solid var(--border);padding:64px 0 calc(40px + env(safe-ar
   <h2 class="section-title" style="max-width:600px">Run a venue?<br>Get your portal in 48 hours.</h2>
   <p class="section-sub" style="max-width:440px">Live calendar, direct payouts, automated confirmations. No app to install. No commission.</p>
   <div class="cta-actions">
-    <a href="/onboard.html" class="btn-hero">Get Onboarded &rarr;</a>
-    <a href="mailto:hello@venueportal.us" class="btn-ghost">Talk to us</a>
+    <a href="/onboard.html" class="btn-hero magnetic">Get Onboarded &rarr;</a>
+    <a href="mailto:hello@venueportal.us" class="btn-ghost magnetic">Talk to us</a>
   </div>
 </section>
 
-<!-- FOOTER -->
+</div><!-- /.page-content -->
+
+<!-- CURTAIN SPACER (reveals the fixed footer beneath) -->
+<div class="curtain-spacer"></div>
+
+<!-- FOOTER (fixed underneath, revealed by curtain) -->
 <footer>
+<div class="footer-grain" aria-hidden="true"></div>
+<div class="footer-bg-text" aria-hidden="true">VENUE PORTAL</div>
 <div class="footer-inner">
   <div>
     <a href="/" class="brand">
@@ -404,6 +424,12 @@ footer{border-top:1px solid var(--border);padding:64px 0 calc(40px + env(safe-ar
       <span>Venue<span class="dot">.</span>Portal</span>
     </a>
     <p class="footer-tagline">Booking infrastructure for independent venues. Flat fees. Real calendars. No middlemen.</p>
+    <div class="footer-pills">
+      <span class="footer-pill">No commission</span>
+      <span class="footer-pill">Direct payouts</span>
+      <span class="footer-pill">Live calendars</span>
+      <span class="footer-pill">48hr onboarding</span>
+    </div>
   </div>
   <div>
     <div class="footer-col-label">Browse</div>
@@ -452,6 +478,7 @@ footer{border-top:1px solid var(--border);padding:64px 0 calc(40px + env(safe-ar
 </div>
 </nav>
 
+<!-- APP JS (runs before GSAP, page is fully usable without it) -->
 <script>
 var API_BASE = 'https://api.venueportal.us';
 
@@ -460,7 +487,7 @@ function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// Scroll reveal
+// CSS-only scroll reveal fallback (replaced by GSAP when loaded)
 (function() {
   var els = document.querySelectorAll('.reveal');
   if (!els.length) return;
@@ -550,6 +577,161 @@ function submitTicketingInquiry() {
     btn.textContent = 'Book your call --';
   });
 }
+</script>
+
+<!-- GSAP (deferred, enhancement only) -->
+<script>
+(function() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  function loadScript(src, cb) {
+    var s = document.createElement('script');
+    s.src = src;
+    s.onload = cb;
+    s.onerror = function() { console.warn('[v3] GSAP load failed, motion disabled'); };
+    document.body.appendChild(s);
+  }
+
+  loadScript('https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js', function() {
+    loadScript('https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js', function() {
+      initMotion();
+    });
+  });
+
+  function initMotion() {
+    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+    gsap.registerPlugin(ScrollTrigger);
+
+    // 1. HERO PARALLAX
+    var heroBg = document.getElementById('hero-bg');
+    if (heroBg) {
+      gsap.to(heroBg, {
+        y: function() { return window.innerHeight * 0.4; },
+        scale: 1.06,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '.hero',
+          start: 'top top',
+          end: 'bottom top',
+          scrub: true
+        }
+      });
+    }
+
+    // 2. SECTION REVEALS (replace CSS fallback)
+    var reveals = document.querySelectorAll('.reveal');
+    for (var i = 0; i < reveals.length; i++) {
+      var el = reveals[i];
+      // Skip already-revealed elements
+      if (el.classList.contains('in')) continue;
+      // Remove CSS transition so GSAP controls it
+      el.style.transition = 'none';
+
+      // Find stagger children: eyebrow, title, sub, then the rest
+      var children = [];
+      var eyebrow = el.querySelector('.eyebrow');
+      var title = el.querySelector('.section-title');
+      var sub = el.querySelector('.section-sub');
+      if (eyebrow) children.push(eyebrow);
+      if (title) children.push(title);
+      if (sub) children.push(sub);
+
+      if (children.length > 0) {
+        // Stagger the children
+        gsap.set(children, { opacity: 0, y: 40 });
+        gsap.set(el, { opacity: 1, transform: 'none' });
+
+        (function(section, kids) {
+          ScrollTrigger.create({
+            trigger: section,
+            start: 'top 85%',
+            once: true,
+            onEnter: function() {
+              gsap.to(kids, {
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                stagger: 0.12,
+                ease: 'power3.out'
+              });
+              // Fade in remaining content
+              var remaining = section.querySelectorAll('.features, .stats, .compare, .tkt-grid, .venue-strip, .cta-actions, table');
+              if (remaining.length) {
+                gsap.fromTo(remaining, { opacity: 0, y: 30 }, {
+                  opacity: 1, y: 0, duration: 0.7, delay: 0.3, ease: 'power3.out'
+                });
+              }
+            }
+          });
+        })(el, children);
+      } else {
+        // Simple reveal for sections without eyebrow/title
+        (function(section) {
+          ScrollTrigger.create({
+            trigger: section,
+            start: 'top 85%',
+            once: true,
+            onEnter: function() {
+              gsap.to(section, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' });
+            }
+          });
+        })(el);
+      }
+    }
+
+    // 3. STAT BLOCKS stagger
+    var statBlocks = document.querySelectorAll('.stat-block');
+    if (statBlocks.length) {
+      gsap.set(statBlocks, { opacity: 0, y: 30 });
+      ScrollTrigger.create({
+        trigger: '#stats-grid',
+        start: 'top 85%',
+        once: true,
+        onEnter: function() {
+          gsap.to(statBlocks, {
+            opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: 'power3.out'
+          });
+        }
+      });
+    }
+
+    // 4. FEATURE rows stagger
+    var features = document.querySelectorAll('.feature');
+    for (var f = 0; f < features.length; f++) {
+      gsap.set(features[f], { opacity: 0, y: 30 });
+      (function(feat, idx) {
+        ScrollTrigger.create({
+          trigger: feat,
+          start: 'top 88%',
+          once: true,
+          onEnter: function() {
+            gsap.to(feat, { opacity: 1, y: 0, duration: 0.7, delay: idx * 0.05, ease: 'power3.out' });
+          }
+        });
+      })(features[f], f);
+    }
+
+    // 5. MAGNETIC CTAs (desktop pointer-fine only)
+    if (window.matchMedia('(pointer: fine)').matches) {
+      var magnetics = document.querySelectorAll('.magnetic');
+      for (var m = 0; m < magnetics.length; m++) {
+        (function(el) {
+          el.addEventListener('mousemove', function(e) {
+            var rect = el.getBoundingClientRect();
+            var x = e.clientX - rect.left - rect.width / 2;
+            var y = e.clientY - rect.top - rect.height / 2;
+            gsap.to(el, { x: x * 0.3, y: y * 0.3, duration: 0.4, ease: 'power2.out' });
+          });
+          el.addEventListener('mouseleave', function() {
+            gsap.to(el, { x: 0, y: 0, duration: 0.6, ease: 'elastic.out(1, 0.4)' });
+          });
+        })(magnetics[m]);
+      }
+    }
+
+    ScrollTrigger.refresh();
+  }
+})();
 </script>
 
 </body>
