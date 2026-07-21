@@ -11,6 +11,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link rel="preload" href="https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2" as="font" type="font/woff2" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link rel="preload" as="image" type="image/webp" href="/images/city-hero-1376.webp" media="(min-width:769px)"/>
+<link rel="preload" as="image" type="image/webp" href="/images/city-hero-828.webp" media="(max-width:768px)"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -48,10 +50,11 @@ img,svg{display:block;max-width:100%}
 
 /* -- HERO -- */
 .hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;position:relative;padding:120px 24px 80px;overflow:hidden}
-.hero-bg{position:absolute;inset:0;z-index:0;will-change:transform;background:linear-gradient(160deg,#0d0805 0%,#1a0d05 30%,#0a0808 60%,#000000 100%);background-size:cover;background-position:center}
-.hero-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(0,0,0,0.7) 0%,rgba(0,0,0,0.4) 40%,rgba(0,0,0,0.8) 80%,var(--bg) 100%);pointer-events:none}
-.hero::before{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:min(800px,120vw);height:min(800px,120vw);border-radius:50%;background:radial-gradient(circle,rgba(255,107,26,0.06) 0%,transparent 55%);pointer-events:none;z-index:2}
-.hero-inner{max-width:1200px;margin:0 auto;width:100%;position:relative;z-index:3}
+.hero-bg{position:absolute;inset:-10% 0;z-index:0;will-change:transform;background-image:url("data:image/webp;base64,UklGRlAAAABXRUJQVlA4IEQAAAAQBACdASocAA8APu1mqk2ppaQiMAgBMB2JZQC+SB6RR/hS0dJ7iF1YAAD+9DLbafmr3tPjFbSZx4cyB8aP459GhIbAAA==");background-size:cover;background-position:center bottom;background-repeat:no-repeat}
+.hero-tint{position:absolute;inset:-10% 0;z-index:1;background:var(--accent);opacity:.07;mix-blend-mode:overlay;pointer-events:none}
+.hero-overlay{position:absolute;inset:0;z-index:2;background:linear-gradient(180deg,rgba(0,0,0,0.7) 0%,rgba(0,0,0,0.4) 40%,rgba(0,0,0,0.8) 80%,var(--bg) 100%);pointer-events:none}
+.hero::before{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:min(800px,120vw);height:min(800px,120vw);border-radius:50%;background:radial-gradient(circle,rgba(255,107,26,0.06) 0%,transparent 55%);pointer-events:none;z-index:3}
+.hero-inner{max-width:1200px;margin:0 auto;width:100%;position:relative;z-index:4}
 .hero-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--text3);margin-bottom:28px}
 .hero-eyebrow .live-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px rgba(255,107,26,0.6),0 0 4px rgba(255,107,26,0.3);animation:glow 2.4s ease-in-out infinite}
 @keyframes glow{0%,100%{box-shadow:0 0 12px rgba(255,107,26,0.6),0 0 4px rgba(255,107,26,0.3)}50%{box-shadow:0 0 20px rgba(255,107,26,0.8),0 0 8px rgba(255,107,26,0.5)}}
@@ -216,6 +219,7 @@ footer .footer-grain::after{content:'';position:absolute;inset:0;background-imag
 <!-- HERO -->
 <section class="hero">
 <div class="hero-bg" id="hero-bg"></div>
+<div class="hero-tint"></div>
 <div class="hero-overlay"></div>
 <div class="hero-inner">
   <div class="hero-eyebrow"><span class="live-dot"></span> Independent venues, live now</div>
@@ -486,6 +490,18 @@ function escHtml(s) {
   if (s == null) return '';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+
+// Hero image: responsive swap (828w mobile, 1376w desktop) over LQIP
+(function() {
+  var bg = document.getElementById('hero-bg');
+  if (!bg) return;
+  var src = window.matchMedia('(max-width:768px)').matches
+    ? '/images/city-hero-828.webp'
+    : '/images/city-hero-1376.webp';
+  var img = new Image();
+  img.onload = function() { bg.style.backgroundImage = 'url("' + src + '")'; };
+  img.src = src;
+})();
 
 // CSS-only scroll reveal fallback (replaced by GSAP when loaded)
 (function() {
