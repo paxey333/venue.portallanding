@@ -61,7 +61,7 @@ img,svg{display:block;max-width:100%}
  */
 
 /* -- PINNED CITY BACKDROP (z0) -- */
-.city-backdrop{position:fixed;inset:-5%;z-index:0;will-change:transform;transform:translateZ(0) scale(1);background-image:url("data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAAAQBACdASocAA8APu1krU6ppaSiMAgBMB2JYwC06B6RSFZOXirhWzbloAD+9DKgNEEcD46dnYeI2qJq5oZrQ9cNdNRpMkJuLIAAAA==");background-size:cover;background-position:center bottom;background-repeat:no-repeat;transition:opacity .3s ease}
+.city-backdrop{position:fixed;top:-30%;left:-5%;width:110%;height:160%;z-index:0;will-change:transform;transform:translateZ(0);background-image:url("data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAAAQBACdASocAA8APu1krU6ppaSiMAgBMB2JYwC06B6RSFZOXirhWzbloAD+9DKgNEEcD46dnYeI2qJq5oZrQ9cNdNRpMkJuLIAAAA==");background-size:cover;background-position:center bottom;background-repeat:no-repeat}
 .city-scrim{position:fixed;inset:0;z-index:0;background:rgba(0,0,0,0.35);pointer-events:none;transform:translateZ(0)}
 .city-glow{position:fixed;z-index:0;left:15%;top:35%;width:500px;height:400px;border-radius:50%;background:radial-gradient(ellipse,rgba(255,107,26,0.2) 0%,transparent 70%);pointer-events:none;filter:blur(60px);animation:glowBreathe 9s ease-in-out infinite;transform:translateZ(0)}
 @keyframes glowBreathe{0%,100%{opacity:.15}50%{opacity:.25}}
@@ -87,7 +87,7 @@ img,svg{display:block;max-width:100%}
 
 /* -- SECTION GRAMMAR -- */
 .section-wrap{background:var(--bg);position:relative}
-.section-gap{height:clamp(60px,8vh,100px);background:transparent;position:relative}
+.section-gap{height:clamp(220px,30vh,320px);background:transparent;position:relative}
 .section-gap::before,.section-gap::after{content:'';position:absolute;left:0;right:0;height:40px;pointer-events:none}
 .section-gap::before{top:0;background:linear-gradient(180deg,var(--bg),transparent)}
 .section-gap::after{bottom:0;background:linear-gradient(0deg,var(--bg),transparent)}
@@ -656,17 +656,18 @@ function submitTicketingInquiry() {
     if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
     gsap.registerPlugin(ScrollTrigger);
 
-    // 1. AMBIENT DRIFT (Ken Burns on pinned city, not scroll-linked)
+    // 1. PARALLAX SCROLL (city moves at 0.35x content speed = depth)
     var cityBg = document.getElementById('city-backdrop');
     if (cityBg) {
       gsap.to(cityBg, {
-        scale: 1.07,
-        xPercent: -1.5,
-        yPercent: -1,
-        duration: 45,
-        ease: 'sine.inOut',
-        repeat: -1,
-        yoyo: true
+        yPercent: 25,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: document.body,
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: true
+        }
       });
     }
 
