@@ -50,9 +50,8 @@ img,svg{display:block;max-width:100%}
 
 /*
  * STACKING ORDER (explicit, do not drift):
- *   z0  .city-backdrop  -- pinned photo (position:fixed)
+ *   z0  .city-backdrop  -- pinned photo (position:fixed, inset:-5% for drift bleed)
  *   z0  .city-scrim     -- fixed dim layer ~35% black, unifies brightness
- *   z0  .city-tint      -- fixed orange overlay blend
  *   z0  .city-glow      -- fixed radial accent glow with breathe
  *   z1  .curtain-clip   -- clip-path wrapper, footer ONLY visible here
  *   z2  .page-content   -- all scrolling content (hero + section wraps)
@@ -62,9 +61,8 @@ img,svg{display:block;max-width:100%}
  */
 
 /* -- PINNED CITY BACKDROP (z0) -- */
-.city-backdrop{position:fixed;inset:-5%;z-index:0;width:110%;height:110%;will-change:transform;transform:translateZ(0);background-image:url("data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAAAQBACdASocAA8APu1krU6ppaSiMAgBMB2JYwC06B6RSFZOXirhWzbloAD+9DKgNEEcD46dnYeI2qJq5oZrQ9cNdNRpMkJuLIAAAA==");background-size:cover;background-position:center bottom;background-repeat:no-repeat;transition:background-image .3s ease}
+.city-backdrop{position:fixed;inset:-5%;z-index:0;will-change:transform;transform:translateZ(0) scale(1);background-image:url("data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAAAQBACdASocAA8APu1krU6ppaSiMAgBMB2JYwC06B6RSFZOXirhWzbloAD+9DKgNEEcD46dnYeI2qJq5oZrQ9cNdNRpMkJuLIAAAA==");background-size:cover;background-position:center bottom;background-repeat:no-repeat;transition:opacity .3s ease}
 .city-scrim{position:fixed;inset:0;z-index:0;background:rgba(0,0,0,0.35);pointer-events:none;transform:translateZ(0)}
-.city-tint{position:fixed;inset:0;z-index:0;background:var(--accent);opacity:.07;mix-blend-mode:overlay;pointer-events:none;transform:translateZ(0)}
 .city-glow{position:fixed;z-index:0;left:15%;top:35%;width:500px;height:400px;border-radius:50%;background:radial-gradient(ellipse,rgba(255,107,26,0.2) 0%,transparent 70%);pointer-events:none;filter:blur(60px);animation:glowBreathe 9s ease-in-out infinite;transform:translateZ(0)}
 @keyframes glowBreathe{0%,100%{opacity:.15}50%{opacity:.25}}
 @media(prefers-reduced-motion:reduce){.city-glow{animation:none;opacity:.2}}
@@ -219,7 +217,6 @@ footer .footer-grain::after{content:'';position:absolute;inset:0;background-imag
 
 <div class="city-backdrop" id="city-backdrop"></div>
 <div class="city-scrim"></div>
-<div class="city-tint"></div>
 <div class="city-glow" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
 
@@ -528,7 +525,7 @@ function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// City backdrop: responsive swap (828w <=768px, 1376w >768px) over LQIP
+// City backdrop: preload sharp WebP, swap over LQIP on load
 (function() {
   var bg = document.getElementById('city-backdrop');
   if (!bg) return;
@@ -536,9 +533,10 @@ function escHtml(s) {
   var src = isMobile ? '/images/city-hero-828-v2.webp' : '/images/city-hero-1376-v2.webp';
   var img = new Image();
   img.onload = function() {
-    bg.style.opacity = '0';
     bg.style.backgroundImage = 'url("' + src + '")';
-    setTimeout(function() { bg.style.opacity = '1'; }, 30);
+  };
+  img.onerror = function() {
+    console.error('[v3] city backdrop failed to load: ' + src);
   };
   img.src = src;
 })();
