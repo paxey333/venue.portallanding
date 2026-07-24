@@ -50,7 +50,7 @@ img,svg{display:block;max-width:100%}
 
 /*
  * STACKING ORDER (explicit, do not drift):
- *   z0  .city-backdrop  -- pinned photo (position:fixed, inset:-5% for drift bleed)
+ *   z0  .city-backdrop  -- absolute full-page photo, GSAP parallax at 0.35x
  *   z0  .city-scrim     -- fixed dim layer ~35% black, unifies brightness
  *   z0  .city-glow      -- fixed radial accent glow with breathe
  *   z1  .curtain-clip   -- clip-path wrapper, footer ONLY visible here
@@ -60,8 +60,8 @@ img,svg{display:block;max-width:100%}
  *   z9999 .grain         -- film grain overlay
  */
 
-/* -- PINNED CITY BACKDROP (z0) -- */
-.city-backdrop{position:fixed;top:-30%;left:-5%;width:110%;height:160%;z-index:0;will-change:transform;transform:translateZ(0);background-image:url("data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAAAQBACdASocAA8APu1krU6ppaSiMAgBMB2JYwC06B6RSFZOXirhWzbloAD+9DKgNEEcD46dnYeI2qJq5oZrQ9cNdNRpMkJuLIAAAA==");background-size:cover;background-position:center bottom;background-repeat:no-repeat}
+/* -- CITY BACKDROP (absolute, full-page parallax layer at z0) -- */
+.city-backdrop{position:absolute;top:0;left:0;width:100%;z-index:0;will-change:transform;transform:translateZ(0);background-image:url("data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAAAQBACdASocAA8APu1krU6ppaSiMAgBMB2JYwC06B6RSFZOXirhWzbloAD+9DKgNEEcD46dnYeI2qJq5oZrQ9cNdNRpMkJuLIAAAA==");background-size:cover;background-position:center top;background-repeat:no-repeat;pointer-events:none}
 .city-scrim{position:fixed;inset:0;z-index:0;background:rgba(0,0,0,0.35);pointer-events:none;transform:translateZ(0)}
 .city-glow{position:fixed;z-index:0;left:15%;top:35%;width:500px;height:400px;border-radius:50%;background:radial-gradient(ellipse,rgba(255,107,26,0.2) 0%,transparent 70%);pointer-events:none;filter:blur(60px);animation:glowBreathe 9s ease-in-out infinite;transform:translateZ(0)}
 @keyframes glowBreathe{0%,100%{opacity:.15}50%{opacity:.25}}
@@ -656,11 +656,20 @@ function submitTicketingInquiry() {
     if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
     gsap.registerPlugin(ScrollTrigger);
 
-    // 1. PARALLAX SCROLL (city moves at 0.35x content speed = depth)
+    // 1. PARALLAX SCROLL (city moves at 0.35x, absolute layer)
     var cityBg = document.getElementById('city-backdrop');
     if (cityBg) {
+      var docH = document.documentElement.scrollHeight;
+      var vpH = window.innerHeight;
+      var maxScroll = docH - vpH;
+      // At 0.35x speed, backdrop travels 0.35 * maxScroll while content travels maxScroll.
+      // Backdrop needs height = vpH + 0.35 * maxScroll so it covers viewport at max scroll.
+      var layerH = vpH + maxScroll * 0.35;
+      cityBg.style.height = Math.ceil(layerH) + 'px';
+      // Translate UP so it moves slower: content at 1x, backdrop at 0.35x
+      // means backdrop must be offset by -0.65 * scroll at any point
       gsap.to(cityBg, {
-        yPercent: 25,
+        y: function() { return -(maxScroll * 0.65); },
         ease: 'none',
         scrollTrigger: {
           trigger: document.body,
