@@ -65,7 +65,7 @@ img,svg{display:block;max-width:100%}
 
 /* -- HERO -- */
 .hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;position:relative;padding:120px 24px 80px;overflow:hidden;background:#000}
-.hero-bg{position:absolute;inset:0;z-index:0;background-image:url("data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAAAQBACdASocAA8APu1krU6ppaSiMAgBMB2JYwC06B6RSFZOXirhWzbloAD+9DKgNEEcD46dnYeI2qJq5oZrQ9cNdNRpMkJuLIAAAA==");background-size:cover;background-position:center;background-repeat:no-repeat}
+.hero-bg{position:absolute;top:-15%;left:0;right:0;height:130%;z-index:0;will-change:transform;transform:translateZ(0);background-image:url("data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAAAQBACdASocAA8APu1krU6ppaSiMAgBMB2JYwC06B6RSFZOXirhWzbloAD+9DKgNEEcD46dnYeI2qJq5oZrQ9cNdNRpMkJuLIAAAA==");background-size:cover;background-position:center;background-repeat:no-repeat}
 .hero-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(0,0,0,0.45) 0%,rgba(0,0,0,0.15) 40%,rgba(0,0,0,0.7) 100%);pointer-events:none}
 .hero::before{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:min(800px,120vw);height:min(800px,120vw);border-radius:50%;background:radial-gradient(circle,rgba(255,107,26,0.06) 0%,transparent 55%);pointer-events:none;z-index:2}
 .hero-inner{max-width:1200px;margin:0 auto;width:100%;position:relative;z-index:3}
@@ -644,7 +644,24 @@ function submitTicketingInquiry() {
     if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
     gsap.registerPlugin(ScrollTrigger);
 
-    // 1. SECTION REVEALS (replace CSS fallback)
+    // 1. HERO PARALLAX-ON-EXIT (image lags at 0.5x as hero scrolls away)
+    var heroBg = document.getElementById('hero-bg');
+    var heroEl = document.querySelector('.hero');
+    if (heroBg && heroEl) {
+      gsap.to(heroBg, {
+        yPercent: 12,
+        scale: 1.06,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: heroEl,
+          start: 'top top',
+          end: 'bottom top',
+          scrub: true
+        }
+      });
+    }
+
+    // 2. SECTION REVEALS (replace CSS fallback)
     var reveals = document.querySelectorAll('.reveal');
     for (var i = 0; i < reveals.length; i++) {
       var el = reveals[i];
@@ -705,7 +722,7 @@ function submitTicketingInquiry() {
       }
     }
 
-    // 2. STAT BLOCKS stagger
+    // 3. STAT BLOCKS stagger
     var statBlocks = document.querySelectorAll('.stat-block');
     if (statBlocks.length) {
       gsap.set(statBlocks, { opacity: 0, y: 30 });
@@ -721,7 +738,7 @@ function submitTicketingInquiry() {
       });
     }
 
-    // 3. FEATURE rows stagger
+    // 4. FEATURE rows stagger
     var features = document.querySelectorAll('.feature');
     for (var f = 0; f < features.length; f++) {
       gsap.set(features[f], { opacity: 0, y: 30 });
@@ -737,7 +754,7 @@ function submitTicketingInquiry() {
       })(features[f], f);
     }
 
-    // 4. MAGNETIC CTAs (desktop pointer-fine only)
+    // 5. MAGNETIC CTAs (desktop pointer-fine only)
     if (window.matchMedia('(pointer: fine)').matches) {
       var magnetics = document.querySelectorAll('.magnetic');
       for (var m = 0; m < magnetics.length; m++) {
