@@ -11,8 +11,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link rel="preload" href="https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2" as="font" type="font/woff2" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
-<link rel="preload" as="image" type="image/webp" href="/images/city-hero-1376-v2.webp" media="(min-width:769px)"/>
-<link rel="preload" as="image" type="image/webp" href="/images/city-hero-828-v2.webp" media="(max-width:768px)"/>
+<link rel="preload" as="image" type="image/webp" href="/images/city2-vivid-2560.webp" media="(min-width:769px)"/>
+<link rel="preload" as="image" type="image/webp" href="/images/city2-vivid-1280.webp" media="(max-width:768px)"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -61,8 +61,8 @@ img,svg{display:block;max-width:100%}
  */
 
 /* -- CITY BACKDROP (fixed, persistent behind entire page) -- */
-.city-backdrop{position:fixed;inset:0;z-index:0;background-image:url("data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAAAQBACdASocAA8APu1krU6ppaSiMAgBMB2JYwC06B6RSFZOXirhWzbloAD+9DKgNEEcD46dnYeI2qJq5oZrQ9cNdNRpMkJuLIAAAA==");background-size:cover;background-position:center;background-repeat:no-repeat;pointer-events:none;transform:translateZ(0)}
-.city-scrim{position:fixed;inset:0;z-index:1;background:rgba(0,0,0,0.5);pointer-events:none;transform:translateZ(0)}
+.city-backdrop{position:fixed;inset:0;z-index:0;background-image:url("data:image/webp;base64,UklGRooAAABXRUJQVlA4IH4AAAAQBACdASocABAAPzmKu1SvKaYjMAgB4CcJYgAOfIqlGF4xz2680BHXAAD++Syz7FMluU3XR0i3bBUPzDMEegP5ZTMa33tm68OA8qpV6a9k4VR6PUTKIbdsn2V6J0AHB/g0sLuLNxume0cvnHvX3VXEsOo66cK4fvMeGsHQAAA=");background-size:cover;background-position:center;background-repeat:no-repeat;pointer-events:none;transform:translateZ(0)}
+.city-scrim{position:fixed;inset:0;z-index:1;background:rgba(0,0,0,0.65);pointer-events:none;transform:translateZ(0)}
 
 /* -- CITY GLOW (ambient accent) -- */
 .city-glow{position:fixed;z-index:2;left:15%;top:35%;width:500px;height:400px;border-radius:50%;background:radial-gradient(ellipse,rgba(255,107,26,0.2) 0%,transparent 70%);pointer-events:none;filter:blur(60px);animation:glowBreathe 9s ease-in-out infinite;transform:translateZ(0)}
@@ -108,7 +108,7 @@ img,svg{display:block;max-width:100%}
 /* -- STAT BLOCKS -- */
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:48px}
 @media(min-width:760px){.stats{grid-template-columns:repeat(4,1fr);gap:20px}}
-.stat-block{background:rgba(0,0,0,0.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:24px 20px;position:relative;overflow:hidden}
+.stat-block{background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:24px 20px;position:relative;overflow:hidden}
 .stat-block::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,107,26,0.2),transparent)}
 .stat-val{font-size:clamp(28px,4vw,36px);font-weight:900;letter-spacing:-1.5px;line-height:1;margin-bottom:6px;font-variant-numeric:tabular-nums}
 .stat-val .unit{font-size:.5em;color:var(--text2);font-weight:600;letter-spacing:0}
@@ -189,7 +189,7 @@ footer .footer-grain::after{content:'';position:absolute;inset:0;background-imag
 /* -- VENUE CAROUSEL -- */
 .venue-strip{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 24px 12px;scroll-padding-left:24px;margin-top:48px}
 .venue-strip::-webkit-scrollbar{display:none}
-.v-card{flex:0 0 82%;scroll-snap-align:start;background:rgba(0,0,0,0.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.06);border-radius:14px;overflow:hidden;transition:border-color .2s}
+.v-card{flex:0 0 82%;scroll-snap-align:start;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.06);border-radius:14px;overflow:hidden;transition:border-color .2s}
 .v-card:hover{border-color:var(--border2)}
 @media(min-width:640px){.v-card{flex:0 0 42%}}
 @media(min-width:1024px){.v-card{flex:0 0 calc(30% - 10px)}}
@@ -524,7 +524,7 @@ function escHtml(s) {
   var bg = document.getElementById('city-backdrop');
   if (!bg) return;
   var isMobile = window.matchMedia('(max-width:768px)').matches;
-  var src = isMobile ? '/images/city-hero-828-v2.webp' : '/images/city-hero-1376-v2.webp';
+  var src = isMobile ? '/images/city2-vivid-1280.webp' : '/images/city2-vivid-2560.webp';
   var img = new Image();
   img.onload = function() {
     bg.style.backgroundImage = 'url("' + src + '")';
