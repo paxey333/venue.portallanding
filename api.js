@@ -742,6 +742,9 @@ export default {
           // Path B: payment_instructions on venues today; generalize as party_payment_instructions
           // in Phase 2/3 when promoter/artist accounts ship and parties beyond venues receive funds.
           if ('payment_instructions' in body) { fields.push('payment_instructions=?'); values.push(body.payment_instructions ? String(body.payment_instructions).slice(0, 1000) : null); }
+          // Commit AH: draft/published visibility. Admin-only toggle -- owners cannot change their own
+          // venue's visibility. Lets the proper admin path create/hold a venue as a draft (hidden=1).
+          if ('hidden' in body && isAdminOrAbove(session)) { fields.push('hidden=?'); values.push(body.hidden ? 1 : 0); }
 
           if (!fields.length) return jsonResponse({ error: "No fields to update" }, 400, request);
 
