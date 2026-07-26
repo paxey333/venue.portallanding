@@ -63,7 +63,7 @@ img,svg{display:block;max-width:100%}
 
 /* -- CITY BACKDROP (fixed, persistent behind entire page) -- */
 .city-backdrop{position:fixed;inset:0;z-index:0;background-image:url("data:image/webp;base64,UklGRooAAABXRUJQVlA4IH4AAAAQBACdASocABAAPzmKu1SvKaYjMAgB4CcJYgAOfIqlGF4xz2680BHXAAD++Syz7FMluU3XR0i3bBUPzDMEegP5ZTMa33tm68OA8qpV6a9k4VR6PUTKIbdsn2V6J0AHB/g0sLuLNxume0cvnHvX3VXEsOo66cK4fvMeGsHQAAA=");background-size:cover;background-position:center;background-repeat:no-repeat;pointer-events:none;transform:translateZ(0)}
-.city-scrim{position:fixed;inset:0;z-index:1;background:rgba(0,0,0,0.65);pointer-events:none;transform:translateZ(0)}
+.city-scrim{position:fixed;inset:0;z-index:1;background:rgba(0,0,0,0.55);pointer-events:none;transform:translateZ(0)}
 /* AG.1.6: living-city video, nested inside .city-backdrop (z0). Paints ABOVE the photo bg,
    BELOW the scrim (z1) -> legibility unchanged. Fades in via .is-live once ready. */
 .city-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;opacity:0;transition:opacity .8s ease;pointer-events:none}
@@ -80,12 +80,16 @@ img,svg{display:block;max-width:100%}
 .hero-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(0,0,0,0.25) 0%,transparent 30%);pointer-events:none}
 .hero::before{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:min(800px,120vw);height:min(800px,120vw);border-radius:50%;background:radial-gradient(circle,rgba(255,107,26,0.06) 0%,transparent 55%);pointer-events:none;z-index:2}
 .hero-inner{max-width:1200px;margin:0 auto;width:100%;position:relative;z-index:3}
-.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--text3);margin-bottom:28px}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:28px}
 .hero-eyebrow .live-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px rgba(255,107,26,0.6),0 0 4px rgba(255,107,26,0.3);animation:glow 2.4s ease-in-out infinite}
 @keyframes glow{0%,100%{box-shadow:0 0 12px rgba(255,107,26,0.6),0 0 4px rgba(255,107,26,0.3)}50%{box-shadow:0 0 20px rgba(255,107,26,0.8),0 0 8px rgba(255,107,26,0.5)}}
-.hero h1{font-size:clamp(42px,8vw,88px);font-weight:900;letter-spacing:clamp(-2px,-0.04em,-3.5px);line-height:.92;margin-bottom:24px}
-.hero h1 .accent{color:var(--accent)}
-.hero .sub{font-size:clamp(15px,1.8vw,19px);color:var(--text2);max-width:520px;line-height:1.6;margin-bottom:40px;font-weight:400}
+.hero h1{position:relative;font-size:clamp(42px,8vw,88px);font-weight:900;letter-spacing:clamp(-2px,-0.04em,-3.5px);line-height:.92;margin-bottom:24px}
+.hero h1 .accent{color:var(--accent);text-shadow:0 0 28px rgba(255,107,26,0.35)}
+/* AG.1.8: soft warm glow behind the headline (warms hero locally, does not lift the scrim) */
+.hero h1::before{content:'';position:absolute;z-index:-1;left:-6%;top:50%;transform:translateY(-50%);width:min(560px,82%);height:260px;background:radial-gradient(ellipse at 34% 50%,rgba(255,107,26,0.16),transparent 70%);filter:blur(26px);pointer-events:none}
+/* AG.1.8: thin left-aligned brand rule under the headline */
+.hero h1::after{content:'';display:block;width:52px;height:3px;margin-top:20px;border-radius:2px;background:var(--accent);box-shadow:0 0 12px rgba(255,107,26,0.5)}
+.hero .sub{font-size:clamp(15px,1.8vw,19px);color:var(--text2);max-width:520px;line-height:1.6;margin-bottom:40px;font-weight:400;text-shadow:0 1px 3px rgba(0,0,0,0.55)}
 .hero-actions{display:flex;gap:12px;flex-wrap:wrap}
 .btn-hero{background:var(--accent);color:#000;font-weight:700;font-size:14px;padding:14px 28px;border-radius:8px;transition:all .2s;letter-spacing:-.1px;display:inline-flex;align-items:center;gap:8px}
 .btn-hero:hover{opacity:.88;transform:translateY(-1px)}
@@ -97,9 +101,10 @@ img,svg{display:block;max-width:100%}
 .section-wrap{background:transparent;position:relative}
 .section{padding:100px 24px;max-width:1200px;margin:0 auto}
 .section + .section{border-top:1px solid rgba(255,255,255,0.06)}
-.eyebrow{font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--text3);margin-bottom:16px}
+/* AG.1.8: eyebrow lifted text3->text2 + shadow for legibility on the brighter scrim */
+.eyebrow{font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--text2);margin-bottom:16px;text-shadow:0 1px 2px rgba(0,0,0,0.5)}
 .section-title{font-size:clamp(28px,5vw,48px);font-weight:900;letter-spacing:clamp(-1px,-0.03em,-2px);line-height:1;margin-bottom:20px;max-width:640px}
-.section-sub{font-size:15px;color:var(--text2);line-height:1.65;max-width:480px;margin-bottom:48px}
+.section-sub{font-size:15px;color:var(--text2);line-height:1.65;max-width:480px;margin-bottom:48px;text-shadow:0 1px 3px rgba(0,0,0,0.5)}
 
 /* -- NUMBERED FEATURES -- */
 .features{display:flex;flex-direction:column;gap:0}
@@ -114,17 +119,20 @@ img,svg{display:block;max-width:100%}
 /* -- STAT BLOCKS -- */
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:48px}
 @media(min-width:760px){.stats{grid-template-columns:repeat(4,1fr);gap:20px}}
-.stat-block{background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:24px 20px;position:relative;overflow:hidden}
+.stat-block{background:rgba(0,0,0,0.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:24px 20px;position:relative;overflow:hidden}
 .stat-block::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,107,26,0.2),transparent)}
 .stat-val{font-size:clamp(28px,4vw,36px);font-weight:900;letter-spacing:-1.5px;line-height:1;margin-bottom:6px;font-variant-numeric:tabular-nums}
 .stat-val .unit{font-size:.5em;color:var(--text2);font-weight:600;letter-spacing:0}
 .stat-label{font-size:11px;color:var(--text3);font-weight:600;letter-spacing:.08em;text-transform:uppercase}
 
 /* -- COMPARISON TABLE -- */
-.compare{width:100%;border-collapse:collapse;margin-top:48px;font-size:13px}
+/* AG.1.8: hairline frame + subtle fill -- frames the data and protects the dim legacy column on the brighter scrim */
+.compare{width:100%;border-collapse:collapse;margin-top:48px;font-size:13px;background:rgba(0,0,0,0.32);border:1px solid rgba(255,255,255,0.1);border-radius:10px}
 .compare th{text-align:left;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);padding:12px 16px;border-bottom:1px solid var(--border2)}
 .compare th:first-child{color:var(--text2)}
 .compare th.vp{color:var(--accent)}
+/* AG.1.8: left-accent rule makes the VENUE.PORTAL column pop vs legacy */
+.compare th.vp,.compare td.vp{border-left:1px solid rgba(255,107,26,0.35)}
 .compare td{padding:14px 16px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
 .compare td:first-child{color:var(--text);font-weight:600;font-size:14px}
 .compare td.vp{color:var(--text);font-weight:600}
@@ -135,7 +143,8 @@ img,svg{display:block;max-width:100%}
 /* -- TICKETING OPS -- */
 .tkt-grid{display:grid;grid-template-columns:1fr;gap:48px}
 @media(min-width:760px){.tkt-grid{grid-template-columns:1fr 1fr;gap:56px;align-items:start}}
-.tkt-price{font-size:clamp(48px,8vw,72px);font-weight:900;letter-spacing:-3px;line-height:1;color:var(--accent);margin-bottom:8px}
+/* AG.1.8: box the flat-fee price so the number pops */
+.tkt-price{display:inline-block;font-size:clamp(48px,8vw,72px);font-weight:900;letter-spacing:-3px;line-height:1;color:var(--accent);margin-bottom:12px;padding:8px 20px;border:1px solid rgba(255,107,26,0.25);border-radius:12px;background:rgba(0,0,0,0.35)}
 .tkt-price-note{font-size:14px;color:var(--text2);margin-bottom:28px;line-height:1.5}
 .tkt-steps{display:flex;flex-direction:column;gap:20px}
 .tkt-step{display:flex;gap:16px;align-items:start}
