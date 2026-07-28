@@ -93,11 +93,11 @@ input,textarea{font-family:inherit}
 
 /* ── PHOTO HERO (v3, product-first overlay) ────────── */
 .v-hero{max-width:1280px;margin:14px auto 0;padding:0 24px;position:relative;z-index:1}
-.v-hero-photo{position:relative;width:100%;height:clamp(360px,52vh,560px);border-radius:16px;border:1px solid var(--border);overflow:hidden;background:linear-gradient(135deg,#141414,#0a0a0a)}
+.v-hero-photo{position:relative;width:100%;height:clamp(360px,52vh,560px);border-radius:16px;border:1px solid var(--border);overflow:hidden;background:linear-gradient(135deg,var(--surface2),var(--surface))}
 .v-hero-photo img{width:100%;height:100%;object-fit:cover;display:block;position:relative;z-index:1}
 .v-hero-photo.framed img{object-fit:contain}
 .v-hero-photo.ph{background:linear-gradient(135deg,#1a1410,#0a0a0a)}
-.v-hero-blurbg{position:absolute;inset:0;z-index:0;background-size:cover;background-position:center;filter:blur(30px) brightness(.45);transform:scale(1.18)}
+@media(max-width:767px){.v-hero-photo.framed{height:clamp(420px,68vh,600px)}}
 .v-hero-scrim{position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,0.12) 0%,transparent 30%,transparent 44%,rgba(0,0,0,0.82) 100%)}
 .v-hero-overlay{position:absolute;left:0;right:0;bottom:0;z-index:3;padding:24px 22px 22px;display:flex;flex-direction:column;align-items:flex-start}
 @media(min-width:560px){.v-hero-overlay{padding:34px 34px 30px}}
@@ -639,20 +639,12 @@ function showError(title, body) {
 }
 
 // ── RENDER VENUE ────────────────────────────────────
-// Cover for landscape/square, framed (blurred-fill) for portrait -- never stretched.
+// Cover for landscape/square; contain on solid dark panel for portrait -- never stretched, never blurred.
 function applyHeroFit(hero, img, url) {
   if (!img.naturalWidth) return;
   const portrait = img.naturalHeight > img.naturalWidth * 1.15;
-  hero.querySelectorAll('.v-hero-blurbg').forEach(e => e.remove());
-  if (portrait) {
-    hero.classList.add('framed');
-    const bd = document.createElement('div');
-    bd.className = 'v-hero-blurbg';
-    bd.style.backgroundImage = 'url("' + url + '")';
-    hero.insertBefore(bd, hero.firstChild);
-  } else {
-    hero.classList.remove('framed');
-  }
+  if (portrait) hero.classList.add('framed');
+  else hero.classList.remove('framed');
 }
 
 function renderVenue() {
@@ -668,7 +660,7 @@ function renderVenue() {
   // Hero photo: gallery[0]. Keep the scrim + overlay; only swap the image layer.
   const hero = $('hero-bg');
   hero.classList.remove('ph', 'framed');
-  hero.querySelectorAll('#hero-img, .v-hero-blurbg').forEach(el => el.remove());
+  hero.querySelectorAll('#hero-img').forEach(el => el.remove());
   if (galleryArr.length > 0) {
     const heroImg = document.createElement('img');
     heroImg.id = 'hero-img';
