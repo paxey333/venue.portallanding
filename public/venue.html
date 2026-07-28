@@ -28,6 +28,8 @@
 }
 html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.5;min-height:100%;-webkit-font-smoothing:antialiased}
 body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+/* v3 film grain */
+.grain{position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.04;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 @media(min-width:900px){body{padding-bottom:0}}
 a{color:inherit;text-decoration:none}
 button{font-family:inherit;cursor:pointer;border:none;background:transparent;color:inherit}
@@ -83,44 +85,43 @@ input,textarea{font-family:inherit}
 .error-body{font-size:14px;color:var(--text2);line-height:1.65;margin-bottom:24px}
 .error-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 
-/* ── SPLIT HERO ────────────────────────────────────── */
-.v-hero{max-width:1280px;margin:14px auto 0;padding:0 24px}
-.v-hero-split{display:flex;flex-direction:column;gap:0}
-.v-hero-photo{position:relative;width:100%;height:45vh;min-height:280px;max-height:480px;overflow:hidden}
-.v-hero-photo img{width:100%;height:100%;object-fit:cover;display:block}
-.v-hero-photo::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(0,0,0,0.5) 100%);pointer-events:none}
-.v-hero-thumbs{display:flex;gap:6px;margin-top:8px}
-.v-hero-thumb{width:56px;height:56px;border-radius:8px;overflow:hidden;border:2px solid transparent;cursor:pointer;transition:border-color .15s;flex-shrink:0}
+/* ── PHOTO HERO (v3, product-first overlay) ────────── */
+.v-hero{max-width:1280px;margin:14px auto 0;padding:0 24px;position:relative;z-index:1}
+.v-hero-photo{position:relative;width:100%;height:clamp(360px,52vh,560px);border-radius:16px;border:1px solid var(--border);overflow:hidden;background:linear-gradient(135deg,#141414,#0a0a0a)}
+.v-hero-photo img{width:100%;height:100%;object-fit:cover;display:block;position:relative;z-index:1}
+.v-hero-photo.framed img{object-fit:contain}
+.v-hero-photo.ph{background:linear-gradient(135deg,#1a1410,#0a0a0a)}
+.v-hero-blurbg{position:absolute;inset:0;z-index:0;background-size:cover;background-position:center;filter:blur(30px) brightness(.45);transform:scale(1.18)}
+.v-hero-scrim{position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,0.12) 0%,transparent 30%,transparent 44%,rgba(0,0,0,0.82) 100%)}
+.v-hero-overlay{position:absolute;left:0;right:0;bottom:0;z-index:3;padding:24px 22px 22px;display:flex;flex-direction:column;align-items:flex-start}
+@media(min-width:560px){.v-hero-overlay{padding:34px 34px 30px}}
+.v-hero-badges{display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap}
+.v-badge{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border-radius:6px;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.v-badge.live{background:rgba(61,220,132,0.18);border:1px solid rgba(61,220,132,0.4);color:var(--green)}
+.v-badge.live .d{width:5px;height:5px;border-radius:50%;background:var(--green)}
+.v-badge.verified{background:var(--accent-soft);border:1px solid rgba(255,107,26,0.4);color:var(--accent)}
+.v-badge.verified svg{width:10px;height:10px}
+.v-hero-name{font-size:clamp(30px,5.5vw,50px);font-weight:900;letter-spacing:-1.5px;line-height:1.02;margin-bottom:10px;text-shadow:0 2px 24px rgba(0,0,0,0.6)}
+.v-hero-loc{font-size:14px;color:#d8d8d8;font-weight:500;display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;text-shadow:0 1px 8px rgba(0,0,0,0.75)}
+.v-hero-loc svg{width:14px;height:14px;flex-shrink:0}
+.v-hero-price{display:flex;align-items:baseline;gap:8px}
+.v-hero-price .amt{font-size:clamp(26px,4vw,34px);font-weight:900;letter-spacing:-1px;line-height:1;color:var(--accent);text-shadow:0 2px 18px rgba(0,0,0,0.5)}
+.v-hero-price .unit{font-size:12px;color:#cfcfcf;font-weight:500}
+.v-hero-thumbs{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.v-hero-thumb{width:60px;height:60px;border-radius:9px;overflow:hidden;border:2px solid transparent;cursor:pointer;transition:border-color .15s;flex-shrink:0}
 .v-hero-thumb.active{border-color:var(--accent)}
 .v-hero-thumb img{width:100%;height:100%;object-fit:cover;display:block}
-.v-hero-info{padding:20px 0 0}
-.v-hero-badges{display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap}
-.v-badge{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border-radius:6px}
-.v-badge.live{background:var(--green-soft);border:1px solid rgba(61,220,132,0.3);color:var(--green)}
-.v-badge.live .d{width:5px;height:5px;border-radius:50%;background:var(--green)}
-.v-badge.verified{background:var(--accent-soft);border:1px solid rgba(255,107,26,0.35);color:var(--accent)}
-.v-badge.verified svg{width:10px;height:10px}
-.v-hero-name{font-size:32px;font-weight:900;letter-spacing:-1px;line-height:1.05;margin-bottom:8px}
-.v-hero-loc{font-size:14px;color:var(--text2);font-weight:500;display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px}
-.v-hero-loc svg{width:14px;height:14px;flex-shrink:0}
-.v-hero-price{display:flex;align-items:baseline;gap:8px;margin-bottom:16px}
-.v-hero-price .amt{font-size:28px;font-weight:900;letter-spacing:-1px;line-height:1}
-.v-hero-price .unit{font-size:12px;color:var(--text2);font-weight:500}
-.v-hero-stats{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
-.v-hero-stat{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2)}
-.v-hero-stat::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--accent);flex-shrink:0}
-.v-hero-stat strong{color:var(--text);font-weight:700}
-.v-hero-cta{width:100%;background:var(--accent);color:#000;border:none;font-weight:800;font-size:14px;padding:13px 20px;border-radius:8px;cursor:pointer;transition:opacity .15s;letter-spacing:-.1px;display:flex;align-items:center;justify-content:center;gap:6px}
+/* boxed data panels (homepage stat-block style) */
+.v-hero-data{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
+@media(max-width:460px){.v-hero-data{gap:8px}}
+.v-stat-panel{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:16px;position:relative;overflow:hidden}
+.v-stat-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,107,26,0.35),transparent)}
+.v-stat-panel .val{font-size:clamp(18px,3vw,24px);font-weight:900;letter-spacing:-.5px;line-height:1.05;color:var(--text);overflow-wrap:anywhere}
+.v-stat-panel.wide .val{font-size:13.5px;font-weight:700;line-height:1.35}
+.v-stat-panel .lbl{font-size:10px;color:var(--text3);font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-top:6px}
+.v-hero-cta{margin-top:16px;width:100%;background:var(--accent);color:#000;border:none;font-weight:800;font-size:14px;padding:14px 20px;border-radius:8px;cursor:pointer;transition:opacity .15s;letter-spacing:-.1px;display:flex;align-items:center;justify-content:center;gap:6px}
 .v-hero-cta:hover{opacity:.88}
-@media(min-width:900px){
-  .v-hero{margin-top:24px}
-  .v-hero-split{flex-direction:row;gap:32px;align-items:stretch}
-  .v-hero-photo{width:60%;flex-shrink:0;border-radius:14px;border:1px solid var(--border);height:auto;min-height:360px;max-height:520px}
-  .v-hero-photo::after{display:none}
-  .v-hero-info{padding:8px 0;display:flex;flex-direction:column;justify-content:center;flex:1;min-width:0}
-  .v-hero-name{font-size:40px;letter-spacing:-1.5px}
-  .v-hero-cta{width:auto;align-self:flex-start;padding:13px 28px}
-}
+@media(min-width:900px){.v-hero{margin-top:24px}.v-hero-cta{width:auto;align-self:flex-start;padding:14px 32px}}
 
 /* stats-grid: hidden container kept for JS compat, hero uses .v-hero-stats instead */
 .v-stats{display:none}
@@ -132,12 +133,10 @@ input,textarea{font-family:inherit}
 .v-section-body p{margin-bottom:10px}
 .v-section-body strong{color:var(--text);font-weight:600}
 
-.included{display:grid;grid-template-columns:1fr;gap:10px;margin-top:6px}
-@media(min-width:560px){.included{grid-template-columns:repeat(2,1fr)}}
-.inc-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;gap:11px;align-items:flex-start}
-.inc-check{flex-shrink:0;width:22px;height:22px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;margin-top:1px}
-.inc-check svg{width:11px;height:11px}
-.inc-title{font-size:13px;font-weight:700;color:var(--text)}
+/* amenities as accent-panel chips */
+.included{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.amenity-chip{display:inline-flex;align-items:center;gap:7px;background:var(--accent-soft);border:1px solid rgba(255,107,26,0.28);border-radius:999px;padding:8px 14px;font-size:12.5px;font-weight:600;color:var(--text)}
+.amenity-chip svg{width:12px;height:12px;color:var(--accent);flex-shrink:0}
 
 .deal-card{background:linear-gradient(135deg,#0d0d0d 0%,#1a1410 100%);border:1px solid var(--border2);border-radius:14px;padding:24px;display:grid;grid-template-columns:1fr;gap:16px}
 @media(min-width:560px){.deal-card{grid-template-columns:repeat(3,1fr)}}
@@ -167,6 +166,9 @@ input,textarea{font-family:inherit}
 
 /* ── GALLERY (masonry first image) ───────────────── */
 @media(min-width:560px){.gallery.has-many .gal-item:first-child{grid-column:span 2;grid-row:span 2}}
+/* exactly two photos: clean 2-up, never a lonely cell */
+.gallery.has-two{grid-template-columns:repeat(2,1fr);max-width:860px}
+@media(min-width:560px){.gallery.has-two{grid-template-columns:repeat(2,1fr)}.gallery.has-two .gal-item{aspect-ratio:4/3}}
 
 /* ── BOOKING CARD (warm orange) ───────────────────── */
 .book-card{background:linear-gradient(160deg,#1a0d05 0%,#0d0805 45%,#050505 100%);border:1px solid var(--border2);border-left:2px solid var(--accent);border-top:1px solid rgba(255,107,26,0.18);border-radius:14px;overflow:hidden;box-shadow:0 8px 32px rgba(255,107,26,0.04),inset 0 1px 0 rgba(255,255,255,0.03)}
@@ -316,6 +318,8 @@ footer{padding:48px 0 36px 0;border-top:1px solid var(--border);margin-top:48px}
 </div>
 
 <!-- LOADING SKELETON -->
+<div class="grain" aria-hidden="true"></div>
+
 <div id="loading-state" class="loading">
   <div class="skel-split">
     <div class="skel skel-hero"></div>
@@ -348,20 +352,21 @@ footer{padding:48px 0 36px 0;border-top:1px solid var(--border);margin-top:48px}
 <main id="content-state" style="display:none">
 
   <section class="v-hero">
-    <div class="v-hero-split">
-      <div class="v-hero-photo" id="hero-bg"></div>
-      <div class="v-hero-info">
+    <div class="v-hero-photo" id="hero-bg">
+      <div class="v-hero-scrim"></div>
+      <div class="v-hero-overlay">
         <div class="v-hero-badges" id="hero-badges">
           <span class="v-badge live"><span class="d"></span>Live now</span>
         </div>
         <h1 class="v-hero-name" id="hero-name"></h1>
         <p class="v-hero-loc" id="hero-loc"></p>
-        <div class="v-hero-price"><span class="amt" id="hero-price">—</span><span class="unit" id="hero-unit">flat fee · per night</span></div>
-        <div class="v-hero-stats" id="stats-grid"></div>
-        <button class="v-hero-cta" onclick="heroBookClick()">Book this venue →</button>
+        <div class="v-hero-price"><span class="amt" id="hero-price">&mdash;</span><span class="unit" id="hero-unit">flat fee &middot; per night</span></div>
       </div>
     </div>
     <div class="v-hero-thumbs" id="hero-thumbs"></div>
+    <div class="v-hero-data" id="hero-data"></div>
+    <div class="v-hero-stats" id="stats-grid" style="display:none"></div>
+    <button class="v-hero-cta" onclick="heroBookClick()">Book this venue &rarr;</button>
   </section>
 
   <section class="v-stats" style="display:none">
@@ -625,6 +630,22 @@ function showError(title, body) {
 }
 
 // ── RENDER VENUE ────────────────────────────────────
+// Cover for landscape/square, framed (blurred-fill) for portrait -- never stretched.
+function applyHeroFit(hero, img, url) {
+  if (!img.naturalWidth) return;
+  const portrait = img.naturalHeight > img.naturalWidth * 1.15;
+  hero.querySelectorAll('.v-hero-blurbg').forEach(e => e.remove());
+  if (portrait) {
+    hero.classList.add('framed');
+    const bd = document.createElement('div');
+    bd.className = 'v-hero-blurbg';
+    bd.style.backgroundImage = 'url("' + url + '")';
+    hero.insertBefore(bd, hero.firstChild);
+  } else {
+    hero.classList.remove('framed');
+  }
+}
+
 function renderVenue() {
   const v = state.venue;
   document.title = `${v.name} — Venue.Portal`;
@@ -635,18 +656,20 @@ function renderVenue() {
   console.log('[venue] gallery normalized', { count: galleryArr.length, urls: galleryArr });
   window.__venueDebug = { venue: v, gallery: galleryArr, heroSrc: galleryArr[0] || null };
 
-  // Hero photo: gallery[0] or gradient placeholder
+  // Hero photo: gallery[0]. Keep the scrim + overlay; only swap the image layer.
   const hero = $('hero-bg');
-  hero.innerHTML = '';
+  hero.classList.remove('ph', 'framed');
+  hero.querySelectorAll('#hero-img, .v-hero-blurbg').forEach(el => el.remove());
   if (galleryArr.length > 0) {
     const heroImg = document.createElement('img');
     heroImg.id = 'hero-img';
-    heroImg.src = galleryArr[0];
     heroImg.alt = v.name || 'Venue';
     heroImg.loading = 'eager';
-    heroImg.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block';
     heroImg.onerror = () => { console.error('[venue] hero img failed', galleryArr[0]); hero.classList.add('ph'); };
-    hero.appendChild(heroImg);
+    heroImg.onload = () => applyHeroFit(hero, heroImg, galleryArr[0]);
+    heroImg.src = galleryArr[0];
+    hero.insertBefore(heroImg, hero.firstChild);
+    if (heroImg.complete && heroImg.naturalWidth) applyHeroFit(hero, heroImg, galleryArr[0]);
   } else {
     hero.classList.add('ph');
   }
@@ -693,12 +716,18 @@ function renderVenue() {
     $('hero-price').textContent = fmtPrice(v.price_per_day);
   }
 
-  // Hero stats — compact list, capped at 3
-  const stats = [];
-  if (v.capacity) stats.push(`<strong>${v.capacity}</strong> guests`);
-  if (v.amenities && v.amenities.length > 0) stats.push(`<strong>${esc(v.amenities[0].split('(')[0].trim())}</strong>`);
-  if (v.hours) stats.push(`<strong>${esc(v.hours)}</strong>`);
-  $('stats-grid').innerHTML = stats.slice(0, 3).map(s => `<div class="v-hero-stat">${s}</div>`).join('');
+  // Boxed data panels (homepage stat-block style): capacity, price, hours
+  const panels = [];
+  if (v.capacity) panels.push({ val: String(v.capacity), lbl: 'Capacity' });
+  if (v.price_per_day) panels.push({ val: fmtPrice(v.price_per_day), lbl: 'Flat / night' });
+  if (v.hours) panels.push({ val: esc(v.hours), lbl: 'Hours', wide: true });
+  const dataEl = $('hero-data');
+  if (panels.length) {
+    dataEl.innerHTML = panels.slice(0, 3).map(p => `<div class="v-stat-panel${p.wide ? ' wide' : ''}"><div class="val">${p.val}</div><div class="lbl">${p.lbl}</div></div>`).join('');
+    dataEl.style.display = '';
+  } else {
+    dataEl.style.display = 'none';
+  }
 
   // About — show full description now that address is in its own column
   if (v.description) {
@@ -708,12 +737,7 @@ function renderVenue() {
 
   // What's included — amenities
   if (v.amenities && v.amenities.length > 0) {
-    $('included-list').innerHTML = v.amenities.map(a => `
-      <div class="inc-item">
-        <div class="inc-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-        <div><div class="inc-title">${esc(a)}</div></div>
-      </div>
-    `).join('');
+    $('included-list').innerHTML = v.amenities.map(a => `<span class="amenity-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>${esc(a)}</span>`).join('');
     $('section-included').style.display = '';
   }
 
@@ -732,12 +756,15 @@ function renderVenue() {
 
   // Gallery — render all photos (skip first which is already in hero).
   // If only one photo total, still surface it in the gallery section.
-  const galleryToShow = galleryArr.length > 1 ? galleryArr.slice(1) : galleryArr;
+  // 2-photo venues (Trapbaby): show BOTH as a clean 2-up. 3+: the non-hero photos.
+  const galleryToShow = galleryArr.length === 2 ? galleryArr.slice() : (galleryArr.length > 2 ? galleryArr.slice(1) : galleryArr);
   console.log('[venue] gallery render', { toShow: galleryToShow.length });
   if (galleryToShow.length > 0) {
     const grid = $('gallery-grid');
     grid.innerHTML = '';
-    if (galleryToShow.length >= 3) grid.classList.add('has-many');
+    grid.classList.remove('has-many', 'has-two');
+    if (galleryToShow.length === 2) grid.classList.add('has-two');
+    else if (galleryToShow.length >= 3) grid.classList.add('has-many');
     galleryToShow.forEach((url, i) => {
       const cell = document.createElement('div');
       cell.className = 'gal-item';
@@ -822,8 +849,9 @@ function heroBookClick() {
 
 // ── HERO THUMBNAIL SWAP ─────────────────────────────
 function swapHero(url, thumbEl) {
+  const hero = $('hero-bg');
   const img = $('hero-img');
-  if (img) img.src = url;
+  if (img) { img.onload = () => applyHeroFit(hero, img, url); img.src = url; }
   document.querySelectorAll('.v-hero-thumb').forEach(t => t.classList.remove('active'));
   if (thumbEl) thumbEl.classList.add('active');
 }
