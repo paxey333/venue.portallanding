@@ -27,7 +27,13 @@
   --font:'Inter',sans-serif;
 }
 html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.5;min-height:100%;-webkit-font-smoothing:antialiased}
-body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px));background:transparent}
+/* AG.0.2: calm static city through-line -- ambient context behind all content.
+   Heavier scrim than the homepage (city is barely present here). No video, no motion. */
+.city-bg{position:fixed;inset:0;z-index:-2;background-image:url("/images/city2-vivid-1280.webp");background-size:cover;background-position:center;background-repeat:no-repeat;pointer-events:none;transform:translateZ(0)}
+@media(min-width:769px){.city-bg{background-image:url("/images/city2-vivid-2560.webp")}}
+.city-scrim{position:fixed;inset:0;z-index:-1;background:rgba(0,0,0,0.75);pointer-events:none}
+@media(prefers-reduced-motion:reduce){.city-bg{transform:none}}
 /* v3 film grain */
 .grain{position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.04;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 @media(min-width:900px){body{padding-bottom:0}}
@@ -114,11 +120,11 @@ input,textarea{font-family:inherit}
 /* boxed data panels (homepage stat-block style) */
 .v-hero-data{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
 @media(max-width:460px){.v-hero-data{gap:8px}}
-.v-stat-panel{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:16px;position:relative;overflow:hidden}
+.v-stat-panel{background:rgba(8,9,12,0.55);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:16px;position:relative;overflow:hidden;-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
 .v-stat-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,107,26,0.35),transparent)}
 .v-stat-panel .val{font-size:clamp(18px,3vw,24px);font-weight:900;letter-spacing:-.5px;line-height:1.05;color:var(--text);overflow-wrap:anywhere}
 .v-stat-panel.wide .val{font-size:13.5px;font-weight:700;line-height:1.35}
-.v-stat-panel .lbl{font-size:10px;color:var(--text3);font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-top:6px}
+.v-stat-panel .lbl{font-size:10px;color:var(--text2);font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-top:6px}
 .v-hero-cta{margin-top:16px;width:100%;background:var(--accent);color:#000;border:none;font-weight:800;font-size:14px;padding:14px 20px;border-radius:8px;cursor:pointer;transition:opacity .15s;letter-spacing:-.1px;display:flex;align-items:center;justify-content:center;gap:6px}
 .v-hero-cta:hover{opacity:.88}
 @media(min-width:900px){.v-hero{margin-top:24px}.v-hero-cta{width:auto;align-self:flex-start;padding:14px 32px}}
@@ -127,9 +133,9 @@ input,textarea{font-family:inherit}
 .v-stats{display:none}
 
 /* ── CONTENT SECTIONS ──────────────────────────────── */
-.v-section-label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px}
-.v-section-title{font-size:24px;font-weight:800;letter-spacing:-.5px;line-height:1.15;margin-bottom:18px}
-.v-section-body{font-size:14.5px;color:var(--text2);line-height:1.7;max-width:680px}
+.v-section-label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px;text-shadow:0 1px 3px rgba(0,0,0,0.6)}
+.v-section-title{font-size:24px;font-weight:800;letter-spacing:-.5px;line-height:1.15;margin-bottom:18px;text-shadow:0 1px 4px rgba(0,0,0,0.5)}
+.v-section-body{font-size:14.5px;color:var(--text2);line-height:1.7;max-width:680px;text-shadow:0 1px 3px rgba(0,0,0,0.55)}
 .v-section-body p{margin-bottom:10px}
 .v-section-body strong{color:var(--text);font-weight:600}
 
@@ -318,6 +324,9 @@ footer{padding:48px 0 36px 0;border-top:1px solid var(--border);margin-top:48px}
 </div>
 
 <!-- LOADING SKELETON -->
+<!-- AG.0.2: static city through-line (behind all content) -->
+<div class="city-bg" aria-hidden="true"></div>
+<div class="city-scrim" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
 
 <div id="loading-state" class="loading">
