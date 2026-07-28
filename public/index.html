@@ -274,7 +274,7 @@ footer .footer-grain::after{content:'';position:absolute;inset:0;background-imag
   <!-- AG.1.6: living-city video garnish. The static WebP (this div's background) stays the instant-load
        base (AF.3 intact); this video lazy-loads ABOVE the photo, BELOW the scrim. No autoplay attribute:
        playback is JS-driven after window load + idle so it never competes with first paint (see script). -->
-  <video class="city-video" id="city-video" muted loop playsinline preload="none" aria-hidden="true" tabindex="-1">
+  <video class="city-video" id="city-video" muted loop playsinline preload="none" poster="/images/city2-vivid-1280.webp" aria-hidden="true" tabindex="-1">
     <source src="/images/city-loop-v2.webm" type="video/webm"/>
     <source src="/images/city-loop-v2.mp4" type="video/mp4"/>
   </video>
@@ -608,16 +608,17 @@ function escHtml(s) {
   img.src = src;
 })();
 
-// AG.1.6: living-city video -- lazy garnish, never competes with first paint.
-// The sharp WebP carries the page; the video loads (preload=none) and fades in on top only
-// after window load + idle. Guards: reduced-motion stays static; phones keep the still
-// (desktop/tablet >=768px only) to save mobile battery/data -- the video never downloads on phones.
+// AG.1.6 / AG.3: living-city video -- lazy garnish, never competes with first paint.
+// The sharp WebP carries the page (poster == the mobile still, cache-deduped); the video
+// loads (preload=none) and fades in on top only after window load + idle -- on mobile too now.
+// Guards: reduced-motion stays static; Save-Data users keep the still. No load, no play for either.
 (function() {
   var v = document.getElementById('city-video');
   if (!v) return;
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var desktop = window.matchMedia('(min-width:768px)').matches;
-  if (reduce || !desktop) return; // static image only -- no load, no play
+  var conn = navigator.connection || navigator.webkitConnection || navigator.mozConnection;
+  var saveData = !!(conn && conn.saveData);
+  if (reduce || saveData) return; // static image only -- no load, no play
   v.muted = true;                 // iOS/Safari: required for programmatic play()
   v.addEventListener('canplay', function() { v.classList.add('is-live'); }, { once: true });
   function start() {
