@@ -675,7 +675,7 @@ function renderVenue() {
     heroImg.alt = v.name || 'Venue';
     heroImg.loading = 'eager';
     heroImg.onerror = () => { console.error('[venue] hero img failed', galleryArr[0]); hero.classList.add('ph'); };
-    heroImg.onload = () => applyHeroFit(hero, heroImg, galleryArr[0]);
+    heroImg.addEventListener('load', () => applyHeroFit(hero, heroImg, galleryArr[0]));
     heroImg.src = galleryArr[0];
     hero.insertBefore(heroImg, hero.firstChild);
     if (heroImg.complete && heroImg.naturalWidth) applyHeroFit(hero, heroImg, galleryArr[0]);
@@ -838,7 +838,7 @@ function renderVenue() {
   }
   if (heroImg) {
     if (heroImg.complete) { fadeHero(); }
-    else { heroImg.onload = fadeHero; setTimeout(fadeHero, 200); }
+    else { heroImg.addEventListener('load', fadeHero); setTimeout(fadeHero, 200); }
   } else {
     fadeHero();
   }
@@ -860,7 +860,11 @@ function heroBookClick() {
 function swapHero(url, thumbEl) {
   const hero = $('hero-bg');
   const img = $('hero-img');
-  if (img) { img.onload = () => applyHeroFit(hero, img, url); img.src = url; }
+  if (img) {
+    img.addEventListener('load', () => applyHeroFit(hero, img, url), { once: true });
+    img.src = url;
+    if (img.complete && img.naturalWidth) applyHeroFit(hero, img, url);
+  }
   document.querySelectorAll('.v-hero-thumb').forEach(t => t.classList.remove('active'));
   if (thumbEl) thumbEl.classList.add('active');
 }
