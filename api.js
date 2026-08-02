@@ -524,9 +524,9 @@ export default {
           if (!["admin", "venue_owner", "promoter", "superadmin"].includes(role)) {
             return jsonResponse({ error: "invalid role" }, 400, request);
           }
-          // Only platform admins can create admin or superadmin accounts.
-          if ((role === "admin" || role === "superadmin") && !isAdminOrAbove(session)) {
-            return jsonResponse({ error: "Only admins can create admin or superadmin accounts" }, 403, request);
+          // Only superadmins can create admin or superadmin accounts.
+          if ((role === "admin" || role === "superadmin") && !isSuperAdmin(session)) {
+            return jsonResponse({ error: "Only superadmins can create admin or superadmin accounts" }, 403, request);
           }
           if (role === "venue_owner" && !venueId) {
             return jsonResponse({ error: "venue_id is required for venue_owner role" }, 400, request);
@@ -608,9 +608,9 @@ export default {
           if (session.email && target.email && target.email.toLowerCase() === String(session.email).toLowerCase()) {
             return jsonResponse({ error: "You cannot delete your own account" }, 403, request);
           }
-          // Only platform admins can delete admin or superadmin accounts.
-          if ((target.role === "admin" || target.role === "superadmin") && !isAdminOrAbove(session)) {
-            return jsonResponse({ error: "Only admins can delete admin or superadmin accounts" }, 403, request);
+          // Only superadmins can delete admin or superadmin accounts.
+          if ((target.role === "admin" || target.role === "superadmin") && !isSuperAdmin(session)) {
+            return jsonResponse({ error: "Only superadmins can delete admin or superadmin accounts" }, 403, request);
           }
           const res = await env.DB.prepare("DELETE FROM users WHERE id = ?").bind(id).run();
           if (!res.meta.changes) return jsonResponse({ error: "User not found" }, 404, request);
@@ -631,9 +631,9 @@ export default {
           if (session.email && target.email && target.email.toLowerCase() === String(session.email).toLowerCase()) {
             return jsonResponse({ error: "You cannot reset your own password from here" }, 403, request);
           }
-          // Only platform admins can reset admin or superadmin passwords.
-          if ((target.role === "admin" || target.role === "superadmin") && !isAdminOrAbove(session)) {
-            return jsonResponse({ error: "Only admins can reset admin or superadmin passwords" }, 403, request);
+          // Only superadmins can reset admin or superadmin passwords.
+          if ((target.role === "admin" || target.role === "superadmin") && !isSuperAdmin(session)) {
+            return jsonResponse({ error: "Only superadmins can reset admin or superadmin passwords" }, 403, request);
           }
           const plainPassword = generatePassword();
           const hashedPassword = await hashPassword(plainPassword, env.TOKEN_SECRET);
