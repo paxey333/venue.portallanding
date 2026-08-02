@@ -42,6 +42,19 @@ function textResponse(text, status = 200, request = null) {
   return new Response(text, { status, headers: corsHeaders(request) });
 }
 
+// Escape user-controlled values before interpolating into email/HTML templates.
+// Applied to every dynamic string that originates from user input (client_name,
+// client_email, message, venue/promoter/event names, etc.).
+function escapeHtml(value) {
+  if (value === null || value === undefined) return "";
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 // ── CRYPTO HELPERS ────────────────────────────────────────────────────────────
 
 function toBase64(bytes) {
@@ -293,11 +306,11 @@ export default {
                   html: `<div style="font-family:sans-serif;max-width:520px;margin:0 auto;background:#fff;color:#111;padding:32px 28px;border-radius:8px">
           <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#888;margin-bottom:20px">Venue.Portal</div>
           <h1 style="font-size:24px;font-weight:800;margin:0 0 6px;letter-spacing:-.3px">You're confirmed.</h1>
-          <p style="color:#555;font-size:14px;margin:0 0 28px;line-height:1.6">Hi ${booking.client_name} — your deposit went through and your booking is locked in.</p>
+          <p style="color:#555;font-size:14px;margin:0 0 28px;line-height:1.6">Hi ${escapeHtml(booking.client_name)} — your deposit went through and your booking is locked in.</p>
           <div style="background:#f7f7f7;border-radius:8px;padding:20px 22px;margin-bottom:28px">
             <table style="width:100%;border-collapse:collapse">
               <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:6px 0 2px">Venue</td></tr>
-              <tr><td style="font-size:15px;font-weight:600;padding-bottom:14px;border-bottom:1px solid #eee">${booking.venue_name}</td></tr>
+              <tr><td style="font-size:15px;font-weight:600;padding-bottom:14px;border-bottom:1px solid #eee">${escapeHtml(booking.venue_name)}</td></tr>
               <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:14px 0 2px">Event Date</td></tr>
               <tr><td style="font-size:15px;font-weight:600;padding-bottom:14px;border-bottom:1px solid #eee">${dateFormatted}</td></tr>
               <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:14px 0 2px">Amount Paid</td></tr>
@@ -329,11 +342,11 @@ export default {
                     html: `<div style="font-family:sans-serif;max-width:520px;margin:0 auto;background:#fff;color:#111;padding:32px 28px;border-radius:8px">
             <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#888;margin-bottom:20px">Venue.Portal</div>
             <h1 style="font-size:22px;font-weight:800;margin:0 0 6px">Deposit received.</h1>
-            <p style="color:#555;font-size:14px;margin:0 0 24px;line-height:1.6">A booking deposit just came in for ${booking.venue_name}.</p>
+            <p style="color:#555;font-size:14px;margin:0 0 24px;line-height:1.6">A booking deposit just came in for ${escapeHtml(booking.venue_name)}.</p>
             <div style="background:#f7f7f7;border-radius:8px;padding:20px 22px;margin-bottom:24px">
               <table style="width:100%;border-collapse:collapse">
                 <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:6px 0 2px">Promoter</td></tr>
-                <tr><td style="font-size:14px;font-weight:600;padding-bottom:12px;border-bottom:1px solid #eee">${booking.client_name} · ${booking.client_email}</td></tr>
+                <tr><td style="font-size:14px;font-weight:600;padding-bottom:12px;border-bottom:1px solid #eee">${escapeHtml(booking.client_name)} · ${escapeHtml(booking.client_email)}</td></tr>
                 <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:12px 0 2px">Event Date</td></tr>
                 <tr><td style="font-size:14px;font-weight:600;padding-bottom:12px;border-bottom:1px solid #eee">${dateFormatted}</td></tr>
                 <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:12px 0 2px">Deposit Amount</td></tr>
@@ -546,7 +559,7 @@ export default {
                 from: "Venue Portal <noreply@venueportal.us>",
                 to: [email],
                 subject: "Your Venue Portal is ready",
-                html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto"><h2 style="color:#111">Welcome to Venue Portal, ${name}!</h2>${venueName ? `<p>Your venue <strong>${venueName}</strong> has been set up and is ready to go.</p>` : ""}<p>Log in to manage your bookings and venue profile.</p><p><strong>Email:</strong> ${email}<br><strong>Temporary password:</strong> ${plainPassword}</p><p style="color:#888;font-size:13px">Please change your password after your first login.</p><p style="text-align:center;margin:32px 0"><a href="https://venueportal.us/dashboard.html" style="background:#f5a623;color:#111;font-weight:700;padding:14px 28px;border-radius:6px;text-decoration:none;display:inline-block">Go to Dashboard &#8594;</a></p></div>`,
+                html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto"><h2 style="color:#111">Welcome to Venue Portal, ${escapeHtml(name)}!</h2>${venueName ? `<p>Your venue <strong>${escapeHtml(venueName)}</strong> has been set up and is ready to go.</p>` : ""}<p>Log in to manage your bookings and venue profile.</p><p><strong>Email:</strong> ${escapeHtml(email)}<br><strong>Temporary password:</strong> ${plainPassword}</p><p style="color:#888;font-size:13px">Please change your password after your first login.</p><p style="text-align:center;margin:32px 0"><a href="https://venueportal.us/dashboard.html" style="background:#f5a623;color:#111;font-weight:700;padding:14px 28px;border-radius:6px;text-decoration:none;display:inline-block">Go to Dashboard &#8594;</a></p></div>`,
               }),
             });
           }
@@ -1093,9 +1106,10 @@ export default {
         try {
           const body = await parseJson(request);
           const venueId = toIntOrNull(body.venue_id);
-          const clientName = String(body.client_name || "").trim();
-          const clientEmail = String(body.client_email || "").trim();
-          const eventDate = String(body.event_date || "").trim();
+          // Length-cap public-supplied fields at ingestion (defense-in-depth vs oversized/abusive input).
+          const clientName = String(body.client_name || "").trim().slice(0, 120);
+          const clientEmail = String(body.client_email || "").trim().slice(0, 254);
+          const eventDate = String(body.event_date || "").trim().slice(0, 40);
 
           if (!venueId || !clientName || !clientEmail || !eventDate) {
             return jsonResponse({ error: "venue_id, client_name, client_email, and event_date are required" }, 400, request);
@@ -1120,7 +1134,7 @@ export default {
           ).bind(
             venueId, clientName, clientEmail, eventDate,
             toIntOrNull(body.guests),
-            body.message ? String(body.message) : null
+            body.message ? String(body.message).slice(0, 2000) : null
           ).run();
 
           console.log("[INQUIRY SUBMIT] venue_id:", body.venue_id, "client:", body.client_name, "inserted as id:", result.meta.last_row_id);
@@ -1141,17 +1155,17 @@ export default {
             const notifyHtml = `<div style="font-family:sans-serif;max-width:520px;margin:0 auto;background:#fff;color:#111;padding:32px 28px;border-radius:8px">
     <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#888;margin-bottom:20px">Venue.Portal</div>
     <h1 style="font-size:22px;font-weight:800;margin:0 0 6px">New inquiry received.</h1>
-    <p style="color:#555;font-size:14px;margin:0 0 24px;line-height:1.6">Someone just submitted a booking inquiry for <strong>${venueData?.venue_name || 'your venue'}</strong>. Log in to accept or decline.</p>
+    <p style="color:#555;font-size:14px;margin:0 0 24px;line-height:1.6">Someone just submitted a booking inquiry for <strong>${escapeHtml(venueData?.venue_name || 'your venue')}</strong>. Log in to accept or decline.</p>
     <div style="background:#f7f7f7;border-radius:8px;padding:20px 22px;margin-bottom:24px">
       <table style="width:100%;border-collapse:collapse">
         <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:6px 0 2px">Promoter</td></tr>
-        <tr><td style="font-size:14px;font-weight:600;padding-bottom:12px;border-bottom:1px solid #eee">${clientName} · ${clientEmail}</td></tr>
+        <tr><td style="font-size:14px;font-weight:600;padding-bottom:12px;border-bottom:1px solid #eee">${escapeHtml(clientName)} · ${escapeHtml(clientEmail)}</td></tr>
         <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:12px 0 2px">Event Date</td></tr>
         <tr><td style="font-size:14px;font-weight:600;padding-bottom:12px;border-bottom:1px solid #eee">${inquiryDate}</td></tr>
         <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:12px 0 2px">Guests</td></tr>
-        <tr><td style="font-size:14px;font-weight:600;padding-bottom:12px;border-bottom:1px solid #eee">${guestCount}</td></tr>
+        <tr><td style="font-size:14px;font-weight:600;padding-bottom:12px;border-bottom:1px solid #eee">${escapeHtml(guestCount)}</td></tr>
         <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:12px 0 2px">Message</td></tr>
-        <tr><td style="font-size:13px;color:#555;line-height:1.6">${message}</td></tr>
+        <tr><td style="font-size:13px;color:#555;line-height:1.6">${escapeHtml(message)}</td></tr>
       </table>
     </div>
     <a href="https://venueportal.us" style="display:inline-block;background:#111;color:#fff;font-weight:700;font-size:13px;padding:12px 22px;border-radius:6px;text-decoration:none">Go to Dashboard →</a>
@@ -1321,11 +1335,11 @@ export default {
                       html: `<div style="font-family:sans-serif;max-width:520px;margin:0 auto;background:#fff;color:#111;padding:32px 28px;border-radius:8px">
           <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#888;margin-bottom:20px">Venue.Portal</div>
           <h1 style="font-size:24px;font-weight:800;margin:0 0 6px;letter-spacing:-.3px">Your booking has been accepted.</h1>
-          <p style="color:#555;font-size:14px;margin:0 0 28px;line-height:1.6">Hi ${booking.client_name} — your inquiry has been accepted. To lock in your booking, send payment using the instructions below.</p>
+          <p style="color:#555;font-size:14px;margin:0 0 28px;line-height:1.6">Hi ${escapeHtml(booking.client_name)} — your inquiry has been accepted. To lock in your booking, send payment using the instructions below.</p>
           <div style="background:#f7f7f7;border-radius:8px;padding:20px 22px;margin-bottom:28px">
             <table style="width:100%;border-collapse:collapse">
               <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:6px 0 2px">Venue</td></tr>
-              <tr><td style="font-size:15px;font-weight:600;padding-bottom:14px;border-bottom:1px solid #eee">${booking.venue_name || ''}</td></tr>
+              <tr><td style="font-size:15px;font-weight:600;padding-bottom:14px;border-bottom:1px solid #eee">${escapeHtml(booking.venue_name || '')}</td></tr>
               <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:14px 0 2px">Event Date</td></tr>
               <tr><td style="font-size:15px;font-weight:600;padding-bottom:14px;border-bottom:1px solid #eee">${dateFormatted}</td></tr>
               <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:14px 0 2px">Payment</td></tr>
@@ -1405,7 +1419,7 @@ export default {
                 from: "Venue Portal <noreply@venueportal.us>",
                 to: [booking.client_email],
                 subject: "Your booking request has been accepted — complete your deposit",
-                html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto"><h2 style="color:#111">Great news, ${booking.client_name}!</h2><p>Your booking request for <strong>${booking.event_date}</strong> has been accepted.</p><p>To confirm your spot, complete your deposit:</p><p style="text-align:center;margin:32px 0"><a href="${paymentLink}" style="background:#f5a623;color:#111;font-weight:700;padding:14px 28px;border-radius:6px;text-decoration:none;display:inline-block">Complete Deposit &#8594;</a></p><p style="color:#888;font-size:13px">If you have questions, reply to this email.</p></div>`,
+                html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto"><h2 style="color:#111">Great news, ${escapeHtml(booking.client_name)}!</h2><p>Your booking request for <strong>${escapeHtml(booking.event_date)}</strong> has been accepted.</p><p>To confirm your spot, complete your deposit:</p><p style="text-align:center;margin:32px 0"><a href="${paymentLink}" style="background:#f5a623;color:#111;font-weight:700;padding:14px 28px;border-radius:6px;text-decoration:none;display:inline-block">Complete Deposit &#8594;</a></p><p style="color:#888;font-size:13px">If you have questions, reply to this email.</p></div>`,
               };
               console.log("[bookings/accept] resend payload:", JSON.stringify({ ...emailPayload, html: "[omitted]" }));
               const resendRes = await fetch("https://api.resend.com/emails", {
@@ -1449,7 +1463,7 @@ export default {
         <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#888;margin-bottom:20px">Venue.Portal</div>
         <h1 style="font-size:22px;font-weight:800;margin:0 0 12px">Update on your booking request</h1>
         <p style="color:#555;font-size:14px;line-height:1.7;margin:0 0 16px">Hey ${firstName},</p>
-        <p style="color:#555;font-size:14px;line-height:1.7;margin:0 0 16px">Unfortunately <strong>${venueName}</strong> isn't able to accommodate your booking request for <strong>${eventDate}</strong>. This could be due to a scheduling conflict, capacity, or other availability reasons.</p>
+        <p style="color:#555;font-size:14px;line-height:1.7;margin:0 0 16px">Unfortunately <strong>${escapeHtml(venueName)}</strong> isn't able to accommodate your booking request for <strong>${escapeHtml(eventDate)}</strong>. This could be due to a scheduling conflict, capacity, or other availability reasons.</p>
         <p style="color:#555;font-size:14px;line-height:1.7;margin:0 0 24px">Don't worry — there are other great independent venues on Venue Portal. Browse available spaces and submit a new request anytime.</p>
         <p style="text-align:center;margin:24px 0"><a href="https://venueportal.us" style="display:inline-block;background:#ff6b1a;color:#000;font-weight:700;font-size:14px;padding:13px 26px;border-radius:6px;text-decoration:none">Browse Venues &#x2192;</a></p>
         <div style="margin-top:24px;padding-top:16px;border-top:1px solid #eee;font-family:monospace;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#bbb">Venue.Portal &middot; Flat fee. No cuts.</div>
@@ -1561,11 +1575,11 @@ export default {
                   html: `<div style="font-family:sans-serif;max-width:520px;margin:0 auto;background:#fff;color:#111;padding:32px 28px;border-radius:8px">
           <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#888;margin-bottom:20px">Venue.Portal</div>
           <h1 style="font-size:24px;font-weight:800;margin:0 0 6px;letter-spacing:-.3px">You're confirmed.</h1>
-          <p style="color:#555;font-size:14px;margin:0 0 28px;line-height:1.6">Hi ${updated.client_name} — your payment has been received and your booking is locked in.</p>
+          <p style="color:#555;font-size:14px;margin:0 0 28px;line-height:1.6">Hi ${escapeHtml(updated.client_name)} — your payment has been received and your booking is locked in.</p>
           <div style="background:#f7f7f7;border-radius:8px;padding:20px 22px;margin-bottom:28px">
             <table style="width:100%;border-collapse:collapse">
               <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:6px 0 2px">Venue</td></tr>
-              <tr><td style="font-size:15px;font-weight:600;padding-bottom:14px;border-bottom:1px solid #eee">${updated.venue_name || ''}</td></tr>
+              <tr><td style="font-size:15px;font-weight:600;padding-bottom:14px;border-bottom:1px solid #eee">${escapeHtml(updated.venue_name || '')}</td></tr>
               <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:14px 0 2px">Event Date</td></tr>
               <tr><td style="font-size:15px;font-weight:600;padding-bottom:14px;border-bottom:1px solid #eee">${dateFormatted}</td></tr>
               <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:14px 0 2px">Payment</td></tr>
@@ -2096,11 +2110,11 @@ export default {
               html: `<div style="font-family:sans-serif;max-width:520px;margin:0 auto;background:#fff;color:#111;padding:32px 28px;border-radius:8px">
           <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#888;margin-bottom:20px">Venue.Portal</div>
           <h1 style="font-size:24px;font-weight:800;margin:0 0 6px;letter-spacing:-.3px">You're confirmed.</h1>
-          <p style="color:#555;font-size:14px;margin:0 0 28px;line-height:1.6">Hi ${mockBooking.client_name} — your deposit went through and your booking is locked in.</p>
+          <p style="color:#555;font-size:14px;margin:0 0 28px;line-height:1.6">Hi ${escapeHtml(mockBooking.client_name)} — your deposit went through and your booking is locked in.</p>
           <div style="background:#f7f7f7;border-radius:8px;padding:20px 22px;margin-bottom:28px">
             <table style="width:100%;border-collapse:collapse">
               <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:6px 0 2px">Venue</td></tr>
-              <tr><td style="font-size:15px;font-weight:600;padding-bottom:14px;border-bottom:1px solid #eee">${mockBooking.venue_name}</td></tr>
+              <tr><td style="font-size:15px;font-weight:600;padding-bottom:14px;border-bottom:1px solid #eee">${escapeHtml(mockBooking.venue_name)}</td></tr>
               <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:14px 0 2px">Event Date</td></tr>
               <tr><td style="font-size:15px;font-weight:600;padding-bottom:14px;border-bottom:1px solid #eee">${dateFormatted}</td></tr>
               <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:14px 0 2px">Amount Paid</td></tr>
@@ -2123,11 +2137,11 @@ export default {
               html: `<div style="font-family:sans-serif;max-width:520px;margin:0 auto;background:#fff;color:#111;padding:32px 28px;border-radius:8px">
           <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#888;margin-bottom:20px">Venue.Portal</div>
           <h1 style="font-size:22px;font-weight:800;margin:0 0 6px">Deposit received.</h1>
-          <p style="color:#555;font-size:14px;margin:0 0 24px;line-height:1.6">A booking deposit just came in for ${mockBooking.venue_name}.</p>
+          <p style="color:#555;font-size:14px;margin:0 0 24px;line-height:1.6">A booking deposit just came in for ${escapeHtml(mockBooking.venue_name)}.</p>
           <div style="background:#f7f7f7;border-radius:8px;padding:20px 22px;margin-bottom:24px">
             <table style="width:100%;border-collapse:collapse">
               <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:6px 0 2px">Promoter</td></tr>
-              <tr><td style="font-size:14px;font-weight:600;padding-bottom:12px;border-bottom:1px solid #eee">${mockBooking.client_name} · ${mockBooking.client_email}</td></tr>
+              <tr><td style="font-size:14px;font-weight:600;padding-bottom:12px;border-bottom:1px solid #eee">${escapeHtml(mockBooking.client_name)} · ${escapeHtml(mockBooking.client_email)}</td></tr>
               <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:12px 0 2px">Event Date</td></tr>
               <tr><td style="font-size:14px;font-weight:600;padding-bottom:12px;border-bottom:1px solid #eee">${dateFormatted}</td></tr>
               <tr><td style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#999;padding:12px 0 2px">Deposit Amount</td></tr>
@@ -2834,9 +2848,9 @@ export default {
         <div style="font-family:monospace;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#888;margin-bottom:20px">Venue.Portal</div>
         <h1 style="font-size:22px;font-weight:800;margin:0 0 12px">Inquiry expired</h1>
         <p style="color:#555;font-size:14px;line-height:1.7;margin:0 0 16px">Hey ${firstName},</p>
-        <p style="color:#555;font-size:14px;line-height:1.7;margin:0 0 16px">Your inquiry to <strong>${venueName}</strong> for <strong>${eventDate}</strong> expired after ${INQUIRY_EXPIRY_DAYS} days without a response. The venue gets a lot of requests and sometimes inquiries slip through &mdash; it happens.</p>
+        <p style="color:#555;font-size:14px;line-height:1.7;margin:0 0 16px">Your inquiry to <strong>${escapeHtml(venueName)}</strong> for <strong>${escapeHtml(eventDate)}</strong> expired after ${INQUIRY_EXPIRY_DAYS} days without a response. The venue gets a lot of requests and sometimes inquiries slip through &mdash; it happens.</p>
         <p style="color:#555;font-size:14px;line-height:1.7;margin:0 0 24px">If you're still interested, you can submit a fresh inquiry anytime:</p>
-        <p style="text-align:center;margin:24px 0"><a href="${venueUrl}" style="display:inline-block;background:#ff6b1a;color:#000;font-weight:700;font-size:14px;padding:13px 26px;border-radius:6px;text-decoration:none">Visit ${venueName} &#x2192;</a></p>
+        <p style="text-align:center;margin:24px 0"><a href="${venueUrl}" style="display:inline-block;background:#ff6b1a;color:#000;font-weight:700;font-size:14px;padding:13px 26px;border-radius:6px;text-decoration:none">Visit ${escapeHtml(venueName)} &#x2192;</a></p>
         <div style="margin-top:24px;padding-top:16px;border-top:1px solid #eee;font-family:monospace;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#bbb">Venue.Portal &middot; Flat fee. No cuts.</div>
       </div>`
               })
