@@ -12,7 +12,8 @@
 const ALLOWED_ORIGINS = [
   "https://venueportal.us",
   "https://api.venueportal.us",
-  "https://thevenueportal.paxey333.workers.dev"
+  "https://thevenueportal.paxey333.workers.dev",
+  "https://venue-portal.pages.dev"
 ];
 const TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 const INQUIRY_EXPIRY_DAYS = 7;
@@ -21,7 +22,10 @@ const INQUIRY_EXPIRY_DAYS = 7;
 
 function corsHeaders(request) {
   const origin = (request && request.headers.get("Origin")) || "";
-  const isAllowed = ALLOWED_ORIGINS.includes(origin) || origin.endsWith(".pages.dev");
+  // Strict allowlist only. The old `origin.endsWith(".pages.dev")` trusted every
+  // Cloudflare Pages project on the internet - dropped. Preview origins for
+  // non-production testing should be enumerated here explicitly, never wildcarded.
+  const isAllowed = ALLOWED_ORIGINS.includes(origin);
   const allowedOrigin = isAllowed ? origin : ALLOWED_ORIGINS[0];
   return {
     "Access-Control-Allow-Origin": allowedOrigin,
