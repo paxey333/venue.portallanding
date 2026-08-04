@@ -98,8 +98,57 @@ async function hmacHex(data, secret) {
   return Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, "0")).join("");
 }
 
-async function hashPassword(password, secret) {
+// ── PASSWORD HASHING (SEC.1) ──────────────────────────────────────────────────
+// Stored format: pbkdf2$<iterations>$<salt_b64>$<hash_b64>. Per-user random salt,
+// 100k iterations (Cloudflare Workers caps PBKDF2 deriveBits at 100000; higher
+// throws at runtime), SHA-256. Legacy single-round HMAC hashes still verify (dual
+// format) and are transparently re-hashed to PBKDF2 on next successful login.
+const PBKDF2_ITERATIONS = 100000;
+
+async function pbkdf2Bits(password, salt, iterations) {
+  const keyMaterial = await crypto.subtle.importKey(
+    "raw", new TextEncoder().encode(password), { name: "PBKDF2" }, false, ["deriveBits"]
+  );
+  const bits = await crypto.subtle.deriveBits(
+    { name: "PBKDF2", salt, iterations, hash: "SHA-256" }, keyMaterial, 256
+  );
+  return new Uint8Array(bits);
+}
+
+async function hashPassword(password) {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const hash = await pbkdf2Bits(password, salt, PBKDF2_ITERATIONS);
+  return `pbkdf2$${PBKDF2_ITERATIONS}$${toBase64(salt)}$${toBase64(hash)}`;
+}
+
+// Legacy single-round HMAC - verify-only, retained for transparent migration.
+async function legacyHash(password, secret) {
   return hmacSign(password, secret);
+}
+
+function constantTimeEqual(a, b) {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a[i] ^ b[i];
+  return diff === 0;
+}
+
+// Returns { valid, needsRehash }. PBKDF2 hashes verify directly; legacy HMAC
+// hashes verify via the old path and are flagged for re-hash on success.
+async function verifyPassword(password, stored, secret) {
+  if (typeof stored === "string" && stored.indexOf("pbkdf2$") === 0) {
+    const parts = stored.split("$");
+    if (parts.length !== 4) return { valid: false, needsRehash: false };
+    const iterations = parseInt(parts[1], 10);
+    const salt = fromBase64(parts[2]);
+    const expected = fromBase64(parts[3]);
+    const actual = await pbkdf2Bits(password, salt, iterations);
+    return { valid: constantTimeEqual(actual, expected), needsRehash: false };
+  }
+  const legacy = await legacyHash(password, secret);
+  const enc = new TextEncoder();
+  const valid = constantTimeEqual(enc.encode(legacy), enc.encode(String(stored == null ? "" : stored)));
+  return { valid, needsRehash: valid };
 }
 
 async function sha256hex(data) {
@@ -395,9 +444,16 @@ export default {
           ).bind(email).first();
 
           if (user) {
-            const hashed = await hashPassword(password, env.TOKEN_SECRET);
-            if (hashed !== user.password) {
+            const result = await verifyPassword(password, user.password, env.TOKEN_SECRET);
+            if (!result.valid) {
               return jsonResponse({ error: "Invalid credentials" }, 401, request);
+            }
+            // SEC.1: transparently upgrade legacy HMAC hashes to PBKDF2 on login (no forced logout).
+            if (result.needsRehash) {
+              const upgraded = await hashPassword(password);
+              env._ctx.waitUntil(
+                env.DB.prepare("UPDATE users SET password = ? WHERE id = ?").bind(upgraded, user.id).run()
+              );
             }
             const token = await makeToken({
               email: user.email,
@@ -441,7 +497,7 @@ export default {
             "SELECT id FROM users WHERE email = ?"
           ).bind(String(session.email).toLowerCase()).first();
           if (!user) return jsonResponse({ error: "User not found" }, 404, request);
-          const newHash = await hashPassword(newPassword, env.TOKEN_SECRET);
+          const newHash = await hashPassword(newPassword);
           await env.DB.prepare(
             "UPDATE users SET password = ?, first_login = 0 WHERE id = ?"
           ).bind(newHash, user.id).run();
@@ -537,7 +593,7 @@ export default {
           // Password: use provided, or auto-generate.
           const providedPassword = String(body.password || "").trim();
           const plainPassword = providedPassword || generatePassword();
-          const hashedPassword = await hashPassword(plainPassword, env.TOKEN_SECRET);
+          const hashedPassword = await hashPassword(plainPassword);
 
           await env.DB.prepare(
             "INSERT INTO users (email, password, role, venue_id, name, first_login) VALUES (?, ?, ?, ?, ?, 1)"
@@ -636,7 +692,7 @@ export default {
             return jsonResponse({ error: "Only superadmins can reset admin or superadmin passwords" }, 403, request);
           }
           const plainPassword = generatePassword();
-          const hashedPassword = await hashPassword(plainPassword, env.TOKEN_SECRET);
+          const hashedPassword = await hashPassword(plainPassword);
           const res = await env.DB.prepare(
             "UPDATE users SET password = ? WHERE id = ?"
           ).bind(hashedPassword, id).run();
